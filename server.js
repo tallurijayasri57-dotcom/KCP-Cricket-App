@@ -396,6 +396,11 @@ app.get("/player-photo/:player_name", (req, res) => {
         res.json({ photo_url: result[0].photo_url });
     });
 });
+// Keep alive ping - every 14 minutes
+setInterval(() => {
+  require('https').get('https://kcp-cricket-app-b7ni.onrender.com');
+}, 14 * 60 * 1000);
+
 
 // ================= SERVER =================
 
