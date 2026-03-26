@@ -547,7 +547,11 @@ html, body { overflow-x: hidden; }
   </div>
 </div>
 <script>
-
+// Back button fix
+history.pushState(null, null, location.href);
+window.addEventListener('popstate', function() {
+  history.pushState(null, null, location.href);
+});
 setTimeout(function() {
   let splash = document.getElementById('splashScreen');
   if(splash) splash.style.display = 'none';
