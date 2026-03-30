@@ -22,7 +22,7 @@ app.use(express.json());
 // =============================================
 // ✅ CHANGE ONLY THESE MySQL CREDENTIALS BELOW
 // =============================================
-const db = mysql.createConnection({
+const db = mysql.createPool({
     host: process.env.MYSQLHOST,
     user: process.env.MYSQLUSER,
     password: process.env.MYSQLPASSWORD,
