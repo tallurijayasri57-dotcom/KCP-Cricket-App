@@ -295,7 +295,6 @@ html, body { overflow-x: hidden; }
 .shot-btn-icon { font-size:28px; }
 .shot-btn-label { font-family:'Inter',sans-serif; font-size:12px; color:#e5e7eb; text-align:center; }
 
-/* Wagon wheel */
 .wagon-title { font-family:'Rajdhani',sans-serif; font-size:13px; font-weight:600; letter-spacing:2px; color:#6b7280; text-align:center; text-transform:uppercase; margin-bottom:10px; }
 .wagon-wheel-container { position:relative; width:220px; height:220px; margin:0 auto 16px; }
 .wagon-wheel-svg { width:100%; height:100%; cursor:pointer; }
@@ -305,7 +304,6 @@ html, body { overflow-x: hidden; }
 .wagon-confirm-btn { width:100%; padding:13px; background:linear-gradient(135deg,#2563eb,#1d4ed8); border:none; border-radius:10px; color:white; font-family:'Rajdhani',sans-serif; font-size:16px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; cursor:pointer; }
 .shot-skip-btn { width:100%; padding:10px; background:transparent; border:1px solid rgba(255,255,255,0.1); border-radius:10px; color:#6b7280; font-family:'Rajdhani',sans-serif; font-size:14px; cursor:pointer; margin-top:8px; }
 
-/* ===== BACK BUTTON STYLE ===== */
 #backBtn {
   background: transparent;
   border: 1px solid rgba(255,255,255,0.2);
@@ -371,7 +369,6 @@ html, body { overflow-x: hidden; }
   </div>
 </div>
 
-<!-- ✅ ONLY CHANGE: Added backBtn to nav -->
 <nav id="nav" style="display:none;">
   <button id="backBtn" onclick="goBack()">←</button>
   <button onclick="showPage('home')">Home</button>
@@ -397,6 +394,7 @@ html, body { overflow-x: hidden; }
     <div class="auth-switch"><span id="switchText" onclick="toggleAuth()">Don't have an account? Register</span></div>
   </div>
 </div>
+
 <div id="home" class="page">
   <div class="cricket-banner">
     <div class="pitch-lines"></div>
@@ -418,6 +416,7 @@ html, body { overflow-x: hidden; }
     <div class="stat-card" onclick="showPage('score')"><div class="stat-icon">📡</div><div class="stat-info"><div class="stat-val">Live</div><div class="stat-lbl">Scoring</div></div></div>
   </div>
 </div>
+
 <div id="allPlayersModal"><div class="modal-box"><h3>👥 All Players</h3><div id="allPlayersContent"></div><button class="modal-close" onclick="closeAllPlayersModal()">Close</button></div></div>
 <div id="leagueModal"><div class="modal-box"><h3>🏆 KCP League — Match Results</h3><div id="leagueContent"></div><button class="modal-close" onclick="closeLeagueModal()">Close</button></div></div>
 <div id="winPopupOverlay"><div class="win-popup-box"><span class="win-trophy">🏆</span><div class="win-confetti-row">🎉 🎊 🎉</div><div class="win-popup-title">Match Winner</div><div class="win-popup-team" id="winTeamName">—</div><div class="win-popup-subtitle">won the match</div><div class="win-popup-margin" id="winMarginText">—</div><div style="margin:16px 0;padding:14px;background:rgba(255,255,255,0.06);border:1px solid rgba(251,191,36,0.3);border-radius:12px;"><div style="font-family:'Rajdhani',sans-serif;font-size:12px;letter-spacing:2px;color:#fbbf24;text-transform:uppercase;margin-bottom:6px;">⭐ Man of the Match</div><div id="momPlayerName" style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:#fff;">—</div><div id="momStats" style="font-family:'Inter',sans-serif;font-size:12px;color:#9ca3af;margin-top:2px;">—</div></div><button class="win-popup-btn" onclick="closeWinPopup()">Done</button></div></div>
@@ -467,6 +466,7 @@ html, body { overflow-x: hidden; }
 </div>
 
 <div id="oversOverlay"><div class="overs-box"><div class="overs-title">⚙️ Match Setup</div><div class="overs-heading"> Set Overs</div><div class="overs-quick-row"><button class="overs-quick-btn" onclick="selectOvers(5)">5</button><button class="overs-quick-btn" onclick="selectOvers(10)">10</button><button class="overs-quick-btn" onclick="selectOvers(15)">15</button><button class="overs-quick-btn" onclick="selectOvers(20)">20</button></div><div class="overs-custom-row"><label>Custom:</label><input type="number" id="customOversInput" min="1" max="50" placeholder="—" oninput="customOversChanged()"><label>Overs</label></div><button class="overs-confirm-btn" onclick="confirmOvers()">✅ Confirm & Start</button></div></div>
+
 <div id="teams" class="page">
   <h2>Teams</h2>
   <div class="section">
@@ -488,6 +488,7 @@ html, body { overflow-x: hidden; }
     <ul id="playerList"></ul>
   </div>
 </div>
+
 <div id="matches" class="page">
   <h2>Matches</h2>
   <div class="tab-row">
@@ -522,6 +523,7 @@ html, body { overflow-x: hidden; }
     <div id="finishedMatchesList" style="margin-top:10px;"></div>
   </div>
 </div>
+
 <div id="score" class="page">
   <div class="overs-info-badge" id="oversInfoBadge" style="display:none;">⏱️ Match: <span id="oversInfoText">— overs</span></div>
   <h3 id="targetBox"></h3>
@@ -541,6 +543,7 @@ html, body { overflow-x: hidden; }
   <button onclick="switchInnings()">Switch Innings</button>
   <button onclick="finishMatch()">Finish Match</button>
 </div>
+
 <div id="points" class="page">
   <h2>🏆 Points Table</h2>
   <div class="section">
@@ -550,8 +553,8 @@ html, body { overflow-x: hidden; }
     </table>
   </div>
 </div>
+
 <script>
-// ✅ ONLY CHANGE: Page history for back button
 let pageHistory = [];
 
 function goBack() {
@@ -571,8 +574,6 @@ setTimeout(function() {
 let pendingRun = 0;
 let selectedShotType = "";
 let selectedWagonZone = "";
-let shotTypesArr = [];
-let wagonWheelArr = [];
 
 function selectShot(type) {
   selectedShotType = type;
@@ -623,6 +624,7 @@ function roleEmoji(role) {
   if (role === "Wicket-Keeper") return "🧤";
   return "🏏";
 }
+
 function showWinPopup(winner, margin) {
   document.getElementById("winTeamName").innerText = winner;
   document.getElementById("winMarginText").innerText = margin;
@@ -663,17 +665,20 @@ function showWinPopup(winner, margin) {
   document.getElementById("momStats").innerText = momStatText;
   document.getElementById("winPopupOverlay").classList.add("open");
 }
+
 function closeWinPopup() {
   document.getElementById("winPopupOverlay").classList.remove("open");
   showPage("home");
   loadDashboardStats();
 }
+
 function toggleAuth() {
   isLogin = !isLogin;
   authTitle.innerText = isLogin ? "Welcome Back" : "Create Account";
   document.getElementById("authBtn").innerText = isLogin ? "LOGIN" : "REGISTER";
   switchText.innerText = isLogin ? "Don't have an account? Register" : "Already have an account? Login";
 }
+
 function authenticate() {
   let u = username.value.trim(), p = password.value.trim();
   if (!u || !p) return alert("enter username & password");
@@ -697,7 +702,9 @@ function authenticate() {
     .catch(err => alert("Error: " + err));
   }
 }
+
 function logout() { localStorage.removeItem("currentUser"); location.reload(); }
+
 function startApp() {
   document.getElementById("loginPage").style.display = "none";
   nav.style.display = "flex";
@@ -705,7 +712,7 @@ function startApp() {
   loadTeams();
   loadDashboardStats();
 }
-// ✅ ONLY CHANGE: showPage now tracks history
+
 function showPage(id) {
   document.querySelectorAll(".page").forEach(p => p.style.display = "none");
   document.getElementById(id).style.display = "block";
@@ -713,6 +720,7 @@ function showPage(id) {
   if (id === "matches") { loadMatchTeamDropdowns(); loadUpcomingTeamDropdowns(); loadUpcomingMatches(); }
   if (id === "points") { loadPointsTable(); }
 }
+
 function switchTab(tab) {
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
   document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
@@ -720,6 +728,7 @@ function switchTab(tab) {
   document.getElementById("tab-" + tab).classList.add("active");
   if (tab === "finished") loadFinishedMatches();
 }
+
 function loadUpcomingTeamDropdowns() {
   fetch(API + "/teams", { cache: "no-store" }).then(res => res.json()).then(data => {
     let t1 = document.getElementById("upTeam1"), t2 = document.getElementById("upTeam2");
@@ -728,6 +737,7 @@ function loadUpcomingTeamDropdowns() {
     if (data.length >= 2) t2.value = data[1].team_name;
   }).catch(() => {});
 }
+
 function scheduleUpcomingMatch() {
   let t1 = document.getElementById("upTeam1").value, t2 = document.getElementById("upTeam2").value, d = document.getElementById("upMatchDate").value;
   if (!t1 || !t2) return alert("Select both teams");
@@ -735,7 +745,9 @@ function scheduleUpcomingMatch() {
   if (!d) return alert("Select match date");
   fetch(API + "/upcoming-matches", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ team1: t1, team2: t2, match_date: d }) }).then(() => { document.getElementById("upMatchDate").value = ""; loadUpcomingMatches(); }).catch(() => {});
 }
+
 function deleteUpcomingMatch(id) { fetch(API + "/upcoming-matches/" + id, { method: "DELETE" }).then(() => loadUpcomingMatches()).catch(() => {}); }
+
 function loadUpcomingMatches() {
   fetch(API + "/upcoming-matches", { cache: "no-store" }).then(res => res.json()).then(arr => {
     let container = document.getElementById("upcomingList");
@@ -749,6 +761,7 @@ function loadUpcomingMatches() {
     container.innerHTML = html;
   }).catch(() => {});
 }
+
 function startFromUpcoming(team1, team2, id) {
   deleteUpcomingMatch(id); switchTab("create");
   fetch(API + "/teams", { cache: "no-store" }).then(res => res.json()).then(data => {
@@ -759,6 +772,7 @@ function startFromUpcoming(team1, team2, id) {
     loadPlayersForMatch("bat"); loadPlayersForMatch("bowl");
   });
 }
+
 function loadDashboardStats() {
   fetch(API + "/teams", { cache: "no-store" }).then(res => res.json()).then(data => {
     document.getElementById("dashTeamCount").innerText = data.length;
@@ -767,6 +781,7 @@ function loadDashboardStats() {
     Promise.all(fetches).then(() => { document.getElementById("dashPlayerCount").innerText = total; });
   }).catch(() => {});
 }
+
 function openAllPlayersModal() {
   fetch(API + "/teams", { cache: "no-store" }).then(res => res.json()).then(teams => {
     let content = document.getElementById("allPlayersContent");
@@ -785,7 +800,9 @@ function openAllPlayersModal() {
     });
   }).catch(() => {});
 }
+
 function closeAllPlayersModal() { document.getElementById("allPlayersModal").classList.remove("open"); }
+
 function openLeagueModal() {
   document.getElementById("leagueModal").classList.add("open");
   let content = document.getElementById("leagueContent");
@@ -797,8 +814,10 @@ function openLeagueModal() {
     content.innerHTML = html;
   }).catch(() => { content.innerHTML = "<div class='no-results'>Could not load results.</div>"; });
 }
+
 function closeLeagueModal() { document.getElementById("leagueModal").classList.remove("open"); }
 function escapeQ(str) { return (str || "").replace(/'/g, "\\'").replace(/"/g, '\\"'); }
+
 let innings1BatStats = {};
 let innings1BowlStats = {};
 let innings1BatTeam = "";
@@ -827,6 +846,7 @@ async function updateAllPlayerStatsAfterMatch(inningsNum) {
   }
   await Promise.all(saves);
 }
+
 async function openPlayerProfile(playerName, teamName, role) {
   document.getElementById("allPlayersModal").classList.remove("open");
   document.getElementById("playerProfileModal").classList.add("open");
@@ -887,6 +907,7 @@ async function openPlayerProfile(playerName, teamName, role) {
     document.getElementById("profileMatchHistory").innerHTML = "<div class='profile-no-matches' style='color:#f87171;'>❌ Failed to load. Check backend connection.</div>";
   }
 }
+
 function closePlayerProfile() { document.getElementById("playerProfileModal").classList.remove("open"); }
 
 async function uploadPlayerPhoto() {
@@ -935,6 +956,7 @@ function confirmOvers() {
   outBatsmen = [];
   loadScorePlayers();
 }
+
 function addTeam() {
   let name = document.getElementById("teamName").value.trim();
   if (!name) return alert("enter team name");
@@ -955,6 +977,7 @@ function loadTeams() {
     });
   }).catch(err => console.log("Teams load error:", err));
 }
+
 let currentTeamId = "", currentTeamName = "";
 function openPlayerSection(teamId, teamName) {
   currentTeamId = teamId; currentTeamName = teamName;
@@ -986,6 +1009,7 @@ function loadPlayers(teamName) {
     });
   }).catch(err => console.log("Players load error:", err));
 }
+
 let batPlayers = [], bowlPlayers = [];
 let batPlayerRoles = {}, bowlPlayerRoles = {};
 function loadMatchTeamDropdowns() {
@@ -1010,9 +1034,11 @@ function loadPlayersForMatch(type) {
     data.forEach(p => { list.innerHTML += '<li>🧑 ' + p.player_name + ' ' + roleBadge(p.role) + '</li>'; });
   });
 }
+
 let batsmanStats = {}, bowlerStats = {}, totalRuns = 0, totalWickets = 0, ballCount = 0, innings = 1, target = 0;
 let winShown = false;
 let outBatsmen = [];
+
 function startMatch() {
   let t1 = batTeam.value, t2 = bowlTeam.value;
   if (!t1 || !t2) return alert("Select both teams");
@@ -1080,6 +1106,7 @@ function loadScorePlayers() {
   bowlPlayers.forEach(p => { bowlerStats[p] = bowlerStats[p] || { runs: 0, balls: 0, wickets: 0 }; bowler.innerHTML += '<option>' + p + '</option>'; });
   updateTables(); updateScore();
 }
+
 function run(r) {
   if (winShown) return;
   if (totalOvers > 0 && ballCount >= totalOvers * 6) { alert("Innings over! Switch innings."); return; }
@@ -1232,6 +1259,7 @@ function switchInnings() {
     alert("Second Innings! Target: " + target);
   } else { alert("Already in Second Innings"); }
 }
+
 let currentMatchId = null;
 
 async function saveMatchResult(winner, loser, winType, margin) {
@@ -1245,6 +1273,7 @@ async function saveMatchResult(winner, loser, winType, margin) {
   let loserRuns = target > 0 ? target - 1 : 0, loserOvers = parseFloat(Math.floor(totalOvers*6/6) + "." + 0);
   fetch(API + "/points-table/update", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ winner, loser, winner_runs: winnerRuns, winner_overs: winnerOvers, loser_runs: loserRuns, loser_overs: loserOvers }) }).catch(() => {});
 }
+
 function loadFinishedMatches() {
   let container = document.getElementById("finishedMatchesList");
   container.innerHTML = "<div style='color:#6ee7b7;padding:10px;'>⏳ Loading...</div>";
@@ -1271,22 +1300,30 @@ function loadFinishedMatches() {
   }).catch(() => { container.innerHTML = "<div class='no-results'>Could not load matches.</div>"; });
 }
 
+// ✅ FIXED: toggleScorecard — proper error handling
 function toggleScorecard(index, winner, loser, matchId) {
   let sc = document.getElementById("scorecard-" + index);
   if (sc.classList.contains("open")) { sc.classList.remove("open"); return; }
   sc.classList.add("open");
   sc.innerHTML = "<div style='color:#6b7280;font-size:13px;text-align:center;padding:10px;'>⏳ Loading scorecard...</div>";
   fetch(API + "/player-stats-by-match?match_id=" + matchId, { cache: "no-store" })
-  .then(r => r.json())
+  .then(r => {
+    if (!r.ok) throw new Error("Server error: " + r.status);
+    return r.json();
+  })
   .then(stats => {
     if (!stats || stats.length === 0) {
-      sc.innerHTML = `<div style="color:#4b5563;font-size:12px;text-align:center;padding:10px;">No scorecard data available for this match.</div>`;
+      sc.innerHTML = `<div style="color:#4b5563;font-size:12px;text-align:center;padding:10px;">
+        ⚠️ Scorecard data not available.<br>
+        <span style="font-size:11px;color:#374151;">Only new matches will have full scorecard.</span>
+      </div>`;
       return;
     }
     sc.innerHTML = buildScorecard(winner, loser, stats);
   })
-  .catch(() => {
-    sc.innerHTML = "<div style='color:#f87171;font-size:13px;text-align:center;padding:10px;'>❌ Could not load scorecard.</div>";
+  .catch((err) => {
+    console.error("Scorecard load error:", err);
+    sc.innerHTML = "<div style='color:#f87171;font-size:13px;text-align:center;padding:10px;'>❌ Could not load scorecard. Check server connection.</div>";
   });
 }
 
@@ -1354,6 +1391,7 @@ function loadPointsTable() {
     }).join("");
   }).catch(() => {});
 }
+
 function finishMatch() {
   if (winShown) return;
   let winner, loser, margin, inningsNum;

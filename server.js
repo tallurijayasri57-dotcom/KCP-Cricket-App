@@ -19,7 +19,6 @@ app.use(cors());
 app.use(express.static(__dirname));
 app.use(express.json());
 
-// FIXED: createPool — auto reconnect
 const db = mysql.createPool({
     host: process.env.MYSQLHOST,
     user: process.env.MYSQLUSER,
@@ -33,7 +32,6 @@ const db = mysql.createPool({
     keepAliveInitialDelay: 0
 });
 
-// FIXED: getConnection instead of connect
 db.getConnection((err, connection) => {
     if (err) { console.log("MySQL Connection Error:", err.message); return; }
     console.log("MySQL Pool Connected!");
@@ -123,7 +121,6 @@ db.getConnection((err, connection) => {
     )`);
 });
 
-// Keep-alive: server sleep avvakunda — every 14 min
 function keepAlive() {
     const https = require("https");
     https.get("https://kcp-cricket-app-b7ni.onrender.com/health", (res) => {
@@ -134,14 +131,12 @@ function keepAlive() {
 }
 setInterval(keepAlive, 14 * 60 * 1000);
 
-// DB keep-alive: MySQL drop avvakunda — every 5 min
 setInterval(() => {
     db.query("SELECT 1", (err) => {
         if (err) console.log("DB ping error:", err.message);
     });
 }, 5 * 60 * 1000);
 
-// Health check
 app.get("/health", (req, res) => {
     res.json({ status: "ok", time: new Date().toISOString() });
 });
@@ -311,14 +306,59 @@ app.get("/player-stats/:playerName", (req, res) => {
     );
 });
 
+// ✅ FIXED: player-stats-by-match — fallback with date+team if match_id null
 app.get("/player-stats-by-match", (req, res) => {
     const { match_id } = req.query;
     if (!match_id) return res.status(400).json({ error: "match_id required" });
+
+    // First: match_id తో try చేయి
     db.query("SELECT * FROM player_stats WHERE match_id = ? ORDER BY id ASC",
         [match_id],
         (err, result) => {
             if (err) return res.status(500).json({ error: err.message });
-            res.json(result);
+
+            // match_id తో data దొరికింది — return చేయి
+            if (result && result.length > 0) {
+                return res.json(result);
+            }
+
+            // Fallback: match_results లో winner/loser/date తీసుకో
+            db.query("SELECT * FROM match_results WHERE id = ?", [match_id], (err2, matchRow) => {
+                if (err2 || !matchRow || matchRow.length === 0) {
+                    return res.json([]);
+                }
+
+                const m = matchRow[0];
+                const matchDate = m.played_on;
+
+                // ఆ date లో winner + loser players stats తీసుకో
+                db.query(
+                    `SELECT ps.* FROM player_stats ps
+                     WHERE ps.team_name IN (?, ?)
+                     AND ps.match_date = ?
+                     ORDER BY ps.innings ASC, ps.id ASC`,
+                    [m.winner, m.loser, matchDate],
+                    (err3, result3) => {
+                        if (err3) return res.status(500).json({ error: err3.message });
+
+                        // Still empty — try without date filter (last resort)
+                        if (!result3 || result3.length === 0) {
+                            db.query(
+                                `SELECT ps.* FROM player_stats ps
+                                 WHERE ps.team_name IN (?, ?)
+                                 ORDER BY ps.id DESC LIMIT 60`,
+                                [m.winner, m.loser],
+                                (err4, result4) => {
+                                    if (err4) return res.status(500).json({ error: err4.message });
+                                    return res.json(result4 || []);
+                                }
+                            );
+                        } else {
+                            return res.json(result3);
+                        }
+                    }
+                );
+            });
         }
     );
 });
