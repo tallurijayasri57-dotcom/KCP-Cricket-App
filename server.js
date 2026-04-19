@@ -123,7 +123,7 @@ db.getConnection((err, connection) => {
     )`);
 });
 
-// Keep-alive: server sleep avvakunda — every 14 min
+// Keep-alive: server sleep  — every 14 min
 function keepAlive() {
     const https = require("https");
     https.get("https://kcp-cricket-app-b7ni.onrender.com/health", (res) => {
@@ -134,7 +134,7 @@ function keepAlive() {
 }
 setInterval(keepAlive, 14 * 60 * 1000);
 
-// DB keep-alive: MySQL drop avvakunda — every 5 min
+// DB keep-alive: MySQL drop  — every 5 min
 setInterval(() => {
     db.query("SELECT 1", (err) => {
         if (err) console.log("DB ping error:", err.message);
