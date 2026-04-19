@@ -1895,6 +1895,34 @@ function finishMatch() {
   saveMatchResult(winner, loser, "won", margin).then(() => updateAllPlayerStatsAfterMatch(inningsNum));
   showWinPopup(winner, margin);
 }
+function finishMatch() {
+   
+}
+
+
+function updateHomeStats() {
+  let teams = JSON.parse(localStorage.getItem("teams")) || [];
+
+  let totalTeams = teams.length;
+  let totalPlayers = 0;
+
+  for (let i = 0; i < teams.length; i++) {
+    if (teams[i].players) {
+      totalPlayers += teams[i].players.length;
+    }
+  }
+
+  let teamEl = document.getElementById("homeTeamsCount");
+  let playerEl = document.getElementById("homePlayersCount");
+
+  if (teamEl) teamEl.innerText = totalTeams;
+  if (playerEl) playerEl.innerText = totalPlayers;
+}
+
+
+setTimeout(updateHomeStats, 500);
+
+</script>
 </script>
 </body>
 </html>
