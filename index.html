@@ -332,7 +332,24 @@ ul{list-style:none;padding:0;}
 @media (max-width: 480px) { .auth-card { padding: 32px 20px; border-radius: 14px; margin: 16px; width: auto; } .auth-logo h1 { font-size: 20px; } }
 @media (max-width: 600px) { .cricket-banner { min-height: 160px; border-radius: 12px; margin-bottom: 18px; } .banner-content { padding: 24px 20px; } .banner-title { font-size: 26px; } .banner-sub { font-size: 12px; margin-bottom: 16px; } .banner-btn-primary, .banner-btn-secondary { padding: 9px 16px; font-size: 12px; } }
 @media (max-width: 480px) { .dashboard-stats { grid-template-columns: 1fr 1fr; gap: 10px; } .stat-card { padding: 14px 12px; gap: 10px; } .stat-icon { font-size: 22px; } .stat-info .stat-val { font-size: 18px; } .stat-info .stat-lbl { font-size: 10px; } }
-@media (max-width: 600px) { #score .section button { padding: 12px 14px; font-size: 15px; min-width: 52px; margin: 3px; border-radius: 8px; } .score { font-size: 32px; } }
+#score .scoring-row{display:flex;flex-wrap:wrap;gap:10px;padding:4px 0;}
+#score .run-btn{padding:12px 0;font-size:17px;font-weight:700;border-radius:10px;background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;border:none;cursor:pointer;min-width:52px;flex:1;transition:all 0.15s;}
+#score .run-btn:hover{transform:translateY(-2px);}
+#score .wide-btn{background:linear-gradient(135deg,#0369a1,#0284c7);}
+#score .noball-btn{background:linear-gradient(135deg,#b45309,#d97706);}
+#score .wicket-btn{background:linear-gradient(135deg,#b91c1c,#dc2626);}
+#score .extras-box{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:10px 16px;display:flex;gap:24px;flex-wrap:wrap;margin-top:12px;}
+#score .extras-item{font-family:'Inter',sans-serif;font-size:13px;color:#9ca3af;}
+#score .extras-item span{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#fbbf24;margin-left:6px;}
+.extra-popup-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:9990;align-items:flex-end;justify-content:center;}
+.extra-popup-overlay.open{display:flex;}
+.extra-popup-box{background:#111827;border-radius:20px 20px 0 0;padding:24px 20px 36px;width:100%;max-width:480px;}
+.extra-popup-title{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-spacing:2px;color:#6b7280;text-align:center;text-transform:uppercase;margin-bottom:6px;}
+.extra-popup-subtitle{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:#fff;text-align:center;margin-bottom:18px;}
+.extra-btns-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.extra-opt-btn{padding:18px 8px;border-radius:12px;font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#e5e7eb;cursor:pointer;transition:all 0.15s;}
+.extra-opt-btn:hover{background:rgba(37,99,235,0.3);border-color:#2563eb;}
+@media(max-width:600px){#score .run-btn{font-size:15px;min-width:44px;}.score{font-size:32px;}}
 @media (max-width: 500px) { #score .section select { width: 100%; display: block; margin: 6px 0; } }
 @media (max-width: 500px) { table { font-size: 12px; } th, td { padding: 6px 4px; } .btn-view-profile { font-size: 10px; padding: 1px 4px; } }
 @media (max-width: 500px) { #teams input[type="text"], #teams select, #playerSection input, #playerSection select { width: 100%; box-sizing: border-box; display: block; margin: 6px 0; } .team-item { flex-wrap: wrap; gap: 8px; } .player-item { flex-wrap: wrap; gap: 6px; } }
@@ -484,7 +501,7 @@ html, body { overflow-x: hidden; }
   <div class="dashboard-stats">
     <div class="stat-card" onclick="openOrgTeamsModal()"><div class="stat-icon">👥</div><div class="stat-info"><div class="stat-val" id="dashTeamCount">—</div><div class="stat-lbl">Teams</div></div></div>
     <div class="stat-card" onclick="openOrgPlayersModal()"><div class="stat-icon">🏏</div><div class="stat-info"><div class="stat-val" id="dashPlayerCount">—</div><div class="stat-lbl">Players</div></div></div>
-    <div class="stat-card" onclick="closeDotsAndGo('points')"><div class="stat-icon">🏆</div><div class="stat-info"><div class="stat-val">PT</div><div class="stat-lbl">Points Table</div></div></div>
+    <div class="stat-card" onclick="closeDotsAndGo('points')"><div class="stat-icon">🏆</div><div class="stat-info"><div class="stat-val">Points</div><div class="stat-lbl">Table</div></div></div>
     <div class="stat-card" onclick="closeDotsAndGo('score')"><div class="stat-icon">📡</div><div class="stat-info"><div class="stat-val">Live</div><div class="stat-lbl">Scoring</div></div></div>
   </div>
 </div>
@@ -734,9 +751,25 @@ html, body { overflow-x: hidden; }
     Bowler <select id="bowler"></select>
   </div>
   <div class="section">
-    <button onclick="run(0)">0</button><button onclick="run(1)">1</button><button onclick="run(2)">2</button><button onclick="run(3)">3</button><button onclick="run(4)">4</button><button onclick="run(6)">6</button>
-    <button onclick="wide()">Wide</button><button onclick="noball()">No Ball</button><button class="btn-red" onclick="wicket()">Wicket</button>
+  <div class="scoring-row">
+    <button class="run-btn" onclick="run(0)">0</button>
+    <button class="run-btn" onclick="run(1)">1</button>
+    <button class="run-btn" onclick="run(2)">2</button>
+    <button class="run-btn" onclick="run(3)">3</button>
+    <button class="run-btn" onclick="run(4)">4</button>
+    <button class="run-btn" onclick="run(6)">6</button>
   </div>
+  <div class="scoring-row" style="margin-top:8px;">
+    <button class="run-btn wide-btn" onclick="openWidePopup()">Wide</button>
+    <button class="run-btn noball-btn" onclick="openNoBallPopup()">No Ball</button>
+    <button class="run-btn wicket-btn" onclick="wicket()">Wicket</button>
+  </div>
+  <div class="extras-box">
+    <div class="extras-item">Extras: <span id="extrasTotal">0</span></div>
+    <div class="extras-item">Wides: <span id="widesCount">0</span></div>
+    <div class="extras-item">No Balls: <span id="noballsCount">0</span></div>
+  </div>
+</div>
   <div class="section"><h3>Ball By Ball</h3><div id="balls"></div></div>
   <div class="section"><h3>Batting Scorecard</h3><table><thead><tr><th style="text-align:left;">Batter</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead><tbody id="batTable"></tbody></table></div>
   <div class="section"><h3>Bowling</h3><table><thead><tr><th style="text-align:left;">Bowler</th><th>O</th><th>R</th><th>W</th><th>Eco</th></tr></thead><tbody id="bowlTable"></tbody></table></div>
@@ -1470,7 +1503,7 @@ function confirmOvers() {
   showPage("score");
   balls.innerHTML = "";
   totalRuns = 0; totalWickets = 0; ballCount = 0; innings = 1; target = 0;
-  winShown = false; targetBox.innerText = "";
+ winShown = false; targetBox.innerText = ""; extrasWides = 0; extrasNoBalls = 0; updateExtras();
   outBatsmen = [];
   loadScorePlayers();
 }
@@ -1650,8 +1683,46 @@ function processRun(r, shotType, wagonZone) {
   if (ballCount % 6 == 0) { changeStrike(); if (totalOvers > 0 && ballCount >= totalOvers * 6) { alert("All " + totalOvers + " overs complete! Innings ended."); } }
   updateScore(); updateTables();
 }
-function wide() { if (winShown) return; totalRuns++; addBall("Wd"); updateScore(); bowlerStats[bowler.value].runs++; }
-function noball() { if (winShown) return; totalRuns++; addBall("Nb"); updateScore(); bowlerStats[bowler.value].runs++; }
+let extrasWides = 0;
+let extrasNoBalls = 0;
+
+function updateExtras() {
+  document.getElementById('extrasTotal').innerText = extrasWides + extrasNoBalls;
+  document.getElementById('widesCount').innerText = extrasWides;
+  document.getElementById('noballsCount').innerText = extrasNoBalls;
+}
+function openWidePopup() {
+  if (winShown) return;
+  document.getElementById('widePopupOverlay').classList.add('open');
+}
+function openNoBallPopup() {
+  if (winShown) return;
+  document.getElementById('noballPopupOverlay').classList.add('open');
+}
+function processWide(runs) {
+  document.getElementById('widePopupOverlay').classList.remove('open');
+  if (winShown) return;
+  totalRuns += runs;
+  extrasWides += runs;
+  bowlerStats[bowler.value].runs += runs;
+  addBall("Wd+" + runs);
+  updateScore();
+  updateExtras();
+}
+function processNoBall(runs) {
+  document.getElementById('noballPopupOverlay').classList.remove('open');
+  if (winShown) return;
+  let totalAdd = runs + 1;
+  totalRuns += totalAdd;
+  extrasNoBalls += 1;
+  bowlerStats[bowler.value].runs += totalAdd;
+  if (runs > 0) batsmanStats[strike.value].runs += runs;
+  addBall("NB+" + runs);
+  updateScore();
+  updateExtras();
+}
+function wide() {}
+function noball() {}
 function wicket() {
   if (winShown) return;
   let sel = document.getElementById("wicketPlayerSelect");
@@ -1767,7 +1838,7 @@ function switchInnings() {
     let tmp = matchBatTeam; matchBatTeam = matchBowlTeam; matchBowlTeam = tmp;
     [batPlayers, bowlPlayers] = [bowlPlayers, batPlayers];
     [batPlayerRoles, bowlPlayerRoles] = [bowlPlayerRoles, batPlayerRoles];
-    innings = 2; loadScorePlayers();
+    innings = 2; extrasWides = 0; extrasNoBalls = 0; updateExtras(); loadScorePlayers();
     if (totalOvers > 0) { document.getElementById("oversInfoText").innerText = totalOvers + " overs match • Target: " + target; }
     alert("Second Innings! Target: " + target);
   } else { alert("Already in Second Innings"); }
@@ -1952,5 +2023,33 @@ function finishMatch() {
 
 </script>
 </script>
+<div class="extra-popup-overlay" id="widePopupOverlay">
+  <div class="extra-popup-box">
+    <div class="extra-popup-title">Extras — Wide Ball</div>
+    <div class="extra-popup-subtitle">Select Wide Runs</div>
+    <div class="extra-btns-grid">
+      <button class="extra-opt-btn" style="background:rgba(3,105,161,0.3);border-color:#0284c7;" onclick="processWide(1)">Wide +1</button>
+      <button class="extra-opt-btn" style="background:rgba(3,105,161,0.3);border-color:#0284c7;" onclick="processWide(2)">Wide +2</button>
+      <button class="extra-opt-btn" style="background:rgba(3,105,161,0.3);border-color:#0284c7;" onclick="processWide(4)">Wide +4</button>
+    </div>
+    <button onclick="document.getElementById('widePopupOverlay').classList.remove('open')" style="width:100%;margin-top:14px;padding:11px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#6b7280;font-family:'Rajdhani',sans-serif;font-size:14px;cursor:pointer;">Cancel</button>
+  </div>
+</div>
+
+<div class="extra-popup-overlay" id="noballPopupOverlay">
+  <div class="extra-popup-box">
+    <div class="extra-popup-title">Extras — No Ball</div>
+    <div class="extra-popup-subtitle">No Ball + Runs scored?</div>
+    <div class="extra-btns-grid">
+      <button class="extra-opt-btn" style="background:rgba(180,83,9,0.3);border-color:#d97706;" onclick="processNoBall(0)">NB +0</button>
+      <button class="extra-opt-btn" style="background:rgba(180,83,9,0.3);border-color:#d97706;" onclick="processNoBall(1)">NB +1</button>
+      <button class="extra-opt-btn" style="background:rgba(180,83,9,0.3);border-color:#d97706;" onclick="processNoBall(2)">NB +2</button>
+      <button class="extra-opt-btn" style="background:rgba(180,83,9,0.3);border-color:#d97706;" onclick="processNoBall(3)">NB +3</button>
+      <button class="extra-opt-btn" style="background:rgba(180,83,9,0.3);border-color:#d97706;" onclick="processNoBall(4)">NB +4</button>
+      <button class="extra-opt-btn" style="background:rgba(180,83,9,0.3);border-color:#d97706;" onclick="processNoBall(6)">NB +6</button>
+    </div>
+    <button onclick="document.getElementById('noballPopupOverlay').classList.remove('open')" style="width:100%;margin-top:14px;padding:11px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#6b7280;font-family:'Rajdhani',sans-serif;font-size:14px;cursor:pointer;">Cancel</button>
+  </div>
+</div>
 </body>
 </html>
