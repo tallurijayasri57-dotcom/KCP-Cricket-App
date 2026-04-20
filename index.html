@@ -1054,7 +1054,7 @@ function renderMtTeams() {
             <span style="font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;color:#e5e7eb;">🏏 ${team.name}</span>
             <div style="display:flex;gap:6px;">
               <button onclick="addPlayerToTournamentTeam(${ti})" style="background:#15803d;border:none;color:#fff;padding:5px 10px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;">+ Player</button>
-              <button class="delete-team-btn" onclick="deleteTournamentTeam(${ti})">🗑️</button>
+              <button class="delete-team-btn" onclick="deleteTournamentTeam(${ti})">❌</button>
             </div>
           </div>
           <div style="display:flex;flex-direction:column;gap:4px;">
@@ -1074,20 +1074,7 @@ function renderMtTeams() {
     </div>
     <button onclick="switchMtTab('schedule')" style="width:100%;padding:13px;background:linear-gradient(135deg,#065f46,#047857);border:none;border-radius:10px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-top:4px;">✅ DONE — GO TO SCHEDULE →</button>`;
 }
-    `<div class="oa-team-card">
-      <div class="oa-team-name">
-        <span>🏏 ${team.name}</span>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <button onclick="addPlayerToTournamentTeam(${ti})" style="background:#15803d;border:none;color:#fff;padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;">+ Player</button>
-          <button class="delete-team-btn" onclick="deleteTournamentTeam(${ti})">🗑️ Team</button>
-        </div>
-      </div>
-      ${team.players.length === 0
-        ? '<div style="color:#4b5563;font-size:12px;padding:4px 8px;">No players yet</div>'
-        : team.players.map((p, pi) => `<div class="oa-player-row"><span>🧑 ${p.name} ${roleBadge(p.role)}</span><button class="delete-player-btn" onclick="deleteTournamentPlayer(${ti},${pi})" title="Remove player">✕</button></div>`).join('')
-      }
-    </div>`
-  join('');
+   
 
 function deleteTournamentTeam(teamIdx) {
   let t = tournaments[currentTournamentId];
@@ -2304,8 +2291,6 @@ function finishMatch() {
   showWinPopup(winner, margin);
 }
 
-
-</script>
 </script>
 <div class="extra-popup-overlay" id="widePopupOverlay">
   <div class="extra-popup-box">
