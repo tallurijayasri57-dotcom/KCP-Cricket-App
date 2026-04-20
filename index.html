@@ -395,8 +395,26 @@ html, body { overflow-x: hidden; }
 .shot-skip-btn { width:100%; padding:10px; background:transparent; border:1px solid rgba(255,255,255,0.1); border-radius:10px; color:#6b7280; font-family:'Rajdhani',sans-serif; font-size:14px; cursor:pointer; margin-top:8px; }
 
 #backBtn { background: transparent; border: 1px solid rgba(110,231,183,0.3); color: #6ee7b7; font-size: 18px; padding: 6px 10px; border-radius: 8px; cursor: pointer; }
-.page-back-btn{position:fixed;top:10px;left:10px;z-index:8000;background:rgba(17,24,39,0.92);border:1px solid rgba(110,231,183,0.25);color:#6ee7b7;padding:7px 14px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;cursor:pointer;display:none;letter-spacing:1px;}
-.page-back-btn.visible{display:block;}
+
+.add-player-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:9985;align-items:center;justify-content:center;}
+.add-player-modal-overlay.open{display:flex;}
+.add-player-modal-box{background:linear-gradient(145deg,#111827,#1e293b);border:1px solid rgba(110,231,183,0.2);border-radius:20px;padding:28px 24px;width:90%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.6);}
+.add-player-modal-title{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:#6ee7b7;margin-bottom:20px;letter-spacing:1px;}
+.add-player-modal-label{font-family:'Inter',sans-serif;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.add-player-modal-input{width:100%;padding:12px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#e5e7eb;font-family:'Inter',sans-serif;font-size:14px;box-sizing:border-box;outline:none;margin:0;}
+.add-player-modal-input:focus{border-color:rgba(110,231,183,0.4);}
+.add-player-modal-select{width:100%;padding:12px 14px;background:#1f2937;border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#e5e7eb;font-family:'Inter',sans-serif;font-size:14px;box-sizing:border-box;outline:none;margin:0;cursor:pointer;}
+.add-player-modal-select:focus{border-color:rgba(110,231,183,0.4);}
+.add-player-modal-btns{display:flex;gap:10px;margin-top:20px;}
+.add-player-modal-confirm{flex:1;padding:12px;background:linear-gradient(135deg,#16a34a,#15803d);border:none;border-radius:10px;color:white;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;letter-spacing:1px;cursor:pointer;}
+.add-player-modal-cancel{padding:12px 20px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#6b7280;font-family:'Rajdhani',sans-serif;font-size:15px;cursor:pointer;}
+.page-top-back{display:flex;align-items:center;gap:10px;padding:14px 20px;background:#065f46;}
+.page-top-back-btn{background:transparent;border:none;color:#fff;font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;letter-spacing:2px;cursor:pointer;display:flex;align-items:center;gap:8px;padding:0;}
+.page-top-back-arrow{font-size:20px;color:#6ee7b7;}
+.delete-team-btn{background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.3);color:#f87171;padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer;transition:all 0.2s;}
+.delete-team-btn:hover{background:rgba(220,38,38,0.3);}
+.delete-player-btn{background:transparent;border:none;color:#f87171;font-size:16px;cursor:pointer;padding:2px 6px;opacity:0.7;transition:opacity 0.2s;}
+.delete-player-btn:hover{opacity:1;}
 </style>
 </head>
 <body>
@@ -478,7 +496,7 @@ html, body { overflow-x: hidden; }
     </div>
   </div>
 </nav>
-<button class="page-back-btn" id="globalBackBtn" onclick="globalGoBack()">← Back</button>
+
 
 <!-- LOGIN PAGE -->
 <div id="loginPage">
@@ -511,9 +529,10 @@ html, body { overflow-x: hidden; }
 
 <!-- ORGANISER ADMIN PAGE -->
 <div id="organiserAdmin" class="page" style="padding:0;">
-  <div class="oa-topbar">
-    <div class="oa-logo">kcp</div>
-    <button class="oa-back-btn" onclick="showPage('home')">← Back</button>
+  <div class="page-top-back">
+    <button class="page-top-back-btn" onclick="globalGoBack()">
+      <span class="page-top-back-arrow">←</span> KCP League
+    </button>
   </div>
   <div class="oa-body">
     <div class="oa-section-title">🏆 My Tournaments</div>
@@ -526,9 +545,10 @@ html, body { overflow-x: hidden; }
 
 <!-- ADD TOURNAMENT PAGE -->
 <div id="addTournament" class="page" style="padding:0;">
-  <div class="at-topbar">
-    <div class="at-logo">kcp</div>
-    <button class="at-back-btn" onclick="showPage('organiserAdmin')">← Back</button>
+  <div class="page-top-back">
+    <button class="page-top-back-btn" onclick="globalGoBack()">
+      <span class="page-top-back-arrow">←</span> KCP League
+    </button>
   </div>
   <div class="at-body">
     <div class="at-title">ADD A NEW TOURNAMENT</div>
@@ -595,9 +615,11 @@ html, body { overflow-x: hidden; }
 
 <!-- MANAGE TOURNAMENT PAGE -->
 <div id="manageTournament" class="page" style="padding:0;">
-  <div class="mt-topbar">
-    <button class="mt-back-btn" onclick="showPage('organiserAdmin')">←</button>
-    <div class="mt-logo" id="mtTournamentName">TOURNAMENT</div>
+  <div class="page-top-back" style="justify-content:space-between;">
+    <button class="page-top-back-btn" onclick="globalGoBack()">
+      <span class="page-top-back-arrow">←</span> KCP League
+    </button>
+    <span id="mtTournamentName" style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#fff;letter-spacing:2px;"></span>
   </div>
   <div class="mt-body">
     <div class="mt-tabs">
@@ -986,14 +1008,31 @@ function addTournamentTeam() {
   renderMtSchedule();
 }
 
+let addPlayerTargetTeamIdx = -1;
+
 function addPlayerToTournamentTeam(teamIdx) {
-  let pname = prompt('Player Name:');
-  if (!pname || !pname.trim()) return;
-  let role = prompt('Role (Batsman/Bowler/All-Rounder/Wicket-Keeper):') || 'Batsman';
+  addPlayerTargetTeamIdx = teamIdx;
+  document.getElementById('addPlayerNameInput').value = '';
+  document.getElementById('addPlayerRoleInput').value = '';
+  document.getElementById('addPlayerModalOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('addPlayerNameInput').focus(), 100);
+}
+
+function closeAddPlayerModal() {
+  document.getElementById('addPlayerModalOverlay').classList.remove('open');
+  addPlayerTargetTeamIdx = -1;
+}
+
+function confirmAddPlayerModal() {
+  let pname = document.getElementById('addPlayerNameInput').value.trim();
+  let role = document.getElementById('addPlayerRoleInput').value;
+  if (!pname) { alert('Enter player name'); return; }
+  if (!role) { alert('Select a role'); return; }
   tournaments = loadTournaments();
   let t = tournaments[currentTournamentId];
-  t.teams[teamIdx].players.push({ name: pname.trim(), role });
+  t.teams[addPlayerTargetTeamIdx].players.push({ name: pname, role: role });
   saveTournamentsData(tournaments);
+  closeAddPlayerModal();
   renderMtTeams();
 }
 
@@ -1006,14 +1045,36 @@ function renderMtTeams() {
     `<div class="oa-team-card">
       <div class="oa-team-name">
         <span>🏏 ${team.name}</span>
-        <button onclick="addPlayerToTournamentTeam(${ti})" style="background:#15803d;border:none;color:#fff;padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;">+ Player</button>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button onclick="addPlayerToTournamentTeam(${ti})" style="background:#15803d;border:none;color:#fff;padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;">+ Player</button>
+          <button class="delete-team-btn" onclick="deleteTournamentTeam(${ti})">🗑️ Team</button>
+        </div>
       </div>
       ${team.players.length === 0
         ? '<div style="color:#4b5563;font-size:12px;padding:4px 8px;">No players yet</div>'
-        : team.players.map(p => `<div class="oa-player-row"><span>🧑 ${p.name} ${roleBadge(p.role)}</span></div>`).join('')
+        : team.players.map((p, pi) => `<div class="oa-player-row"><span>🧑 ${p.name} ${roleBadge(p.role)}</span><button class="delete-player-btn" onclick="deleteTournamentPlayer(${ti},${pi})" title="Remove player">✕</button></div>`).join('')
       }
     </div>`
   ).join('');
+}
+function deleteTournamentTeam(teamIdx) {
+  let t = tournaments[currentTournamentId];
+  if (!confirm('Delete team "' + t.teams[teamIdx].name + '"? This will remove all players too.')) return;
+  tournaments = loadTournaments();
+  tournaments[currentTournamentId].teams.splice(teamIdx, 1);
+  saveTournamentsData(tournaments);
+  renderMtTeams();
+  renderMtSchedule();
+}
+
+function deleteTournamentPlayer(teamIdx, playerIdx) {
+  tournaments = loadTournaments();
+  let t = tournaments[currentTournamentId];
+  let pname = t.teams[teamIdx].players[playerIdx].name;
+  if (!confirm('Remove player "' + pname + '"?')) return;
+  t.teams[teamIdx].players.splice(playerIdx, 1);
+  saveTournamentsData(tournaments);
+  renderMtTeams();
 }
 
 function addTournamentMatch() {
@@ -1282,11 +1343,6 @@ function showPage(id) {
   document.querySelectorAll(".page").forEach(p => p.style.display = "none");
   document.getElementById(id).style.display = "block";
   pageHistory.push(id);
-  let backBtn = document.getElementById('globalBackBtn');
-  if (backBtn) {
-    let noBackPages = ['home', 'loginPage'];
-    backBtn.classList.toggle('visible', noBackPages.indexOf(id) === -1);
-  }
   if (id === "home") { renderHomeBanner(); }
   if (id === "matches") { loadMatchTeamDropdowns(); loadUpcomingTeamDropdowns(); loadUpcomingMatches(); }
   if (id === "points") { loadPointsTable(); }
@@ -1298,11 +1354,6 @@ function globalGoBack() {
     let prev = pageHistory[pageHistory.length - 1];
     document.querySelectorAll(".page").forEach(p => p.style.display = "none");
     document.getElementById(prev).style.display = "block";
-    let backBtn = document.getElementById('globalBackBtn');
-    if (backBtn) {
-      let noBackPages = ['home', 'loginPage'];
-      backBtn.classList.toggle('visible', noBackPages.indexOf(prev) === -1);
-    }
     if (prev === "home") renderHomeBanner();
     if (prev === "matches") { loadMatchTeamDropdowns(); loadUpcomingTeamDropdowns(); loadUpcomingMatches(); }
     if (prev === "points") loadPointsTable();
@@ -2174,6 +2225,25 @@ function finishMatch() {
       <button class="extra-opt-btn" style="background:rgba(180,83,9,0.3);border-color:#d97706;" onclick="processNoBall(6)">NB +6</button>
     </div>
     <button onclick="document.getElementById('noballPopupOverlay').classList.remove('open')" style="width:100%;margin-top:14px;padding:11px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#6b7280;font-family:'Rajdhani',sans-serif;font-size:14px;cursor:pointer;">Cancel</button>
+  </div>
+</div>
+<div class="add-player-modal-overlay" id="addPlayerModalOverlay">
+  <div class="add-player-modal-box">
+    <div class="add-player-modal-title">➕ Add Player</div>
+    <div class="add-player-modal-label">Player Name</div>
+    <input class="add-player-modal-input" id="addPlayerNameInput" placeholder="Enter player name" style="margin-bottom:16px;">
+    <div class="add-player-modal-label">Role</div>
+    <select class="add-player-modal-select" id="addPlayerRoleInput">
+      <option value="">-- Select Role --</option>
+      <option value="Batsman">🏏 Batsman</option>
+      <option value="Bowler">🎳 Bowler</option>
+      <option value="All-Rounder">⭐ All-Rounder</option>
+      <option value="Wicket-Keeper">🧤 Wicket-Keeper</option>
+    </select>
+    <div class="add-player-modal-btns">
+      <button class="add-player-modal-cancel" onclick="closeAddPlayerModal()">Cancel</button>
+      <button class="add-player-modal-confirm" onclick="confirmAddPlayerModal()">✅ Add Player</button>
+    </div>
   </div>
 </div>
 </body>
