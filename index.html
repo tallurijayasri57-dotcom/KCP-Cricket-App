@@ -482,8 +482,8 @@ html, body { overflow-x: hidden; }
   <!-- Banner: shows default or welcome-tournament based on user's tournaments -->
   <div id="homeBannerArea"></div>
   <div class="dashboard-stats">
-    <div class="stat-card" onclick="closeDotsAndGo('teams')"><div class="stat-icon">👥</div><div class="stat-info"><div class="stat-val" id="dashTeamCount">—</div><div class="stat-lbl">Teams</div></div></div>
-    <div class="stat-card" onclick="openAllPlayersModal()"><div class="stat-icon">🏏</div><div class="stat-info"><div class="stat-val" id="dashPlayerCount">—</div><div class="stat-lbl">Players</div></div></div>
+    <div class="stat-card" onclick="openOrgTeamsModal()"><div class="stat-icon">👥</div><div class="stat-info"><div class="stat-val" id="dashTeamCount">—</div><div class="stat-lbl">Teams</div></div></div>
+    <div class="stat-card" onclick="openOrgPlayersModal()"><div class="stat-icon">🏏</div><div class="stat-info"><div class="stat-val" id="dashPlayerCount">—</div><div class="stat-lbl">Players</div></div></div>
     <div class="stat-card" onclick="openLeagueModal()"><div class="stat-icon">🏆</div><div class="stat-info"><div class="stat-val">KCP</div><div class="stat-lbl">League</div></div></div>
     <div class="stat-card" onclick="closeDotsAndGo('score')"><div class="stat-icon">📡</div><div class="stat-info"><div class="stat-val">Live</div><div class="stat-lbl">Scoring</div></div></div>
   </div>
@@ -1883,6 +1883,53 @@ function loadPointsTable() {
       return '<tr><td>' + (i+1) + '</td><td>' + t.team_name + '</td><td>' + t.matches_played + '</td><td>' + t.wins + '</td><td>' + t.losses + '</td><td><b style="color:#6ee7b7;">' + t.points + '</b></td><td style="color:' + (nrr >= 0 ? "#6ee7b7" : "#f87171") + ';">' + nrrStr + '</td></tr>';
     }).join("");
   }).catch(() => {});
+}
+function openOrgTeamsModal() {
+  let allTournaments = loadTournaments();
+  let content = document.getElementById("allPlayersContent");
+  let modal = document.getElementById("allPlayersModal");
+  modal.classList.add("open");
+  if (allTournaments.length === 0) {
+    content.innerHTML = "<div class='no-results'>No tournaments found.</div>";
+    return;
+  }
+  let html = "";
+  allTournaments.forEach(function(t) {
+    html += '<div class="modal-team-block"><h4>🏆 ' + t.name + '</h4>';
+    if (!t.teams || t.teams.length === 0) {
+      html += '<div class="modal-player-row" style="color:#4b5563;">No teams added yet</div>';
+    } else {
+      t.teams.forEach(function(team) {
+        html += '<div class="modal-player-row"><span>🏏 ' + team.name + '</span><span style="color:#4b5563;font-size:12px;">' + (team.players ? team.players.length : 0) + ' players</span></div>';
+      });
+    }
+    html += '</div>';
+  });
+  content.innerHTML = html;
+}
+
+function openOrgPlayersModal() {
+  let allTournaments = loadTournaments();
+  let content = document.getElementById("allPlayersContent");
+  let modal = document.getElementById("allPlayersModal");
+  modal.classList.add("open");
+  if (allTournaments.length === 0) {
+    content.innerHTML = "<div class='no-results'>No tournaments found.</div>";
+    return;
+  }
+  let html = "";
+  allTournaments.forEach(function(t) {
+    (t.teams || []).forEach(function(team) {
+      if (!team.players || team.players.length === 0) return;
+      html += '<div class="modal-team-block"><h4>🏏 ' + team.name + ' <span style="color:#4b5563;font-size:12px;">(' + t.name + ')</span></h4>';
+      team.players.forEach(function(p) {
+        html += '<div class="modal-player-row"><span>🧑 ' + p.name + ' ' + roleBadge(p.role) + '</span></div>';
+      });
+      html += '</div>';
+    });
+  });
+  if (!html) html = "<div class='no-results'>No players added yet.</div>";
+  content.innerHTML = html;
 }
 
 function finishMatch() {
