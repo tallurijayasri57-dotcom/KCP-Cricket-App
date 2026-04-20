@@ -1290,12 +1290,17 @@ function startFromUpcoming(team1, team2, id) {
 }
 
 function loadDashboardStats() {
-  fetch(API + "/teams", { cache: "no-store" }).then(res => res.json()).then(data => {
-    document.getElementById("dashTeamCount").innerText = data.length;
-    let total = 0;
-    let fetches = data.map(t => fetch(API + "/players/" + t.team_name, { cache: "no-store" }).then(r => r.json()).then(players => { total += players.length; }).catch(() => {}));
-    Promise.all(fetches).then(() => { document.getElementById("dashPlayerCount").innerText = total; });
-  }).catch(() => {});
+  let allTournaments = loadTournaments();
+  let teamNames = new Set();
+  let totalPlayers = 0;
+  allTournaments.forEach(function(t) {
+    (t.teams || []).forEach(function(team) {
+      teamNames.add(team.name);
+      totalPlayers += (team.players || []).length;
+    });
+  });
+  document.getElementById("dashTeamCount").innerText = teamNames.size;
+  document.getElementById("dashPlayerCount").innerText = totalPlayers;
 }
 
 function openAllPlayersModal() {
@@ -1895,32 +1900,7 @@ function finishMatch() {
   saveMatchResult(winner, loser, "won", margin).then(() => updateAllPlayerStatsAfterMatch(inningsNum));
   showWinPopup(winner, margin);
 }
-function finishMatch() {
-   
-}
 
-
-function updateHomeStats() {
-  let teams = JSON.parse(localStorage.getItem("teams")) || [];
-
-  let totalTeams = teams.length;
-  let totalPlayers = 0;
-
-  for (let i = 0; i < teams.length; i++) {
-    if (teams[i].players) {
-      totalPlayers += teams[i].players.length;
-    }
-  }
-
-  let teamEl = document.getElementById("homeTeamsCount");
-  let playerEl = document.getElementById("homePlayersCount");
-
-  if (teamEl) teamEl.innerText = totalTeams;
-  if (playerEl) playerEl.innerText = totalPlayers;
-}
-
-
-setTimeout(updateHomeStats, 500);
 
 </script>
 </script>
