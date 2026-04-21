@@ -517,13 +517,9 @@ html, body { overflow-x: hidden; }
 
 <!-- HOME PAGE -->
 <div id="home" class="page">
-  <!-- Banner: shows default or welcome-tournament based on user's tournaments -->
-  <div id="homeBannerArea"></div>
-  <div class="dashboard-stats">
-    <div class="stat-card" onclick="openOrgTeamsModal()"><div class="stat-icon">👥</div><div class="stat-info"><div class="stat-val" id="dashTeamCount">—</div><div class="stat-lbl">Teams</div></div></div>
-    <div class="stat-card" onclick="openOrgPlayersModal()"><div class="stat-icon">🏏</div><div class="stat-info"><div class="stat-val" id="dashPlayerCount">—</div><div class="stat-lbl">Players</div></div></div>
-    <div class="stat-card" onclick="closeDotsAndGo('points')"><div class="stat-icon">🏆</div><div class="stat-info"><div class="stat-val">Points</div><div class="stat-lbl">Table</div></div></div>
-    <div class="stat-card" onclick="closeDotsAndGo('score')"><div class="stat-icon">📡</div><div class="stat-info"><div class="stat-val">Live</div><div class="stat-lbl">Scoring</div></div></div>
+  <div style="text-align:center; padding-top: 120px;">
+    <h1 style="font-family:'Rajdhani', sans-serif; color:#6ee7b7; font-size: 42px; letter-spacing:4px;">KCP CRICKET</h1>
+    <p style="color:#6b7280; font-family:'Inter', sans-serif; font-size: 16px;">App is ready. Use the menu to start scoring.</p>
   </div>
 </div>
 
@@ -1282,37 +1278,7 @@ function renderMtResults() {
 
 // ---- Home banner: show welcome-tournament if user has tournaments, else default ----
 function renderHomeBanner() {
-  let bannerArea = document.getElementById('homeBannerArea');
-  tournaments = loadTournaments();
-  if (tournaments.length > 0) {
-    let latest = tournaments[tournaments.length - 1];
-    bannerArea.innerHTML = `
-      <div class="welcome-tournament-banner">
-        <div class="welcome-banner-content">
-          <div class="welcome-banner-badge">🏆 &nbsp;KCP Premier League</div>
-          <h1 class="welcome-banner-title">WELCOME TO <span>${latest.name}</span></h1>
-          <p class="welcome-banner-sub">${latest.city} · ${latest.matchType} · ${latest.startDate}</p>
-          <div class="welcome-banner-actions">
-            <button class="welcome-btn-primary" onclick="openOrganiserAdmin()">⚙️ Manage Tournament</button>
-            <button class="welcome-btn-secondary" onclick="closeDotsAndGo('matches')">🏏 Start Match</button>
-          </div>
-        </div>
-      </div>`;
-  } else {
-    bannerArea.innerHTML = `
-      <div class="cricket-banner">
-        <div class="pitch-lines"></div>
-        <div class="banner-content">
-          <div class="banner-league-badge">🏆 &nbsp;KCP Premier League</div>
-          <h1 class="banner-title">Play Hard,<br><span>Score Big</span></h1>
-          <p class="banner-sub">Real-time cricket scoring, live ball-by-ball commentary, and full match analytics — all in one place.</p>
-          <div class="banner-actions">
-            <button class="banner-btn-primary" onclick="closeDotsAndGo('matches')">🏏 Start Match</button>
-            <button class="banner-btn-secondary" onclick="closeDotsAndGo('teams')">👥 Manage Teams</button>
-          </div>
-        </div>
-      </div>`;
-  }
+  // Banner logic completely removed to keep home clean
 }
 
 let pendingRun = 0;
@@ -1562,17 +1528,7 @@ function startFromUpcoming(team1, team2, id) {
   setTimeout(function() { startMatch(); }, 100);
 }
 function loadDashboardStats() {
-  let allTournaments = loadTournaments();
-  let teamNames = new Set();
-  let totalPlayers = 0;
-  allTournaments.forEach(function(t) {
-    (t.teams || []).forEach(function(team) {
-      teamNames.add(team.name);
-      totalPlayers += (team.players || []).length;
-    });
-  });
-  document.getElementById("dashTeamCount").innerText = teamNames.size;
-  document.getElementById("dashPlayerCount").innerText = totalPlayers;
+  // Stats display removed from home page
 }
 
 function openAllPlayersModal() {
