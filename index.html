@@ -821,7 +821,7 @@ html, body { overflow-x: hidden; }
   <h2>🏆 Points Table</h2>
   <div class="section">
     <table>
-      <thead><tr><th>#</th><th>Team</th><th>M</th><th>W</th><th>L</th><th>Pts</th><th>NRR</th></tr></thead>
+      <thead><tr><th>#</th><th>Team</th><th>M</th><th>W</th><th>L</th><th>Pts</th><th>NRR</th><th>Del</th></tr></thead>
       <tbody id="pointsTableBody"></tbody>
     </table>
   </div>
@@ -2298,16 +2298,76 @@ function buildScorecard(winner, loser, stats) {
 }
 
 function loadPointsTable() {
-  fetch(API + "/points-table", { cache: "no-store" }).then(res => res.json()).then(data => {
-    let tbody = document.getElementById("pointsTableBody");
-    if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="color:#4b5563;text-align:center;padding:20px;">No matches played yet</td></tr>'; return; }
-    tbody.innerHTML = data.map((t, i) => {
-      let nrr = 0;
-      if (t.overs_faced > 0 && t.overs_bowled > 0) { nrr = (t.runs_scored / t.overs_faced) - (t.runs_conceded / t.overs_bowled); }
-      let nrrStr = (nrr >= 0 ? "+" : "") + nrr.toFixed(3);
-      return '<tr><td>' + (i+1) + '</td><td>' + t.team_name + '</td><td>' + t.matches_played + '</td><td>' + t.wins + '</td><td>' + t.losses + '</td><td><b style="color:#6ee7b7;">' + t.points + '</b></td><td style="color:' + (nrr >= 0 ? "#6ee7b7" : "#f87171") + ';">' + nrrStr + '</td></tr>';
-    }).join("");
-  }).catch(() => {});
+  let allTournaments = loadTournaments();
+  let pointsPage = document.getElementById("points");
+  if (allTournaments.length === 0) {
+    document.getElementById("pointsTableBody").innerHTML = '<tr><td colspan="8" style="color:#4b5563;text-align:center;padding:20px;">No tournaments found. Create a tournament first.</td></tr>';
+    return;
+  }
+  // Build tournament selector if not present
+  let selectorArea = document.getElementById("pointsTournamentSelector");
+  if (!selectorArea) {
+    let h2 = pointsPage.querySelector("h2");
+    let div = document.createElement("div");
+    div.id = "pointsTournamentSelector";
+    div.style = "margin-bottom:16px;";
+    h2.after(div);
+    selectorArea = div;
+  }
+  selectorArea.innerHTML = '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;">' +
+    '<label style="font-family:\'Rajdhani\',sans-serif;font-size:14px;color:#6ee7b7;font-weight:600;">Select Tournament:</label>' +
+    '<select id="pointsTournamentSelect" onchange="loadPointsTable()" style="padding:9px 14px;background:#1f2937;border:1px solid rgba(110,231,183,0.3);border-radius:8px;color:#e5e7eb;font-family:\'Rajdhani\',sans-serif;font-size:14px;outline:none;">' +
+    allTournaments.map((t, i) => '<option value="' + i + '">' + t.name + '</option>').join('') +
+    '</select></div>';
+  let selEl = document.getElementById("pointsTournamentSelect");
+  let tIdx = selEl ? parseInt(selEl.value) : 0;
+  let tournament = allTournaments[tIdx];
+  // Build points from tournament matches only
+  let teamPoints = {};
+  (tournament.teams || []).forEach(team => {
+    teamPoints[team.name] = { M: 0, W: 0, L: 0, Pts: 0, runsFor: 0, oversFor: 0, runsAgainst: 0, oversAgainst: 0 };
+  });
+  let finishedMatches = (tournament.matches || []).filter(m => m.result);
+  finishedMatches.forEach(m => {
+    let winnerMatch = m.result.match(/^(.+?) won/);
+    if (!winnerMatch) return;
+    let winner = winnerMatch[1].trim();
+    let loser = winner === m.team1 ? m.team2 : m.team1;
+    if (!teamPoints[winner]) teamPoints[winner] = { M: 0, W: 0, L: 0, Pts: 0, runsFor: 0, oversFor: 0, runsAgainst: 0, oversAgainst: 0 };
+    if (!teamPoints[loser]) teamPoints[loser] = { M: 0, W: 0, L: 0, Pts: 0, runsFor: 0, oversFor: 0, runsAgainst: 0, oversAgainst: 0 };
+    teamPoints[winner].M++; teamPoints[winner].W++; teamPoints[winner].Pts += 2;
+    teamPoints[loser].M++; teamPoints[loser].L++;
+  });
+  let rows = Object.entries(teamPoints).sort((a, b) => b[1].Pts - a[1].Pts || b[1].W - a[1].W);
+  let tbody = document.getElementById("pointsTableBody");
+  if (rows.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" style="color:#4b5563;text-align:center;padding:20px;">No teams in this tournament yet.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(([name, s], i) => {
+    return '<tr>' +
+      '<td>' + (i + 1) + '</td>' +
+      '<td>' + name + '</td>' +
+      '<td>' + s.M + '</td>' +
+      '<td>' + s.W + '</td>' +
+      '<td>' + s.L + '</td>' +
+      '<td><b style="color:#6ee7b7;">' + s.Pts + '</b></td>' +
+      '<td style="color:#6b7280;">—</td>' +
+      '<td><button onclick="deleteTeamFromPoints(\'' + escapeQ(name) + '\',' + tIdx + ')" style="background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.3);color:#f87171;padding:3px 8px;border-radius:5px;font-size:12px;cursor:pointer;">❌</button></td>' +
+      '</tr>';
+  }).join("");
+}
+
+function deleteTeamFromPoints(teamName, tournamentIdx) {
+  if (!confirm('Remove "' + teamName + '" from this tournament\'s points table?\n(This removes the team and all their matches from this tournament.)')) return;
+  let allTournaments = loadTournaments();
+  let t = allTournaments[tournamentIdx];
+  // Remove team
+  t.teams = (t.teams || []).filter(team => team.name !== teamName);
+  // Remove matches involving this team
+  t.matches = (t.matches || []).filter(m => m.team1 !== teamName && m.team2 !== teamName);
+  saveTournamentsData(allTournaments);
+  loadPointsTable();
 }
 function openOrgTeamsModal() {
   let allTournaments = loadTournaments();
