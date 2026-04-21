@@ -1863,15 +1863,27 @@ function startMatch() {
   let t1 = batTeam.value, t2 = bowlTeam.value;
   if (!t1 || !t2) return alert("Select both teams");
   if (t1 === t2) return alert("Select different teams");
+  let allTournaments = loadTournaments();
+  let teamMap = {};
+  allTournaments.forEach(function(t) {
+    (t.teams || []).forEach(function(team) {
+      if (!teamMap[team.name]) teamMap[team.name] = [];
+      (team.players || []).forEach(function(p) {
+        teamMap[team.name].push({ player_name: p.name, role: p.role });
+      });
+    });
+  });
+  batPlayers.length = 0; bowlPlayers.length = 0;
+  Object.keys(batPlayerRoles).forEach(k => delete batPlayerRoles[k]);
+  Object.keys(bowlPlayerRoles).forEach(k => delete bowlPlayerRoles[k]);
+  (teamMap[t1] || []).forEach(p => { batPlayers.push(p.player_name); batPlayerRoles[p.player_name] = p.role; });
+  (teamMap[t2] || []).forEach(p => { bowlPlayers.push(p.player_name); bowlPlayerRoles[p.player_name] = p.role; });
   tossTeams = [t1, t2]; tossCallingTeamIndex = -1; tossWinnerIndex = -1; tossFlipped = false;
   document.getElementById("tossBtnTeam1").innerText = t1;
   document.getElementById("tossBtnTeam2").innerText = t2;
   document.getElementById("tossBtnTeam1").classList.remove("selected");
   document.getElementById("tossBtnTeam2").classList.remove("selected");
   document.getElementById("tossResultBox").style.display = "none";
-  document.getElementById("tossCoin").innerText = "🪙";
-  document.getElementById("tossInstruction").innerText = "Select a team, then flip the coin";
-  document.getElementById("tossFlipBtn").disabled = true;
   document.getElementById("tossOverlay").classList.add("open");
 }
 function selectTossTeam(index) {}
@@ -1896,27 +1908,31 @@ function tossChoice(choice) {
   pendingBowlTeam = finalBowlTeam;
   matchBatTeam = finalBatTeam;
   matchBowlTeam = finalBowlTeam;
-  Promise.all([
-    fetch(API + "/players/" + finalBatTeam, { cache: "no-store" }).then(r => r.json()),
-    fetch(API + "/players/" + finalBowlTeam, { cache: "no-store" }).then(r => r.json())
-  ]).then(function([batData, bowlData]) {
-    batPlayers.length = 0;
-    bowlPlayers.length = 0;
-    Object.keys(batPlayerRoles).forEach(k => delete batPlayerRoles[k]);
-    Object.keys(bowlPlayerRoles).forEach(k => delete bowlPlayerRoles[k]);
-    batData.forEach(p => { batPlayers.push(p.player_name); batPlayerRoles[p.player_name] = p.role; });
-    bowlData.forEach(p => { bowlPlayers.push(p.player_name); bowlPlayerRoles[p.player_name] = p.role; });
-    let batList = document.getElementById("batPlayersList");
-    let bowlList = document.getElementById("bowlPlayersList");
-    if (batList) batList.innerHTML = batData.map(p => '<li>🧑 ' + p.player_name + ' ' + roleBadge(p.role) + '</li>').join('');
-    if (bowlList) bowlList.innerHTML = bowlData.map(p => '<li>🧑 ' + p.player_name + ' ' + roleBadge(p.role) + '</li>').join('');
-    selectedOversVal = 0;
-    document.getElementById("customOversInput").value = "";
-    document.querySelectorAll(".overs-quick-btn").forEach(b => b.classList.remove("selected"));
-    document.getElementById("oversOverlay").classList.add("open");
-  }).catch(function() {
-    alert("Players load kaaledu. Teams lo players add chesaru confirm cheyandi.");
+  matchBatTeam = finalBatTeam;
+  matchBowlTeam = finalBowlTeam;
+  let allTournaments = loadTournaments();
+  let teamMap = {};
+  allTournaments.forEach(function(t) {
+    (t.teams || []).forEach(function(team) {
+      if (!teamMap[team.name]) teamMap[team.name] = [];
+      (team.players || []).forEach(function(p) {
+        teamMap[team.name].push({ player_name: p.name, role: p.role });
+      });
+    });
   });
+  batPlayers.length = 0; bowlPlayers.length = 0;
+  Object.keys(batPlayerRoles).forEach(k => delete batPlayerRoles[k]);
+  Object.keys(bowlPlayerRoles).forEach(k => delete bowlPlayerRoles[k]);
+  (teamMap[finalBatTeam] || []).forEach(p => { batPlayers.push(p.player_name); batPlayerRoles[p.player_name] = p.role; });
+  (teamMap[finalBowlTeam] || []).forEach(p => { bowlPlayers.push(p.player_name); bowlPlayerRoles[p.player_name] = p.role; });
+  let batList = document.getElementById("batPlayersList");
+  let bowlList = document.getElementById("bowlPlayersList");
+  if (batList) batList.innerHTML = (teamMap[finalBatTeam]||[]).map(p => '<li>🧑 ' + p.player_name + ' ' + roleBadge(p.role) + '</li>').join('');
+  if (bowlList) bowlList.innerHTML = (teamMap[finalBowlTeam]||[]).map(p => '<li>🧑 ' + p.player_name + ' ' + roleBadge(p.role) + '</li>').join('');
+  selectedOversVal = 0;
+  document.getElementById("customOversInput").value = "";
+  document.querySelectorAll(".overs-quick-btn").forEach(b => b.classList.remove("selected"));
+  document.getElementById("oversOverlay").classList.add("open");
 }
 function loadScorePlayers() {
   strike.innerHTML = ""; nonstrike.innerHTML = ""; bowler.innerHTML = "";
