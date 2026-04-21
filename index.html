@@ -1772,9 +1772,25 @@ let batPlayerRoles = {}, bowlPlayerRoles = {};
 function loadMatchTeamDropdowns() {
   fetch(API + "/teams", { cache: "no-store" }).then(res => res.json()).then(data => {
     batTeam.innerHTML = ""; bowlTeam.innerHTML = "";
-    data.forEach(t => { batTeam.innerHTML += '<option value="' + t.team_name + '">' + t.team_name + '</option>'; bowlTeam.innerHTML += '<option value="' + t.team_name + '">' + t.team_name + '</option>'; });
+    data.forEach(t => {
+      batTeam.innerHTML += '<option value="' + t.team_name + '">' + t.team_name + '</option>';
+      bowlTeam.innerHTML += '<option value="' + t.team_name + '">' + t.team_name + '</option>';
+    });
     if (data.length >= 2) bowlTeam.value = data[1].team_name;
-    loadPlayersForMatch('bat'); loadPlayersForMatch('bowl');
+    // Players separately and correctly load cheyyali
+    Promise.all([
+      fetch(API + "/players/" + (data[0] ? data[0].team_name : ""), { cache: "no-store" }).then(r => r.json()),
+      fetch(API + "/players/" + (data[1] ? data[1].team_name : data[0] ? data[0].team_name : ""), { cache: "no-store" }).then(r => r.json())
+    ]).then(function([batData, bowlData]) {
+      batPlayers.length = 0;
+      bowlPlayers.length = 0;
+      Object.keys(batPlayerRoles).forEach(k => delete batPlayerRoles[k]);
+      Object.keys(bowlPlayerRoles).forEach(k => delete bowlPlayerRoles[k]);
+      batData.forEach(p => { batPlayers.push(p.player_name); batPlayerRoles[p.player_name] = p.role; });
+      bowlData.forEach(p => { bowlPlayers.push(p.player_name); bowlPlayerRoles[p.player_name] = p.role; });
+      batPlayersList.innerHTML = batData.map(p => '<li>🧑 ' + p.player_name + ' ' + roleBadge(p.role) + '</li>').join('');
+      bowlPlayersList.innerHTML = bowlData.map(p => '<li>🧑 ' + p.player_name + ' ' + roleBadge(p.role) + '</li>').join('');
+    }).catch(() => {});
   });
 }
 function loadPlayersForMatch(type) {
