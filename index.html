@@ -1499,13 +1499,33 @@ function loadUpcomingMatches() {
 }
 
 function startFromUpcoming(team1, team2, id) {
-  deleteUpcomingMatch(id); switchTab("create");
+  deleteUpcomingMatch(id);
+  switchTab("create");
   fetch(API + "/teams", { cache: "no-store" }).then(res => res.json()).then(data => {
-    let batSel = document.getElementById("batTeam"), bowlSel = document.getElementById("bowlTeam");
-    batSel.innerHTML = ""; bowlSel.innerHTML = "";
-    data.forEach(t => { batSel.innerHTML += '<option value="' + t.team_name + '">' + t.team_name + '</option>'; bowlSel.innerHTML += '<option value="' + t.team_name + '">' + t.team_name + '</option>'; });
-    batSel.value = team1; bowlSel.value = team2;
-    loadPlayersForMatch("bat"); loadPlayersForMatch("bowl");
+    let batSel = document.getElementById("batTeam");
+    let bowlSel = document.getElementById("bowlTeam");
+    batSel.innerHTML = "";
+    bowlSel.innerHTML = "";
+    data.forEach(t => {
+      batSel.innerHTML += '<option value="' + t.team_name + '">' + t.team_name + '</option>';
+      bowlSel.innerHTML += '<option value="' + t.team_name + '">' + t.team_name + '</option>';
+    });
+    batSel.value = team1;
+    bowlSel.value = team2;
+    Promise.all([
+      fetch(API + "/players/" + team1, { cache: "no-store" }).then(r => r.json()),
+      fetch(API + "/players/" + team2, { cache: "no-store" }).then(r => r.json())
+    ]).then(function([batData, bowlData]) {
+      batPlayers.length = 0;
+      bowlPlayers.length = 0;
+      Object.keys(batPlayerRoles).forEach(k => delete batPlayerRoles[k]);
+      Object.keys(bowlPlayerRoles).forEach(k => delete bowlPlayerRoles[k]);
+      batData.forEach(p => { batPlayers.push(p.player_name); batPlayerRoles[p.player_name] = p.role; });
+      bowlData.forEach(p => { bowlPlayers.push(p.player_name); bowlPlayerRoles[p.player_name] = p.role; });
+      setTimeout(function() { startMatch(); }, 100);
+    }).catch(function() {
+      alert("Players load kaaledu. Teams lo players add chesaru confirm cheyandi.");
+    });
   });
 }
 
@@ -1823,15 +1843,31 @@ function tossChoice(choice) {
   document.getElementById("tossOverlay").classList.remove("open");
   document.getElementById("batTeam").value = finalBatTeam;
   document.getElementById("bowlTeam").value = finalBowlTeam;
-  loadPlayersForMatch("bat"); loadPlayersForMatch("bowl");
-  pendingBatTeam = finalBatTeam; pendingBowlTeam = finalBowlTeam;
-  matchBatTeam = finalBatTeam; matchBowlTeam = finalBowlTeam;
-  setTimeout(function() {
+  pendingBatTeam = finalBatTeam;
+  pendingBowlTeam = finalBowlTeam;
+  matchBatTeam = finalBatTeam;
+  matchBowlTeam = finalBowlTeam;
+  Promise.all([
+    fetch(API + "/players/" + finalBatTeam, { cache: "no-store" }).then(r => r.json()),
+    fetch(API + "/players/" + finalBowlTeam, { cache: "no-store" }).then(r => r.json())
+  ]).then(function([batData, bowlData]) {
+    batPlayers.length = 0;
+    bowlPlayers.length = 0;
+    Object.keys(batPlayerRoles).forEach(k => delete batPlayerRoles[k]);
+    Object.keys(bowlPlayerRoles).forEach(k => delete bowlPlayerRoles[k]);
+    batData.forEach(p => { batPlayers.push(p.player_name); batPlayerRoles[p.player_name] = p.role; });
+    bowlData.forEach(p => { bowlPlayers.push(p.player_name); bowlPlayerRoles[p.player_name] = p.role; });
+    let batList = document.getElementById("batPlayersList");
+    let bowlList = document.getElementById("bowlPlayersList");
+    if (batList) batList.innerHTML = batData.map(p => '<li>🧑 ' + p.player_name + ' ' + roleBadge(p.role) + '</li>').join('');
+    if (bowlList) bowlList.innerHTML = bowlData.map(p => '<li>🧑 ' + p.player_name + ' ' + roleBadge(p.role) + '</li>').join('');
     selectedOversVal = 0;
     document.getElementById("customOversInput").value = "";
     document.querySelectorAll(".overs-quick-btn").forEach(b => b.classList.remove("selected"));
     document.getElementById("oversOverlay").classList.add("open");
-  }, 100);
+  }).catch(function() {
+    alert("Players load kaaledu. Teams lo players add chesaru confirm cheyandi.");
+  });
 }
 function loadScorePlayers() {
   strike.innerHTML = ""; nonstrike.innerHTML = ""; bowler.innerHTML = "";
