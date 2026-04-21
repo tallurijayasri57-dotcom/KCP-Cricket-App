@@ -1878,8 +1878,8 @@ function flipCoin() {
     tossWinnerIndex = result;
     coin.innerText = result === 0 ? "🟡" : "⚪";
     document.getElementById("tossInstruction").innerText = "";
-    document.getElementById("tossMainHeading").innerText = tossTeams[tossWinnerIndex] + " Won the Toss!";
-    document.getElementById("tossWinnerText").innerText = "🎉 Choose to Bat or Bowl:";
+    document.getElementById("tossMainHeading").innerText = "Choose: Bat or Bowl?";
+    document.getElementById("tossWinnerText").innerText = "🎉 " + tossTeams[tossWinnerIndex] + " Won the Toss!";
     document.getElementById("tossResultBox").style.display = "block";
   }, 1000);
 }
