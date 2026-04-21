@@ -1776,11 +1776,15 @@ function loadMatchTeamDropdowns() {
       batTeam.innerHTML += '<option value="' + t.team_name + '">' + t.team_name + '</option>';
       bowlTeam.innerHTML += '<option value="' + t.team_name + '">' + t.team_name + '</option>';
     });
+    if (data.length >= 1) batTeam.value = data[0].team_name;
     if (data.length >= 2) bowlTeam.value = data[1].team_name;
-    // Players separately and correctly load cheyyali
+    else if (data.length === 1) bowlTeam.value = data[0].team_name;
+    let batTeamName = data[0] ? data[0].team_name : "";
+    let bowlTeamName = data[1] ? data[1].team_name : (data[0] ? data[0].team_name : "");
     Promise.all([
-      fetch(API + "/players/" + (data[0] ? data[0].team_name : ""), { cache: "no-store" }).then(r => r.json()),
-      fetch(API + "/players/" + (data[1] ? data[1].team_name : data[0] ? data[0].team_name : ""), { cache: "no-store" }).then(r => r.json())
+      fetch(API + "/players/" + batTeamName, { cache: "no-store" }).then(r => r.json()),
+      fetch(API + "/players/" + bowlTeamName, { cache: "no-store" }).then(r => r.json())
+      
     ]).then(function([batData, bowlData]) {
       batPlayers.length = 0;
       bowlPlayers.length = 0;
