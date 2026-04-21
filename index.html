@@ -19,55 +19,61 @@
 body {
   font-family: 'Inter', sans-serif;
   margin: 0;
-  background: #0b0f1a;
+  background: #020617; /* Blue Background */
   color: white;
+  overflow-x: hidden;
   position: relative;
 }
 
-/* 21st.dev style - Modern Mesh Grid */
+/* 21st.dev style - Modern Blue Mesh Grid */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   background-image: 
-    linear-gradient(rgba(110, 231, 183, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(110, 231, 183, 0.03) 1px, transparent 1px);
+    linear-gradient(rgba(37, 99, 235, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37, 99, 235, 0.06) 1px, transparent 1px);
   background-size: 45px 45px;
   z-index: -2;
   pointer-events: none;
 }
 
-/* Professional Glassy Glow */
+/* Yellow Glow behind content */
 body::after {
   content: "";
   position: fixed;
   top: 50%; left: 50%;
   width: 80vw; height: 80vw;
-  background: radial-gradient(circle, rgba(6, 95, 70, 0.06) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.04) 0%, transparent 70%);
   transform: translate(-50%, -50%);
   z-index: -2;
   pointer-events: none;
 }
 
-/* Professional Outlined Typography Watermark */
+/* Professional Outlined YELLOW Watermark */
 .watermark {
   position: fixed;
-  top: 55%;
-  left: 50%;
+  top: 55%; left: 50%;
   transform: translate(-50%, -50%) rotate(-12deg);
   font-family: 'Rajdhani', sans-serif;
   font-size: 24vw;
   font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 15px;
   pointer-events: none;
   z-index: -1;
   user-select: none;
   white-space: nowrap;
   color: transparent;
-  -webkit-text-stroke: 1px rgba(110, 231, 183, 0.06); /* Ultra subtle outline */
-  opacity: 0.8;
+  -webkit-text-stroke: 1.5px rgba(251, 191, 36, 0.08); /* Yellow Outline */
 }
+
+/* Overwriting Green to Blue/Yellow Theme */
+nav { background: #1e3a8a !important; border-bottom: 1px solid #fbbf24 !important; }
+.nav-kcpl-text, #authTitle { color: #fbbf24 !important; }
+.three-dots-btn { border: 1px solid #fbbf24 !important; color: #fbbf24 !important; }
+.hamburger-line { background: #fbbf24 !important; }
+button, .btn-green, .auth-btn, .at-submit-btn, .mt-tab.active { background: #2563eb !important; border: 1px solid #fbbf24 !important; }
+.btn-red, .wicket-btn, .logout-item { background: #dc2626 !important; }
 
 /* NAV - only KCPL logo left + hamburger right */
 nav{background:#020617;padding:10px 16px;display:none;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.06);}
@@ -535,18 +541,18 @@ html, body { overflow-x: hidden; }
       <span class="hamburger-line"></span>
       <span class="hamburger-line"></span>
     </button>
-    <div class="dots-dropdown" id="dotsDropdown">
-  <div class="dots-menu-header" id="dotsMenuUsername">👤 User</div>
-  <button class="dots-menu-item nav-action" onclick="closeDotsAndGo('home')">🏠 Home</button>
-  <button class="dots-menu-item nav-action" onclick="closeDotsAndGo('teams')">👥 Teams</button>
-  <button class="dots-menu-item nav-action" onclick="closeDotsAndGo('matches')">🏏 Matches</button>
-  <button class="dots-menu-item nav-action" onclick="openOrganiserAdmin()">🏆 Tournaments</button>
-  <button class="dots-menu-item nav-action" onclick="alert('Gallery Coming Soon!')">🖼️ Gallery</button>
-  <button class="dots-menu-item nav-action" onclick="closeDotsAndGo('score')">📡 Live Score</button>
-  <button class="dots-menu-item nav-action" onclick="closeDotsAndGo('points')">🏆 Points Table</button>
-  <div class="dots-menu-divider"></div>
-  <button class="dots-menu-item logout-item" onclick="logout()">🚪 Logout</button>
-</div>
+    <div class="dots-dropdown" id="dotsDropdown" style="background: #0f172a; border-color: #fbbf24;">
+      <div class="dots-menu-header" id="dotsMenuUsername" style="color: #fbbf24;">👤 User</div>
+      <button class="dots-menu-item nav-action" onclick="closeDotsAndGo('home')">🏠 Home</button>
+      <button class="dots-menu-item nav-action" onclick="closeDotsAndGo('teams')">👥 Teams</button>
+      <button class="dots-menu-item nav-action" onclick="closeDotsAndGo('matches')">🏏 Matches</button>
+      <button class="dots-menu-item nav-action" onclick="openOrganiserAdmin()" style="color:#fbbf24; font-weight:bold;">🏆 Tournaments</button>
+      <button class="dots-menu-item nav-action" onclick="alert('Gallery opening...')">🖼️ Gallery</button>
+      <button class="dots-menu-item nav-action" onclick="closeDotsAndGo('score')">📡 Live Score</button>
+      <button class="dots-menu-item nav-action" onclick="closeDotsAndGo('points')">🏆 Points Table</button>
+      <div class="dots-menu-divider"></div>
+      <button class="dots-menu-item logout-item" onclick="logout()" style="color: #f87171 !important;">🚪 Logout</button>
+    </div>
   
 </nav>
 
@@ -570,9 +576,10 @@ html, body { overflow-x: hidden; }
 
 <!-- HOME PAGE -->
 <div id="home" class="page">
-  <div style="text-align:center; padding-top: 120px;">
-    <h1 style="font-family:'Rajdhani', sans-serif; color:#6ee7b7; font-size: 42px; letter-spacing:4px;">KCP CRICKET</h1>
-    <p style="color:#6b7280; font-family:'Inter', sans-serif; font-size: 16px;"></p>
+  <div class="watermark">KCP</div>
+  <div style="text-align:center; padding-top: 160px; position: relative; z-index: 1;">
+    <h1 style="font-family:'Rajdhani', sans-serif; color:#fbbf24; font-size: 4rem; letter-spacing:14px; margin:0; text-shadow: 0 0 40px rgba(251,191,36,0.4);">KCP CRICKET</h1>
+    <p style="color:#3b82f6; font-family:'Inter', sans-serif; font-size: 14px; text-transform: uppercase; letter-spacing: 6px; margin-top: 15px; font-weight: 600;">Professional Scoring Hub</p>
   </div>
 </div>
 
