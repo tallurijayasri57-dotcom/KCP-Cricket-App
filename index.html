@@ -24,33 +24,49 @@ body {
   position: relative;
 }
 
-/* 21st.dev style Grid Pattern Background */
+/* 21st.dev style - Modern Mesh Grid */
 body::before {
   content: "";
   position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
+  inset: 0;
   background-image: 
-    radial-gradient(circle at 2px 2px, rgba(110, 231, 183, 0.05) 1px, transparent 0);
-  background-size: 32px 32px;
+    linear-gradient(rgba(110, 231, 183, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(110, 231, 183, 0.03) 1px, transparent 1px);
+  background-size: 45px 45px;
   z-index: -2;
   pointer-events: none;
 }
 
-/* Subtle Cricket Watermark */
+/* Professional Glassy Glow */
+body::after {
+  content: "";
+  position: fixed;
+  top: 50%; left: 50%;
+  width: 80vw; height: 80vw;
+  background: radial-gradient(circle, rgba(6, 95, 70, 0.06) 0%, transparent 70%);
+  transform: translate(-50%, -50%);
+  z-index: -2;
+  pointer-events: none;
+}
+
+/* Professional Outlined Typography Watermark */
 .watermark {
   position: fixed;
-  top: 50%;
+  top: 55%;
   left: 50%;
-  transform: translate(-50%, -50%) rotate(-20deg);
-  font-size: 20vw;
-  color: rgba(110, 231, 183, 0.03); /* Chala faint ga untundhi */
-  z-index: -1;
-  pointer-events: none;
+  transform: translate(-50%, -50%) rotate(-12deg);
   font-family: 'Rajdhani', sans-serif;
-  font-weight: 800;
-  white-space: nowrap;
+  font-size: 24vw;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 15px;
+  pointer-events: none;
+  z-index: -1;
   user-select: none;
+  white-space: nowrap;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(110, 231, 183, 0.06); /* Ultra subtle outline */
+  opacity: 0.8;
 }
 
 /* NAV - only KCPL logo left + hamburger right */
@@ -453,7 +469,7 @@ html, body { overflow-x: hidden; }
 </style>
 </head>
 <body>
-  <div class="watermark">🏏 KCP</div>
+  <div class="watermark">KCP</div>
 <div id="splashScreen">
   <img src="https://i.ibb.co/mFckS9wV/founder-kcp.jpg" class="splash-photo" alt="KCP">
   <div class="splash-kcp-text">KCP</div>
@@ -520,17 +536,18 @@ html, body { overflow-x: hidden; }
       <span class="hamburger-line"></span>
     </button>
     <div class="dots-dropdown" id="dotsDropdown">
-      <div class="dots-menu-header" id="dotsMenuUsername">👤 User</div>
-      <button class="dots-menu-item nav-action" onclick="closeDotsAndGo('home')">🏠 Home</button>
-      <button class="dots-menu-item nav-action" onclick="closeDotsAndGo('teams')">👥 Teams</button>
-      <button class="dots-menu-item nav-action" onclick="closeDotsAndGo('matches')">🏏 Matches</button>
-      <button class="dots-menu-item nav-action" onclick="closeDotsAndGo('score')">📡 Live Score</button>
-      <button class="dots-menu-item nav-action" onclick="closeDotsAndGo('points')">🏆 Points Table</button>
-      <button class="dots-menu-item nav-action" onclick="openOrganiserAdmin()">⚙️ Organiser Admin</button>
-      <div class="dots-menu-divider"></div>
-      <button class="dots-menu-item logout-item" onclick="logout()">🚪 Logout</button>
-    </div>
-  </div>
+  <div class="dots-menu-header" id="dotsMenuUsername">👤 User</div>
+  <button class="dots-menu-item nav-action" onclick="closeDotsAndGo('home')">🏠 Home</button>
+  <button class="dots-menu-item nav-action" onclick="closeDotsAndGo('teams')">👥 Teams</button>
+  <button class="dots-menu-item nav-action" onclick="closeDotsAndGo('matches')">🏏 Matches</button>
+  <button class="dots-menu-item nav-action" onclick="openOrganiserAdmin()">🏆 Tournaments</button>
+  <button class="dots-menu-item nav-action" onclick="alert('Gallery Coming Soon!')">🖼️ Gallery</button>
+  <button class="dots-menu-item nav-action" onclick="closeDotsAndGo('score')">📡 Live Score</button>
+  <button class="dots-menu-item nav-action" onclick="closeDotsAndGo('points')">🏆 Points Table</button>
+  <div class="dots-menu-divider"></div>
+  <button class="dots-menu-item logout-item" onclick="logout()">🚪 Logout</button>
+</div>
+  
 </nav>
 
 
