@@ -263,7 +263,7 @@ ul{list-style:none;padding:0;}
 .toss-coin.spinning { animation: coinSpin 1s ease-in-out; }
 @keyframes coinSpin { 0% { transform: rotateY(0deg) scale(1); } 25% { transform: rotateY(180deg) scale(1.2); } 50% { transform: rotateY(360deg) scale(1); } 75% { transform: rotateY(540deg) scale(1.2); } 100% { transform: rotateY(720deg) scale(1); } }
 .toss-instruction { font-family: 'Inter', sans-serif; font-size: 13px; color: #6b7280; margin-bottom: 24px; }
-.toss-teams-row { display: flex; gap: 12px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
+.toss-teams-row { display: none; }
 .toss-team-btn { padding: 10px 20px; border-radius: 10px; font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 1px; cursor: pointer; border: 2px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: #e5e7eb; transition: all 0.2s; }
 .toss-team-btn:hover { background: rgba(37,99,235,0.25); border-color: #3b82f6; color: #fff; }
 .toss-team-btn.selected { background: rgba(37,99,235,0.35); border-color: #2563eb; color: #fff; }
@@ -663,7 +663,23 @@ html, body { overflow-x: hidden; }
 <div id="allPlayersModal"><div class="modal-box"><h3>👥 All Players</h3><div id="allPlayersContent"></div><button class="modal-close" onclick="closeAllPlayersModal()">Close</button></div></div>
 <div id="leagueModal"><div class="modal-box"><h3>🏆 KCP League — Match Results</h3><div id="leagueContent"></div><button class="modal-close" onclick="closeLeagueModal()">Close</button></div></div>
 <div id="winPopupOverlay"><div class="win-popup-box"><span class="win-trophy">🏆</span><div class="win-confetti-row">🎉 🎊 🎉</div><div class="win-popup-title">Match Winner</div><div class="win-popup-team" id="winTeamName">—</div><div class="win-popup-subtitle">won the match</div><div class="win-popup-margin" id="winMarginText">—</div><div style="margin:16px 0;padding:14px;background:rgba(255,255,255,0.06);border:1px solid rgba(251,191,36,0.3);border-radius:12px;"><div style="font-family:'Rajdhani',sans-serif;font-size:12px;letter-spacing:2px;color:#fbbf24;text-transform:uppercase;margin-bottom:6px;">⭐ Man of the Match</div><div id="momPlayerName" style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:#fff;">—</div><div id="momStats" style="font-family:'Inter',sans-serif;font-size:12px;color:#9ca3af;margin-top:2px;">—</div></div><button class="win-popup-btn" onclick="closeWinPopup()">Done</button></div></div>
-<div id="tossOverlay"><div class="toss-box"><div class="toss-title">🪙 Coin Toss</div><div class="toss-heading" id="tossMainHeading">Who calls the toss?</div><div class="toss-teams-row"><button class="toss-team-btn" id="tossBtnTeam1" onclick="selectTossTeam(0)"></button><button class="toss-team-btn" id="tossBtnTeam2" onclick="selectTossTeam(1)"></button></div><span class="toss-coin" id="tossCoin" onclick="flipCoin()">🪙</span><div class="toss-instruction" id="tossInstruction">Select a team, then flip the coin</div><button class="toss-flip-btn" id="tossFlipBtn" onclick="flipCoin()" disabled>Flip Coin 🪙</button><div class="toss-result-box" id="tossResultBox"><div class="toss-result-winner" id="tossWinnerText">—</div><div class="toss-result-sub" id="tossResultSub">Select Bat or Bowl:</div><div class="toss-choice-row"><button class="toss-choice-btn toss-choice-bat" onclick="tossChoice('bat')">🏏 Bat First</button><button class="toss-choice-btn toss-choice-bowl" onclick="tossChoice('bowl')">🎳 Bowl First</button></div></div></div></div>
+<div id="tossOverlay"><div class="toss-box"><div class="toss-title">🪙 Coin Toss</div>
+<div class="toss-heading" id="tossMainHeading">Ground Toss Result</div>
+<div style="margin:16px 0 8px;font-family:'Inter',sans-serif;font-size:13px;color:#9ca3af;">Who won the toss on ground?</div>
+<div style="display:flex;gap:10px;justify-content:center;margin-bottom:20px;flex-wrap:wrap;" id="tossTeamBtnsRow">
+  <button class="toss-team-btn" id="tossBtnTeam1" onclick="selectTossWinner(0)"></button>
+  <button class="toss-team-btn" id="tossBtnTeam2" onclick="selectTossWinner(1)"></button>
+</div>
+<div class="toss-result-box" id="tossResultBox" style="display:none;">
+  <div class="toss-result-winner" id="tossWinnerText">—</div>
+  <div class="toss-result-sub">Choose to Bat or Bowl:</div>
+  <div class="toss-choice-row">
+    <button class="toss-choice-btn toss-choice-bat" onclick="tossChoice('bat')">🏏 Bat First</button>
+    <button class="toss-choice-btn toss-choice-bowl" onclick="tossChoice('bowl')">🎳 Bowl First</button>
+  </div>
+</div>
+</div>
+</div>
 <div id="wicketOverlay"><div class="wicket-box"><span class="wicket-emoji">🎯</span><div class="wicket-title">Wicket!</div><div class="wicket-heading">Who got Out?</div><div class="wicket-label">Select batsman who is out:</div><select id="wicketPlayerSelect"></select><div class="wicket-label" style="margin-top:12px;">Dismissal Type:</div><select id="dismissalTypeSelect" onchange="onDismissalTypeChange()" style="width:100%;padding:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(220,38,38,0.4);border-radius:8px;color:#e5e7eb;margin-bottom:12px;box-sizing:border-box;"><option value="Bowled">🏏 Bowled</option><option value="Caught">🤲 Caught Out</option><option value="Run Out">🏃 Run Out</option><option value="Stumped">🧤 Stumped</option></select><div id="dismissedBySection"><div class="wicket-label" id="dismissedByLabel">Fielder Name:</div><select id="dismissedBySelect" style="width:100%;padding:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(220,38,38,0.4);border-radius:8px;color:#e5e7eb;margin-bottom:12px;box-sizing:border-box;"></select></div><button class="wicket-confirm-btn" onclick="confirmWicket()">Confirm Out ❌</button></div></div>
 
 <div id="playerProfileModal">
@@ -1858,30 +1874,15 @@ function startMatch() {
   document.getElementById("tossFlipBtn").disabled = true;
   document.getElementById("tossOverlay").classList.add("open");
 }
-function selectTossTeam(index) {
-  tossCallingTeamIndex = index;
+function selectTossTeam(index) {}
+function flipCoin() {}
+function selectTossWinner(index) {
+  tossWinnerIndex = index;
   document.getElementById("tossBtnTeam1").classList.toggle("selected", index === 0);
   document.getElementById("tossBtnTeam2").classList.toggle("selected", index === 1);
-  document.getElementById("tossInstruction").innerText = tossTeams[index] + " is calling the toss. Flip the coin!";
-  document.getElementById("tossFlipBtn").disabled = false;
-}
-function flipCoin() {
-  if (tossCallingTeamIndex === -1) return;
-  if (tossFlipped) return;
-  tossFlipped = true;
-  document.getElementById("tossFlipBtn").disabled = true;
-  let coin = document.getElementById("tossCoin");
-  coin.classList.add("spinning");
-  setTimeout(function() {
-    coin.classList.remove("spinning");
-    let result = Math.random() < 0.5 ? 0 : 1;
-    tossWinnerIndex = result;
-    coin.innerText = result === 0 ? "🟡" : "⚪";
-    document.getElementById("tossInstruction").innerText = "";
-    document.getElementById("tossMainHeading").innerText = "Choose: Bat or Bowl?";
-    document.getElementById("tossWinnerText").innerText = "🎉 " + tossTeams[tossWinnerIndex] + " Won the Toss!";
-    document.getElementById("tossResultBox").style.display = "block";
-  }, 1000);
+  document.getElementById("tossMainHeading").innerText = tossTeams[index] + " Won the Toss! 🎉";
+  document.getElementById("tossWinnerText").innerText = tossTeams[index] + " — Choose Bat or Bowl:";
+  document.getElementById("tossResultBox").style.display = "block";
 }
 function tossChoice(choice) {
   let tossWinner = tossTeams[tossWinnerIndex];
