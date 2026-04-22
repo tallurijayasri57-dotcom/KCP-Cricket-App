@@ -25,24 +25,25 @@ body {
   position: relative;
 }
 
-/* Aesthetic Blurred Cricket Background */
+/* Aesthetic Blurred Local Background */
 body::before {
   content: "";
   position: fixed;
-  inset: -10px; /* Over-extension for blur edges */
-  background-image: 
-    linear-gradient(rgba(2, 6, 23, 0.75), rgba(2, 6, 23, 0.85)), /* Dark Overlay for readability */
-    url('crk bg.jpg'); /* Your Uploaded Image */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    linear-gradient(rgba(2, 6, 23, 0.65), rgba(2, 6, 23, 0.85)), 
+    url('file:///C:/Users/JAYASREE%20TALLURI/Downloads/crkbg.jpg') no-repeat center center;
   background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  filter: blur(8px); /* Perfect aesthetic blur */
-  z-index: -2;
+  filter: blur(10px); /* Aesthetic high-quality blur */
+  z-index: -10; /* Text venaka velladaniki */
+  transform: scale(1.1); /* Edges cover avvadaniki */
   pointer-events: none;
-  transform: scale(1.1); /* Prevents white edges from blur */
 }
 
-/* Yellow Glow behind content */
+/* Yellow Glow behind content 
 body::after {
   content: "";
   position: fixed;
@@ -52,7 +53,7 @@ body::after {
   transform: translate(-50%, -50%);
   z-index: -2;
   pointer-events: none;
-}
+}*/
 
 /* Professional Outlined YELLOW Watermark */
 .watermark {
