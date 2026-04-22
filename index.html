@@ -19,23 +19,27 @@
 body {
   font-family: 'Inter', sans-serif;
   margin: 0;
-  background: #020617; /* Blue Background */
+ background: #000; /* Dark fallback */
   color: white;
   overflow-x: hidden;
   position: relative;
 }
 
-/* 21st.dev style - Modern Blue Mesh Grid */
+/* Aesthetic Blurred Cricket Background */
 body::before {
   content: "";
   position: fixed;
-  inset: 0;
+  inset: -10px; /* Over-extension for blur edges */
   background-image: 
-    linear-gradient(rgba(37, 99, 235, 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(37, 99, 235, 0.06) 1px, transparent 1px);
-  background-size: 45px 45px;
+    linear-gradient(rgba(2, 6, 23, 0.75), rgba(2, 6, 23, 0.85)), /* Dark Overlay for readability */
+    url('crk bg.jpg'); /* Your Uploaded Image */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: blur(8px); /* Perfect aesthetic blur */
   z-index: -2;
   pointer-events: none;
+  transform: scale(1.1); /* Prevents white edges from blur */
 }
 
 /* Yellow Glow behind content */
