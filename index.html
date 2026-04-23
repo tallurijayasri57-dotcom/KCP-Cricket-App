@@ -3311,6 +3311,9 @@
         <div style="padding:8px 0;">
           <button class="dots-menu-item nav-action"
             style="color:#374151; padding:12px 20px; font-size:15px; text-transform:none; text-align:left;"
+            onclick="closeDotsAndGo('home')">Home</button>
+          <button class="dots-menu-item nav-action"
+            style="color:#374151; padding:12px 20px; font-size:15px; text-transform:none; text-align:left;"
             onclick="closeDotsAndGo('myMatchesPage')">My Matches</button>
           <button class="dots-menu-item nav-action"
             style="color:#374151; padding:12px 20px; font-size:15px; text-transform:none; text-align:left;"
@@ -3491,7 +3494,7 @@
   <!-- TOURNAMENT SUCCESS MODAL -->
   <div id="tournamentSuccessModal"
     style="display:none; position:fixed; inset:0; background:#f9fafb; z-index:9999; align-items:center; justify-content:center; flex-direction:column;">
-    <div
+    <div id="tournamentSuccessToastBar"
       style="position:absolute; top:20px; left:50%; transform:translateX(-50%); background:#ffffff; border:1px solid #e5e7eb; border-radius:8px; padding:12px 20px; display:flex; align-items:center; gap:12px; box-shadow:0 4px 6px rgba(0,0,0,0.05); width:90%; max-width:400px; justify-content:space-between;">
       <div style="display:flex; align-items:center; gap:12px;">
         <div
@@ -3501,7 +3504,7 @@
           successfully</span>
       </div>
       <span style="color:#9ca3af; cursor:pointer; font-size:20px; line-height:1;"
-        onclick="document.getElementById('tournamentSuccessModal').style.display='none'">×</span>
+        onclick="document.getElementById('tournamentSuccessToastBar').style.display='none';">×</span>
       <div
         style="position:absolute; bottom:0; left:0; height:4px; background:#d1fae5; width:100%; border-radius:0 0 8px 8px;">
       </div>
@@ -3636,10 +3639,10 @@
       <div style="display:flex; gap:16px; flex-wrap:wrap; justify-content:center;">
         <button
           style="background:#ffffff; color:#0d9488; border:1px solid #0d9488; padding:12px 24px; border-radius:4px; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; cursor:pointer; text-transform:uppercase;"
-          onclick="alert('Add a Match coming soon')">ADD A MATCH</button>
+          onclick="openTournamentsTable()">GO TO MY TOURNAMENTS</button>
         <button
           style="background:#0d9488; color:#ffffff; border:none; padding:12px 24px; border-radius:4px; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; cursor:pointer; text-transform:uppercase;"
-          onclick="openAddTournament()">ADD A NEW TOURNAMENT</button>
+          onclick="openAddTournament()">ADD A NEW TOURNAMENTS</button>
       </div>
     </div>
   </div>
@@ -4884,6 +4887,7 @@
     function openOrganiserAdmin() {
       document.getElementById('dotsDropdown').classList.remove('open');
       showPage('organiserAdmin');
+      document.getElementById('organiserAdmin').style.display = 'flex';
     }
 
     function openTournamentsTable() {
@@ -4924,7 +4928,7 @@
           <td style="padding:16px; color:#374151;">${formatOutDate(t.startDate)}</td>
           <td style="padding:16px; color:#374151;">${formatOutDate(t.endDate)}</td>
           <td style="padding:16px; color:#6b7280; font-size:16px; background:#f9fafb;">
-            <span style="cursor:pointer;margin-right:12px;opacity:0.8;display:inline-flex;vertical-align:middle;" title="Edit" onclick="manageTournament(${i})">
+            <span style="cursor:pointer;margin-right:12px;opacity:0.8;display:inline-flex;vertical-align:middle;" title="Edit" onclick="openEditTournament(${i})">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
             </span>
             <span style="cursor:pointer;margin-right:12px;opacity:0.8;display:inline-flex;vertical-align:middle;" title="Delete" onclick="promptDeleteTournament(${i})">
@@ -4938,6 +4942,74 @@
       ).join('');
 
       document.getElementById('oaPaginationText').innerText = `1-${tournaments.length} of ${tournaments.length}`;
+    }
+
+    let currentEditTournamentIdx = -1;
+    function openEditTournament(idx) {
+      currentEditTournamentIdx = idx;
+      tournaments = loadTournaments();
+      let t = tournaments[idx];
+      document.getElementById('etName').value = t.name || '';
+      document.getElementById('etCity').value = t.city || '';
+      document.getElementById('etGround').value = t.ground || '';
+      document.getElementById('etOrganiser').value = t.organiser || '';
+      document.getElementById('etContact').value = t.contact || '';
+      document.getElementById('etStartDate').value = t.startDate || '';
+      document.getElementById('etEndDate').value = t.endDate || '';
+      document.querySelectorAll('#etCategory .et-chip').forEach(function(c){ c.classList.remove('et-chip-sel'); if (c.innerText.trim() === (t.category||'').trim()) c.classList.add('et-chip-sel'); });
+      document.querySelectorAll('#etPitch .et-chip').forEach(function(c){ c.classList.remove('et-chip-sel'); if (c.innerText.trim() === (t.pitch||'').trim()) c.classList.add('et-chip-sel'); });
+      document.querySelectorAll('#etMatchType .et-chip').forEach(function(c){ c.classList.remove('et-chip-sel'); if (c.innerText.trim() === (t.matchType||'').trim()) c.classList.add('et-chip-sel'); });
+      document.querySelectorAll('#etBallType .et-ball').forEach(function(b){ b.classList.remove('et-ball-sel'); if (b.dataset.ball === (t.ball||'')) b.classList.add('et-ball-sel'); });
+      document.getElementById('editTournamentModal').style.display = 'flex';
+    }
+    function closeEditTournamentModal() {
+      document.getElementById('editTournamentModal').style.display = 'none';
+    }
+    function selectEtChip(el, groupId) {
+      document.querySelectorAll('#' + groupId + ' .et-chip').forEach(function(c){ c.classList.remove('et-chip-sel'); });
+      el.classList.add('et-chip-sel');
+    }
+    function selectEtBall(el, type) {
+      document.querySelectorAll('#etBallType .et-ball').forEach(function(b){ b.classList.remove('et-ball-sel'); });
+      el.classList.add('et-ball-sel');
+      el.dataset.ball = type;
+    }
+    function saveEditTournament() {
+      let name = document.getElementById('etName').value.trim();
+      if (!name) { alert('Enter tournament name'); return; }
+      tournaments = loadTournaments();
+      let t = tournaments[currentEditTournamentIdx];
+      t.name = name;
+      t.city = document.getElementById('etCity').value.trim();
+      t.ground = document.getElementById('etGround').value.trim();
+      t.organiser = document.getElementById('etOrganiser').value.trim();
+      t.contact = document.getElementById('etContact').value.trim();
+      t.startDate = document.getElementById('etStartDate').value;
+      t.endDate = document.getElementById('etEndDate').value;
+      let catEl = document.querySelector('#etCategory .et-chip-sel');
+      let pitchEl = document.querySelector('#etPitch .et-chip-sel');
+      let matchEl = document.querySelector('#etMatchType .et-chip-sel');
+      let ballEl = document.querySelector('#etBallType .et-ball-sel');
+      if (catEl) t.category = catEl.innerText.trim();
+      if (pitchEl) t.pitch = pitchEl.innerText.trim();
+      if (matchEl) t.matchType = matchEl.innerText.trim();
+      if (ballEl) t.ball = ballEl.dataset.ball;
+      saveTournamentsData(tournaments);
+      closeEditTournamentModal();
+      renderTournamentList();
+      showTournamentUpdatedToast();
+    }
+    function showTournamentUpdatedToast() {
+      if (!document.getElementById('_shrinkKf')) {
+        let s = document.createElement('style'); s.id = '_shrinkKf';
+        s.textContent = '@keyframes shrinkProgress { from { width:100%; } to { width:0%; } }';
+        document.head.appendChild(s);
+      }
+      let toast = document.getElementById('tournamentUpdatedToast');
+      let bar = toast.querySelector('.tut-bar');
+      if (bar) { bar.style.animation = 'none'; void bar.offsetWidth; bar.style.animation = 'shrinkProgress 3s linear forwards'; }
+      toast.style.display = 'flex';
+      setTimeout(function(){ toast.style.display = 'none'; }, 3000);
     }
 
     function openAddTournament() {
@@ -5124,7 +5196,9 @@
       tbody.innerHTML = teams.map((team, i) =>
         `<tr style="border-bottom:1px solid #e5e7eb;">
           <td style="padding:16px; color:#0d9488; font-weight:500;">${team.name}</td>
-          <td style="padding:16px; color:#374151; text-align:center;">${team.players ? team.players.length : 0}</td>
+          <td style="padding:16px; text-align:center;">
+            <span style="color:#0d9488; font-size:15px; font-weight:700; cursor:pointer;" onclick="openTeamMembersModal(${i})">${team.players ? team.players.length : 0}</span>
+          </td>
           <td style="padding:16px; color:#6b7280; font-size:16px; background:#f9fafb;">
             <span style="cursor:pointer;margin-right:12px;opacity:0.8;display:inline-flex;vertical-align:middle;" title="Edit" onclick="alert('Edit team soon')">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
@@ -5140,15 +5214,51 @@
     }
 
     function openAddTeam() {
-      let teamName = prompt("Enter Team Name:");
-      if (!teamName) return;
-      
+      document.getElementById('addTeamNameInput').value = '';
+      document.getElementById('addTeamCityInput').value = '';
+      document.getElementById('addTeamLogoPreview').style.display = 'none';
+      document.getElementById('addTeamLogoPreview').src = '';
+      document.getElementById('addTeamLogoPlaceholder').style.display = 'flex';
+      document.getElementById('addTeamLogoFileInput').value = '';
+      let dl = document.getElementById('addTeamCityList');
+      dl.innerHTML = (typeof IN_CITIES !== 'undefined' ? IN_CITIES : []).map(function(c){ return '<option value="' + c + '">'; }).join('');
+      document.getElementById('addTeamModal').style.display = 'flex';
+    }
+    function closeAddTeamModal() {
+      document.getElementById('addTeamModal').style.display = 'none';
+    }
+    function previewAddTeamLogo() {
+      let file = document.getElementById('addTeamLogoFileInput').files[0];
+      if (!file) return;
+      let reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('addTeamLogoPreview').src = e.target.result;
+        document.getElementById('addTeamLogoPreview').style.display = 'block';
+        document.getElementById('addTeamLogoPlaceholder').style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    }
+    function confirmAddTeamFromModal() {
+      let teamName = document.getElementById('addTeamNameInput').value.trim();
+      if (!teamName) { alert('Enter team name'); return; }
+      let city = document.getElementById('addTeamCityInput').value.trim();
+      let logoEl = document.getElementById('addTeamLogoPreview');
+      let logo = (logoEl.style.display !== 'none' && logoEl.src) ? logoEl.src : '';
       tournaments = loadTournaments();
       let t = tournaments[currentTeamsTournamentIdx];
       if (!t.teams) t.teams = [];
-      t.teams.push({ name: teamName, players: [] });
+      t.teams.push({ name: teamName, city: city, logo: logo, players: [] });
       saveTournamentsData(tournaments);
+      closeAddTeamModal();
       renderTeamsList();
+      showTeamAddedToasts();
+    }
+    function showTeamAddedToasts() {
+      let t1 = document.getElementById('teamAddedToast1');
+      let t2 = document.getElementById('teamAddedToast2');
+      t1.style.display = 'flex'; t2.style.display = 'flex';
+      setTimeout(function(){ t1.style.display = 'none'; }, 3500);
+      setTimeout(function(){ t2.style.display = 'none'; }, 4000);
     }
     
     function deleteTournamentTeam(teamIdx) {
@@ -5158,6 +5268,88 @@
       t.teams.splice(teamIdx, 1);
       saveTournamentsData(tournaments);
       renderTeamsList();
+    }
+    let currentAddPlayerTeamIdx = -1;
+    function openAddTeamPlayerModal(teamIdx) {
+      currentAddPlayerTeamIdx = teamIdx;
+      document.getElementById('addTeamPlayerNameInput').value = '';
+      document.getElementById('addTeamPlayerRoleInput').value = '';
+      document.getElementById('addTeamPlayerModal').style.display = 'flex';
+    }
+    function closeAddTeamPlayerModal() {
+      document.getElementById('addTeamPlayerModal').style.display = 'none';
+    }
+    function confirmAddTeamPlayer() {
+      let name = document.getElementById('addTeamPlayerNameInput').value.trim();
+      if (!name) { alert('Enter player name'); return; }
+      let role = document.getElementById('addTeamPlayerRoleInput').value;
+      if (!role) { alert('Select player role'); return; }
+      tournaments = loadTournaments();
+      let t = tournaments[currentTeamsTournamentIdx];
+      let tName = t.teams[currentAddPlayerTeamIdx].name;
+      if (!t.teams[currentAddPlayerTeamIdx].players) t.teams[currentAddPlayerTeamIdx].players = [];
+      t.teams[currentAddPlayerTeamIdx].players.push({ name: name, role: role });
+      saveTournamentsData(tournaments);
+      document.getElementById('addTeamPlayerNameInput').value = '';
+      document.getElementById('addTeamPlayerRoleInput').value = '';
+      document.getElementById('addTeamPlayerModal').style.display = 'none';
+      renderTeamsList();
+      renderTeamMembersView();
+      document.getElementById('teamMembersModal').style.display = 'flex';
+      showPlayerAddedToast(tName);
+    }
+    function showPlayerAddedToast(teamName) {
+      if (!document.getElementById('_shrinkKf')) {
+        let s = document.createElement('style');
+        s.id = '_shrinkKf';
+        s.textContent = '@keyframes shrinkProgress { from { width:100%; } to { width:0%; } }';
+        document.head.appendChild(s);
+      }
+      let toast = document.getElementById('playerAddedToast');
+      let textEl = toast.querySelector('span[style*="flex:1"]');
+      if (textEl) textEl.innerText = 'Player added to ' + (teamName || 'team');
+      let bar = toast.querySelector('div[style*="height:3px"]');
+      if (bar) { bar.style.animation = 'none'; void bar.offsetWidth; bar.style.animation = 'shrinkProgress 3s linear forwards'; }
+      toast.style.display = 'flex';
+      setTimeout(function(){ toast.style.display = 'none'; }, 3000);
+    }
+    function openTeamMembersModal(teamIdx) {
+      currentAddPlayerTeamIdx = teamIdx;
+      renderTeamMembersView();
+      document.getElementById('teamMembersModal').style.display = 'flex';
+    }
+    function closeTeamMembersModal() {
+      document.getElementById('teamMembersModal').style.display = 'none';
+    }
+    function renderTeamMembersView() {
+      tournaments = loadTournaments();
+      let t = tournaments[currentTeamsTournamentIdx];
+      if (!t || !t.teams[currentAddPlayerTeamIdx]) return;
+      let team = t.teams[currentAddPlayerTeamIdx];
+      let el = document.getElementById('teamMembersTitle');
+      if (el) el.innerText = 'Members of ' + team.name;
+      let grid = document.getElementById('teamMembersGrid');
+      if (!grid) return;
+      let players = team.players || [];
+      if (players.length === 0) {
+        grid.innerHTML = '<div style="color:#9ca3af; font-size:14px; font-family:Inter,sans-serif; padding:8px;">No players added yet.</div>';
+        return;
+      }
+      grid.innerHTML = players.map(function(p) {
+        return '<div style="display:flex;flex-direction:column;align-items:center;width:120px;">' +
+          '<div style="width:110px;height:110px;background:#e5e7eb;border-radius:4px;overflow:hidden;display:flex;align-items:center;justify-content:center;">' +
+          '<svg width="48" height="48" viewBox="0 0 24 24" fill="#9ca3af"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>' +
+          '</div>' +
+          '<div style="margin-top:6px;font-size:13px;font-family:Inter,sans-serif;color:#1f2937;text-align:center;font-weight:500;">' + p.name + '</div>' +
+          '<div style="font-size:11px;color:#6b7280;font-family:Inter,sans-serif;">' + (p.role || '') + '</div>' +
+          '</div>';
+      }).join('');
+    }
+    function openAddPlayerFromMembers() {
+      document.getElementById('teamMembersModal').style.display = 'none';
+      document.getElementById('addTeamPlayerNameInput').value = '';
+      document.getElementById('addTeamPlayerRoleInput').value = '';
+      document.getElementById('addTeamPlayerModal').style.display = 'flex';
     }
 
     function manageTournament(idx) {
@@ -6848,6 +7040,221 @@
       </div>
     </div>
   </div>
+  <!-- ADD TEAM MODAL -->
+  <div id="addTeamModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:10001; align-items:center; justify-content:center;">
+    <div style="background:#fff; width:90%; max-width:560px; border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.2); overflow:hidden; font-family:'Inter',sans-serif;">
+      <!-- Header -->
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 24px; border-bottom:1px solid #e5e7eb;">
+        <h3 style="margin:0; font-size:20px; font-weight:700; color:#1f2937;">Add Team(s)</h3>
+        <span onclick="closeAddTeamModal()" style="cursor:pointer; font-size:26px; color:#6b7280; line-height:1; padding:0 4px;">&times;</span>
+      </div>
+      <!-- Body -->
+      <div style="padding:24px; display:flex; gap:28px; flex-wrap:wrap; align-items:flex-start;">
+        <!-- Left: Logo Upload -->
+        <div style="display:flex; flex-direction:column; align-items:flex-start;">
+          <div onclick="document.getElementById('addTeamLogoFileInput').click()" style="width:170px; height:170px; border:2px dashed #d1d5db; border-radius:6px; cursor:pointer; overflow:hidden; background:#fafafa; position:relative;">
+            <div id="addTeamLogoPlaceholder" style="display:flex; align-items:center; justify-content:center; width:100%; height:100%;">
+              <svg width="56" height="56" viewBox="0 0 24 24" fill="none">
+                <rect width="24" height="24" rx="2" fill="#f3f4f6"/>
+                <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" fill="#d1d5db"/>
+              </svg>
+            </div>
+            <img id="addTeamLogoPreview" src="" alt="" style="display:none; width:100%; height:100%; object-fit:cover; position:absolute; inset:0;">
+          </div>
+          <input type="file" id="addTeamLogoFileInput" accept="image/*" style="display:none;" onchange="previewAddTeamLogo()">
+          <div style="margin-top:10px; font-size:16px; font-weight:700; color:#1f2937;">Add Team Logo</div>
+          <div style="font-size:12px; color:#6b7280; margin-top:2px;">(Dimension: 300px x 300px; Size: &lt;100kb)</div>
+        </div>
+        <!-- Right: Fields -->
+        <div style="flex:1; min-width:200px; display:flex; flex-direction:column; gap:24px; padding-top:8px;">
+          <div>
+            <div style="font-size:13px; color:#9ca3af; margin-bottom:6px;">Team Name</div>
+            <input id="addTeamNameInput" placeholder="" style="width:100%; border:none; border-bottom:1px solid #d1d5db; padding:8px 0; font-size:15px; color:#1f2937; outline:none; background:transparent; font-family:'Inter',sans-serif; box-sizing:border-box;">
+          </div>
+          <div>
+            <div style="font-size:13px; color:#9ca3af; margin-bottom:6px;">City</div>
+            <div style="display:flex; align-items:center; border-bottom:1px solid #d1d5db; padding-bottom:6px;">
+              <input id="addTeamCityInput" list="addTeamCityList" placeholder="" style="flex:1; border:none; font-size:15px; color:#1f2937; outline:none; background:transparent; font-family:'Inter',sans-serif; padding:4px 0;">
+              <span style="color:#9ca3af; font-size:11px;">&#9660;</span>
+            </div>
+            <datalist id="addTeamCityList"></datalist>
+          </div>
+        </div>
+      </div>
+      <!-- Footer -->
+      <div style="display:flex; justify-content:center; padding:8px 24px 28px;">
+        <button onclick="confirmAddTeamFromModal()" style="background:#10b981; color:#fff; border:none; padding:13px 48px; border-radius:4px; font-family:'Inter',sans-serif; font-size:14px; font-weight:700; cursor:pointer; text-transform:uppercase; letter-spacing:0.5px;">ADD TEAM</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEAM ADDED TOASTS -->
+  <div id="teamAddedToast1" style="display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#fff; border:1px solid #e5e7eb; border-radius:8px; padding:12px 20px; align-items:center; gap:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); z-index:10003; min-width:280px;">
+    <div style="width:24px; height:24px; background:#10b981; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:14px; flex-shrink:0;">&#10003;</div>
+    <span style="font-family:'Inter',sans-serif; font-size:14px; color:#374151; flex:1;">Team added successfully</span>
+    <span onclick="document.getElementById('teamAddedToast1').style.display='none'" style="cursor:pointer; font-size:18px; color:#9ca3af; flex-shrink:0;">&times;</span>
+    <div style="position:absolute; bottom:0; left:0; right:0; height:3px; background:#10b981; border-radius:0 0 8px 8px;"></div>
+  </div>
+  <div id="teamAddedToast2" style="display:none; position:fixed; top:78px; left:50%; transform:translateX(-50%); background:#fff; border:1px solid #e5e7eb; border-radius:8px; padding:12px 20px; align-items:center; gap:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); z-index:10003; min-width:280px;">
+    <div style="width:24px; height:24px; background:#10b981; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:14px; flex-shrink:0;">&#10003;</div>
+    <span style="font-family:'Inter',sans-serif; font-size:14px; color:#374151; flex:1;">Team Added in Tournament</span>
+    <span onclick="document.getElementById('teamAddedToast2').style.display='none'" style="cursor:pointer; font-size:18px; color:#9ca3af; flex-shrink:0;">&times;</span>
+    <div style="position:absolute; bottom:0; left:0; right:0; height:3px; background:#10b981; border-radius:0 0 8px 8px;"></div>
+  </div>
+
+  <!-- PLAYER ADDED TOAST -->
+  <div id="playerAddedToast" style="display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#fff; border:1px solid #e5e7eb; border-radius:8px; padding:12px 20px; align-items:center; gap:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); z-index:10003; min-width:280px;">
+    <div style="width:24px; height:24px; background:#10b981; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:14px; flex-shrink:0;">&#10003;</div>
+    <span style="font-family:'Inter',sans-serif; font-size:14px; color:#374151; flex:1;">Player added successfully</span>
+    <span onclick="document.getElementById('playerAddedToast').style.display='none'" style="cursor:pointer; font-size:18px; color:#9ca3af; flex-shrink:0;">&times;</span>
+    <div style="position:absolute; bottom:0; left:0; right:0; height:3px; background:#10b981; border-radius:0 0 8px 8px;"></div>
+  </div>
+
+  <!-- ADD TEAM PLAYER MODAL -->
+  <div id="addTeamPlayerModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:10002; align-items:center; justify-content:center;">
+    <div style="background:#fff; width:90%; max-width:400px; border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.2); font-family:'Inter',sans-serif; overflow:hidden;">
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 24px; border-bottom:1px solid #e5e7eb;">
+        <h3 style="margin:0; font-size:18px; font-weight:700; color:#1f2937;">Add Player</h3>
+        <span onclick="closeAddTeamPlayerModal()" style="cursor:pointer; font-size:24px; color:#6b7280; line-height:1;">&times;</span>
+      </div>
+      <div style="padding:24px; display:flex; flex-direction:column; gap:22px;">
+        <div>
+          <div style="font-size:13px; color:#9ca3af; margin-bottom:6px;">Player Name</div>
+          <input id="addTeamPlayerNameInput" placeholder="Enter player name" style="width:100%; border:none; border-bottom:1px solid #d1d5db; padding:8px 0; font-size:15px; color:#1f2937; outline:none; background:transparent; font-family:'Inter',sans-serif; box-sizing:border-box;">
+        </div>
+        <div>
+          <div style="font-size:13px; color:#9ca3af; margin-bottom:6px;">Role</div>
+          <select id="addTeamPlayerRoleInput" style="width:100%; border:none; border-bottom:1px solid #d1d5db; padding:8px 0; font-size:15px; color:#1f2937; outline:none; background:transparent; font-family:'Inter',sans-serif;">
+            <option value="">-- Select Role --</option>
+            <option value="Batsman">&#127951; Batsman</option>
+            <option value="Bowler">&#127955; Bowler</option>
+            <option value="All-Rounder">&#11088; All-Rounder</option>
+            <option value="Wicket-Keeper">&#129510; Wicket-Keeper</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex; justify-content:center; padding:8px 24px 24px;">
+        <button onclick="confirmAddTeamPlayer()" style="background:#10b981; color:#fff; border:none; padding:12px 48px; border-radius:4px; font-family:'Inter',sans-serif; font-size:14px; font-weight:700; cursor:pointer; text-transform:uppercase; letter-spacing:0.5px;">ADD</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEAM MEMBERS MODAL -->
+  <div id="teamMembersModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:10002; align-items:center; justify-content:center;">
+    <div style="background:#fff; width:95%; max-width:720px; max-height:85vh; border-radius:8px; overflow-y:auto; box-shadow:0 10px 30px rgba(0,0,0,0.2); font-family:'Inter',sans-serif;">
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:20px 24px; border-bottom:1px solid #e5e7eb; position:sticky; top:0; background:#fff; z-index:1;">
+        <h2 id="teamMembersTitle" style="margin:0; font-size:22px; font-weight:700; color:#1f2937;">Members</h2>
+        <div style="display:flex; align-items:center; gap:14px;">
+          <button onclick="openAddPlayerFromMembers()" style="border:1px solid #0d9488; color:#0d9488; background:#fff; padding:8px 16px; border-radius:4px; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; cursor:pointer; text-transform:uppercase; letter-spacing:0.3px;">ADD PLAYER</button>
+          <span onclick="closeTeamMembersModal()" style="cursor:pointer; font-size:24px; color:#6b7280; line-height:1;">&times;</span>
+        </div>
+      </div>
+      <div id="teamMembersGrid" style="padding:24px; display:flex; flex-wrap:wrap; gap:20px;"></div>
+    </div>
+  </div>
+
+  <!-- TOURNAMENT UPDATED TOAST -->
+  <div id="tournamentUpdatedToast" style="display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#fff; border:1px solid #e5e7eb; border-radius:8px; padding:12px 20px; align-items:center; gap:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); z-index:10010; min-width:300px;">
+    <div style="width:24px; height:24px; background:#10b981; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:14px; flex-shrink:0;">&#10003;</div>
+    <span style="font-family:'Inter',sans-serif; font-size:14px; color:#374151; flex:1;">Tournament updated successfully</span>
+    <span onclick="document.getElementById('tournamentUpdatedToast').style.display='none'" style="cursor:pointer; font-size:18px; color:#9ca3af; flex-shrink:0;">&times;</span>
+    <div class="tut-bar" style="position:absolute; bottom:0; left:0; right:0; height:3px; background:#10b981; border-radius:0 0 8px 8px;"></div>
+  </div>
+
+  <!-- EDIT TOURNAMENT MODAL -->
+  <style>
+    .et-chip { display:inline-block; padding:6px 14px; border-radius:20px; border:1px solid #d1d5db; font-family:'Inter',sans-serif; font-size:12px; font-weight:600; cursor:pointer; margin:4px; color:#374151; background:#fff; text-transform:uppercase; transition:all 0.15s; }
+    .et-chip.et-chip-sel { background:#1f2937; color:#fff; border-color:#1f2937; }
+    .et-ball { width:72px; height:72px; border-radius:50%; border:2px solid #e5e7eb; display:flex; align-items:center; justify-content:center; cursor:pointer; margin:0 auto; transition:all 0.15s; }
+    .et-ball.et-ball-sel { border-color:#10b981; background:#f0fdf4; }
+    .et-input { width:100%; border:none; border-bottom:1px solid #d1d5db; padding:8px 0; font-size:14px; color:#1f2937; outline:none; background:transparent; font-family:'Inter',sans-serif; box-sizing:border-box; }
+    .et-label { font-size:12px; color:#9ca3af; margin-bottom:6px; font-family:'Inter',sans-serif; }
+    .et-field { margin-bottom:20px; }
+  </style>
+  <div id="editTournamentModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:10009; align-items:flex-start; justify-content:center; overflow-y:auto; padding:20px; box-sizing:border-box;">
+    <div style="background:#fff; width:100%; max-width:900px; border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.2); font-family:'Inter',sans-serif; overflow:hidden; margin:auto;">
+      <div style="padding:24px 32px; border-bottom:1px solid #e5e7eb; display:flex; justify-content:space-between; align-items:center;">
+        <h2 style="margin:0; font-family:'Times New Roman',serif; font-size:28px; font-weight:700; color:#1f2937; text-align:center; flex:1;">EDIT TOURNAMENT</h2>
+        <span onclick="closeEditTournamentModal()" style="cursor:pointer; font-size:26px; color:#6b7280; line-height:1; flex-shrink:0;">&times;</span>
+      </div>
+      <div style="padding:32px; display:flex; gap:40px; flex-wrap:wrap;">
+        <!-- Left Column -->
+        <div style="flex:1; min-width:280px;">
+          <div class="et-field"><div class="et-label">Tournament Name*</div><input class="et-input" id="etName" placeholder="Tournament name"></div>
+          <div class="et-field"><div class="et-label">City*</div><input class="et-input" id="etCity" placeholder="City"></div>
+          <div class="et-field"><div class="et-label">Ground*</div><input class="et-input" id="etGround" placeholder="Ground"></div>
+          <div class="et-field"><div class="et-label">Organiser Name*</div><input class="et-input" id="etOrganiser" placeholder="Organiser name"></div>
+          <div style="display:flex; gap:10px;">
+            <div class="et-field" style="width:80px;"><div class="et-label">Country Code*</div><input class="et-input" value="+91" disabled style="background:transparent; color:#374151;"></div>
+            <div class="et-field" style="flex:1;"><div class="et-label">Organiser Contact*</div><input class="et-input" id="etContact" type="tel" placeholder="Contact"></div>
+          </div>
+          <div style="display:flex; gap:16px; margin-bottom:20px;">
+            <div style="flex:1;"><div class="et-label">Start Date*</div><input class="et-input" id="etStartDate" type="date"></div>
+            <div style="flex:1;"><div class="et-label">End Date*</div><input class="et-input" id="etEndDate" type="date"></div>
+          </div>
+        </div>
+        <!-- Right Column -->
+        <div style="flex:1; min-width:280px;">
+          <div class="et-field">
+            <div class="et-label">Tournament Category*</div>
+            <div id="etCategory">
+              <span class="et-chip" onclick="selectEtChip(this,'etCategory')">OPEN</span>
+              <span class="et-chip" onclick="selectEtChip(this,'etCategory')">CORPORATE</span>
+              <span class="et-chip" onclick="selectEtChip(this,'etCategory')">COMMUNITY</span>
+              <span class="et-chip" onclick="selectEtChip(this,'etCategory')">SCHOOL</span>
+              <span class="et-chip" onclick="selectEtChip(this,'etCategory')">BOX</span>
+              <span class="et-chip" onclick="selectEtChip(this,'etCategory')">CRICKET</span>
+              <span class="et-chip" onclick="selectEtChip(this,'etCategory')">SERIES</span>
+              <span class="et-chip" onclick="selectEtChip(this,'etCategory')">OTHER</span>
+            </div>
+          </div>
+          <div class="et-field">
+            <div class="et-label">Pitch Type</div>
+            <div id="etPitch">
+              <span class="et-chip" onclick="selectEtChip(this,'etPitch')">ROUGH</span>
+              <span class="et-chip" onclick="selectEtChip(this,'etPitch')">CEMENT</span>
+              <span class="et-chip" onclick="selectEtChip(this,'etPitch')">TURF</span>
+              <span class="et-chip" onclick="selectEtChip(this,'etPitch')">ASTROTURF</span>
+              <span class="et-chip" onclick="selectEtChip(this,'etPitch')">MATTING</span>
+            </div>
+          </div>
+          <div class="et-field">
+            <div class="et-label">Match Type*</div>
+            <div id="etMatchType">
+              <span class="et-chip" onclick="selectEtChip(this,'etMatchType')">Limited Overs</span>
+              <span class="et-chip" onclick="selectEtChip(this,'etMatchType')">The Hundred</span>
+              <span class="et-chip" onclick="selectEtChip(this,'etMatchType')">Box Cricket</span>
+              <span class="et-chip" onclick="selectEtChip(this,'etMatchType')">Unlimited Overs</span>
+              <span class="et-chip" onclick="selectEtChip(this,'etMatchType')">TEST MATCH</span>
+              <span class="et-chip" onclick="selectEtChip(this,'etMatchType')">Pair Cricket</span>
+            </div>
+          </div>
+          <div class="et-field">
+            <div class="et-label">Select Ball Type*</div>
+            <div id="etBallType" style="display:flex; gap:20px; margin-top:10px;">
+              <div style="text-align:center;">
+                <div class="et-ball" data-ball="Tennis" onclick="selectEtBall(this,'Tennis')"><span style="font-size:28px;">&#127951;</span></div>
+                <div style="font-size:12px; margin-top:6px; color:#4b5563;">Tennis</div>
+              </div>
+              <div style="text-align:center;">
+                <div class="et-ball" data-ball="Other" onclick="selectEtBall(this,'Other')"><span style="font-size:28px;">&#128308;</span></div>
+                <div style="font-size:12px; margin-top:6px; color:#4b5563;">Other</div>
+              </div>
+              <div style="text-align:center;">
+                <div class="et-ball" data-ball="Leather" onclick="selectEtBall(this,'Leather')"><span style="font-size:28px;">&#127955;</span></div>
+                <div style="font-size:12px; margin-top:6px; color:#4b5563;">Leather</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex; justify-content:center; gap:16px; padding:0 32px 32px;">
+        <button onclick="closeEditTournamentModal()" style="border:1px solid #d1d5db; background:#fff; color:#374151; padding:12px 32px; border-radius:4px; font-family:'Inter',sans-serif; font-size:14px; font-weight:600; cursor:pointer; text-transform:uppercase;">CANCEL</button>
+        <button onclick="saveEditTournament()" style="background:#10b981; color:#fff; border:none; padding:12px 48px; border-radius:4px; font-family:'Inter',sans-serif; font-size:14px; font-weight:700; cursor:pointer; text-transform:uppercase; letter-spacing:0.5px;">SAVE</button>
+      </div>
+    </div>
+  </div>
+
 </body>
 
 </html>
