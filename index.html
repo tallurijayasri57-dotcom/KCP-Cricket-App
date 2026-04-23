@@ -4801,6 +4801,63 @@
     <button onclick="finishMatch()">Finish Match</button>
   </div>
 
+  <div id="liveScoreView" class="page" style="padding:0; background:#0b0f1a; min-height:100vh;">
+    <div class="page-top-back" style="justify-content:space-between; background:#020617; border-bottom:1px solid rgba(255,255,255,0.06);">
+      <button class="page-top-back-btn" onclick="closeLiveView()" style="color:#6ee7b7;">
+        <span class="page-top-back-arrow">←</span> <span style="font-size:16px; margin-left:4px;">Home</span>
+      </button>
+      <span style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:#ef4444;letter-spacing:2px;display:flex;align-items:center;gap:6px;">
+        <span style="width:6px; height:6px; background:#ef4444; border-radius:50%; animation: pulse-live 1.5s infinite;"></span> LIVE SCORE
+      </span>
+    </div>
+    <div style="padding:20px;">
+      <div style="background:linear-gradient(135deg, #1e293b, #0f172a); border:1px solid rgba(110, 231, 183, 0.2); border-radius:16px; padding:24px; text-align:center; margin-bottom:20px;">
+        <div style="font-family:'Rajdhani',sans-serif; font-size:14px; color:#94a3b8; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-bottom:12px;">
+          <span id="lvTeamBat">—</span> vs <span id="lvTeamBowl">—</span>
+        </div>
+        <div id="lvScore" style="font-size:48px; font-weight:800; color:#fff; font-family:'Rajdhani',sans-serif;">0/0</div>
+        <div id="lvOvers" style="font-size:18px; color:#94a3b8; margin-top:4px;">(0.0)</div>
+        <div id="lvTarget" style="font-size:14px; color:#f59e0b; margin-top:12px; font-weight:600;"></div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px;">
+        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:12px;">
+          <div style="font-size:11px; color:#64748b; text-transform:uppercase; margin-bottom:4px;">Striker</div>
+          <div id="lvStrike" style="font-weight:600; color:#fff;">—</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:12px;">
+          <div style="font-size:11px; color:#64748b; text-transform:uppercase; margin-bottom:4px;">Non-Striker</div>
+          <div id="lvNonStrike" style="font-weight:600; color:#fff;">—</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:12px; grid-column:span 2;">
+          <div style="font-size:11px; color:#64748b; text-transform:uppercase; margin-bottom:4px;">Current Bowler</div>
+          <div id="lvBowler" style="font-weight:600; color:#fff;">—</div>
+        </div>
+      </div>
+
+      <div class="section" style="padding:15px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.04); border-radius:12px;">
+        <h3 style="font-family:'Rajdhani',sans-serif; font-size:16px; margin-top:0;">Scorecard</h3>
+        <table>
+          <thead>
+            <tr><th style="text-align:left;">Batter</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr>
+          </thead>
+          <tbody id="lvBatTable"></tbody>
+        </table>
+        <table style="margin-top:15px;">
+          <thead>
+            <tr><th style="text-align:left;">Bowler</th><th>O</th><th>R</th><th>W</th><th>Eco</th></tr>
+          </thead>
+          <tbody id="lvBowlTable"></tbody>
+        </table>
+      </div>
+
+      <div class="section" style="margin-top:20px;">
+        <h3 style="font-family:'Rajdhani',sans-serif; font-size:16px;">Recent Balls</h3>
+        <div id="lvBalls" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+      </div>
+    </div>
+  </div>
+
   <div id="points" class="page">
     <h2>🏆 Points Table</h2>
     <div class="section">
@@ -5778,6 +5835,7 @@
 
       document.getElementById('mtSchedDate').value = '';
       renderMtScheduleDropdowns();
+      switchMtTab('upcoming');
     }
 
 
@@ -5839,12 +5897,189 @@
 
 
     // ---- Home banner: show welcome-tournament if user has tournaments, else default ----
+    // ---- LIVE SCORE SYNC ----
+    let currentLiveMatchId = null;
+
+    async function updateLiveScore() {
+      if (!currentLiveMatchId || !window.fbSetDoc) return;
+      
+      let matchState = {
+        id: currentLiveMatchId,
+        tournamentId: currentTournamentId,
+        batTeam: matchBatTeam,
+        bowlTeam: matchBowlTeam,
+        runs: totalRuns,
+        wickets: totalWickets,
+        ballCount: ballCount,
+        overs: Math.floor(ballCount / 6) + "." + ballCount % 6,
+        target: target,
+        innings: innings,
+        strike: document.getElementById('strike').value,
+        nonstrike: document.getElementById('nonstrike').value,
+        bowler: document.getElementById('bowler').value,
+        batsmanStats: batsmanStats,
+        bowlerStats: bowlerStats,
+        outBatsmen: outBatsmen,
+        extras: { wides: extrasWides, noballs: extrasNoBalls },
+        lastBalls: Array.from(document.getElementById('balls').children).map(c => c.innerText).slice(-12),
+        updatedAt: Date.now(),
+        status: "live"
+      };
+
+      try {
+        await window.fbSetDoc(window.fbDoc(window.fbDb, "live_matches", currentLiveMatchId.toString()), matchState);
+      } catch (e) {
+        console.error("Live sync error", e);
+      }
+    }
+
+    async function finishLiveMatch() {
+      if (!currentLiveMatchId || !window.fbSetDoc) return;
+      try {
+        await window.fbSetDoc(window.fbDoc(window.fbDb, "live_matches", currentLiveMatchId.toString()), { status: "finished", updatedAt: Date.now() }, { merge: true });
+        currentLiveMatchId = null;
+      } catch (e) { console.error(e); }
+    }
+
     function renderHomeBanner() {
       let bannerArea = document.getElementById('homeBannerArea');
       bannerArea.innerHTML = `
       <div style="display:flex; justify-content:center; align-items:center; padding:15px; background:#f3f4f6; border-radius:14px; margin-bottom:24px; overflow:hidden; min-height:200px;">
         <img src="banner.jfif" alt="Tournament Banner" style="max-width:100%; height:auto; max-height:500px; display:block; border-radius:10px; object-fit:contain; box-shadow:0 4px 20px rgba(0,0,0,0.05);">
-      </div>`;
+      </div>
+      <div id="liveMatchesSection" style="margin-top:20px; padding:0 10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <h3 style="font-family:'Rajdhani',sans-serif; color:#6ee7b7; margin:0; letter-spacing:1px; display:flex; align-items:center; gap:8px;">
+            <span style="width:8px; height:8px; background:#ef4444; border-radius:50%; animation: pulse-live 1.5s infinite;"></span>
+            LIVE MATCHES
+          </h3>
+        </div>
+        <div id="liveMatchesGrid" style="display:flex; flex-direction:column; gap:12px;"></div>
+      </div>
+      <style>
+        @keyframes pulse-live {
+          0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+          70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+          100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+      </style>`;
+      
+      listenToLiveMatches();
+    }
+
+    let liveMatchesUnsubscribe = null;
+    function listenToLiveMatches() {
+      if (!window.fbDb) return;
+      if (liveMatchesUnsubscribe) liveMatchesUnsubscribe();
+      
+      const q = window.fbQuery(window.fbCollection(window.fbDb, "live_matches"), window.fbWhere("status", "==", "live"));
+      
+      // Need onSnapshot from firestore
+      import("https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js").then(mod => {
+        liveMatchesUnsubscribe = mod.onSnapshot(q, (snapshot) => {
+          let container = document.getElementById("liveMatchesGrid");
+          if (!container) return;
+          if (snapshot.empty) {
+            container.innerHTML = `<div style="background:rgba(255,255,255,0.05); border:1px dashed rgba(255,255,255,0.1); border-radius:12px; padding:30px; text-align:center; color:#6b7280; font-size:13px;">No matches live at the moment</div>`;
+            return;
+          }
+          
+          let html = "";
+          snapshot.forEach(doc => {
+            let m = doc.data();
+            html += `
+            <div class="live-match-card" onclick="viewLiveMatch('${m.id}')" style="background:linear-gradient(135deg, #1e293b, #0f172a); border:1px solid rgba(110, 231, 183, 0.2); border-radius:12px; padding:16px; cursor:pointer; position:relative; overflow:hidden;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <span style="font-size:11px; color:#94a3b8; font-weight:600; letter-spacing:0.5px;">INNINGS ${m.innings}</span>
+                <span style="background:rgba(239, 68, 68, 0.1); color:#ef4444; font-size:10px; padding:2px 8px; border-radius:10px; font-weight:700;">LIVE</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div style="flex:1;">
+                  <div style="font-family:'Rajdhani',sans-serif; font-size:16px; font-weight:700; color:#fff;">${m.batTeam}</div>
+                  <div style="font-size:24px; font-weight:800; color:#6ee7b7; margin:4px 0;">${m.runs}/${m.wickets} <span style="font-size:14px; font-weight:500; color:#94a3b8; margin-left:4px;">(${m.overs})</span></div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-family:'Rajdhani',sans-serif; font-size:14px; color:#94a3b8; font-weight:600;">vs ${m.bowlTeam}</div>
+                  ${m.target > 0 ? `<div style="font-size:11px; color:#f59e0b; margin-top:8px; font-weight:600;">Target: ${m.target}</div>` : ''}
+                </div>
+              </div>
+            </div>`;
+          });
+          container.innerHTML = html;
+        });
+      });
+    }
+
+    let liveViewUnsubscribe = null;
+    function viewLiveMatch(matchId) {
+      showPage('liveScoreView');
+      if (liveViewUnsubscribe) liveViewUnsubscribe();
+      
+      import("https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js").then(mod => {
+        liveViewUnsubscribe = mod.onSnapshot(mod.doc(window.fbDb, "live_matches", matchId), (doc) => {
+          if (!doc.exists() || doc.data().status !== "live") {
+            alert("Match is no longer live");
+            showPage('home');
+            return;
+          }
+          renderLiveView(doc.data());
+        });
+      });
+    }
+
+    function renderLiveView(m) {
+      document.getElementById('lvTeamBat').innerText = m.batTeam;
+      document.getElementById('lvTeamBowl').innerText = m.bowlTeam;
+      document.getElementById('lvScore').innerText = `${m.runs}/${m.wickets}`;
+      document.getElementById('lvOvers').innerText = `(${m.overs})`;
+      document.getElementById('lvTarget').innerText = m.target > 0 ? `Target: ${m.target}` : "";
+      document.getElementById('lvStrike').innerText = m.strike || "—";
+      document.getElementById('lvNonStrike').innerText = m.nonstrike || "—";
+      document.getElementById('lvBowler').innerText = m.bowler || "—";
+      
+      // Batting Table
+      let batHtml = "";
+      for (let p in m.batsmanStats) {
+        let s = m.batsmanStats[p];
+        let isOut = (m.outBatsmen || []).indexOf(p) !== -1;
+        let isOn = (p === m.strike || p === m.nonstrike);
+        if (!isOut && !isOn) continue;
+        let sr = s.balls > 0 ? ((s.runs/s.balls)*100).toFixed(1) : "0.0";
+        batHtml += `<tr style="${isOut ? 'opacity:0.5' : ''}">
+          <td style="text-align:left;">${p}${p === m.strike ? '*' : ''}</td>
+          <td style="font-weight:700;">${s.runs}</td>
+          <td>${s.balls}</td>
+          <td>${s.fours}</td>
+          <td>${s.sixes}</td>
+          <td>${sr}</td>
+        </tr>`;
+      }
+      document.getElementById('lvBatTable').innerHTML = batHtml;
+
+      // Bowling Table
+      let bowlHtml = "";
+      for (let p in m.bowlerStats) {
+        let s = m.bowlerStats[p];
+        if (s.balls === 0 && p !== m.bowler) continue;
+        let ov = Math.floor(s.balls/6) + "." + (s.balls%6);
+        let eco = s.balls > 0 ? ((s.runs/s.balls)*6).toFixed(2) : "0.00";
+        bowlHtml += `<tr>
+          <td style="text-align:left;">${p}</td>
+          <td>${ov}</td>
+          <td>${s.runs}</td>
+          <td style="font-weight:700; color:#6ee7b7;">${s.wickets}</td>
+          <td>${eco}</td>
+        </tr>`;
+      }
+      document.getElementById('lvBowlTable').innerHTML = bowlHtml;
+
+      // Recent Balls
+      document.getElementById('lvBalls').innerHTML = (m.lastBalls || []).map(b => `<span class="ball">${b}</span>`).join('');
+    }
+
+    function closeLiveView() {
+      if (liveViewUnsubscribe) liveViewUnsubscribe();
+      showPage('home');
     }
 
     let pendingRun = 0;
@@ -6618,6 +6853,8 @@
       document.getElementById("customOversInput").value = "";
       document.querySelectorAll(".overs-quick-btn").forEach(b => b.classList.remove("selected"));
       document.getElementById("oversOverlay").classList.add("open");
+      currentLiveMatchId = Date.now();
+      updateLiveScore();
     }
     function loadScorePlayers() {
       strike.innerHTML = ""; nonstrike.innerHTML = ""; bowler.innerHTML = "";
@@ -6639,6 +6876,7 @@
       document.querySelectorAll('.wagon-sector').forEach(s => s.classList.remove('selected'));
       saveSnapshot();
       document.getElementById('shotOverlay').classList.add('open');
+      updateLiveScore();
     }
     function processRun(r, shotType, wagonZone) {
       let s = strike.value, b = bowler.value;
@@ -6662,6 +6900,7 @@
         }
       }
       updateScore(); updateTables();
+      updateLiveScore();
     }
     let extrasWides = 0;
     let extrasNoBalls = 0;
@@ -6690,6 +6929,7 @@
       addBall(runs === 0 ? "Wd" : "Wd+" + runs);
       updateScore();
       updateExtras();
+      updateLiveScore();
     }
     function processNoBall(runs) {
       document.getElementById('noballPopupOverlay').classList.remove('open');
@@ -6703,6 +6943,7 @@
       addBall("NB+" + runs);
       updateScore();
       updateExtras();
+      updateLiveScore();
     }
     function wide() { }
     let lastBallSnapshot = null;
@@ -6737,6 +6978,7 @@
       updateScore();
       updateTables();
       updateExtras();
+      updateLiveScore();
     }
 
     function saveSnapshot() {
@@ -6777,6 +7019,7 @@
       if (!newBowler) { alert('Select a bowler'); return; }
       document.getElementById('bowler').value = newBowler;
       document.getElementById('bowlerChangeOverlay').classList.remove('open');
+      updateLiveScore();
     }
     function noball() { }
     function wicket() {
@@ -6835,6 +7078,7 @@
       for (let i = strikeEl.options.length - 1; i >= 0; i--) { if (strikeEl.options[i].value === outPlayer) strikeEl.remove(i); }
       for (let i = nonStrikeEl.options.length - 1; i >= 0; i--) { if (nonStrikeEl.options[i].value === outPlayer) nonStrikeEl.remove(i); }
       updateScore(); updateTables();
+      updateLiveScore();
     }
     function addBall(t) { let d = document.createElement("span"); d.className = "ball"; d.innerText = t; balls.appendChild(d); }
     function changeStrike() { let s = strike.value; strike.value = nonstrike.value; nonstrike.value = s; }
@@ -6846,6 +7090,7 @@
         let winner = matchBatTeam, loser = matchBowlTeam, margin = "won by " + (10 - totalWickets) + " wickets";
         saveMatchResult(winner, loser, "won", margin).then(() => updateAllPlayerStatsAfterMatch(2));
         showWinPopup(winner, margin);
+        finishLiveMatch();
       }
     }
     function updateTables() {
@@ -6897,6 +7142,7 @@
         [batPlayerRoles, bowlPlayerRoles] = [bowlPlayerRoles, batPlayerRoles];
         innings = 2; extrasWides = 0; extrasNoBalls = 0; updateExtras(); loadScorePlayers();
         if (totalOvers > 0) { document.getElementById("oversInfoText").innerText = totalOvers + " overs match • Target: " + target; }
+        updateLiveScore();
         alert("Second Innings! Target: " + target);
       } else { alert("Already in Second Innings"); }
     }
@@ -7135,6 +7381,7 @@
       winShown = true;
       saveMatchResult(winner, loser, "won", margin).then(() => updateAllPlayerStatsAfterMatch(inningsNum));
       showWinPopup(winner, margin);
+      finishLiveMatch();
     }
 
   </script>
