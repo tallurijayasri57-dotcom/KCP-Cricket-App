@@ -1092,10 +1092,11 @@
       background: #1e40af;
     }
 
-    /* MANAGE TOURNAMENT */
+    /* MANAGE TOURNAMENT - LIGHT THEME */
     #manageTournament {
-      background: #0b0f1a;
+      background: #f9fafb;
       min-height: 100vh;
+      color: #111827;
     }
 
     .mt-topbar {
@@ -1135,7 +1136,7 @@
       display: flex;
       gap: 0;
       margin-bottom: 24px;
-      background: #111827;
+      background: #e5e7eb;
       border-radius: 10px;
       padding: 4px;
       overflow-x: auto;
@@ -1145,7 +1146,7 @@
       padding: 10px 20px;
       background: transparent;
       border: none;
-      color: #6b7280;
+      color: #4b5563;
       font-family: 'Rajdhani', sans-serif;
       font-size: 14px;
       font-weight: 600;
@@ -1157,7 +1158,7 @@
     }
 
     .mt-tab.active {
-      background: #065f46;
+      background: #0d9488;
       color: #fff;
     }
 
@@ -1181,17 +1182,22 @@
       flex: 1;
       min-width: 140px;
       padding: 10px 14px;
-      background: #1f2937;
-      border: 1px solid #374151;
+      background: #ffffff;
+      border: 1px solid #d1d5db;
       border-radius: 8px;
-      color: #fff;
+      color: #111827;
       font-size: 14px;
+      outline: none;
+    }
+
+    .oa-add-row input:focus {
+      border-color: #0d9488;
     }
 
     .oa-add-row button {
       flex-shrink: 0;
       padding: 10px 20px;
-      background: #1d4ed8;
+      background: #0d9488;
       border: none;
       border-radius: 8px;
       color: #fff;
@@ -1202,18 +1208,19 @@
     }
 
     .oa-team-card {
-      background: #1f2937;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
       border-radius: 10px;
       padding: 14px 16px;
       margin-bottom: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
 
     .oa-team-name {
       font-family: 'Rajdhani', sans-serif;
       font-size: 17px;
       font-weight: 700;
-      color: #e5e7eb;
+      color: #111827;
       margin-bottom: 8px;
       display: flex;
       align-items: center;
@@ -1225,24 +1232,27 @@
       align-items: center;
       justify-content: space-between;
       padding: 7px 10px;
-      background: rgba(255, 255, 255, 0.03);
+      background: #f9fafb;
       border-radius: 6px;
       margin: 4px 0;
       font-size: 13px;
-      color: #9ca3af;
+      color: #4b5563;
+      border: 1px solid #f3f4f6;
     }
 
     /* ORGANISER SCHEDULE */
     .oa-schedule-form {
-      background: #1f2937;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
       border-radius: 10px;
       padding: 16px;
       margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
 
     .oa-match-card {
-      background: #111827;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
       border-radius: 10px;
       padding: 14px 16px;
       margin-bottom: 10px;
@@ -1251,18 +1261,36 @@
       justify-content: space-between;
       flex-wrap: wrap;
       gap: 8px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
+
+    .oa-section-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #0d9488;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     .oa-match-vs {
       font-family: 'Rajdhani', sans-serif;
       font-size: 16px;
       font-weight: 700;
-      color: #e5e7eb;
+      color: #111827;
     }
 
     .oa-match-date {
       font-size: 12px;
       color: #6b7280;
+    }
+
+    .oa-schedule-form select,
+    .oa-schedule-form input {
+      background: #ffffff !important;
+      color: #111827 !important;
+      border: 1px solid #d1d5db !important;
     }
 
     #allPlayersModal,
@@ -4419,26 +4447,19 @@
   <div id="manageTournament" class="page" style="padding:0;">
     <div class="page-top-back" style="justify-content:space-between;">
       <button class="page-top-back-btn" onclick="globalGoBack()">
-        <span class="page-top-back-arrow">←</span> KCP League
+        <span class="page-top-back-arrow">←</span>
       </button>
       <span id="mtTournamentName"
         style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#fff;letter-spacing:2px;"></span>
     </div>
     <div class="mt-body">
       <div class="mt-tabs">
-        <button class="mt-tab active" onclick="switchMtTab('teams')">👥 Teams</button>
-        <button class="mt-tab" onclick="switchMtTab('schedule')">📅 Schedule</button>
-        <button class="mt-tab" onclick="switchMtTab('results')">🏆 Results</button>
+        <button class="mt-tab active" onclick="switchMtTab('schedule')">📅 Matches</button>
+        <button class="mt-tab" onclick="switchMtTab('upcoming')">🗓️ Upcoming Matches</button>
+        <button class="mt-tab" onclick="switchMtTab('results')">🏆 Finished Matches</button>
+        <button class="mt-tab" onclick="switchMtTab('points')">📈 Points Table</button>
       </div>
-      <div class="mt-tab-content active" id="mt-tab-teams">
-        <div class="oa-section-title">Add Team</div>
-        <div class="oa-add-row">
-          <input id="mtTeamName" placeholder="Team name">
-          <button onclick="addTournamentTeam()">Add Team</button>
-        </div>
-        <div id="mtTeamsList"></div>
-      </div>
-      <div class="mt-tab-content" id="mt-tab-schedule">
+      <div class="mt-tab-content active" id="mt-tab-schedule">
         <div class="oa-section-title">Schedule Match</div>
         <div class="oa-schedule-form">
           <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
@@ -4454,14 +4475,17 @@
               style="background:#1d4ed8;padding:10px 20px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;">Schedule</button>
           </div>
         </div>
+      </div>
+      <div class="mt-tab-content" id="mt-tab-upcoming">
+        <div class="oa-section-title">Upcoming Matches</div>
         <div id="mtMatchesList"></div>
       </div>
       <div class="mt-tab-content" id="mt-tab-results">
-        <div class="oa-section-title">Match Results</div>
-        <div id="mtResultsList">
-          <div style="color:#4b5563;text-align:center;padding:30px 0;font-size:14px;">No results yet.</div>
-        </div>
-        <div class="oa-section-title" style="margin-top:24px;">🏆 Tournament Points Table</div>
+        <div class="oa-section-title">Finished Matches</div>
+        <div id="mtResultsList"></div>
+      </div>
+      <div class="mt-tab-content" id="mt-tab-points">
+        <div class="oa-section-title">Tournament Points Table</div>
         <div id="mtPointsTable"></div>
       </div>
     </div>
@@ -5483,19 +5507,132 @@
       let t = tournaments[idx];
       document.getElementById('mtTournamentName').innerText = t.name;
       showPage('manageTournament');
-      switchMtTab('teams');
-      renderMtTeams();
+      switchMtTab('schedule');
     }
 
     function switchMtTab(tab) {
       document.querySelectorAll('.mt-tab').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.mt-tab-content').forEach(c => c.classList.remove('active'));
-      let idx = ['teams', 'schedule', 'results'].indexOf(tab);
-      document.querySelectorAll('.mt-tab')[idx].classList.add('active');
-      document.getElementById('mt-tab-' + tab).classList.add('active');
-      if (tab === 'schedule') renderMtSchedule();
-      if (tab === 'results') renderMtResults();
-      if (tab === 'teams') renderMtTeams();
+      let tabs = ['schedule', 'upcoming', 'results', 'points'];
+      let idx = tabs.indexOf(tab);
+      if (idx !== -1) {
+        document.querySelectorAll('.mt-tab')[idx].classList.add('active');
+        document.getElementById('mt-tab-' + tab).classList.add('active');
+      }
+      if (tab === 'schedule') renderMtScheduleDropdowns();
+      if (tab === 'upcoming') renderMtUpcomingMatches();
+      if (tab === 'results') renderMtFinishedMatches();
+      if (tab === 'points') renderMtPointsTable();
+    }
+
+    function renderMtScheduleDropdowns() {
+      tournaments = loadTournaments();
+      let t = tournaments[currentTournamentId];
+      if (!t) return;
+      let sel1 = document.getElementById('mtSchedT1');
+      let sel2 = document.getElementById('mtSchedT2');
+      if (!sel1 || !sel2) return;
+      sel1.innerHTML = ''; sel2.innerHTML = '';
+      (t.teams || []).forEach(team => {
+        sel1.innerHTML += `<option>${team.name}</option>`;
+        sel2.innerHTML += `<option>${team.name}</option>`;
+      });
+      if (t.teams.length >= 2) sel2.selectedIndex = 1;
+    }
+
+    function renderMtUpcomingMatches() {
+      tournaments = loadTournaments();
+      let t = tournaments[currentTournamentId];
+      let el = document.getElementById('mtMatchesList');
+      if (!el) return;
+      if (!t.matches || t.matches.filter(m => !m.result).length === 0) {
+        el.innerHTML = '<div style="color:#4b5563;font-size:13px;padding:10px 0;">No upcoming matches scheduled.</div>';
+        return;
+      }
+      el.innerHTML = t.matches.filter(m => !m.result).map((m, originalIdx) => {
+        let mi = t.matches.indexOf(m);
+        let dateStr = new Date(m.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+        return `<div class="oa-match-card" style="flex-direction:column;align-items:stretch;gap:12px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <div>
+          <div class="oa-match-vs" style="font-size:18px;color:#111827;">${m.team1} <span style="color:#6b7280;font-size:14px;font-weight:400;">vs</span> ${m.team2}</div>
+          <div class="oa-match-date">📅 ${dateStr}</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <button onclick="startTournamentMatch('${escapeQ(m.team1)}','${escapeQ(m.team2)}')" style="background:linear-gradient(135deg,#16a34a,#15803d);border:none;color:#fff;padding:9px 20px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;">▶ START MATCH</button>
+          <button onclick="deleteTournamentMatch(${mi})" style="background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.2);color:#ef4444;padding:7px 10px;border-radius:7px;font-size:12px;cursor:pointer;">🗑️</button>
+        </div>
+      </div>
+    </div>`;
+      }).join('');
+    }
+
+    function renderMtFinishedMatches() {
+      tournaments = loadTournaments();
+      let t = tournaments[currentTournamentId];
+      let el = document.getElementById('mtResultsList');
+      if (!el) return;
+      let finished = (t.matches || []).filter(m => m.result);
+      if (finished.length === 0) {
+        el.innerHTML = '<div style="color:#4b5563;text-align:center;padding:30px 0;font-size:14px;">No results yet.</div>';
+      } else {
+        el.innerHTML = finished.map(m =>
+          `<div class="oa-match-card">
+        <div>
+          <div class="oa-match-vs" style="color:#0d9488;">🏆 ${m.result}</div>
+          <div class="oa-match-date" style="color:#374151;">${m.team1} vs ${m.team2} &nbsp;·&nbsp; 📅 ${m.date}</div>
+        </div>
+      </div>`
+        ).join('');
+      }
+    }
+
+    function renderMtPointsTable() {
+      tournaments = loadTournaments();
+      let t = tournaments[currentTournamentId];
+      let ptEl = document.getElementById('mtPointsTable');
+      if (!ptEl) return;
+      let finished = (t.matches || []).filter(m => m.result);
+      let teamPoints = {};
+      (t.teams || []).forEach(team => {
+        teamPoints[team.name] = { M: 0, W: 0, L: 0, Pts: 0 };
+      });
+      finished.forEach(m => {
+        let winnerMatch = m.result.match(/^(.+?) won/);
+        if (!winnerMatch) return;
+        let winner = winnerMatch[1].trim();
+        let loser = winner === m.team1 ? m.team2 : m.team1;
+        if (!teamPoints[winner]) teamPoints[winner] = { M: 0, W: 0, L: 0, Pts: 0 };
+        if (!teamPoints[loser]) teamPoints[loser] = { M: 0, W: 0, L: 0, Pts: 0 };
+        teamPoints[winner].M++; teamPoints[winner].W++; teamPoints[winner].Pts += 2;
+        teamPoints[loser].M++; teamPoints[loser].L++;
+      });
+      let rows = Object.entries(teamPoints).sort((a, b) => b[1].Pts - a[1].Pts);
+      if (rows.length === 0) { ptEl.innerHTML = '<div style="color:#4b5563;font-size:13px;text-align:center;padding:10px;">No teams yet.</div>'; return; }
+      ptEl.innerHTML = `
+    <table style="width:100%;border-collapse:collapse;margin-top:8px;">
+      <thead>
+        <tr style="background:#f3f4f6;">
+          <th style="padding:10px 12px;text-align:left;font-family:'Rajdhani',sans-serif;font-size:13px;color:#4b5563;letter-spacing:1px;">#</th>
+          <th style="padding:10px 12px;text-align:left;font-family:'Rajdhani',sans-serif;font-size:13px;color:#4b5563;letter-spacing:1px;">Team</th>
+          <th style="padding:10px 8px;font-family:'Rajdhani',sans-serif;font-size:13px;color:#4b5563;">M</th>
+          <th style="padding:10px 8px;font-family:'Rajdhani',sans-serif;font-size:13px;color:#4b5563;">W</th>
+          <th style="padding:10px 8px;font-family:'Rajdhani',sans-serif;font-size:13px;color:#4b5563;">L</th>
+          <th style="padding:10px 8px;font-family:'Rajdhani',sans-serif;font-size:13px;color:#0d9488;">Pts</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.map(([name, s], i) => `
+          <tr style="border-bottom:1px solid #e5e7eb;${i === 0 ? 'background:#f0fdf4;' : ''}">
+            <td style="padding:10px 12px;color:${i === 0 ? '#0d9488' : '#6b7280'};font-weight:700;">${i + 1}</td>
+            <td style="padding:10px 12px;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:#111827;">${i === 0 ? '🥇 ' : ''}${name}</td>
+            <td style="padding:10px 8px;text-align:center;color:#374151;">${s.M}</td>
+            <td style="padding:10px 8px;text-align:center;color:#059669;font-weight:600;">${s.W}</td>
+            <td style="padding:10px 8px;text-align:center;color:#dc2626;">${s.L}</td>
+            <td style="padding:10px 8px;text-align:center;font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#0d9488;">${s.Pts}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
     }
 
     function addTournamentTeam() {
@@ -5508,7 +5645,7 @@
       saveTournamentsData(tournaments);
       document.getElementById('mtTeamName').value = '';
       renderMtTeams();
-      renderMtSchedule();
+      renderMtScheduleDropdowns();
     }
 
     let addPlayerTargetTeamIdx = -1;
@@ -5577,7 +5714,7 @@
           </div>
         </div>`).join('')}
     </div>
-    <button onclick="switchMtTab('schedule')" style="width:100%;padding:13px;background:linear-gradient(135deg,#065f46,#047857);border:none;border-radius:10px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-top:4px;">✅ DONE — GO TO SCHEDULE →</button>`;
+    <button onclick="switchMtTab('schedule')" style="width:100%;padding:13px;background:linear-gradient(135deg,#065f46,#047857);border:none;border-radius:10px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-top:4px;">✅ DONE — GO TO MATCHES →</button>`;
     }
 
     function openEditTeamInMt(ti) {
@@ -5640,45 +5777,10 @@
       }).catch(err => console.error("Error syncing match:", err));
 
       document.getElementById('mtSchedDate').value = '';
-      renderMtSchedule();
+      renderMtScheduleDropdowns();
     }
 
-    function renderMtSchedule() {
-      tournaments = loadTournaments();
-      let t = tournaments[currentTournamentId];
-      let sel1 = document.getElementById('mtSchedT1');
-      let sel2 = document.getElementById('mtSchedT2');
-      sel1.innerHTML = ''; sel2.innerHTML = '';
-      (t.teams || []).forEach(team => {
-        sel1.innerHTML += `<option>${team.name}</option>`;
-        sel2.innerHTML += `<option>${team.name}</option>`;
-      });
-      if (t.teams.length >= 2) sel2.selectedIndex = 1;
-      let el = document.getElementById('mtMatchesList');
-      if (!t.matches || t.matches.length === 0) {
-        el.innerHTML = '<div style="color:#4b5563;font-size:13px;padding:10px 0;">No matches scheduled.</div>';
-        return;
-      }
-      el.innerHTML = t.matches.map((m, mi) => {
-        let dateStr = new Date(m.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-        return `<div class="oa-match-card" style="flex-direction:column;align-items:stretch;gap:12px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
-        <div>
-          <div class="oa-match-vs" style="font-size:18px;">${m.team1} <span style="color:#6b7280;font-size:14px;font-weight:400;">vs</span> ${m.team2}</div>
-          <div class="oa-match-date">📅 ${dateStr}</div>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          ${m.result
-            ? `<span style="color:#6ee7b7;font-size:12px;background:rgba(6,95,70,0.3);padding:4px 10px;border-radius:6px;">✅ ${m.result}</span>`
-            : `<button onclick="startTournamentMatch('${escapeQ(m.team1)}','${escapeQ(m.team2)}')" style="background:linear-gradient(135deg,#16a34a,#15803d);border:none;color:#fff;padding:9px 20px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;">▶ START MATCH</button>
-             <button onclick="enterMatchResult(${mi})" style="background:rgba(37,99,235,0.2);border:1px solid rgba(37,99,235,0.3);color:#93c5fd;padding:7px 12px;border-radius:7px;font-size:12px;cursor:pointer;">✏️ Result</button>`
-          }
-          <button onclick="deleteTournamentMatch(${mi})" style="background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.3);color:#f87171;padding:7px 10px;border-radius:7px;font-size:12px;cursor:pointer;">🗑️</button>
-        </div>
-      </div>
-    </div>`;
-      }).join('');
-    }
+
 
     function enterMatchResult(matchIdx) {
       tournaments = loadTournaments();
@@ -5689,8 +5791,9 @@
       let margin = prompt('Win margin (e.g. 5 wickets / 20 runs):') || '';
       t.matches[matchIdx].result = `${winner} won by ${margin}`;
       saveTournamentsData(tournaments);
-      renderMtSchedule();
-      renderMtResults();
+      renderMtUpcomingMatches();
+      renderMtFinishedMatches();
+      renderMtPointsTable();
     }
 
     function deleteTournamentMatch(matchIdx) {
@@ -5698,7 +5801,7 @@
       tournaments = loadTournaments();
       tournaments[currentTournamentId].matches.splice(matchIdx, 1);
       saveTournamentsData(tournaments);
-      renderMtSchedule();
+      renderMtUpcomingMatches();
     }
 
     function startTournamentMatch(team1, team2) {
@@ -5733,75 +5836,14 @@
         setTimeout(function () { startMatch(); }, 200);
       }, 200);
     }
-    function renderMtResults() {
-      tournaments = loadTournaments();
-      let t = tournaments[currentTournamentId];
-      let el = document.getElementById('mtResultsList');
-      let finished = (t.matches || []).filter(m => m.result);
-      if (finished.length === 0) {
-        el.innerHTML = '<div style="color:#4b5563;text-align:center;padding:30px 0;font-size:14px;">No results yet.</div>';
-      } else {
-        el.innerHTML = finished.map(m =>
-          `<div class="oa-match-card">
-        <div>
-          <div class="oa-match-vs" style="color:#6ee7b7;">🏆 ${m.result}</div>
-          <div class="oa-match-date">${m.team1} vs ${m.team2} &nbsp;·&nbsp; 📅 ${m.date}</div>
-        </div>
-      </div>`
-        ).join('');
-      }
-      // Build tournament points table
-      let ptEl = document.getElementById('mtPointsTable');
-      if (!ptEl) return;
-      let teamPoints = {};
-      (t.teams || []).forEach(team => {
-        teamPoints[team.name] = { M: 0, W: 0, L: 0, Pts: 0 };
-      });
-      finished.forEach(m => {
-        // Extract winner from result string like "TeamName won by X"
-        let winnerMatch = m.result.match(/^(.+?) won/);
-        if (!winnerMatch) return;
-        let winner = winnerMatch[1].trim();
-        let loser = winner === m.team1 ? m.team2 : m.team1;
-        if (!teamPoints[winner]) teamPoints[winner] = { M: 0, W: 0, L: 0, Pts: 0 };
-        if (!teamPoints[loser]) teamPoints[loser] = { M: 0, W: 0, L: 0, Pts: 0 };
-        teamPoints[winner].M++; teamPoints[winner].W++; teamPoints[winner].Pts += 2;
-        teamPoints[loser].M++; teamPoints[loser].L++;
-      });
-      let rows = Object.entries(teamPoints).sort((a, b) => b[1].Pts - a[1].Pts);
-      if (rows.length === 0) { ptEl.innerHTML = '<div style="color:#4b5563;font-size:13px;text-align:center;padding:10px;">No teams yet.</div>'; return; }
-      ptEl.innerHTML = `
-    <table style="width:100%;border-collapse:collapse;margin-top:8px;">
-      <thead>
-        <tr style="background:rgba(6,95,70,0.3);">
-          <th style="padding:10px 12px;text-align:left;font-family:'Rajdhani',sans-serif;font-size:13px;color:#6ee7b7;letter-spacing:1px;">#</th>
-          <th style="padding:10px 12px;text-align:left;font-family:'Rajdhani',sans-serif;font-size:13px;color:#6ee7b7;letter-spacing:1px;">Team</th>
-          <th style="padding:10px 8px;font-family:'Rajdhani',sans-serif;font-size:13px;color:#6ee7b7;">M</th>
-          <th style="padding:10px 8px;font-family:'Rajdhani',sans-serif;font-size:13px;color:#6ee7b7;">W</th>
-          <th style="padding:10px 8px;font-family:'Rajdhani',sans-serif;font-size:13px;color:#6ee7b7;">L</th>
-          <th style="padding:10px 8px;font-family:'Rajdhani',sans-serif;font-size:13px;color:#fbbf24;">Pts</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${rows.map(([name, s], i) => `
-          <tr style="border-bottom:1px solid rgba(255,255,255,0.05);${i === 0 ? 'background:rgba(6,95,70,0.15);' : ''}">
-            <td style="padding:10px 12px;color:${i === 0 ? '#fbbf24' : '#6b7280'};font-weight:700;">${i + 1}</td>
-            <td style="padding:10px 12px;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:#e5e7eb;">${i === 0 ? '🥇 ' : ''}${name}</td>
-            <td style="padding:10px 8px;text-align:center;color:#9ca3af;">${s.M}</td>
-            <td style="padding:10px 8px;text-align:center;color:#6ee7b7;font-weight:600;">${s.W}</td>
-            <td style="padding:10px 8px;text-align:center;color:#f87171;">${s.L}</td>
-            <td style="padding:10px 8px;text-align:center;font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#fbbf24;">${s.Pts}</td>
-          </tr>`).join('')}
-      </tbody>
-    </table>`;
-    }
+
 
     // ---- Home banner: show welcome-tournament if user has tournaments, else default ----
     function renderHomeBanner() {
       let bannerArea = document.getElementById('homeBannerArea');
       bannerArea.innerHTML = `
-      <div style="display:flex; justify-content:center; align-items:center; padding:0; background:#f3f4f6; min-height:300px; border-radius:12px; margin-bottom:20px; overflow:hidden;">
-        <img src="banner.jfif" alt="Tournament Banner" style="width:100%; height:auto; display:block; border-radius:12px;">
+      <div style="display:flex; justify-content:center; align-items:center; padding:15px; background:#f3f4f6; border-radius:14px; margin-bottom:24px; overflow:hidden; min-height:200px;">
+        <img src="banner.jfif" alt="Tournament Banner" style="max-width:100%; height:auto; max-height:500px; display:block; border-radius:10px; object-fit:contain; box-shadow:0 4px 20px rgba(0,0,0,0.05);">
       </div>`;
     }
 
