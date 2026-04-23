@@ -3695,6 +3695,51 @@
     </div>
   </div>
 
+  <!-- SETTINGS DROPDOWN MENU -->
+  <div id="settingsDropdownMenu" style="display:none; position:absolute; background:#ffffff; border:1px solid #e5e7eb; border-radius:4px; box-shadow:0 4px 6px rgba(0,0,0,0.1); z-index:10000; padding:8px 0; min-width:120px; font-family:'Inter',sans-serif; font-size:14px;">
+    <div style="padding:10px 16px; cursor:pointer; color:#374151;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'" onclick="handleSettingsOption('teams')">Teams</div>
+    <div style="padding:10px 16px; cursor:pointer; color:#374151;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'" onclick="handleSettingsOption('rounds')">Rounds</div>
+    <div style="padding:10px 16px; cursor:pointer; color:#374151;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'" onclick="handleSettingsOption('groups')">Groups</div>
+    <div style="padding:10px 16px; cursor:pointer; color:#374151;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'" onclick="handleSettingsOption('matches')">Matches</div>
+  </div>
+
+  <!-- TOURNAMENT TEAMS PAGE -->
+  <div id="tournamentTeamsPage" class="page" style="padding:0; background:#f9fafb; min-height:100vh; display:none; flex-direction:column;">
+    <div class="page-top-back" style="background:#ffffff; border-bottom:1px solid #e5e7eb; padding:16px 20px;">
+      <button class="page-top-back-btn" onclick="openTournamentsTable()" style="color:#4b5563; background:none; border:none; cursor:pointer; font-family:'Inter',sans-serif; display:inline-flex; align-items:center; gap:8px; padding:0;">
+        <span class="page-top-back-arrow" style="color:#4b5563;">←</span> <span style="font-size:18px;">Back</span>
+      </button>
+    </div>
+    
+    <div style="max-width:1100px; margin:0 auto; padding:30px 20px; width:100%; box-sizing:border-box;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:16px;">
+        <h2 style="font-family:'Times New Roman', serif; font-size:32px; font-weight:700; color:#1f2937; margin:0;">Teams</h2>
+        <button style="background:#ffffff; color:#0d9488; border:1px solid #0d9488; padding:10px 20px; border-radius:4px; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; cursor:pointer; text-transform:uppercase;" onclick="openAddTeam()">ADD A NEW TEAM</button>
+      </div>
+      
+      <div style="background:#ffffff; border:1px solid #e5e7eb; border-radius:4px; overflow-x:auto;">
+        <table style="width:100%; min-width:700px; border-collapse:collapse; font-family:'Inter',sans-serif; text-align:left;">
+          <thead>
+            <tr style="border-bottom:1px solid #e5e7eb;">
+              <th style="padding:16px; font-size:14px; font-weight:600; color:#111827;">Team Name</th>
+              <th style="padding:16px; font-size:14px; font-weight:600; color:#111827; text-align:center;">Members</th>
+              <th style="padding:16px; font-size:14px; font-weight:600; color:#111827; width:120px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="oaTeamsTableBody">
+          </tbody>
+        </table>
+        
+        <div style="display:flex; justify-content:flex-end; align-items:center; padding:12px 16px; border-top:1px solid #e5e7eb; font-size:13px; color:#4b5563; font-family:'Inter',sans-serif;">
+          <span style="margin-right:16px;">Rows per page: 10 <span style="font-size:10px;margin-left:4px;">▼</span></span>
+          <span style="margin-right:16px;" id="oaTeamsPaginationText">0-0 of 0</span>
+          <span style="color:#d1d5db; margin-right:16px; cursor:default;">&lt;</span>
+          <span style="color:#9ca3af; cursor:default;">&gt;</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ADD TOURNAMENT PAGE -->
   <style>
     .at-title-new {
@@ -4885,7 +4930,7 @@
             <span style="cursor:pointer;margin-right:12px;opacity:0.8;display:inline-flex;vertical-align:middle;" title="Delete" onclick="promptDeleteTournament(${i})">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
             </span>
-            <span style="cursor:pointer;opacity:0.8;display:inline-flex;vertical-align:middle;" title="Settings">
+            <span style="cursor:pointer;opacity:0.8;display:inline-flex;vertical-align:middle;position:relative;" title="Settings" onclick="toggleSettingsDropdown(event, ${i})">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
             </span>
           </td>
@@ -5007,6 +5052,112 @@
       setTimeout(() => {
         toast.style.display = 'none';
       }, 3000);
+    }
+
+    let currentSettingsTournamentIdx = null;
+
+    function toggleSettingsDropdown(event, idx) {
+      event.stopPropagation();
+      let dropdown = document.getElementById('settingsDropdownMenu');
+      if (currentSettingsTournamentIdx === idx && dropdown.style.display === 'block') {
+        dropdown.style.display = 'none';
+        currentSettingsTournamentIdx = null;
+        return;
+      }
+      currentSettingsTournamentIdx = idx;
+      let rect = event.currentTarget.getBoundingClientRect();
+      dropdown.style.display = 'block';
+      dropdown.style.top = (rect.bottom + window.scrollY + 5) + 'px';
+      dropdown.style.left = (rect.left + window.scrollX - 80) + 'px';
+    }
+
+    document.addEventListener('click', function(e) {
+      let dropdown = document.getElementById('settingsDropdownMenu');
+      if (dropdown && dropdown.style.display === 'block') {
+        if (!e.target.closest('#settingsDropdownMenu') && !e.target.closest('[title="Settings"]')) {
+          dropdown.style.display = 'none';
+          currentSettingsTournamentIdx = null;
+        }
+      }
+    });
+
+    function handleSettingsOption(option) {
+      document.getElementById('settingsDropdownMenu').style.display = 'none';
+      let idx = currentSettingsTournamentIdx;
+      if (idx === null) return;
+      
+      if (option === 'teams') {
+        openTournamentTeamsPage(idx);
+      } else {
+        alert(option + ' page coming soon');
+      }
+    }
+
+    let currentTeamsTournamentIdx = null;
+
+    function openTournamentTeamsPage(idx) {
+      currentTeamsTournamentIdx = idx;
+      showPage('tournamentTeamsPage');
+      renderTeamsList();
+    }
+
+    function renderTeamsList() {
+      let tbody = document.getElementById('oaTeamsTableBody');
+      if (!tbody) return;
+      tournaments = loadTournaments();
+      let t = tournaments[currentTeamsTournamentIdx];
+      let teams = t.teams || [];
+      
+      if (teams.length === 0) {
+        tbody.innerHTML = `<tr>
+          <td colspan="3" style="text-align:center; padding:60px 20px; border-bottom:1px solid #e5e7eb; background:#ffffff;">
+            <p style="margin:0 0 16px 0; color:#374151; font-size:14px;">There are no teams added in this tournament yet. Add teams to your tournament now.</p>
+            <button onclick="openAddTeam()" style="background:#10b981; color:#ffffff; border:none; padding:10px 24px; border-radius:4px; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; cursor:pointer; text-transform:uppercase; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
+              ADD TEAM
+            </button>
+          </td>
+        </tr>`;
+        document.getElementById('oaTeamsPaginationText').innerText = '0-0 of 0';
+        return;
+      }
+      
+      tbody.innerHTML = teams.map((team, i) =>
+        `<tr style="border-bottom:1px solid #e5e7eb;">
+          <td style="padding:16px; color:#0d9488; font-weight:500;">${team.name}</td>
+          <td style="padding:16px; color:#374151; text-align:center;">${team.players ? team.players.length : 0}</td>
+          <td style="padding:16px; color:#6b7280; font-size:16px; background:#f9fafb;">
+            <span style="cursor:pointer;margin-right:12px;opacity:0.8;display:inline-flex;vertical-align:middle;" title="Edit" onclick="alert('Edit team soon')">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+            </span>
+            <span style="cursor:pointer;margin-right:12px;opacity:0.8;display:inline-flex;vertical-align:middle;" title="Delete" onclick="deleteTournamentTeam(${i})">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+            </span>
+          </td>
+        </tr>`
+      ).join('');
+      
+      document.getElementById('oaTeamsPaginationText').innerText = `1-${teams.length} of ${teams.length}`;
+    }
+
+    function openAddTeam() {
+      let teamName = prompt("Enter Team Name:");
+      if (!teamName) return;
+      
+      tournaments = loadTournaments();
+      let t = tournaments[currentTeamsTournamentIdx];
+      if (!t.teams) t.teams = [];
+      t.teams.push({ name: teamName, players: [] });
+      saveTournamentsData(tournaments);
+      renderTeamsList();
+    }
+    
+    function deleteTournamentTeam(teamIdx) {
+      if(!confirm('Are you sure you want to delete this team?')) return;
+      tournaments = loadTournaments();
+      let t = tournaments[currentTeamsTournamentIdx];
+      t.teams.splice(teamIdx, 1);
+      saveTournamentsData(tournaments);
+      renderTeamsList();
     }
 
     function manageTournament(idx) {
