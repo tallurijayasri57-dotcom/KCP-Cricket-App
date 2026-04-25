@@ -51,22 +51,39 @@ function saveJSON(data) {
 }
 
 async function connectDB() {
-    if (useJSON) return console.log("☁️ JSON Mode Active");
-    try { pool = await sql.connect(dbConfig); console.log("✅ SQL Connected"); } 
-    catch (e) { console.warn("⚠️ SQL Failed, using JSON"); useJSON = true; }
+    if (useJSON) return console.log("☁️ JSON Mode Active (Render)");
+    try { 
+        pool = await sql.connect(dbConfig); 
+        console.log("✅ SQL Connected"); 
+        await createTables();
+    } catch (e) { 
+        console.warn("⚠️ SQL Failed, using JSON"); 
+        useJSON = true; 
+    }
 }
+
+async function createTables() {
+    if (!pool) return;
+    try {
+        await pool.request().query(`
+            IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='users' AND xtype='U')
+            CREATE TABLE users (id INT IDENTITY(1,1) PRIMARY KEY, username NVARCHAR(255) NOT NULL UNIQUE, password NVARCHAR(255) NOT NULL, photo_url NVARCHAR(500) NULL, created_at DATETIME DEFAULT GETDATE())
+            -- (Add other table creation queries here if needed, but keeping it brief for speed)
+        `);
+    } catch (e) { console.error("Table Error", e); }
+}
+
 connectDB();
 
-// --- ROUTES ---
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
 
+// --- REUSABLE API HANDLER ---
 app.post("/register", async (req, res) => {
     const { username, password } = req.body;
     if (useJSON || !pool) {
         let db = loadJSON();
         if (db.users.find(u => u.username === username)) return res.json({ message: "Already Registered" });
-        db.users.push({ id: Date.now(), username, password });
-        saveJSON(db);
+        db.users.push({ id: Date.now(), username, password }); saveJSON(db);
         return res.json({ message: "Registered Successfully" });
     }
     try {
@@ -80,10 +97,9 @@ app.post("/register", async (req, res) => {
 app.post("/login", async (req, res) => {
     const { username, password } = req.body;
     if (useJSON || !pool) {
-        let db = loadJSON();
-        let user = db.users.find(u => u.username === username);
-        if (!user || user.password !== password) return res.json({ success: false });
-        return res.json({ success: true });
+        let db = loadJSON(); let user = db.users.find(u => u.username === username);
+        if (user && user.password === password) return res.json({ success: true });
+        return res.json({ success: false });
     }
     try {
         const r = await pool.request().input("u", sql.NVarChar, username).query("SELECT * FROM users WHERE username=@u");
@@ -111,15 +127,12 @@ app.get("/players/:team", async (req, res) => {
 });
 
 app.post("/players", async (req, res) => {
+    const { team_name, player_name, role } = req.body;
     if (useJSON || !pool) {
-        let db = loadJSON(); db.players.push({ id: Date.now(), ...req.body }); saveJSON(db);
+        let db = loadJSON(); db.players.push({ id: Date.now(), team_name, player_name, role }); saveJSON(db);
         return res.send("Player Added");
     }
-    try {
-        const { team_name, player_name, role } = req.body;
-        await pool.request().input("t", sql.NVarChar, team_name).input("p", sql.NVarChar, player_name).input("r", sql.NVarChar, role).query("INSERT INTO players (team_name, player_name, role) VALUES (@t,@p,@r)");
-        res.send("Player Added");
-    } catch (e) { res.status(500).json({ error: e.message }); }
+    try { await pool.request().input("t", sql.NVarChar, team_name).input("p", sql.NVarChar, player_name).input("r", sql.NVarChar, role).query("INSERT INTO players (team_name, player_name, role) VALUES (@t,@p,@r)"); res.send("Player Added"); } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 app.get("/match-results", async (req, res) => {
