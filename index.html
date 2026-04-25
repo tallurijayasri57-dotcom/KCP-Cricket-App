@@ -4905,8 +4905,18 @@
   </div>
 
   <div id="score" class="page">
-    <div class="overs-info-badge" id="oversInfoBadge" style="display:none;">⏱️ Match: <span id="oversInfoText">—
-        overs</span></div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <div class="overs-info-badge" id="oversInfoBadge" style="display:none; margin: 0;">⏱️ Match: <span
+          id="oversInfoText">— overs</span></div>
+      <button onclick="shareScorecardLink()"
+        style="background:#25d366; color:white; border:none; padding:8px 14px; border-radius:20px; font-family:'Rajdhani',sans-serif; font-size:13px; font-weight:700; display:flex; align-items:center; gap:6px; cursor:pointer; box-shadow:0 4px 12px rgba(37,211,102,0.3); transition:all 0.2s;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.414 0 .018 5.394 0 12.03c0 2.12.551 4.189 1.597 6.048L0 24l6.102-1.6c1.785.973 3.8 1.485 5.857 1.485h.006c6.637 0 12.032-5.391 12.035-12.028a11.77 11.77 0 00-3.489-8.452z" />
+        </svg>
+        Share
+      </button>
+    </div>
     <h3 id="targetBox"></h3>
     <div class="score"><span id="scoreRuns">0</span>/<span id="scoreWkts">0</span> (<span id="overs">0.0</span>)</div>
     <div class="section">
@@ -4990,148 +5000,143 @@
     <button onclick="finishMatch()">Finish Match</button>
   </div>
 
-  <div id="liveScoreView" class="page" style="padding:0; background:#0b0f1a; min-height:100vh;">
-    <div class="page-top-back"
-      style="justify-content:space-between; background:#020617; border-bottom:1px solid rgba(255,255,255,0.06);">
-      <button class="page-top-back-btn" onclick="closeLiveView()" style="color:#6ee7b7;">
-        <span class="page-top-back-arrow">←</span> <span style="font-size:16px; margin-left:4px;">Home</span>
-      </button>
-      <div style="display:flex; align-items:center; gap: 15px;">
-        <span
-          style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:#ef4444;letter-spacing:2px;display:flex;align-items:center;gap:6px;">
-          <span
-            style="width:6px; height:6px; background:#ef4444; border-radius:50%; animation: pulse-live 1.5s infinite;"></span>
-          LIVE SCORE
-        </span>
-        <button onclick="shareScorecardLink()" style="background:#25D366;border:none;color:#fff;cursor:pointer;padding:6px 12px;border-radius:20px;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;display:flex;align-items:center;gap:5px;box-shadow:0 2px 8px rgba(37,211,102,0.4);" title="Share on WhatsApp">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
-          Share
-        </button>
+  <div id="liveScoreView" class="page" style="padding:0; background:#f9fafb; min-height:100vh;">
+    <!-- Header -->
+    <div style="background:#ffffff; border-bottom:1px solid #e5e7eb; padding:12px 16px; display:flex; justify-content:space-between; align-items:center;">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span onclick="closeLiveView()" style="cursor:pointer; color:#111827; font-size:20px;">←</span>
+        <h2 style="margin:0; font-family:'Inter', sans-serif; font-size:16px; font-weight:700; color:#111827;">Individual Match</h2>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span style="background:#ef4444; color:#fff; font-size:10px; font-weight:700; padding:2px 10px; border-radius:20px; text-transform:uppercase;">Live</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer;"><path d="M3 3v18h18"/><path d="M18 9l-5 5-2-2-4 4"/></svg>
+        <svg onclick="shareScorecardLink()" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer;"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
       </div>
     </div>
+
+    <!-- Match Info Sub-header -->
+    <div style="background:#ffffff; padding:8px 16px;">
+      <div style="font-family:'Inter', sans-serif; font-size:13px; color:#0d9488; margin-bottom:4px; display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
+        <span id="lvMatchLocation">BMS Cricket Ground Rohit Stands, Hyderabad (Telangana)</span>, 
+        <span id="lvMatchType">Limited Overs</span>, 
+        <span id="lvMatchOvers">25 Ov.</span>, 
+        <span id="lvMatchDate">24-Apr-26 09:03 AM</span>
+        <span style="display:inline-block; width:12px; height:12px; background:#ef4444; border-radius:50%; box-shadow:0 0 0 2px rgba(239, 68, 68, 0.2);"></span>
+      </div>
+      <div style="font-family:'Inter', sans-serif; font-size:13px; color:#6b7280;" id="lvTossInfo">Toss: House Of Play Cricket Acadamy U-12 opt to field</div>
+    </div>
+
+    <!-- Team Scores and Status -->
+    <div style="background:#ffffff; padding:16px; margin-bottom:8px; border-bottom:1px solid #f3f4f6;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div style="flex:1;">
+          <div id="lvBatTeamNameDisplay" style="font-family:'Inter', sans-serif; font-size:18px; font-weight:800; color:#111827; text-transform:uppercase; margin-bottom:8px;">IN PLAY CRICKET ACADAMY U-12</div>
+          <div id="lvBowlTeamNameDisplay" style="font-family:'Inter', sans-serif; font-size:18px; font-weight:400; color:#374151; text-transform:uppercase;">HOUSE OF PLAY CRICKET ACADAMY U-12</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="display:flex; align-items:baseline; justify-content:flex-end; gap:4px;">
+            <span id="lvScore" style="font-size:28px; font-weight:800; color:#111827;">0/0</span>
+            <span id="lvOvers" style="font-size:14px; color:#6b7280;">(0.0 Ov)</span>
+          </div>
+          <div style="font-size:14px; color:#6b7280; font-style:italic; margin-top:4px;" id="lvMatchStatus">Yet to Bat</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs Navigation -->
     <style>
       .lv-tab-btn {
         flex: 1;
         background: transparent;
         border: none;
-        color: #9ca3af;
-        font-family: 'Rajdhani', sans-serif;
-        font-size: 15px;
-        font-weight: 600;
-        text-transform: uppercase;
+        color: #6b7280;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        font-weight: 500;
         cursor: pointer;
-        padding: 14px 0;
+        padding: 12px 0;
         border-bottom: 2px solid transparent;
         transition: all 0.2s;
         text-align: center;
+        white-space: nowrap;
       }
-
       .lv-tab-btn.active {
-        color: #6ee7b7;
-        border-bottom-color: #6ee7b7;
+        color: #ef4444;
+        border-bottom-color: #ef4444;
+        font-weight: 600;
       }
-
-      .lv-tab-content {
-        display: none;
-      }
-
-      .lv-tab-content.active {
-        display: block;
-      }
+      .lv-tab-content { display: none; }
+      .lv-tab-content.active { display: block; }
     </style>
-
-    <div class="lv-tabs"
-      style="display:flex; background:#020617; border-bottom:1px solid rgba(255,255,255,0.06); padding:0;">
-      <button class="lv-tab-btn active" onclick="switchLvTab(event, 'live')">LIVE</button>
-      <button class="lv-tab-btn" onclick="switchLvTab(event, 'scorecard')">SCORECARD</button>
-      <button class="lv-tab-btn" onclick="switchLvTab(event, 'teams')">TEAMS</button>
+    <div style="background:#ffffff; border-bottom:1px solid #e5e7eb; display:flex; overflow-x:auto;">
+      <button class="lv-tab-btn active" onclick="switchLvTab(event, 'live')">Live</button>
+      <button class="lv-tab-btn" onclick="switchLvTab(event, 'scorecard')">Scorecard</button>
+      <button class="lv-tab-btn" onclick="switchLvTab(event, 'commentary')">Commentary</button>
+      <button class="lv-tab-btn" onclick="switchLvTab(event, 'heros')">Heros</button>
+      <button class="lv-tab-btn" onclick="switchLvTab(event, 'teams')">Teams</button>
+      <button class="lv-tab-btn" onclick="switchLvTab(event, 'gallery')">Gallery</button>
     </div>
 
-    <div style="padding:20px;">
-      <div id="lv-tab-live" class="lv-tab-content active">
-        <div
-          style="background:linear-gradient(135deg, #1e293b, #0f172a); border:1px solid rgba(110, 231, 183, 0.2); border-radius:16px; padding:24px; text-align:center; margin-bottom:20px;">
-          <div
-            style="font-family:'Rajdhani',sans-serif; font-size:14px; color:#94a3b8; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-bottom:12px;">
-            <span id="lvTeamBat">—</span> vs <span id="lvTeamBowl">—</span>
-          </div>
-          <div id="lvScore" style="font-size:48px; font-weight:800; color:#fff; font-family:'Rajdhani',sans-serif;">0/0
-          </div>
-          <div id="lvOvers" style="font-size:18px; color:#94a3b8; margin-top:4px;">(0.0)</div>
-          <div id="lvTarget" style="font-size:14px; color:#f59e0b; margin-top:12px; font-weight:600;"></div>
-        </div>
-
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px;">
-          <div
-            style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:12px;">
-            <div style="font-size:11px; color:#64748b; text-transform:uppercase; margin-bottom:4px;">Striker</div>
-            <div id="lvStrike" style="font-weight:600; color:#fff;">—</div>
-          </div>
-          <div
-            style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:12px;">
-            <div style="font-size:11px; color:#64748b; text-transform:uppercase; margin-bottom:4px;">Non-Striker</div>
-            <div id="lvNonStrike" style="font-weight:600; color:#fff;">—</div>
-          </div>
-          <div
-            style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:12px; grid-column:span 2;">
-            <div style="font-size:11px; color:#64748b; text-transform:uppercase; margin-bottom:4px;">Current Bowler
-            </div>
-            <div id="lvBowler" style="font-weight:600; color:#fff;">—</div>
-          </div>
-        </div>
-
-        <div class="section" style="margin-top:20px;">
-          <h3 style="font-family:'Rajdhani',sans-serif; font-size:16px;">Recent Balls</h3>
-          <div id="lvBalls" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
-        </div>
+    <!-- Tab Content Area -->
+    <div id="lv-tab-live" class="lv-tab-content active" style="padding:0; background:#ffffff;">
+      <!-- Batters Header -->
+      <div style="background:#f9fafb; padding:8px 16px; border-bottom:1px solid #f3f4f6; display:flex; justify-content:space-between; font-family:'Inter', sans-serif; font-size:14px; font-weight:700; color:#111827;">
+        <span style="flex:2;">Batters</span>
+        <span style="width:40px; text-align:center;">R</span>
+        <span style="width:40px; text-align:center;">B</span>
+        <span style="width:40px; text-align:center;">4s</span>
+        <span style="width:40px; text-align:center;">6s</span>
+        <span style="width:60px; text-align:right;">SR</span>
+      </div>
+      <div id="lvBatTable" style="background:#fff;">
+        <!-- Filled by JS -->
       </div>
 
-      <div id="lv-tab-scorecard" class="lv-tab-content">
-        <div class="section"
-          style="padding:15px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.04); border-radius:12px;">
-          <h3 style="font-family:'Rajdhani',sans-serif; font-size:16px; margin-top:0;">Scorecard</h3>
-          <table>
-            <thead>
-              <tr>
-                <th style="text-align:left;">Batter</th>
-                <th>R</th>
-                <th>B</th>
-                <th>4s</th>
-                <th>6s</th>
-                <th>SR</th>
-              </tr>
-            </thead>
-            <tbody id="lvBatTable"></tbody>
-          </table>
-          <table style="margin-top:15px;">
-            <thead>
-              <tr>
-                <th style="text-align:left;">Bowler</th>
-                <th>O</th>
-                <th>R</th>
-                <th>W</th>
-                <th>Eco</th>
-              </tr>
-            </thead>
-            <tbody id="lvBowlTable"></tbody>
-          </table>
-        </div>
+      <!-- Bowlers Header -->
+      <div style="background:#f9fafb; padding:8px 16px; border-top:16px solid #f9fafb; border-bottom:1px solid #f3f4f6; display:flex; justify-content:space-between; font-family:'Inter', sans-serif; font-size:14px; font-weight:700; color:#111827;">
+        <span style="flex:2;">Bowlers</span>
+        <span style="width:40px; text-align:center;">O</span>
+        <span style="width:40px; text-align:center;">M</span>
+        <span style="width:40px; text-align:center;">R</span>
+        <span style="width:40px; text-align:center;">W</span>
+        <span style="width:60px; text-align:right;">Eco</span>
+      </div>
+      <div id="lvBowlTable" style="background:#fff;">
+        <!-- Filled by JS -->
       </div>
 
-      <div id="lv-tab-teams" class="lv-tab-content">
-        <div class="section"
-          style="padding:15px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.04); border-radius:12px;">
-          <h3 id="lvTeamsBatTitle"
-            style="font-family:'Rajdhani',sans-serif; font-size:16px; margin-top:0; color:#6ee7b7; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px;">
-            Batting Team</h3>
-          <ul id="lvTeamsBatList" style="list-style:none; padding:0; margin:0 0 20px 0;"></ul>
-
-          <h3 id="lvTeamsBowlTitle"
-            style="font-family:'Rajdhani',sans-serif; font-size:16px; margin-top:0; color:#6ee7b7; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px;">
-            Bowling Team</h3>
-          <ul id="lvTeamsBowlList" style="list-style:none; padding:0; margin:0;"></ul>
-        </div>
+      <div style="padding:16px; border-top:1px solid #f3f4f6; font-family:'Inter', sans-serif; font-size:13px; color:#111827;">
+        <strong>Current Partnership:</strong> <span id="lvLivePartnership">0(0)</span>
       </div>
+      
+      <div style="padding:12px 16px; background:#f9fafb;">
+        <div style="font-family:'Inter',sans-serif; font-size:12px; color:#64748b; margin-bottom:8px; text-transform:uppercase; font-weight:600;">Recent Balls</div>
+        <div id="lvBalls" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+      </div>
+    </div>
+
+    <div id="lv-tab-scorecard" class="lv-tab-content" style="padding:16px; background:#fff;">
+      <h3 style="font-family:'Inter', sans-serif; font-size:16px; font-weight:700; margin-top:0;">Detailed Scorecard</h3>
+      <div id="lvFullScorecard">Content coming soon</div>
+    </div>
+
+    <div id="lv-tab-commentary" class="lv-tab-content" style="padding:40px 16px; text-align:center; color:#6b7280; font-family:'Inter',sans-serif; background:#fff;">
+      Commentary not available for this match.
+    </div>
+
+    <div id="lv-tab-heros" class="lv-tab-content" style="padding:40px 16px; text-align:center; color:#6b7280; font-family:'Inter',sans-serif; background:#fff;">
+      Match analysis and top performers will be shown here.
+    </div>
+
+    <div id="lv-tab-teams" class="lv-tab-content" style="padding:16px; background:#fff;">
+      <h3 id="lvTeamsBatTitle" style="font-family:'Inter', sans-serif; font-size:16px; margin-top:0; color:#0d9488; border-bottom:1px solid #f3f4f6; padding-bottom:8px;">Batting Team</h3>
+      <ul id="lvTeamsBatList" style="list-style:none; padding:0; margin:0 0 24px 0;"></ul>
+      <h3 id="lvTeamsBowlTitle" style="font-family:'Inter', sans-serif; font-size:16px; margin-top:0; color:#0d9488; border-bottom:1px solid #f3f4f6; padding-bottom:8px;">Bowling Team</h3>
+      <ul id="lvTeamsBowlList" style="list-style:none; padding:0; margin:0;"></ul>
+    </div>
+
+    <div id="lv-tab-gallery" class="lv-tab-content" style="padding:40px 16px; text-align:center; color:#6b7280; font-family:'Inter',sans-serif; background:#fff;">
+      No photos available for this match.
     </div>
   </div>
 
@@ -6235,6 +6240,17 @@
         });
       });
 
+      let ground = "";
+      let matchType = "Limited Overs";
+      if (currentTournamentId !== null) {
+        let tours = loadTournaments();
+        let t = tours[currentTournamentId];
+        if (t) {
+          ground = t.ground || "";
+          matchType = t.matchType || "Limited Overs";
+        }
+      }
+
       let matchState = {
         id: currentLiveMatchId,
         tournamentId: currentTournamentId,
@@ -6257,7 +6273,11 @@
         extras: { wides: extrasWides, noballs: extrasNoBalls },
         lastBalls: Array.from(document.getElementById('balls').children).map(c => c.innerText).slice(-12),
         updatedAt: Date.now(),
-        status: "live"
+        status: "live",
+        ground: ground,
+        tossText: matchTossText,
+        matchType: matchType,
+        matchDate: matchStartTime
       };
 
       try {
@@ -6328,7 +6348,7 @@
             matchCount++;
             
             html += `
-            <div class="live-match-card" style="background:linear-gradient(135deg, #1e293b, #0f172a); border:1px solid rgba(110, 231, 183, 0.2); border-radius:12px; padding:16px; position:relative; overflow:hidden;">
+            <div class="live-match-card" onclick="viewLiveMatch('${m.id}')" style="background:linear-gradient(135deg, #1e293b, #0f172a); border:1px solid rgba(110, 231, 183, 0.2); border-radius:12px; padding:16px; position:relative; overflow:hidden; cursor:pointer;">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                 <span style="font-size:11px; color:#94a3b8; font-weight:600; letter-spacing:0.5px;">INNINGS ${m.innings}</span>
                 <span style="background:rgba(239, 68, 68, 0.1); color:#ef4444; font-size:10px; padding:2px 8px; border-radius:10px; font-weight:700;">LIVE</span>
@@ -6433,65 +6453,88 @@
     }
 
     function renderLiveView(m) {
-      document.getElementById('lvTeamBat').innerText = m.batTeam;
-      document.getElementById('lvTeamBowl').innerText = m.bowlTeam;
+      // Basic info
+      if (document.getElementById('lvBatTeamNameDisplay')) document.getElementById('lvBatTeamNameDisplay').innerText = m.batTeam;
+      if (document.getElementById('lvBowlTeamNameDisplay')) document.getElementById('lvBowlTeamNameDisplay').innerText = m.bowlTeam;
       document.getElementById('lvScore').innerText = `${m.runs}/${m.wickets}`;
-      document.getElementById('lvOvers').innerText = `(${m.overs})`;
-      document.getElementById('lvTarget').innerText = m.target > 0 ? `Target: ${m.target}` : "";
-      document.getElementById('lvStrike').innerText = m.strike || "—";
-      document.getElementById('lvNonStrike').innerText = m.nonstrike || "—";
-      document.getElementById('lvBowler').innerText = m.bowler || "—";
+      document.getElementById('lvOvers').innerText = `(${m.overs} Ov)`;
+      
+      if (document.getElementById('lvMatchStatus')) {
+        document.getElementById('lvMatchStatus').innerText = (m.target > 0) ? `Target: ${m.target}` : (m.innings === 1 ? "1st Innings" : "2nd Innings");
+      }
 
-      // Batting Table
+      if (m.ground && document.getElementById('lvMatchLocation')) {
+        document.getElementById('lvMatchLocation').innerText = m.ground;
+      }
+      if (m.tossText && document.getElementById('lvTossInfo')) {
+        document.getElementById('lvTossInfo').innerText = m.tossText;
+      }
+      if (m.matchType && document.getElementById('lvMatchType')) {
+        document.getElementById('lvMatchType').innerText = m.matchType;
+      }
+      if (m.matchDate && document.getElementById('lvMatchDate')) {
+        document.getElementById('lvMatchDate').innerText = m.matchDate;
+      }
+
+      // Batting Table (Live Tab)
       let batHtml = "";
       for (let p in m.batsmanStats) {
         let s = m.batsmanStats[p];
         let isOut = (m.outBatsmen || []).indexOf(p) !== -1;
         let isOn = (p === m.strike || p === m.nonstrike);
         if (!isOut && !isOn) continue;
-        let sr = s.balls > 0 ? ((s.runs / s.balls) * 100).toFixed(1) : "0.0";
-        batHtml += `<tr style="${isOut ? 'opacity:0.5' : ''}">
-          <td style="text-align:left;">${p}${p === m.strike ? '*' : ''}</td>
-          <td style="font-weight:700;">${s.runs}</td>
-          <td>${s.balls}</td>
-          <td>${s.fours}</td>
-          <td>${s.sixes}</td>
-          <td>${sr}</td>
-        </tr>`;
+        let sr = s.balls > 0 ? ((s.runs / s.balls) * 100).toFixed(2) : "0.00";
+        
+        batHtml += `<div style="padding:12px 16px; border-bottom:1px solid #f3f4f6; display:flex; justify-content:space-between; align-items:center; font-family:'Inter',sans-serif; font-size:14px; ${isOut ? 'opacity:0.5' : ''}">
+          <div style="flex:2; color:#0d9488; font-weight:600;">${p}${p === m.strike ? '*' : ''}</div>
+          <div style="width:40px; text-align:center; color:#374151;">${s.runs}</div>
+          <div style="width:40px; text-align:center; color:#6b7280;">${s.balls}</div>
+          <div style="width:40px; text-align:center; color:#6b7280;">${s.fours}</div>
+          <div style="width:40px; text-align:center; color:#6b7280;">${s.sixes}</div>
+          <div style="width:60px; text-align:right; color:#6b7280;">${sr}</div>
+        </div>`;
       }
       document.getElementById('lvBatTable').innerHTML = batHtml;
 
-      // Bowling Table
+      // Bowling Table (Live Tab)
       let bowlHtml = "";
       for (let p in m.bowlerStats) {
         let s = m.bowlerStats[p];
         if (s.balls === 0 && p !== m.bowler) continue;
         let ov = Math.floor(s.balls / 6) + "." + (s.balls % 6);
         let eco = s.balls > 0 ? ((s.runs / s.balls) * 6).toFixed(2) : "0.00";
-        bowlHtml += `<tr>
-          <td style="text-align:left;">${p}</td>
-          <td>${ov}</td>
-          <td>${s.runs}</td>
-          <td style="font-weight:700; color:#6ee7b7;">${s.wickets}</td>
-          <td>${eco}</td>
-        </tr>`;
+        
+        bowlHtml += `<div style="padding:12px 16px; border-bottom:1px solid #f3f4f6; display:flex; justify-content:space-between; align-items:center; font-family:'Inter',sans-serif; font-size:14px;">
+          <div style="flex:2; color:#0d9488; font-weight:600;">${p}</div>
+          <div style="width:40px; text-align:center; color:#374151;">${ov}</div>
+          <div style="width:40px; text-align:center; color:#6b7280;">${s.maidens || 0}</div>
+          <div style="width:40px; text-align:center; color:#374151;">${s.runs}</div>
+          <div style="width:40px; text-align:center; color:#111827; font-weight:700;">${s.wickets}</div>
+          <div style="width:60px; text-align:right; color:#6b7280;">${eco}</div>
+        </div>`;
       }
       document.getElementById('lvBowlTable').innerHTML = bowlHtml;
 
+      // Partnership (Rough estimate if not available in data)
+      if (document.getElementById('lvLivePartnership')) {
+        // Just as an example, we can use a calculation or keep it 0 if not tracked
+        document.getElementById('lvLivePartnership').innerText = `${m.runs}(${m.ballCount})`;
+      }
+
       // Recent Balls
-      document.getElementById('lvBalls').innerHTML = (m.lastBalls || []).map(b => `<span class="ball">${b}</span>`).join('');
+      document.getElementById('lvBalls').innerHTML = (m.lastBalls || []).map(b => `<span class="ball" style="display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:50%; background:#fff; border:1px solid #e5e7eb; font-size:12px; font-weight:600; color:#374151;">${b}</span>`).join('');
 
       // Teams Tab
-      document.getElementById('lvTeamsBatTitle').innerText = m.batTeam + " (Batting)";
-      document.getElementById('lvTeamsBowlTitle').innerText = m.bowlTeam + " (Bowling)";
+      document.getElementById('lvTeamsBatTitle').innerText = m.batTeam;
+      document.getElementById('lvTeamsBowlTitle').innerText = m.bowlTeam;
 
       let teamsBatHtml = "";
       for (let p in m.batsmanStats) {
         let pPhoto = (m.playerPhotos && m.playerPhotos[p]) || "";
         let pAvatar = pPhoto 
-          ? `<img src="${pPhoto}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;margin-right:12px;">` 
-          : `<span style="width:28px; height:28px; background:#1e293b; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; margin-right:12px; font-size:12px; font-weight:bold; color:#94a3b8;">${p.charAt(0)}</span>`;
-        teamsBatHtml += `<li style="padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; align-items:center;">${pAvatar} <span style="font-weight:500;">${p}</span></li>`;
+          ? `<img src="${pPhoto}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:12px;">` 
+          : `<div style="width:32px; height:32px; background:#f3f4f6; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-right:12px; font-size:12px; font-weight:bold; color:#9ca3af;">${p.charAt(0)}</div>`;
+        teamsBatHtml += `<li style="padding:12px 0; border-bottom:1px solid #f3f4f6; display:flex; align-items:center; font-family:'Inter',sans-serif;">${pAvatar} <span style="font-weight:500; color:#111827;">${p}</span></li>`;
       }
       document.getElementById('lvTeamsBatList').innerHTML = teamsBatHtml;
 
@@ -6499,9 +6542,9 @@
       for (let p in m.bowlerStats) {
         let pPhoto = (m.playerPhotos && m.playerPhotos[p]) || "";
         let pAvatar = pPhoto 
-          ? `<img src="${pPhoto}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;margin-right:12px;">` 
-          : `<span style="width:28px; height:28px; background:#1e293b; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; margin-right:12px; font-size:12px; font-weight:bold; color:#94a3b8;">${p.charAt(0)}</span>`;
-        teamsBowlHtml += `<li style="padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; align-items:center;">${pAvatar} <span style="font-weight:500;">${p}</span></li>`;
+          ? `<img src="${pPhoto}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:12px;">` 
+          : `<div style="width:32px; height:32px; background:#f3f4f6; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-right:12px; font-size:12px; font-weight:bold; color:#9ca3af;">${p.charAt(0)}</div>`;
+        teamsBowlHtml += `<li style="padding:12px 0; border-bottom:1px solid #f3f4f6; display:flex; align-items:center; font-family:'Inter',sans-serif;">${pAvatar} <span style="font-weight:500; color:#111827;">${p}</span></li>`;
       }
       document.getElementById('lvTeamsBowlList').innerHTML = teamsBowlHtml;
     }
@@ -6552,6 +6595,8 @@
     let tossTeams = [];
     let tossCallingTeamIndex = -1;
     let tossWinnerIndex = -1;
+    let matchTossText = "";
+    let matchStartTime = "";
     let tossFlipped = false;
     let totalOvers = 0;
     let pendingBatTeam = "";
@@ -6668,19 +6713,16 @@
                   }
                   btn.innerText = oldText;
                   btn.disabled = false;
-                  alert("Login Successful");
                   startApp();
                 }).catch(e => {
                   console.error("Firebase load error", e);
                   btn.innerText = oldText;
                   btn.disabled = false;
-                  alert("Login Successful");
                   startApp();
                 });
               } else {
                 btn.innerText = oldText;
                 btn.disabled = false;
-                alert("Login Successful");
                 startApp();
               }
             }
@@ -6705,7 +6747,6 @@
             btn.disabled = false;
             if (data.message === "Already Registered") alert("Already Registered");
             else {
-              alert("Registration Successful");
               toggleAuth();
             }
           })
@@ -7341,6 +7382,7 @@
     function tossChoice(choice) {
       let tossWinner = tossTeams[tossWinnerIndex];
       let tossLoser = tossTeams[tossWinnerIndex === 0 ? 1 : 0];
+      matchTossText = `Toss: ${tossWinner} opt to ${choice} first`;
       let finalBatTeam = choice === "bat" ? tossWinner : tossLoser;
       let finalBowlTeam = choice === "bat" ? tossLoser : tossWinner;
       document.getElementById("tossOverlay").classList.remove("open");
@@ -7376,6 +7418,7 @@
       document.querySelectorAll(".overs-quick-btn").forEach(b => b.classList.remove("selected"));
       document.getElementById("oversOverlay").classList.add("open");
       currentLiveMatchId = Date.now();
+      matchStartTime = new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', year: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true });
       if (currentTournamentMatchIdx !== null && currentTournamentId !== null) {
         let allTours = loadTournaments();
         if (allTours[currentTournamentId] && allTours[currentTournamentId].matches[currentTournamentMatchIdx]) {
@@ -8140,7 +8183,7 @@
     document.addEventListener('DOMContentLoaded', initDtClockEvents);
 
     function shareScorecardLink() {
-      let tName = encodeURIComponent((document.getElementById('currentTourName') ? document.getElementById('currentTourName').innerText : "KCP-PL"));
+      let tName = encodeURIComponent((document.getElementById('mtTournamentName') ? document.getElementById('mtTournamentName').innerText : "KCP-PL"));
       let mName = encodeURIComponent((matchBatTeam || "Team1").replace(/\s+/g, "-") + "-vs-" + (matchBowlTeam || "Team2").replace(/\s+/g, "-"));
       let mId = currentLiveMatchId || new Date().getTime();
       // Always use the Render production URL so the link works for everyone
