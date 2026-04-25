@@ -9,6 +9,13 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="KCP Cricket">
+  <!-- Open Graph for WhatsApp / Social link preview -->
+  <meta property="og:title" content="🏏 KCP Cricket — Live Scorecard">
+  <meta property="og:description" content="Live cricket scorecard — tap to watch runs, wickets & overs in real time!">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="KCP Cricket App">
+  <meta property="og:image" content="https://kcp-cricket-app-b7ni.onrender.com/kcp.png">
+  <meta property="og:url" content="https://kcp-cricket-app-b7ni.onrender.com">
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/service-worker.js');
@@ -3430,52 +3437,215 @@
       margin-top: 16px;
     }
 
+    #myMatchesContainer, #myTournamentsContainer {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 0;
+      padding: 0;
+    }
+    @media (max-width: 700px) {
+      #myMatchesContainer, #myTournamentsContainer {
+        grid-template-columns: 1fr;
+      }
+    }
     .my-card {
       background: #ffffff;
       border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      margin: 0 16px 16px 16px;
+      border-radius: 12px;
+      margin: 10px;
       padding: 16px;
       font-family: 'Inter', sans-serif;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      position: relative;
     }
-
-    .my-card-header {
-      font-size: 15px;
-      color: #111827;
-      margin-bottom: 12px;
-    }
-
-    .my-card-divider {
-      height: 1px;
-      background: #f3f4f6;
-      margin: 12px -16px;
-    }
-
-    .my-card-meta {
-      font-size: 13px;
-      color: #374151;
+    .tourney-card {
       display: flex;
-      align-items: flex-start;
+      gap: 12px;
+      align-items: center;
+    }
+    .tourney-img {
+      width: 70px;
+      height: 70px;
+      border-radius: 8px;
+      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border: 1px solid #e5e7eb;
+    }
+    .tourney-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .tourney-info {
+      flex: 1;
+    }
+    .tourney-badge-premium {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: #0d9488;
+      color: #fff;
+      font-size: 10px;
+      padding: 4px 12px;
+      border-radius: 0 11px 0 11px;
+      font-weight: 700;
+    }
+    .tourney-status-ongoing {
+      background: #ef4444;
+      color: #fff;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 700;
+      display: inline-block;
+      margin-bottom: 4px;
+    }
+    .tourney-name {
+      font-weight: 800;
+      color: #111827;
+      font-size: 16px;
+      margin-bottom: 2px;
+    }
+
+    /* Custom Date Time Picker Styles */
+    .dtp-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 10000;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', sans-serif;
+    }
+    .dtp-overlay.open { display: flex; }
+    .dtp-box {
+      background: #fff;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 650px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+    .dtp-body { display: flex; flex-direction: row; }
+    @media (max-width: 600px) {
+      .dtp-body { flex-direction: column; }
+      .dtp-box { max-width: 350px; }
+    }
+    .dtp-calendar-side { flex: 1; padding: 20px; border-right: 1px solid #eee; }
+    .dtp-clock-side { flex: 1; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; background: #f9f9f9; }
+    .dtp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .dtp-month-year { font-weight: 700; color: #333; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+    .dtp-nav-btns { display: flex; gap: 15px; }
+    .dtp-nav-btn { cursor: pointer; color: #666; font-size: 18px; font-weight: bold; }
+    .dtp-days-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
+    .dtp-day-name { font-size: 12px; color: #999; padding: 5px 0; font-weight: 500; }
+    .dtp-day { font-size: 13px; color: #333; padding: 8px 0; cursor: pointer; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; margin: 0 auto; transition: background 0.2s; }
+    .dtp-day:hover:not(.disabled) { background: #f0f0f0; }
+    .dtp-day.selected { background: #10b981 !important; color: #fff !important; }
+    .dtp-day.disabled { color: #ccc; cursor: default; }
+    
+    .dtp-clock-face { width: 180px; height: 180px; background: #eee; border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center; margin: 10px 0; }
+    .dtp-clock-number { position: absolute; font-size: 13px; color: #333; cursor: pointer; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 50%; z-index: 2; }
+    .dtp-clock-number.selected { color: #fff; }
+    .dtp-clock-hand { position: absolute; bottom: 50%; left: 50%; width: 2px; height: 70px; background: #10b981; transform-origin: bottom center; z-index: 1; pointer-events: none; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .dtp-clock-hand::after { content: ''; position: absolute; top: -5px; left: -14px; width: 30px; height: 30px; background: #10b981; border-radius: 50%; z-index: -1; }
+    .dtp-clock-center { width: 6px; height: 6px; background: #10b981; border-radius: 50%; z-index: 3; }
+    
+    .dtp-ampm-row { display: flex; gap: 10px; width: 100%; justify-content: space-between; margin-top: 15px; }
+    .dtp-ampm-btns { display: flex; gap: 10px; }
+    .dtp-ampm-btn { font-size: 12px; font-weight: 700; color: #999; cursor: pointer; padding: 4px 10px; border-radius: 12px; transition: all 0.2s; }
+    .dtp-ampm-btn.selected { background: #10b981; color: #fff; }
+    
+    .dtp-footer { padding: 12px 20px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #fff; }
+    .dtp-current-val { font-size: 14px; color: #666; font-weight: 500; }
+    .dtp-ok-btn { background: #10b981; color: #fff; padding: 8px 24px; border: none; border-radius: 4px; font-weight: 700; cursor: pointer; font-family: 'Rajdhani', sans-serif; letter-spacing: 1px; }
+    
+    .dtp-input-new {
+      flex: 1; min-width: 200px; padding: 10px; background: #111827; color: #fff; border: 1px solid #374151; border-radius: 8px; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 14px;
+    }
+    .dtp-input-new:focus { outline: none; border-color: #10b981; }
+    .tourney-title {
+      color: #111827;
+      font-size: 15px;
+      margin-bottom: 2px;
+    }
+    .tourney-dates, .tourney-loc {
+      font-size: 11px;
+      color: #6b7280;
+      font-weight: 500;
+    }
+    .my-card-header {
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 8px;
+      display: flex;
       justify-content: space-between;
+      align-items: center;
+    }
+    .my-card-meta {
+      font-size: 12px;
+      color: #374151;
+      font-weight: 500;
+      line-height: 1.4;
       margin-bottom: 8px;
     }
-
-    .my-badge {
-      background: #f59e0b;
-      color: #fff;
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 12px;
-      font-weight: 500;
-      white-space: nowrap;
-      margin-left: 10px;
-    }
-
     .my-card-bold {
-      font-weight: 600;
+      font-weight: 700;
       color: #111827;
       font-size: 14px;
       margin-bottom: 12px;
+    }
+    .my-card-teams {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .my-card-team-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .my-card-team-name {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: #111827;
+    }
+    .my-card-score {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      color: #059669;
+    }
+    .my-card-overs {
+      font-size: 12px;
+      color: #6b7280;
+      font-weight: 500;
+      margin-left: 4px;
+    }
+    .my-card-footer {
+      border-top: 1px solid #f3f4f6;
+      margin: 12px -16px -16px -16px;
+      padding: 10px 16px;
+      font-size: 12px;
+      color: #4b5563;
+      background: #fafafa;
+      border-radius: 0 0 12px 12px;
+    }
+    .my-badge {
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+      text-transform: uppercase;
     }
 
     .my-card-team {
@@ -4489,8 +4659,7 @@
               style="flex:1;min-width:120px;padding:10px;background:#111827;color:#fff;border:1px solid #374151;border-radius:8px;"></select>
           </div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            <input type="date" id="mtSchedDate"
-              style="flex:1;min-width:140px;padding:10px;background:#111827;color:#fff;border:1px solid #374151;border-radius:8px;">
+            <input type="text" id="mtSchedDateTime" class="dtp-input-new" placeholder="Select Date & Time" readonly onclick="openDateTimePicker(val => this.value = val)">
             <button onclick="addTournamentMatch()"
               style="background:#1d4ed8;padding:10px 20px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;">Schedule</button>
           </div>
@@ -4709,7 +4878,7 @@
         <div class="upcoming-form-row">
           <select id="upTeam1"></select>
           <select id="upTeam2"></select>
-          <input type="date" id="upMatchDate">
+          <input type="text" id="upMatchDateTime" class="dtp-input-new" style="margin:5px;" placeholder="Select Date & Time" readonly onclick="openDateTimePicker(val => this.value = val)">
           <button class="btn-green" onclick="scheduleUpcomingMatch()">➕ Schedule</button>
         </div>
       </div>
@@ -4827,12 +4996,18 @@
       <button class="page-top-back-btn" onclick="closeLiveView()" style="color:#6ee7b7;">
         <span class="page-top-back-arrow">←</span> <span style="font-size:16px; margin-left:4px;">Home</span>
       </button>
-      <span
-        style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:#ef4444;letter-spacing:2px;display:flex;align-items:center;gap:6px;">
+      <div style="display:flex; align-items:center; gap: 15px;">
         <span
-          style="width:6px; height:6px; background:#ef4444; border-radius:50%; animation: pulse-live 1.5s infinite;"></span>
-        LIVE SCORE
-      </span>
+          style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:#ef4444;letter-spacing:2px;display:flex;align-items:center;gap:6px;">
+          <span
+            style="width:6px; height:6px; background:#ef4444; border-radius:50%; animation: pulse-live 1.5s infinite;"></span>
+          LIVE SCORE
+        </span>
+        <button onclick="shareScorecardLink()" style="background:#25D366;border:none;color:#fff;cursor:pointer;padding:6px 12px;border-radius:20px;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;display:flex;align-items:center;gap:5px;box-shadow:0 2px 8px rgba(37,211,102,0.4);" title="Share on WhatsApp">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+          Share
+        </button>
+      </div>
     </div>
     <style>
       .lv-tab-btn {
@@ -4850,19 +5025,23 @@
         transition: all 0.2s;
         text-align: center;
       }
+
       .lv-tab-btn.active {
         color: #6ee7b7;
         border-bottom-color: #6ee7b7;
       }
+
       .lv-tab-content {
         display: none;
       }
+
       .lv-tab-content.active {
         display: block;
       }
     </style>
 
-    <div class="lv-tabs" style="display:flex; background:#020617; border-bottom:1px solid rgba(255,255,255,0.06); padding:0;">
+    <div class="lv-tabs"
+      style="display:flex; background:#020617; border-bottom:1px solid rgba(255,255,255,0.06); padding:0;">
       <button class="lv-tab-btn active" onclick="switchLvTab(event, 'live')">LIVE</button>
       <button class="lv-tab-btn" onclick="switchLvTab(event, 'scorecard')">SCORECARD</button>
       <button class="lv-tab-btn" onclick="switchLvTab(event, 'teams')">TEAMS</button>
@@ -4895,7 +5074,8 @@
           </div>
           <div
             style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:12px; grid-column:span 2;">
-            <div style="font-size:11px; color:#64748b; text-transform:uppercase; margin-bottom:4px;">Current Bowler</div>
+            <div style="font-size:11px; color:#64748b; text-transform:uppercase; margin-bottom:4px;">Current Bowler
+            </div>
             <div id="lvBowler" style="font-weight:600; color:#fff;">—</div>
           </div>
         </div>
@@ -4939,11 +5119,16 @@
       </div>
 
       <div id="lv-tab-teams" class="lv-tab-content">
-        <div class="section" style="padding:15px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.04); border-radius:12px;">
-          <h3 id="lvTeamsBatTitle" style="font-family:'Rajdhani',sans-serif; font-size:16px; margin-top:0; color:#6ee7b7; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px;">Batting Team</h3>
+        <div class="section"
+          style="padding:15px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.04); border-radius:12px;">
+          <h3 id="lvTeamsBatTitle"
+            style="font-family:'Rajdhani',sans-serif; font-size:16px; margin-top:0; color:#6ee7b7; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px;">
+            Batting Team</h3>
           <ul id="lvTeamsBatList" style="list-style:none; padding:0; margin:0 0 20px 0;"></ul>
-          
-          <h3 id="lvTeamsBowlTitle" style="font-family:'Rajdhani',sans-serif; font-size:16px; margin-top:0; color:#6ee7b7; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px;">Bowling Team</h3>
+
+          <h3 id="lvTeamsBowlTitle"
+            style="font-family:'Rajdhani',sans-serif; font-size:16px; margin-top:0; color:#6ee7b7; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px;">
+            Bowling Team</h3>
           <ul id="lvTeamsBowlList" style="list-style:none; padding:0; margin:0;"></ul>
         </div>
       </div>
@@ -5041,6 +5226,7 @@
 
     let tournaments = [];
     let currentTournamentId = null;
+    let currentTournamentMatchIdx = null;
 
     function openOrganiserAdmin() {
       document.getElementById('dotsDropdown').classList.remove('open');
@@ -5336,6 +5522,7 @@
 
     function openTournamentTeamsPage(idx) {
       currentTeamsTournamentIdx = idx;
+      localStorage.setItem("currentTeamsTournamentIdx", idx);
       showPage('tournamentTeamsPage');
       renderTeamsList();
     }
@@ -5459,8 +5646,9 @@
         return;
       }
       container.innerHTML = players.map(function (p, pi) {
+        let photoHtml = p.photo ? '<img src="' + p.photo + '" style="width:24px;height:24px;border-radius:50%;object-fit:cover;margin-right:8px;">' : '<span style="margin-right:8px;">🧑</span>';
         return '<div style="display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f3f4f6;">' +
-          '<div style="font-size:14px; color:#1f2937;">' + p.name + ' <span style="font-size:11px; color:#6b7280;">(' + (p.role || '') + ')</span></div>' +
+          '<div style="display:flex;align-items:center;font-size:14px; color:#1f2937;">' + photoHtml + p.name + ' <span style="font-size:11px; color:#6b7280;margin-left:4px;">(' + (p.role || '') + ')</span></div>' +
           '<div style="display:flex; gap:8px; align-items:center;">' +
           '<span onclick="openEditPlayerInTeam(' + pi + ')" style="cursor:pointer; color:#0d9488; font-size:12px; border:1px solid #0d9488; padding:3px 8px; border-radius:4px;">Edit</span>' +
           '<span onclick="deletePlayerInEditModal(' + pi + ')" style="cursor:pointer; color:#dc2626; font-size:12px; border:1px solid #dc2626; padding:3px 8px; border-radius:4px;">Delete</span>' +
@@ -5509,15 +5697,24 @@
       renderEditTeamPlayersList();
     }
 
-    function addPlayerFromEditTeamModal() {
+    async function addPlayerFromEditTeamModal() {
       let name = document.getElementById('newPlayerNameInEdit').value.trim();
       let role = document.getElementById('newPlayerRoleInEdit').value;
       if (!name) { alert('Enter player name'); return; }
       if (!role) { alert('Select player role'); return; }
+
+      let photo = localStorage.getItem("userPhoto_" + name) || "";
+      if (!photo && window.fbGetDoc) {
+        try {
+          let userDoc = await window.fbGetDoc(window.fbDoc(window.fbDb, "users", name));
+          if (userDoc.exists()) { photo = userDoc.data().photo || ""; if (photo) localStorage.setItem("userPhoto_" + name, photo); }
+        } catch (e) { }
+      }
+
       tournaments = loadTournaments();
       let t = tournaments[currentTeamsTournamentIdx];
       if (!t.teams[currentEditTeamIdx].players) t.teams[currentEditTeamIdx].players = [];
-      t.teams[currentEditTeamIdx].players.push({ name: name, role: role });
+      t.teams[currentEditTeamIdx].players.push({ name: name, role: role, photo: photo });
       saveTournamentsData(tournaments);
       document.getElementById('newPlayerNameInEdit').value = '';
       document.getElementById('newPlayerRoleInEdit').value = '';
@@ -5578,16 +5775,25 @@
     function closeAddTeamPlayerModal() {
       document.getElementById('addTeamPlayerModal').style.display = 'none';
     }
-    function confirmAddTeamPlayer() {
+    async function confirmAddTeamPlayer() {
       let name = document.getElementById('addTeamPlayerNameInput').value.trim();
       if (!name) { alert('Enter player name'); return; }
       let role = document.getElementById('addTeamPlayerRoleInput').value;
       if (!role) { alert('Select player role'); return; }
+
+      let photo = localStorage.getItem("userPhoto_" + name) || "";
+      if (!photo && window.fbGetDoc) {
+        try {
+          let userDoc = await window.fbGetDoc(window.fbDoc(window.fbDb, "users", name));
+          if (userDoc.exists()) { photo = userDoc.data().photo || ""; if (photo) localStorage.setItem("userPhoto_" + name, photo); }
+        } catch (e) { }
+      }
+
       tournaments = loadTournaments();
       let t = tournaments[currentTeamsTournamentIdx];
       let tName = t.teams[currentAddPlayerTeamIdx].name;
       if (!t.teams[currentAddPlayerTeamIdx].players) t.teams[currentAddPlayerTeamIdx].players = [];
-      t.teams[currentAddPlayerTeamIdx].players.push({ name: name, role: role });
+      t.teams[currentAddPlayerTeamIdx].players.push({ name: name, role: role, photo: photo });
       saveTournamentsData(tournaments);
       document.getElementById('addTeamPlayerNameInput').value = '';
       document.getElementById('addTeamPlayerRoleInput').value = '';
@@ -5635,9 +5841,12 @@
         return;
       }
       grid.innerHTML = players.map(function (p) {
+        let avatarHtml = p.photo 
+          ? '<img src="' + p.photo + '" style="width:100%;height:100%;object-fit:cover;">' 
+          : '<svg width="48" height="48" viewBox="0 0 24 24" fill="#9ca3af"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>';
         return '<div style="display:flex;flex-direction:column;align-items:center;width:120px;">' +
           '<div style="width:110px;height:110px;background:#e5e7eb;border-radius:4px;overflow:hidden;display:flex;align-items:center;justify-content:center;">' +
-          '<svg width="48" height="48" viewBox="0 0 24 24" fill="#9ca3af"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>' +
+          avatarHtml +
           '</div>' +
           '<div style="margin-top:6px;font-size:13px;font-family:Inter,sans-serif;color:#1f2937;text-align:center;font-weight:500;">' + p.name + '</div>' +
           '<div style="font-size:11px;color:#6b7280;font-family:Inter,sans-serif;">' + (p.role || '') + '</div>' +
@@ -5653,6 +5862,7 @@
 
     function manageTournament(idx) {
       currentTournamentId = idx;
+      localStorage.setItem("currentTournamentId", idx);
       let t = tournaments[idx];
       document.getElementById('mtTournamentName').innerText = t.name;
       showPage('manageTournament');
@@ -5705,10 +5915,10 @@
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
         <div>
           <div class="oa-match-vs" style="font-size:18px;color:#111827;">${m.team1} <span style="color:#6b7280;font-size:14px;font-weight:400;">vs</span> ${m.team2}</div>
-          <div class="oa-match-date">📅 ${dateStr}</div>
+          <div class="oa-match-date">📅 ${dateStr} ${m.time ? ' • 🕒 ' + formatTimeAMPM(m.time) : ''}</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <button onclick="startTournamentMatch('${escapeQ(m.team1)}','${escapeQ(m.team2)}')" style="background:linear-gradient(135deg,#16a34a,#15803d);border:none;color:#fff;padding:9px 20px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;">▶ START MATCH</button>
+          <button onclick="startTournamentMatch('${escapeQ(m.team1)}','${escapeQ(m.team2)}', ${mi})" style="background:linear-gradient(135deg,#16a34a,#15803d);border:none;color:#fff;padding:9px 20px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;">▶ START MATCH</button>
           <button onclick="deleteTournamentMatch(${mi})" style="background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.2);color:#ef4444;padding:7px 10px;border-radius:7px;font-size:12px;cursor:pointer;">🗑️</button>
         </div>
       </div>
@@ -5812,14 +6022,23 @@
       addPlayerTargetTeamIdx = -1;
     }
 
-    function confirmAddPlayerModal() {
+    async function confirmAddPlayerModal() {
       let pname = document.getElementById('addPlayerNameInput').value.trim();
       let role = document.getElementById('addPlayerRoleInput').value;
       if (!pname) { alert('Enter player name'); return; }
       if (!role) { alert('Select a role'); return; }
+
+      let photo = localStorage.getItem("userPhoto_" + pname) || "";
+      if (!photo && window.fbGetDoc) {
+        try {
+          let userDoc = await window.fbGetDoc(window.fbDoc(window.fbDb, "users", pname));
+          if (userDoc.exists()) { photo = userDoc.data().photo || ""; if (photo) localStorage.setItem("userPhoto_" + pname, photo); }
+        } catch (e) { }
+      }
+
       tournaments = loadTournaments();
       let t = tournaments[currentTournamentId];
-      t.teams[addPlayerTargetTeamIdx].players.push({ name: pname, role: role });
+      t.teams[addPlayerTargetTeamIdx].players.push({ name: pname, role: role, photo: photo });
       saveTournamentsData(tournaments);
       closeAddPlayerModal();
       renderMtTeams();
@@ -5848,14 +6067,18 @@
           <div style="display:flex;flex-direction:column;gap:4px;">
             ${team.players.length === 0
           ? '<div style="color:#4b5563;font-size:12px;padding:4px 0;">No players yet</div>'
-          : team.players.map((p, pi) => `
-                <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.03);border-radius:6px;padding:6px 10px;">
-                  <span style="font-size:13px;color:#d1fae5;">🧑 ${p.name} ${roleBadge(p.role)}</span>
+          : team.players.map((p, pi) => {
+            let pPhotoHtml = p.photo 
+              ? `<img src="${p.photo}" style="width:20px;height:20px;border-radius:50%;object-fit:cover;margin-right:6px;">` 
+              : '🧑 ';
+            return `<div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.03);border-radius:6px;padding:6px 10px;">
+                  <span style="font-size:13px;color:#d1fae5;display:flex;align-items:center;">${pPhotoHtml}${p.name} ${roleBadge(p.role)}</span>
                   <div style="display:flex;gap:4px;">
                     <button onclick="editTournamentPlayer(${ti},${pi})" style="background:none;border:none;color:#93c5fd;cursor:pointer;font-size:12px;padding:2px 4px;">✏️</button>
                     <button class="delete-player-btn" onclick="deleteTournamentPlayer(${ti},${pi})" title="Remove">✕</button>
                   </div>
-                </div>`).join('')
+                </div>`;
+          }).join('')
         }
           </div>
           <div style="margin-top:10px;text-align:right;">
@@ -5911,21 +6134,26 @@
       let t = tournaments[currentTournamentId];
       let t1 = document.getElementById('mtSchedT1').value;
       let t2 = document.getElementById('mtSchedT2').value;
-      let date = document.getElementById('mtSchedDate').value;
+      let dtStr = document.getElementById('mtSchedDateTime').value;
       if (!t1 || !t2) return alert('Select both teams');
       if (t1 === t2) return alert('Select different teams');
-      if (!date) return alert('Select match date');
-      t.matches.push({ team1: t1, team2: t2, date, result: null });
+      if (!dtStr) return alert('Select date and time');
+      
+      let parts = dtStr.split(' ');
+      let date = parts[0]; // MM/DD/YYYY
+      let time = parts[1] + ' ' + parts[2]; // HH:MM AM/PM
+
+      t.matches.push({ team1: t1, team2: t2, date, time, result: null });
       saveTournamentsData(tournaments);
 
       // Sync to global upcoming matches list
       fetch(API + "/upcoming-matches", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ team1: t1, team2: t2, match_date: date })
+        body: JSON.stringify({ team1: t1, team2: t2, match_date: date, match_time: time })
       }).catch(err => console.error("Error syncing match:", err));
 
-      document.getElementById('mtSchedDate').value = '';
+      document.getElementById('mtSchedDateTime').value = '';
       renderMtScheduleDropdowns();
       switchMtTab('upcoming');
     }
@@ -5954,7 +6182,9 @@
       renderMtUpcomingMatches();
     }
 
-    function startTournamentMatch(team1, team2) {
+    function startTournamentMatch(team1, team2, matchIdx) {
+      currentTournamentMatchIdx = matchIdx;
+      localStorage.setItem("currentTournamentMatchIdx", matchIdx);
       document.getElementById('dotsDropdown').classList.remove('open');
       showPage('matches');
       setTimeout(function () {
@@ -5995,9 +6225,21 @@
     async function updateLiveScore() {
       if (!currentLiveMatchId || !window.fbSetDoc) return;
 
+      // Collect photos for players in this match to show them in the live view
+      let playerPhotos = {};
+      let allTournaments = loadTournaments();
+      allTournaments.forEach(t => {
+        (t.teams || []).forEach(team => {
+          (team.players || []).forEach(p => {
+            if (p.photo) playerPhotos[p.name] = p.photo;
+          });
+        });
+      });
+
       let matchState = {
         id: currentLiveMatchId,
         tournamentId: currentTournamentId,
+        organiser: localStorage.getItem('currentUser'),
         batTeam: matchBatTeam,
         bowlTeam: matchBowlTeam,
         runs: totalRuns,
@@ -6011,6 +6253,7 @@
         bowler: document.getElementById('bowler').value,
         batsmanStats: batsmanStats,
         bowlerStats: bowlerStats,
+        playerPhotos: playerPhotos,
         outBatsmen: outBatsmen,
         extras: { wides: extrasWides, noballs: extrasNoBalls },
         lastBalls: Array.from(document.getElementById('balls').children).map(c => c.innerText).slice(-12),
@@ -6027,6 +6270,8 @@
 
     async function finishLiveMatch() {
       if (!currentLiveMatchId || !window.fbSetDoc) return;
+      currentTournamentMatchIdx = null;
+      localStorage.removeItem("currentTournamentMatchIdx");
       try {
         await window.fbSetDoc(window.fbDoc(window.fbDb, "live_matches", currentLiveMatchId.toString()), { status: "finished", updatedAt: Date.now() }, { merge: true });
         currentLiveMatchId = null;
@@ -6068,19 +6313,27 @@
         liveMatchesUnsubscribe = mod.onSnapshot(q, (snapshot) => {
           let container = document.getElementById("liveMatchesGrid");
           if (!container) return;
-          if (snapshot.empty) {
-            container.innerHTML = `<div style="background:rgba(255,255,255,0.05); border:1px dashed rgba(255,255,255,0.1); border-radius:12px; padding:30px; text-align:center; color:#6b7280; font-size:13px;">No matches live at the moment</div>`;
-            return;
-          }
-
+          
+          let currentUser = localStorage.getItem('currentUser');
           let html = "";
+          let matchCount = 0;
+
           snapshot.forEach(doc => {
             let m = doc.data();
+            // Filter by organiser to only show matches started by the logged-in user
+            if (m.organiser !== currentUser) return;
+            
+            // Auto-hide stale matches (older than 12 hours)
+            if (m.updatedAt && Date.now() - m.updatedAt > 12 * 60 * 60 * 1000) return;
+            
+            matchCount++;
+            
             html += `
             <div class="live-match-card" onclick="viewLiveMatch('${m.id}')" style="background:linear-gradient(135deg, #1e293b, #0f172a); border:1px solid rgba(110, 231, 183, 0.2); border-radius:12px; padding:16px; cursor:pointer; position:relative; overflow:hidden;">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                 <span style="font-size:11px; color:#94a3b8; font-weight:600; letter-spacing:0.5px;">INNINGS ${m.innings}</span>
                 <span style="background:rgba(239, 68, 68, 0.1); color:#ef4444; font-size:10px; padding:2px 8px; border-radius:10px; font-weight:700;">LIVE</span>
+                <button onclick="event.stopPropagation(); deleteLiveMatch('${m.id}')" style="background:transparent; border:none; color:#94a3b8; cursor:pointer; font-size:14px; padding:4px; opacity:0.6;" title="Delete Stale Match">🗑️</button>
               </div>
               <div style="display:flex; justify-content:space-between; align-items:center;">
                 <div style="flex:1;">
@@ -6094,9 +6347,24 @@
               </div>
             </div>`;
           });
+          
+          if (matchCount === 0) {
+            container.innerHTML = `<div style="background:rgba(255,255,255,0.05); border:1px dashed rgba(255,255,255,0.1); border-radius:12px; padding:30px; text-align:center; color:#6b7280; font-size:13px;">No matches live at the moment</div>`;
+            return;
+          }
           container.innerHTML = html;
         });
       });
+    }
+
+    async function deleteLiveMatch(matchId) {
+      if (!confirm("Delete this stale live match?")) return;
+      if (!window.fbDeleteDoc || !window.fbDb) return;
+      try {
+        await window.fbDeleteDoc(window.fbDoc(window.fbDb, "live_matches", matchId.toString()));
+      } catch (e) {
+        console.error("Delete error", e);
+      }
     }
 
     let liveViewUnsubscribe = null;
@@ -6106,14 +6374,63 @@
 
       import("https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js").then(mod => {
         liveViewUnsubscribe = mod.onSnapshot(mod.doc(window.fbDb, "live_matches", matchId), (doc) => {
-          if (!doc.exists() || doc.data().status !== "live") {
-            alert("Match is no longer live");
+          if (!doc.exists()) {
+            alert("Match not found");
             showPage('home');
             return;
           }
           renderLiveView(doc.data());
         });
       });
+    }
+
+    async function openMatchScorecard(tIdx, mIdx) {
+      let tours = loadTournaments();
+      let t = tours[tIdx];
+      let m = t.matches[mIdx];
+      
+      if (m.liveMatchId) {
+        viewLiveMatch(m.liveMatchId);
+        return;
+      }
+      
+      // Fallback search
+      if (!window.fbGetDocs) return alert("Scorecard ID not found");
+      
+      const q = window.fbQuery(
+        window.fbCollection(window.fbDb, "live_matches"), 
+        window.fbWhere("tournamentId", "==", tIdx),
+        window.fbWhere("batTeam", "in", [m.team1, m.team2])
+      );
+      
+      try {
+        const snap = await window.fbGetDocs(q);
+        let foundId = null;
+        let matches = [];
+        snap.forEach(doc => matches.push({id: doc.id, data: doc.data()}));
+        
+        // Try precise match first
+        matches.forEach(item => {
+          let data = item.data;
+          let dBat = (data.batTeam || "").trim().toLowerCase();
+          let dBowl = (data.bowlTeam || "").trim().toLowerCase();
+          let m1 = (m.team1 || "").trim().toLowerCase();
+          let m2 = (m.team2 || "").trim().toLowerCase();
+          
+          if ((dBat === m1 && dBowl === m2) || (dBat === m2 && dBowl === m1)) {
+            foundId = item.id;
+          }
+        });
+        
+        if (foundId) {
+          viewLiveMatch(foundId);
+        } else {
+          alert("Scorecard not found for this match. Detailed ball-by-ball data might not be available.");
+        }
+      } catch (e) {
+        console.error("Search error", e);
+        alert("Error finding scorecard.");
+      }
     }
 
     function renderLiveView(m) {
@@ -6164,20 +6481,28 @@
 
       // Recent Balls
       document.getElementById('lvBalls').innerHTML = (m.lastBalls || []).map(b => `<span class="ball">${b}</span>`).join('');
-      
+
       // Teams Tab
       document.getElementById('lvTeamsBatTitle').innerText = m.batTeam + " (Batting)";
       document.getElementById('lvTeamsBowlTitle').innerText = m.bowlTeam + " (Bowling)";
-      
+
       let teamsBatHtml = "";
       for (let p in m.batsmanStats) {
-        teamsBatHtml += `<li style="padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; align-items:center;"><span style="width:28px; height:28px; background:#1e293b; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; margin-right:12px; font-size:12px; font-weight:bold; color:#94a3b8;">${p.charAt(0)}</span> <span style="font-weight:500;">${p}</span></li>`;
+        let pPhoto = (m.playerPhotos && m.playerPhotos[p]) || "";
+        let pAvatar = pPhoto 
+          ? `<img src="${pPhoto}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;margin-right:12px;">` 
+          : `<span style="width:28px; height:28px; background:#1e293b; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; margin-right:12px; font-size:12px; font-weight:bold; color:#94a3b8;">${p.charAt(0)}</span>`;
+        teamsBatHtml += `<li style="padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; align-items:center;">${pAvatar} <span style="font-weight:500;">${p}</span></li>`;
       }
       document.getElementById('lvTeamsBatList').innerHTML = teamsBatHtml;
 
       let teamsBowlHtml = "";
       for (let p in m.bowlerStats) {
-        teamsBowlHtml += `<li style="padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; align-items:center;"><span style="width:28px; height:28px; background:#1e293b; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; margin-right:12px; font-size:12px; font-weight:bold; color:#94a3b8;">${p.charAt(0)}</span> <span style="font-weight:500;">${p}</span></li>`;
+        let pPhoto = (m.playerPhotos && m.playerPhotos[p]) || "";
+        let pAvatar = pPhoto 
+          ? `<img src="${pPhoto}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;margin-right:12px;">` 
+          : `<span style="width:28px; height:28px; background:#1e293b; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; margin-right:12px; font-size:12px; font-weight:bold; color:#94a3b8;">${p.charAt(0)}</span>`;
+        teamsBowlHtml += `<li style="padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; align-items:center;">${pAvatar} <span style="font-weight:500;">${p}</span></li>`;
       }
       document.getElementById('lvTeamsBowlList').innerHTML = teamsBowlHtml;
     }
@@ -6185,7 +6510,7 @@
     function switchLvTab(e, tabId) {
       document.querySelectorAll('.lv-tab-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelectorAll('.lv-tab-content').forEach(content => content.classList.remove('active'));
-      
+
       e.currentTarget.classList.add('active');
       document.getElementById('lv-tab-' + tabId).classList.add('active');
     }
@@ -6233,6 +6558,17 @@
     let pendingBatTeam = "";
     let pendingBowlTeam = "";
     let selectedOversVal = 0;
+
+    function formatTimeAMPM(time) {
+      if (!time) return "";
+      if (time.includes('AM') || time.includes('PM')) return time;
+      let parts = time.split(':');
+      let h = parseInt(parts[0]);
+      let m = parts[1];
+      let ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
+      return `${h}:${m} ${ampm}`;
+    }
 
     function roleBadge(role) {
       if (role === "Batsman") return '<span class="role-badge role-BAT"> Batsman</span>';
@@ -6320,7 +6656,7 @@
               localStorage.setItem("currentUser", u);
 
               if (window.fbGetDocs) {
-                const q = window.fbQuery(window.fbCollection(window.fbDb, "tournaments"), window.fbWhere("createdBy", "==", u));
+                const q = window.fbQuery(window.fbCollection(window.fbDb, "tournaments"));
                 window.fbGetDocs(q).then(snap => {
                   let arr = [];
                   snap.forEach(doc => arr.push(doc.data()));
@@ -6333,16 +6669,19 @@
                   }
                   btn.innerText = oldText;
                   btn.disabled = false;
+                  alert("Login Successful");
                   startApp();
                 }).catch(e => {
                   console.error("Firebase load error", e);
                   btn.innerText = oldText;
                   btn.disabled = false;
+                  alert("Login Successful");
                   startApp();
                 });
               } else {
                 btn.innerText = oldText;
                 btn.disabled = false;
+                alert("Login Successful");
                 startApp();
               }
             }
@@ -6366,7 +6705,10 @@
             btn.innerText = oldText;
             btn.disabled = false;
             if (data.message === "Already Registered") alert("Already Registered");
-            else toggleAuth();
+            else {
+              alert("Registration Successful");
+              toggleAuth();
+            }
           })
           .catch(err => {
             btn.innerText = oldText;
@@ -6376,7 +6718,14 @@
       }
     }
 
-    function logout() { localStorage.removeItem("currentUser"); location.reload(); }
+    function logout() { 
+      localStorage.removeItem("currentUser"); 
+      localStorage.removeItem("lastPage");
+      localStorage.removeItem("currentTournamentId");
+      localStorage.removeItem("currentTeamsTournamentIdx");
+      localStorage.removeItem("currentTournamentMatchIdx");
+      location.reload(); 
+    }
 
     function handleUserDropdownPhoto(event) {
       let file = event.target.files[0];
@@ -6398,25 +6747,40 @@
     function startApp() {
       document.getElementById("loginPage").style.display = "none";
       let nav = document.getElementById('nav');
-      nav.style.display = "flex";
+      if (nav) nav.style.display = "flex";
       let u = localStorage.getItem("currentUser") || "User";
-      document.getElementById("dotsMenuUsername").innerText = u;
+      let userDisplay = document.getElementById("dotsMenuUsername");
+      if (userDisplay) userDisplay.innerText = u;
       let savedPhoto = localStorage.getItem("userPhoto_" + u);
-      if (savedPhoto) document.getElementById("navProfilePic").src = savedPhoto;
+      let navPic = document.getElementById("navProfilePic");
+      if (savedPhoto && navPic) navPic.src = savedPhoto;
       tournaments = loadTournaments();
 
-      // Login avvagane home page display avvali
-      showPage("home");
-      renderHomeBanner();
+      let lp = localStorage.getItem("lastPage");
+      let tid = localStorage.getItem("currentTournamentId");
+      let cttid = localStorage.getItem("currentTeamsTournamentIdx");
+      let tmid = localStorage.getItem("currentTournamentMatchIdx");
+      if (tmid !== null) currentTournamentMatchIdx = parseInt(tmid);
+
+      if (lp === "manageTournament" && tid !== null) {
+        manageTournament(parseInt(tid));
+      } else if (lp === "tournamentTeamsPage" && cttid !== null) {
+        openTournamentTeamsPage(parseInt(cttid));
+      } else {
+        showPage(lp || "home");
+        if (!lp || lp === "home") renderHomeBanner();
+      }
 
       loadTeams();
-
     }
 
     function showPage(id) {
+      if (!id || !document.getElementById(id)) return;
       document.querySelectorAll(".page").forEach(p => p.style.display = "none");
       document.getElementById(id).style.display = "block";
       pageHistory.push(id);
+      if (id !== "loginPage") localStorage.setItem("lastPage", id);
+      
       if (id === "home") { renderHomeBanner(); }
       if (id === "matches") { loadMatchTeamDropdowns(); loadUpcomingTeamDropdowns(); loadUpcomingMatches(); }
       if (id === "points") { loadPointsTable(); }
@@ -6442,16 +6806,16 @@
       let userMatches = [];
 
       // Find all matches involving the user
-      allTournaments.forEach(t => {
+      allTournaments.forEach((t, tIdx) => {
         let userTeams = [];
         (t.teams || []).forEach(team => {
           let isUserInTeam = (team.players || []).some(p => p.name === user);
           if (isUserInTeam) userTeams.push(team.name);
         });
 
-        (t.matches || []).forEach(m => {
+        (t.matches || []).forEach((m, mIdx) => {
           if (userTeams.includes(m.team1) || userTeams.includes(m.team2)) {
-            userMatches.push({ tournament: t, match: m });
+            userMatches.push({ tournament: t, match: m, tournamentIdx: tIdx, matchIdx: mIdx });
           }
         });
       });
@@ -6464,23 +6828,44 @@
       container.innerHTML = userMatches.map(item => {
         let t = item.tournament;
         let m = item.match;
-        let badgeText = m.result ? "Finished" : "Upcoming";
-        let badgeBg = m.result ? "#10b981" : "#f59e0b";
-        let dateStr = m.date ? new Date(m.date).toLocaleDateString("en-IN", { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : "TBD";
+        let isLive = m.result === "LIVE"; // Simplified check for now
+        let badgeText = m.result ? (m.result === "LIVE" ? "Live" : "Finished") : "Upcoming";
+        let badgeBg = m.result === "LIVE" ? "#ef4444" : (m.result ? "#10b981" : "#f59e0b");
+        
+        let dateStr = "TBD";
+        if (m.date) {
+            let d = new Date(m.date);
+            dateStr = d.toLocaleDateString("en-IN", { weekday: 'short', day: 'numeric', month: 'short' });
+            if (m.time) {
+                dateStr += ", " + formatTimeAMPM(m.time);
+            } else {
+                dateStr += ", " + d.toLocaleTimeString("en-IN", { hour: '2-digit', minute: '2-digit' });
+            }
+        }
 
         return `
-      <div class="my-card">
-        <div class="my-card-header">${t.name}</div>
-        <div class="my-card-divider"></div>
+      <div class="my-card" onclick="openMatchScorecard(${item.tournamentIdx}, ${item.matchIdx})" style="cursor:pointer;">
+        <div class="my-card-header">
+          <span>${t.name}</span>
+          <span class="my-badge" style="background:${badgeBg};">${badgeText}</span>
+        </div>
         <div class="my-card-meta">
-          <div>${t.ground || 'KCP CRICKET GROUND'}, ${t.endDate || ''}, ${t.category || ''}</div>
-          <div class="my-badge" style="background:${badgeBg};">${badgeText}</div>
+          ${t.ground || 'KCP CRICKET GROUND'}, ${t.city || 'Jaggayyapeta'}, ${m.date || ''}, ${t.overs || 20} Ov.,
         </div>
         <div class="my-card-bold">League Matches</div>
-        <div class="my-card-team">${m.team1}</div>
-        <div class="my-card-team">${m.team2}</div>
-        <div class="my-card-divider"></div>
-        <div class="my-card-footer">Match scheduled at ${dateStr}</div>
+        <div class="my-card-teams">
+          <div class="my-card-team-row">
+            <span class="my-card-team-name">${m.team1}</span>
+            ${m.score1 ? `<span class="my-card-score">${m.score1} <span class="my-card-overs">(${m.overs1})</span></span>` : ''}
+          </div>
+          <div class="my-card-team-row">
+            <span class="my-card-team-name">${m.team2}</span>
+            ${m.score2 ? `<span class="my-card-score">${m.score2} <span class="my-card-overs">(${m.overs2})</span></span>` : '<span>Yet to bat</span>'}
+          </div>
+        </div>
+        <div class="my-card-footer">
+          ${m.result && m.result !== "LIVE" ? m.result : (m.tossInfo ? m.tossInfo : `Match scheduled at ${dateStr}`)}
+        </div>
       </div>
     `;
       }).join('');
@@ -6489,26 +6874,42 @@
     function loadMyTournaments() {
       let container = document.getElementById("myTournamentsContainer");
       let allTournaments = loadTournaments();
+      let user = localStorage.getItem("currentUser");
 
       if (allTournaments.length === 0) {
         container.innerHTML = getEmptyStateHtml("No tournament found");
         return;
       }
 
-      container.innerHTML = allTournaments.map(t => {
+      let myTourneys = allTournaments.filter(t => {
+        // If user is organiser or creator
+        if (t.organiser === user || t.createdBy === user) return true;
+        // If user is a player in any team
+        return (t.teams || []).some(team => 
+          (team.players || []).some(p => p.name === user)
+        );
+      });
+
+      if (myTourneys.length === 0) {
+        container.innerHTML = getEmptyStateHtml("No tournament found");
+        return;
+      }
+
+      container.innerHTML = myTourneys.map(t => {
         return `
       <div class="my-card">
-        <div class="my-card-header">${t.name}</div>
-        <div class="my-card-divider"></div>
-        <div class="my-card-meta">
-          <div>${t.ground || 'KCP CRICKET GROUND'}, ${t.endDate || ''}, ${t.category || ''}</div>
-          <div class="my-badge" style="background:#10b981;">Active</div>
+        <div class="tourney-badge-premium">Premium</div>
+        <div class="tourney-card">
+          <div class="tourney-img">
+            <img src="${t.logo || 'https://img.freepik.com/free-vector/cricket-logo-template-design_23-2150035048.jpg'}" alt="logo">
+          </div>
+          <div class="tourney-info">
+            <div class="tourney-status-ongoing">Ongoing</div>
+            <div class="tourney-name">${t.name}</div>
+            <div class="tourney-dates">${t.startDate || '22-Apr-26'} To ${t.endDate || '30-Apr-26'}</div>
+            <div class="tourney-loc">${t.city || 'Jaggayyapeta'}</div>
+          </div>
         </div>
-        <div class="my-card-bold">League Matches</div>
-        <div class="my-card-team">Teams: ${t.teams ? t.teams.length : 0}</div>
-        <div class="my-card-team">Matches: ${t.matches ? t.matches.length : 0}</div>
-        <div class="my-card-divider"></div>
-        <div class="my-card-footer">Created by ${t.organiser || localStorage.getItem("currentUser")}</div>
       </div>
     `;
       }).join('');
@@ -6552,11 +6953,14 @@
     }
 
     function scheduleUpcomingMatch() {
-      let t1 = document.getElementById("upTeam1").value, t2 = document.getElementById("upTeam2").value, d = document.getElementById("upMatchDate").value;
+      let t1 = document.getElementById("upTeam1").value, t2 = document.getElementById("upTeam2").value, dtStr = document.getElementById("upMatchDateTime").value;
       if (!t1 || !t2) return alert("Select both teams");
       if (t1 === t2) return alert("Select different teams");
-      if (!d) return alert("Select match date");
-      fetch(API + "/upcoming-matches", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ team1: t1, team2: t2, match_date: d }) }).then(() => { document.getElementById("upMatchDate").value = ""; loadUpcomingMatches(); }).catch(() => { });
+      if (!dtStr) return alert("Select date and time");
+      let parts = dtStr.split(' ');
+      let d = parts[0];
+      let tm = parts[1] + ' ' + parts[2];
+      fetch(API + "/upcoming-matches", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ team1: t1, team2: t2, match_date: d, match_time: tm }) }).then(() => { document.getElementById("upMatchDateTime").value = ""; loadUpcomingMatches(); }).catch(() => { });
     }
 
     function deleteUpcomingMatch(id) { fetch(API + "/upcoming-matches/" + id, { method: "DELETE" }).then(() => loadUpcomingMatches()).catch(() => { }); }
@@ -6569,7 +6973,8 @@
         let html = '<div class="upcoming-section-header">🗓️ Upcoming Matches</div>';
         arr.forEach(function (m) {
           let dateStr = new Date(m.match_date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
-          html += '<div class="upcoming-card"><div class="upcoming-vs"><span class="upcoming-team">' + m.team1 + '</span><span class="upcoming-vs-badge">VS</span><span class="upcoming-team">' + m.team2 + '</span></div><div class="upcoming-date"><span>📅</span><span class="date-val">' + dateStr + '</span></div><div class="upcoming-actions"><button class="btn-start-match" onclick="startFromUpcoming(\'' + m.team1 + '\',\'' + m.team2 + '\',' + m.id + ')">▶ Start</button><button class="btn-delete-upcoming" onclick="deleteUpcomingMatch(' + m.id + ')">🗑️</button></div></div>';
+          let timeStr = m.match_time ? ' • 🕒 ' + formatTimeAMPM(m.match_time) : '';
+          html += '<div class="upcoming-card"><div class="upcoming-vs"><span class="upcoming-team">' + m.team1 + '</span><span class="upcoming-vs-badge">VS</span><span class="upcoming-team">' + m.team2 + '</span></div><div class="upcoming-date"><span>📅</span><span class="date-val">' + dateStr + timeStr + '</span></div><div class="upcoming-actions"><button class="btn-start-match" onclick="startFromUpcoming(\'' + m.team1 + '\',\'' + m.team2 + '\',' + m.id + ')">▶ Start</button><button class="btn-delete-upcoming" onclick="deleteUpcomingMatch(' + m.id + ')">🗑️</button></div></div>';
         });
         container.innerHTML = html;
       }).catch(() => { });
@@ -6677,7 +7082,12 @@
       currentProfilePlayerName = playerName;
       document.getElementById("photoUploadStatus").innerText = "";
       document.getElementById("photoUploadInput").value = "";
-      document.getElementById("profileAvatar").innerHTML = '<span style="font-size:32px;">' + roleEmoji(role) + '</span>';
+      let profilePhoto = localStorage.getItem("userPhoto_" + playerName);
+      if (profilePhoto) {
+        document.getElementById("profileAvatar").innerHTML = '<img src="' + profilePhoto + '" style="width:80px;height:80px;border-radius:50%;object-fit:cover;">';
+      } else {
+        document.getElementById("profileAvatar").innerHTML = '<span style="font-size:32px;">' + roleEmoji(role) + '</span>';
+      }
       document.getElementById("profileName").innerText = playerName;
       document.getElementById("profileRoleBadge").innerHTML = roleBadge(role);
       document.getElementById("profileTeam").innerText = "🏏 " + teamName;
@@ -6967,6 +7377,13 @@
       document.querySelectorAll(".overs-quick-btn").forEach(b => b.classList.remove("selected"));
       document.getElementById("oversOverlay").classList.add("open");
       currentLiveMatchId = Date.now();
+      if (currentTournamentMatchIdx !== null && currentTournamentId !== null) {
+        let allTours = loadTournaments();
+        if (allTours[currentTournamentId] && allTours[currentTournamentId].matches[currentTournamentMatchIdx]) {
+          allTours[currentTournamentId].matches[currentTournamentMatchIdx].liveMatchId = currentLiveMatchId.toString();
+          saveTournamentsData(allTours);
+        }
+      }
       updateLiveScore();
     }
     function loadScorePlayers() {
@@ -7493,9 +7910,260 @@
       }
       winShown = true;
       saveMatchResult(winner, loser, "won", margin).then(() => updateAllPlayerStatsAfterMatch(inningsNum));
+
+      // Update tournament match result if it exists
+      if (currentTournamentId !== null && currentTournamentMatchIdx !== null) {
+        let allTournaments = loadTournaments();
+        let t = allTournaments[currentTournamentId];
+        if (t && t.matches && t.matches[currentTournamentMatchIdx]) {
+          let m = t.matches[currentTournamentMatchIdx];
+          // Basic check to ensure we're updating the right match
+          if ((m.team1 === matchBatTeam && m.team2 === matchBowlTeam) || (m.team1 === matchBowlTeam && m.team2 === matchBatTeam)) {
+            t.matches[currentTournamentMatchIdx].result = `${winner} won by ${margin}`;
+            saveTournamentsData(allTournaments);
+          }
+        }
+      }
+
       showWinPopup(winner, margin);
       finishLiveMatch();
     }
+
+    // --- Custom Date Time Picker JS ---
+    let dtpCallback = null;
+    let dtpState = {
+      view: 'hour', // 'hour' or 'minute'
+      month: new Date().getMonth(),
+      year: new Date().getFullYear(),
+      day: new Date().getDate(),
+      hour: 12,
+      minute: 0,
+      ampm: 'AM'
+    };
+
+    function openDateTimePicker(callback, initialVal) {
+      dtpCallback = callback;
+      let now = initialVal ? new Date(initialVal) : new Date();
+      if (isNaN(now.getTime())) now = new Date();
+      
+      dtpState.month = now.getMonth();
+      dtpState.year = now.getFullYear();
+      dtpState.day = now.getDate();
+      let h = now.getHours();
+      dtpState.ampm = h >= 12 ? 'PM' : 'AM';
+      dtpState.hour = h % 12 || 12;
+      dtpState.minute = Math.floor(now.getMinutes() / 5) * 5;
+      
+      dtpState.view = 'hour';
+      renderDtCalendar();
+      switchDtClock('hour');
+      setDtAMPM(dtpState.ampm);
+      updateDtCurrentVal();
+      document.getElementById('dateTimePickerModal').classList.add('open');
+    }
+
+    function changeDtMonth(dir) {
+      dtpState.month += dir;
+      if (dtpState.month < 0) { dtpState.month = 11; dtpState.year--; }
+      if (dtpState.month > 11) { dtpState.month = 0; dtpState.year++; }
+      renderDtCalendar();
+    }
+
+    function renderDtCalendar() {
+      const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      document.getElementById('dtpMonthYear').innerText = `${months[dtpState.month]} ${dtpState.year}`;
+      
+      const grid = document.getElementById('dtpDaysGrid');
+      grid.innerHTML = ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => `<div class="dtp-day-name">${d}</div>`).join('');
+      
+      const firstDay = new Date(dtpState.year, dtpState.month, 1).getDay();
+      const daysInMonth = new Date(dtpState.year, dtpState.month + 1, 0).getDate();
+      
+      for (let i = 0; i < firstDay; i++) grid.innerHTML += '<div></div>';
+      for (let d = 1; d <= daysInMonth; d++) {
+        const isSelected = d === dtpState.day;
+        grid.innerHTML += `<div class="dtp-day ${isSelected ? 'selected' : ''}" onclick="selectDtDay(${d})">${d}</div>`;
+      }
+    }
+
+    function selectDtDay(d) {
+      dtpState.day = d;
+      renderDtCalendar();
+      updateDtCurrentVal();
+    }
+
+    function switchDtClock(view) {
+      dtpState.view = view;
+      document.getElementById('dtpClockTitle').innerText = view === 'hour' ? 'Select Hour' : 'Select Minute';
+      document.getElementById('dtpClockBackBtn').style.display = view === 'minute' ? 'block' : 'none';
+      document.getElementById('dtpClockNextBtn').style.display = view === 'hour' ? 'block' : 'none';
+      renderDtClock();
+    }
+
+    function renderDtClock() {
+      const numbersContainer = document.getElementById('dtpClockNumbers');
+      let html = '';
+      let handAngle = 0;
+      
+      if (dtpState.view === 'hour') {
+        for (let h = 1; h <= 12; h++) {
+          const angle = (h * 30);
+          const x = 75 * Math.sin(angle * Math.PI / 180);
+          const y = -75 * Math.cos(angle * Math.PI / 180);
+          const isSelected = h === dtpState.hour;
+          html += `<div class="dtp-clock-number ${isSelected ? 'selected' : ''}" style="left:calc(50% + ${x}px - 14px); top:calc(50% + ${y}px - 14px);" onclick="selectDtHour(${h})" onmouseenter="hoverDtHour(${h})">${h}</div>`;
+          if (isSelected) handAngle = angle;
+        }
+      } else {
+        for (let m = 0; m < 60; m += 5) {
+          const angle = (m * 6);
+          const x = 75 * Math.sin(angle * Math.PI / 180);
+          const y = -75 * Math.cos(angle * Math.PI / 180);
+          const isSelected = m === dtpState.minute;
+          const displayMin = m < 10 ? '0' + m : m;
+          html += `<div class="dtp-clock-number ${isSelected ? 'selected' : ''}" style="left:calc(50% + ${x}px - 14px); top:calc(50% + ${y}px - 14px);" onclick="selectDtMin(${m})" onmouseenter="hoverDtMin(${m})">${displayMin}</div>`;
+          if (isSelected) handAngle = angle;
+        }
+      }
+      
+      numbersContainer.innerHTML = html;
+      document.getElementById('dtpClockHand').style.transform = `rotate(${handAngle}deg)`;
+    }
+
+    function hoverDtHour(h) {
+      if (dtpIsDragging) { selectDtHour(h); }
+      else {
+        document.getElementById('dtpClockHand').style.transform = `rotate(${h * 30}deg)`;
+      }
+    }
+
+    function hoverDtMin(m) {
+      if (dtpIsDragging) { selectDtMin(m); }
+      else {
+        document.getElementById('dtpClockHand').style.transform = `rotate(${m * 6}deg)`;
+      }
+    }
+
+    function resetDtHand() {
+      if (!dtpIsDragging) {
+        let handAngle = dtpState.view === 'hour' ? dtpState.hour * 30 : dtpState.minute * 6;
+        document.getElementById('dtpClockHand').style.transform = `rotate(${handAngle}deg)`;
+      }
+    }
+
+    function selectDtHour(h) {
+      dtpState.hour = h;
+      renderDtClock();
+      updateDtCurrentVal();
+      setTimeout(() => switchDtClock('minute'), 300);
+    }
+
+    function selectDtMin(m) {
+      dtpState.minute = m;
+      renderDtClock();
+      updateDtCurrentVal();
+    }
+
+    function setDtAMPM(p) {
+      dtpState.ampm = p;
+      document.getElementById('dtpAM').classList.toggle('selected', p === 'AM');
+      document.getElementById('dtpPM').classList.toggle('selected', p === 'PM');
+      updateDtCurrentVal();
+    }
+
+    // --- Dragging Logic ---
+    let dtpIsDragging = false;
+    function initDtClockEvents() {
+      const face = document.getElementById('dtpClockFace');
+      face.addEventListener('mousedown', (e) => { dtpIsDragging = true; handleDtClockInteraction(e); });
+      window.addEventListener('mousemove', (e) => { if (dtpIsDragging) handleDtClockInteraction(e); });
+      window.addEventListener('mouseup', () => { dtpIsDragging = false; });
+      
+      face.addEventListener('touchstart', (e) => { dtpIsDragging = true; handleDtClockInteraction(e.touches[0]); e.preventDefault(); }, {passive: false});
+      window.addEventListener('touchmove', (e) => { if (dtpIsDragging) handleDtClockInteraction(e.touches[0]); }, {passive: false});
+      window.addEventListener('touchend', () => { dtpIsDragging = false; });
+    }
+
+    function handleDtClockInteraction(e) {
+      const face = document.getElementById('dtpClockFace');
+      const rect = face.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = e.clientX - cx;
+      const dy = e.clientY - cy;
+      
+      let angle = Math.atan2(dy, dx) * 180 / Math.PI + 90;
+      if (angle < 0) angle += 360;
+      
+      if (dtpState.view === 'hour') {
+        let h = Math.round(angle / 30);
+        if (h === 0) h = 12;
+        if (h > 12) h = 12;
+        if (h !== dtpState.hour) {
+          dtpState.hour = h;
+          renderDtClock();
+          updateDtCurrentVal();
+        }
+      } else {
+        let m = Math.round(angle / 6) % 60;
+        // Snap to 5 mins for now if desired, or allow every minute. 
+        // CricHeroes usually snaps to 5 mins unless dragging. 
+        // Let's allow every minute but highlight the numbers.
+        if (m !== dtpState.minute) {
+          dtpState.minute = m;
+          renderDtClock();
+          updateDtCurrentVal();
+        }
+      }
+    }
+
+    function updateDtCurrentVal() {
+      const m = (dtpState.month + 1).toString().padStart(2, '0');
+      const d = dtpState.day.toString().padStart(2, '0');
+      const min = dtpState.minute.toString().padStart(2, '0');
+      const val = `${m}/${d}/${dtpState.year} ${dtpState.hour}:${min} ${dtpState.ampm}`;
+      document.getElementById('dtpCurrentVal').innerText = val;
+    }
+
+    function confirmDtSelection() {
+      if (dtpCallback) {
+        const m = (dtpState.month + 1).toString().padStart(2, '0');
+        const d = dtpState.day.toString().padStart(2, '0');
+        const min = dtpState.minute.toString().padStart(2, '0');
+        // Convert to ISO-like for storage but keep 12h for display if needed
+        const val = `${m}/${d}/${dtpState.year} ${dtpState.hour}:${min} ${dtpState.ampm}`;
+        dtpCallback(val);
+      }
+      document.getElementById('dateTimePickerModal').classList.remove('open');
+    }
+
+    // Initialize clock events
+    document.addEventListener('DOMContentLoaded', initDtClockEvents);
+
+    function shareScorecardLink() {
+      let tName = encodeURIComponent((document.getElementById('currentTourName') ? document.getElementById('currentTourName').innerText : "KCP-PL"));
+      let mName = encodeURIComponent((matchBatTeam || "Team1").replace(/\s+/g, "-") + "-vs-" + (matchBowlTeam || "Team2").replace(/\s+/g, "-"));
+      let mId = currentLiveMatchId || new Date().getTime();
+      // Always use the Render production URL so the link works for everyone
+      let origin = "https://kcp-cricket-app-b7ni.onrender.com";
+      let link = origin + "/scorecard/" + mId + "/" + tName + "/" + mName + "/scorecard";
+      // Send ONLY the link — WhatsApp will auto-generate a preview card
+      let waUrl = "https://api.whatsapp.com/send?text=" + encodeURIComponent(link);
+      window.open(waUrl, "_blank");
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      if (window.location.pathname.includes("/scorecard/")) {
+        let parts = window.location.pathname.split('/');
+        if (parts.length >= 4) {
+          let matchId = parts[2];
+          setTimeout(() => {
+            showPage('liveScoreView');
+            currentLiveMatchId = matchId;
+          }, 500);
+        }
+      }
+    });
 
   </script>
   <div class="extra-popup-overlay" id="widePopupOverlay">
@@ -8025,6 +8693,49 @@
     </div>
   </div>
 
+  <!-- Custom Date Time Picker Modal -->
+  <div id="dateTimePickerModal" class="dtp-overlay">
+    <div class="dtp-box">
+      <div class="dtp-body">
+        <div class="dtp-calendar-side">
+          <div class="dtp-header">
+            <div class="dtp-month-year" id="dtpMonthYear">April 2026</div>
+            <div class="dtp-nav-btns">
+              <span class="dtp-nav-btn" onclick="changeDtMonth(-1)">&lt;</span>
+              <span class="dtp-nav-btn" onclick="changeDtMonth(1)">&gt;</span>
+            </div>
+          </div>
+          <div class="dtp-days-grid" id="dtpDaysGrid">
+            <!-- Days populated by JS -->
+          </div>
+        </div>
+        <div class="dtp-clock-side">
+          <div class="dtp-header" style="width: 100%;">
+            <div class="dtp-month-year" id="dtpClockTitle">Select Hour</div>
+            <div class="dtp-nav-btns">
+              <span class="dtp-nav-btn" id="dtpClockBackBtn" style="display:none;" onclick="switchDtClock('hour')">&lt;</span>
+              <span class="dtp-nav-btn" id="dtpClockNextBtn" onclick="switchDtClock('minute')">&gt;</span>
+            </div>
+          </div>
+          <div class="dtp-clock-face" id="dtpClockFace" onmouseleave="resetDtHand()">
+            <div class="dtp-clock-center"></div>
+            <div class="dtp-clock-hand" id="dtpClockHand"></div>
+            <div id="dtpClockNumbers"></div>
+            <!-- Numbers populated by JS -->
+          </div>
+          <div class="dtp-ampm-row">
+            <div class="dtp-ampm-btns">
+              <div class="dtp-ampm-btn" id="dtpAM" onclick="setDtAMPM('AM')">AM</div>
+              <div class="dtp-ampm-btn" id="dtpPM" onclick="setDtAMPM('PM')">PM</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="dtp-footer">
+        <div class="dtp-current-val" id="dtpCurrentVal">04/25/2026 12:00 AM</div>
+        <button class="dtp-ok-btn" onclick="confirmDtSelection()">OK</button>
+      </div>
+    </div>
+  </div>
 </body>
-
 </html>

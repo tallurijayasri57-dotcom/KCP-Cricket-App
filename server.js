@@ -151,6 +151,10 @@ app.get("/", (req, res) => {
     res.sendFile(__dirname + "/index.html");
 });
 
+app.get("/scorecard/*", (req, res) => {
+    res.sendFile(__dirname + "/index.html");
+});
+
 // ================= USERS =================
 
 app.post("/register", (req, res) => {
