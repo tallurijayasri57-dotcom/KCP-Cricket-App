@@ -6730,8 +6730,9 @@
       selectedShotType = ""; selectedWagonZone = "";
     }
 
-    const API = "http://localhost:3001"; // Force local SSMS server 
-
+    const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+      ? "http://localhost:3001" 
+      : "https://kcp-cricket-app-b7ni.onrender.com";
     // Original Tournament save logic updated to sync with SSMS
     function syncTeamToSSMS(name) {
       fetch(API + "/teams", {
