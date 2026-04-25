@@ -21,7 +21,9 @@
       navigator.serviceWorker.register('/service-worker.js');
     }
   </script>
-  <title>Cricket Scoring App</title>
+  <title>KCP PREMIER LEAGUE</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ef4444">
   <link
     href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@300;400;500&display=swap"
     rel="stylesheet">
@@ -6730,8 +6732,8 @@
       selectedShotType = ""; selectedWagonZone = "";
     }
 
-    const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-      ? "http://localhost:3001" 
+    const API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '192.168.233.209') 
+      ? "http://192.168.233.209:3001" 
       : "https://kcp-cricket-app-b7ni.onrender.com";
     // Original Tournament save logic updated to sync with SSMS
     function syncTeamToSSMS(name) {
