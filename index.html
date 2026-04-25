@@ -6538,9 +6538,11 @@
     }
 
     let liveViewUnsubscribe = null;
+    let previousLiveMatchState = null;
     function viewLiveMatch(matchId) {
       showPage('liveScoreView');
       if (liveViewUnsubscribe) liveViewUnsubscribe();
+      previousLiveMatchState = null;
 
       import("https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js").then(mod => {
         liveViewUnsubscribe = mod.onSnapshot(mod.doc(window.fbDb, "live_matches", matchId), (doc) => {
@@ -6549,7 +6551,9 @@
             showPage('home');
             return;
           }
-          renderLiveView(doc.data());
+          let mData = doc.data();
+          mData.id = matchId;
+          renderLiveView(mData);
         });
       });
     }
@@ -6604,6 +6608,22 @@
     }
 
     function renderLiveView(m) {
+      // Event popups for live viewers
+      if (previousLiveMatchState && previousLiveMatchState.id === m.id) {
+        let oldBalls = previousLiveMatchState.lastBalls || [];
+        let newBalls = m.lastBalls || [];
+        
+        // Check if a new ball was added
+        if (newBalls.length > oldBalls.length || (newBalls.length > 0 && oldBalls.length === 0)) {
+          let lastEvent = newBalls[newBalls.length - 1];
+          if (lastEvent === 4 || lastEvent === '4') showEventPopup('boundary', { runs: 4 });
+          else if (lastEvent === 6 || lastEvent === '6') showEventPopup('boundary', { runs: 6 });
+          else if (lastEvent === 'W' || lastEvent === 'w') showEventPopup('wicket', {});
+        }
+      }
+      // Deep copy to track state
+      previousLiveMatchState = JSON.parse(JSON.stringify(m));
+
       // Basic info
       if (document.getElementById('lvBatTeamNameDisplay')) document.getElementById('lvBatTeamNameDisplay').innerText = m.batTeam;
       if (document.getElementById('lvBowlTeamNameDisplay')) document.getElementById('lvBowlTeamNameDisplay').innerText = m.bowlTeam;
