@@ -6186,9 +6186,8 @@
       currentTournamentMatchIdx = matchIdx;
       localStorage.setItem("currentTournamentMatchIdx", matchIdx);
       document.getElementById('dotsDropdown').classList.remove('open');
-      showPage('matches');
+      showPage('score');
       setTimeout(function () {
-        switchTab('create');
         let allTournaments = loadTournaments();
         let teamMap = {};
         allTournaments.forEach(function (t) {
@@ -6329,7 +6328,7 @@
             matchCount++;
             
             html += `
-            <div class="live-match-card" onclick="viewLiveMatch('${m.id}')" style="background:linear-gradient(135deg, #1e293b, #0f172a); border:1px solid rgba(110, 231, 183, 0.2); border-radius:12px; padding:16px; cursor:pointer; position:relative; overflow:hidden;">
+            <div class="live-match-card" style="background:linear-gradient(135deg, #1e293b, #0f172a); border:1px solid rgba(110, 231, 183, 0.2); border-radius:12px; padding:16px; position:relative; overflow:hidden;">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                 <span style="font-size:11px; color:#94a3b8; font-weight:600; letter-spacing:0.5px;">INNINGS ${m.innings}</span>
                 <span style="background:rgba(239, 68, 68, 0.1); color:#ef4444; font-size:10px; padding:2px 8px; border-radius:10px; font-weight:700;">LIVE</span>
