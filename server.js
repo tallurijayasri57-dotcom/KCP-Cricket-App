@@ -48,7 +48,10 @@ function loadDB() {
     try {
         if (fs.existsSync(DB_FILE)) {
             const data = fs.readFileSync(DB_FILE, "utf8");
-            if (data) MEMORY_DB = JSON.parse(data);
+            if (data) {
+                const parsedDB = JSON.parse(data);
+                MEMORY_DB = { ...MEMORY_DB, ...parsedDB };
+            }
         }
     } catch (e) { console.error("Load Error", e); }
     return MEMORY_DB;
@@ -76,34 +79,47 @@ startServer();
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
 
 app.post("/register", (req, res) => {
-    const { username, password } = req.body;
-    if (!username || !password) return res.status(400).json({ message: "Fields required" });
+    try {
+        const { username, password } = req.body;
+        if (!username || !password) return res.status(400).json({ message: "Fields required" });
 
-    if (useJSON || !pool) {
-        if (MEMORY_DB.users.find(u => u.username === username)) return res.json({ message: "Already Registered" });
-        MEMORY_DB.users.push({ username, password });
-        saveDB();
-        return res.json({ message: "Registered Successfully" });
+        if (useJSON || !pool) {
+            const users = MEMORY_DB.users || [];
+            if (users.find(u => u.username === username)) return res.json({ message: "Already Registered" });
+            users.push({ username, password });
+            MEMORY_DB.users = users;
+            saveDB();
+            return res.json({ message: "Registered Successfully" });
+        }
+
+        pool.request().input("u", sql.NVarChar, username).query("SELECT * FROM users WHERE username=@u")
+            .then(check => {
+                if (check.recordset.length > 0) return res.json({ message: "Already Registered" });
+                return pool.request().input("u", sql.NVarChar, username).input("p", sql.NVarChar, password).query("INSERT INTO users (username,password) VALUES (@u,@p)");
+            })
+            .then(() => res.json({ message: "Registered Successfully" }))
+            .catch(e => res.status(500).json({ error: e.message }));
+    } catch (err) {
+        console.error("Register Error:", err);
+        res.status(500).json({ error: "Internal server error during registration" });
     }
-
-    pool.request().input("u", sql.NVarChar, username).query("SELECT * FROM users WHERE username=@u")
-        .then(check => {
-            if (check.recordset.length > 0) return res.json({ message: "Already Registered" });
-            return pool.request().input("u", sql.NVarChar, username).input("p", sql.NVarChar, password).query("INSERT INTO users (username,password) VALUES (@u,@p)");
-        })
-        .then(() => res.json({ message: "Registered Successfully" }))
-        .catch(e => res.status(500).json({ error: e.message }));
 });
 
 app.post("/login", (req, res) => {
-    const { username, password } = req.body;
-    if (useJSON || !pool) {
-        const user = MEMORY_DB.users.find(u => u.username === username && u.password === password);
-        return res.json({ success: !!user });
+    try {
+        const { username, password } = req.body;
+        if (useJSON || !pool) {
+            const users = MEMORY_DB.users || [];
+            const user = users.find(u => u.username === username && u.password === password);
+            return res.json({ success: !!user });
+        }
+        pool.request().input("u", sql.NVarChar, username).query("SELECT * FROM users WHERE username=@u")
+            .then(r => res.json({ success: r.recordset.length > 0 && r.recordset[0].password === password }))
+            .catch(e => res.status(500).json({ error: e.message }));
+    } catch (err) {
+        console.error("Login Error:", err);
+        res.status(500).json({ error: "Internal server error during login" });
     }
-    pool.request().input("u", sql.NVarChar, username).query("SELECT * FROM users WHERE username=@u")
-        .then(r => res.json({ success: r.recordset.length > 0 && r.recordset[0].password === password }))
-        .catch(e => res.status(500).json({ error: e.message }));
 });
 
 app.get("/teams", (req, res) => {
