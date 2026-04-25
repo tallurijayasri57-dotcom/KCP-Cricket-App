@@ -6735,7 +6735,7 @@
 
     const API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '192.168.233.209') 
       ? "http://192.168.233.209:3001" 
-      : ""; // Empty string means use the current website's own address
+      : window.location.origin; 
     // Original Tournament save logic updated to sync with SSMS
     function syncTeamToSSMS(name) {
       fetch(API + "/teams", {
@@ -6928,7 +6928,15 @@
 
       if (isLogin) {
         fetch(API + "/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: u, password: p }) })
-          .then(res => res.json())
+          .then(async res => {
+            const contentType = res.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+              return res.json();
+            } else {
+              const text = await res.text();
+              throw new Error("Server returned non-JSON response (Status: " + res.status + "). Check if the server is running correctly.\n\nResponse snippet: " + text.substring(0, 100));
+            }
+          })
           .then(data => {
             if (data.success) {
               localStorage.setItem("currentUser", u);
@@ -6968,14 +6976,23 @@
               else alert("Invalid Login");
             }
           })
-          .catch(() => {
+          .catch((err) => {
             btn.innerText = oldText;
             btn.disabled = false;
-            alert("Server not responding. Try again.");
+            console.error("Login Error:", err);
+            alert("Login " + err.message);
           });
       } else {
         fetch(API + "/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: u, password: p }) })
-          .then(res => res.json())
+          .then(async res => {
+            const contentType = res.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+              return res.json();
+            } else {
+              const text = await res.text();
+              throw new Error("Server returned non-JSON response (Status: " + res.status + ").\n\nResponse snippet: " + text.substring(0, 100));
+            }
+          })
           .then(data => {
             btn.innerText = oldText;
             btn.disabled = false;
@@ -6987,7 +7004,8 @@
           .catch(err => {
             btn.innerText = oldText;
             btn.disabled = false;
-            alert("Error: " + err);
+            console.error("Registration Error:", err);
+            alert("Registration Error: " + err.message);
           });
       }
     }
