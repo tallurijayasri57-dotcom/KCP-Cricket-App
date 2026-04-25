@@ -3,18 +3,20 @@
   "short_name": "KCPL",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#ffffff",
+  "background_color": "#0b0f1a",
   "theme_color": "#ef4444",
   "icons": [
     {
-      "src": "https://res.cloudinary.com/das4ixee0/image/upload/v1714041600/cricket_logo.png",
+      "src": "kcp.jpg",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/jpeg",
+      "purpose": "any maskable"
     },
     {
-      "src": "https://res.cloudinary.com/das4ixee0/image/upload/v1714041600/cricket_logo.png",
+      "src": "kcp.jpg",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/jpeg",
+      "purpose": "any maskable"
     }
   ]
 }
