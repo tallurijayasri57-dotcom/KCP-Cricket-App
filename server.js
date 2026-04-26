@@ -346,6 +346,30 @@ app.post("/tournaments", async (req, res) => {
 });
 
 // ================= LIVE MATCHES =================
+app.get("/live-matches", async (req, res) => {
+    try {
+        if (useJSON || !pool) return res.json(MEMORY_DB.live_matches || []);
+        const r = await pool.request().query("SELECT * FROM live_matches ORDER BY updated_at DESC");
+        res.json(r.recordset.map(row => ({ match_id: row.match_id, match_state: JSON.parse(row.match_state) })));
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
+
+app.get("/live-matches/:id", async (req, res) => {
+    try {
+        if (useJSON || !pool) {
+            const match = (MEMORY_DB.live_matches || []).find(m => m.match_id == req.params.id);
+            return res.json(match ? match.match_state : null);
+        }
+        const r = await pool.request().input("id", sql.NVarChar, req.params.id).query("SELECT match_state FROM live_matches WHERE match_id=@id");
+        if (r.recordset.length === 0) return res.json(null);
+        res.json(JSON.parse(r.recordset[0].match_state));
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
+
 app.post("/live-matches", async (req, res) => {
     try {
         const { match_id, match_state } = req.body;

@@ -6511,6 +6511,7 @@
 
         snapshot.forEach(doc => {
           let m = doc.data();
+          m.id = doc.id;
           // Auto-hide stale matches (older than 12 hours)
           if (m.updatedAt && Date.now() - m.updatedAt > 12 * 60 * 60 * 1000) return;
           
@@ -8860,20 +8861,12 @@
     }
 
     document.addEventListener("DOMContentLoaded", function () {
-      let savedUser = localStorage.getItem("currentUser");
-      let isRegistered = localStorage.getItem("isRegistered") === "true";
-
-      if (savedUser) {
-        // Skip login screen and go straight to app if user is already logged in
-        startApp();
-      } else {
-        // Show login screen by default for everyone else
-        isLogin = true;
-        document.getElementById("authTitle").innerText = "Welcome Back";
-        document.getElementById("authBtn").innerText = "LOGIN";
-        document.getElementById("switchText").innerText = "Don't have an account? Register";
-        showPage('loginPage');
-      }
+      // Always show login screen, no auto-login as per user request
+      isLogin = true;
+      document.getElementById("authTitle").innerText = "Welcome Back";
+      document.getElementById("authBtn").innerText = "LOGIN";
+      document.getElementById("switchText").innerText = "Don't have an account? Register";
+      showPage('loginPage');
 
       if (window.location.pathname.includes("/scorecard/")) {
         let path = window.location.pathname;
