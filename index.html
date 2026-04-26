@@ -7090,11 +7090,22 @@
           .then(data => {
             btn.innerText = oldText;
             btn.disabled = false;
-            if (data.message === "Already Registered") alert("Already Registered");
-            else {
-              localStorage.setItem("currentUser", u);
+            if (data.message === "Already Registered") {
+              alert("Already Registered! Please login.");
+            } else {
+              // Registration success - switch to Login screen
               localStorage.setItem("isRegistered", "true");
-              startApp();
+              btn.innerText = oldText;
+              btn.disabled = false;
+              alert("Registration Successful! Please login.");
+              // Switch to login mode
+              isLogin = true;
+              document.getElementById("authTitle").innerText = "Welcome Back";
+              document.getElementById("authBtn").innerText = "LOGIN";
+              document.getElementById("switchText").innerText = "Don't have an account? Register";
+              document.getElementById("username").value = u;
+              document.getElementById("password").value = "";
+              document.getElementById("password").focus();
             }
           })
           .catch(err => {
