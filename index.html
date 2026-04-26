@@ -4039,9 +4039,14 @@
         style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:16px;">
         <h2 style="font-family:'Times New Roman', serif; font-size:32px; font-weight:700; color:#1f2937; margin:0;">
           Teams</h2>
-        <button
-          style="background:#ffffff; color:#0d9488; border:1px solid #0d9488; padding:10px 20px; border-radius:4px; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; cursor:pointer; text-transform:uppercase;"
-          onclick="openAddTeam()">ADD A NEW TEAM</button>
+        <div style="display:flex; gap:10px;">
+          <button
+            style="background:#0d9488; color:#ffffff; border:none; padding:10px 20px; border-radius:4px; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; cursor:pointer; text-transform:uppercase;"
+            onclick="syncAllTournamentDataToSSMS()">Sync All to SSMS</button>
+          <button
+            style="background:#ffffff; color:#0d9488; border:1px solid #0d9488; padding:10px 20px; border-radius:4px; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; cursor:pointer; text-transform:uppercase;"
+            onclick="openAddTeam()">ADD A NEW TEAM</button>
+        </div>
       </div>
 
       <div style="background:#ffffff; border:1px solid #e5e7eb; border-radius:4px; overflow-x:auto;">
@@ -6777,6 +6782,54 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ team_name: teamName, player_name: playerName, role: role })
       }).catch(err => console.error("SSMS Player Sync Error:", err));
+    }
+
+    async function syncAllTournamentDataToSSMS() {
+      let tours = loadTournaments();
+      if (tours.length === 0) { alert("No tournament data to sync."); return; }
+      
+      let btn = event.target;
+      let originalText = btn.innerText;
+      btn.innerText = "Syncing... ⏳";
+      btn.disabled = true;
+
+      let teamCount = 0;
+      let playerCount = 0;
+
+      try {
+        for (let t of tours) {
+          if (t.teams && t.teams.length > 0) {
+            for (let team of t.teams) {
+              // Sync Team
+              await fetch(API + "/teams", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name: team.name })
+              });
+              teamCount++;
+
+              // Sync Players
+              if (team.players && team.players.length > 0) {
+                for (let p of team.players) {
+                  await fetch(API + "/players", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ team_name: team.name, player_name: p.name, role: p.role })
+                  });
+                  playerCount++;
+                }
+              }
+            }
+          }
+        }
+        alert(`Successfully synced ${teamCount} teams and ${playerCount} players to SSMS database!`);
+      } catch (e) {
+        console.error("Global Sync Error:", e);
+        alert("Some data failed to sync. Please check if the server is running.");
+      } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
+      }
     }
     let isLogin = true;
     let currentProfilePlayerName = "";
