@@ -6413,18 +6413,35 @@
         strike: document.getElementById('strike').value,
         nonstrike: document.getElementById('nonstrike').value,
         bowler: document.getElementById('bowler').value,
-        batsmanStats: batsmanStats,
-        bowlerStats: bowlerStats,
-        playerPhotos: playerPhotos,
-        outBatsmen: outBatsmen,
-        extras: { wides: extrasWides, noballs: extrasNoBalls },
-        lastBalls: Array.from(document.getElementById('balls').children).map(c => c.innerText).slice(-12),
+        batsmen: Object.keys(batsmanStats).map(name => ({
+          name: name,
+          runs: batsmanStats[name].runs,
+          balls: batsmanStats[name].balls,
+          fours: batsmanStats[name].fours,
+          sixes: batsmanStats[name].sixes,
+          sr: batsmanStats[name].balls > 0 ? ((batsmanStats[name].runs / batsmanStats[name].balls) * 100).toFixed(2) : "0.00",
+          isStrike: name === document.getElementById('strike').value,
+          isOut: outBatsmen.includes(name)
+        })),
+        bowlers: Object.keys(bowlerStats).map(name => ({
+          name: name,
+          overs: Math.floor(bowlerStats[name].balls / 6) + "." + (bowlerStats[name].balls % 6),
+          maidens: bowlerStats[name].maidens,
+          runs: bowlerStats[name].runs,
+          wickets: bowlerStats[name].wickets,
+          eco: bowlerStats[name].balls > 0 ? ((bowlerStats[name].runs / (bowlerStats[name].balls / 6))).toFixed(2) : "0.00",
+          isCurrent: name === document.getElementById('bowler').value
+        })),
+        commentary: matchCommentary,
+        yetToBat: batPlayers.filter(p => !Object.keys(batsmanStats).includes(p)).join(", "),
+        extras: totalRuns - Object.values(batsmanStats).reduce((acc, b) => acc + b.runs, 0),
         updatedAt: Date.now(),
         status: "live",
         ground: ground,
-        tossText: matchTossText,
+        tossInfo: matchTossText,
         matchType: matchType,
-        matchDate: matchStartTime
+        matchDate: matchStartTime,
+        matchStatus: innings === 1 ? "In Progress" : "Run Chase"
       };
 
       try {
@@ -6635,7 +6652,7 @@
           <table class="sc-table">
             <thead><tr><th>Batters</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead>
             <tbody>
-              ${(m.batters || []).map(b => `
+              ${(m.batsmen || []).map(b => `
                 <tr>
                   <td class="name-cell">${b.name} ${b.isStrike ? '*' : ''}</td>
                   <td>${b.runs}</td><td>${b.balls}</td><td>${b.fours}</td><td>${b.sixes}</td><td>${b.sr}</td>
@@ -6690,10 +6707,10 @@
           <table class="sc-table">
             <thead><tr><th>Batters</th><th style="flex:1;"></th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead>
             <tbody>
-              ${(m.batters || []).map(b => `
+              ${(m.batsmen || []).map(b => `
                 <tr>
                   <td class="name-cell">${b.name}</td>
-                  <td style="color:#94a3b8; font-size:11px;">${b.outDesc || 'not out'}</td>
+                  <td style="color:#94a3b8; font-size:11px;">${b.outDesc || (b.isOut ? 'out' : 'not out')}</td>
                   <td>${b.runs}</td><td>${b.balls}</td><td>${b.fours}</td><td>${b.sixes}</td><td>${b.sr}</td>
                 </tr>
               `).join('')}
@@ -6735,16 +6752,7 @@
     }
 
     function getCommentaryHtml(m, limit = null) {
-      let comms = m.commentary || [
-        {over: "1.1", ball: "W", text: "rakesh to kumar, OUT Caught out, Off Drive at Long-off, Caught by Vamsi Krishna", subText: "kumar c Vamsi Krishna b rakesh (7r 3b 0x4s 1x6s SR: 233.33)"},
-        {type: "over_summary", over: "1", runs: "12", wkts: "0", batters: [{name: "Jaya Sri", runs: "5", balls: "4"}, {name: "kumar", runs: "7", balls: "2"}], bowler: {name: "Vamsi Krishna", stats: "1 - 0 - 12 - 0"}},
-        {over: "1.0", ball: "0", text: "Vamsi Krishna to Jaya Sri, no run"},
-        {over: "0.5", ball: "2", text: "Vamsi Krishna to Jaya Sri, 2 runs"},
-        {over: "0.4", ball: "2", text: "Vamsi Krishna to Jaya Sri, 2 runs"},
-        {over: "0.3", ball: "1", text: "Vamsi Krishna to kumar, 1 run"},
-        {over: "0.2", ball: "6", text: "Vamsi Krishna to kumar, SIX, Backfoot Punch to Deep cover"},
-        {over: "0.1", ball: "1", text: "Vamsi Krishna to Jaya Sri, 1 run, Helicopter Shot to Long-on"}
-      ];
+      let comms = m.commentary || [];
 
       if (limit) comms = comms.slice(0, limit);
 
@@ -7805,7 +7813,7 @@
       balls.innerHTML = "";
       totalRuns = 0; totalWickets = 0; ballCount = 0; innings = 1; target = 0;
       winShown = false; targetBox.innerText = ""; extrasWides = 0; extrasNoBalls = 0; updateExtras();
-      outBatsmen = [];
+      outBatsmen = []; matchCommentary = [];
       loadScorePlayers();
     }
 
@@ -8048,9 +8056,30 @@
       if (!batsmanStats[s].wagon_wheel) batsmanStats[s].wagon_wheel = [];
       if (shotType) batsmanStats[s].shot_types.push(shotType);
       if (wagonZone) batsmanStats[s].wagon_wheel.push(wagonZone);
+      
+      // Commentary
+      let over = Math.floor((ballCount - 1) / 6) + "." + ((ballCount - 1) % 6 + 1);
+      matchCommentary.unshift({
+        over: over, ball: r, 
+        text: `${b} to ${s}, ${r} run${r == 1 ? '' : 's'}${shotType ? ', ' + shotType : ''}`
+      });
+
       addBall(r);
       if (r % 2 == 1) changeStrike();
       if (ballCount % 6 == 0) {
+        // Over summary
+        matchCommentary.unshift({
+          type: "over_summary",
+          over: Math.floor(ballCount / 6),
+          runs: totalRuns,
+          wkts: totalWickets,
+          batters: [
+            {name: strike.value, runs: batsmanStats[strike.value].runs, balls: batsmanStats[strike.value].balls},
+            {name: nonstrike.value, runs: batsmanStats[nonstrike.value].runs, balls: batsmanStats[nonstrike.value].balls}
+          ],
+          bowler: {name: b, stats: `${Math.floor(bowlerStats[b].balls/6)}.${bowlerStats[b].balls%6} - ${bowlerStats[b].maidens || 0} - ${bowlerStats[b].runs} - ${bowlerStats[b].wickets}`}
+        });
+
         changeStrike();
         if (totalOvers > 0 && ballCount >= totalOvers * 6) {
           alert("All " + totalOvers + " overs complete! Innings ended.");
@@ -8237,6 +8266,15 @@
       let strikeEl = document.getElementById("strike"), nonStrikeEl = document.getElementById("nonstrike");
       for (let i = strikeEl.options.length - 1; i >= 0; i--) { if (strikeEl.options[i].value === outPlayer) strikeEl.remove(i); }
       for (let i = nonStrikeEl.options.length - 1; i >= 0; i--) { if (nonStrikeEl.options[i].value === outPlayer) nonStrikeEl.remove(i); }
+      
+      let over = Math.floor((ballCount - 1) / 6) + "." + ((ballCount - 1) % 6 + 1);
+      let outDesc = dismissalType === "Bowled" || dismissalType === "LBW" ? dismissalType : `${dismissalType} (${dismissedBy})`;
+      matchCommentary.unshift({
+        over: over, ball: "W", 
+        text: `${bowler.value} to ${outPlayer}, OUT, ${outDesc}`,
+        subText: `${outPlayer} ${outDesc} b ${bowler.value} (${batsmanStats[outPlayer].runs}r ${batsmanStats[outPlayer].balls}b)`
+      });
+
       updateScore(); updateTables();
       updateLiveScore();
     }
