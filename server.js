@@ -41,7 +41,7 @@ const dbConfig = {
 let pool = null;
 let useJSON = (process.env.RENDER === "true" || !process.env.COMPUTERNAME);
 const DB_FILE = path.join(__dirname, "db.json");
-let MEMORY_DB = { users: [], teams: [], players: [], match_results: [], upcoming_matches: [], player_stats: [], points_table: [] };
+let MEMORY_DB = { users: [], teams: [], players: [], match_results: [], upcoming_matches: [], player_stats: [], points_table: [], tournaments: [], live_matches: [] };
 
 // ✅ JSON Storage Logic
 function loadDB() {
@@ -300,6 +300,63 @@ app.delete("/upcoming-matches/:id", async (req, res) => {
         }
         await pool.request().input("id", sql.Int, req.params.id).query("DELETE FROM upcoming_matches WHERE id=@id");
         res.json({ message: "Match deleted" });
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
+
+// ================= TOURNAMENTS =================
+app.get("/tournaments/:user", async (req, res) => {
+    try {
+        if (useJSON || !pool) {
+            const filtered = (MEMORY_DB.tournaments || []).filter(t => t.user_id === req.params.user);
+            return res.json(filtered.map(t => JSON.parse(t.tournament_data)));
+        }
+        const r = await pool.request().input("u", sql.NVarChar, req.params.user).query("SELECT tournament_data FROM tournaments WHERE user_id=@u");
+        res.json(r.recordset.map(row => JSON.parse(row.tournament_data)));
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post("/tournaments", async (req, res) => {
+    try {
+        const { user_id, tournament_data } = req.body; // tournament_data is a JSON string
+        if (useJSON || !pool) {
+            MEMORY_DB.tournaments = MEMORY_DB.tournaments || [];
+            // Simplified: for demo, we just push or replace
+            MEMORY_DB.tournaments.push({ user_id, tournament_data });
+            saveDB();
+            return res.send("Ok");
+        }
+        // Save to SQL
+        await pool.request()
+            .input("u", sql.NVarChar, user_id)
+            .input("d", sql.NVarChar, tournament_data)
+            .query("DELETE FROM tournaments WHERE user_id=@u; INSERT INTO tournaments (user_id, tournament_data) VALUES (@u, @d)");
+        res.send("Ok");
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
+
+// ================= LIVE MATCHES =================
+app.post("/live-matches", async (req, res) => {
+    try {
+        const { match_id, match_state } = req.body;
+        if (useJSON || !pool) {
+            MEMORY_DB.live_matches = MEMORY_DB.live_matches || [];
+            const idx = MEMORY_DB.live_matches.findIndex(m => m.match_id == match_id);
+            if (idx > -1) MEMORY_DB.live_matches[idx] = { match_id, match_state };
+            else MEMORY_DB.live_matches.push({ match_id, match_state });
+            saveDB();
+            return res.send("Ok");
+        }
+        await pool.request()
+            .input("id", sql.NVarChar, match_id.toString())
+            .input("state", sql.NVarChar, JSON.stringify(match_state))
+            .query("IF EXISTS (SELECT 1 FROM live_matches WHERE match_id=@id) UPDATE live_matches SET match_state=@state, updated_at=GETDATE() WHERE match_id=@id ELSE INSERT INTO live_matches (match_id, match_state, updated_at) VALUES (@id, @state, GETDATE())");
+        res.send("Ok");
     } catch (err) {
         res.status(500).send(err.message);
     }
