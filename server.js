@@ -321,21 +321,26 @@ app.get("/tournaments/:user", async (req, res) => {
 
 app.post("/tournaments", async (req, res) => {
     try {
-        const { user_id, tournament_data } = req.body; // tournament_data is a JSON string
+        const { user_id, tournament_data } = req.body;
+        if (!user_id || !tournament_data) return res.status(400).send("Missing fields");
+
         if (useJSON || !pool) {
             MEMORY_DB.tournaments = MEMORY_DB.tournaments || [];
-            // Simplified: for demo, we just push or replace
-            MEMORY_DB.tournaments.push({ user_id, tournament_data });
+            const idx = MEMORY_DB.tournaments.findIndex(t => t.user_id === user_id);
+            if (idx > -1) MEMORY_DB.tournaments[idx] = { user_id, tournament_data };
+            else MEMORY_DB.tournaments.push({ user_id, tournament_data });
             saveDB();
             return res.send("Ok");
         }
-        // Save to SQL
+        // Delete old, then insert new (two separate queries)
+        await pool.request().input("u", sql.NVarChar, user_id).query("DELETE FROM tournaments WHERE user_id=@u");
         await pool.request()
             .input("u", sql.NVarChar, user_id)
-            .input("d", sql.NVarChar, tournament_data)
-            .query("DELETE FROM tournaments WHERE user_id=@u; INSERT INTO tournaments (user_id, tournament_data) VALUES (@u, @d)");
+            .input("d", sql.NVarChar(sql.MAX), tournament_data)
+            .query("INSERT INTO tournaments (user_id, tournament_data) VALUES (@u, @d)");
         res.send("Ok");
     } catch (err) {
+        console.error("Tournament save error:", err);
         res.status(500).send(err.message);
     }
 });

@@ -7155,6 +7155,17 @@
       if (savedPhoto && navPic) navPic.src = savedPhoto;
       tournaments = loadTournaments();
 
+      // Auto-sync existing tournaments to SSMS on every login
+      if (tournaments && tournaments.length > 0) {
+        let u = localStorage.getItem("currentUser") || "default";
+        fetch(API + "/tournaments", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_id: u, tournament_data: JSON.stringify(tournaments) })
+        }).then(() => console.log("Tournaments synced to SSMS on login"))
+          .catch(err => console.error("Tournament sync error:", err));
+      }
+
       let lp = localStorage.getItem("lastPage");
       let tid = localStorage.getItem("currentTournamentId");
       let cttid = localStorage.getItem("currentTeamsTournamentIdx");
