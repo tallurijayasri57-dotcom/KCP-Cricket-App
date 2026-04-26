@@ -8573,6 +8573,11 @@
     }
 
     document.addEventListener("DOMContentLoaded", function () {
+      let savedUser = localStorage.getItem("currentUser");
+      if (savedUser) {
+        startApp();
+      }
+
       if (window.location.pathname.includes("/scorecard/")) {
         let parts = window.location.pathname.split('/');
         if (parts.length >= 4) {
