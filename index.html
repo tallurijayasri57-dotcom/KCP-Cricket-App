@@ -8576,7 +8576,15 @@
     document.addEventListener("DOMContentLoaded", function () {
       let savedUser = localStorage.getItem("currentUser");
       if (savedUser) {
-        startApp();
+        // Show login page but ensure it's in LOGIN mode
+        isLogin = true;
+        authTitle.innerText = "Welcome Back";
+        document.getElementById("authBtn").innerText = "LOGIN";
+        switchText.innerText = "Don't have an account? Register";
+        document.getElementById('username').value = savedUser;
+        showPage('loginPage');
+      } else {
+        showPage('loginPage');
       }
 
       if (window.location.pathname.includes("/scorecard/")) {
