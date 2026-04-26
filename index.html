@@ -7077,7 +7077,8 @@
             btn.disabled = false;
             if (data.message === "Already Registered") alert("Already Registered");
             else {
-              toggleAuth();
+              localStorage.setItem("currentUser", u);
+              startApp();
             }
           })
           .catch(err => {
