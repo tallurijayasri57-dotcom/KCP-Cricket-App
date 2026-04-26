@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kcp-cricket-v6';
+const CACHE_NAME = 'kcp-cricket-v7';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -28,11 +28,21 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // Only intercept GET requests
   if (event.request.method !== 'GET') return;
 
+  // Use Network First strategy for all GET requests
   event.respondWith(
-    caches.match(event.request)
-      .then(response => response || fetch(event.request))
+    fetch(event.request)
+      .then(response => {
+        // If network fetch is successful, update the cache
+        return caches.open(CACHE_NAME).then(cache => {
+          cache.put(event.request, response.clone());
+          return response;
+        });
+      })
+      .catch(() => {
+        // If network fails, try the cache
+        return caches.match(event.request);
+      })
   );
 });
