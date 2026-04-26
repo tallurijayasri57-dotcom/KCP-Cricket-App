@@ -6492,16 +6492,24 @@
 
     let liveMatchesUnsubscribe = null;
     function listenToLiveMatches() {
-      if (!window.fbDb) return;
+      if (!window.fbDb) {
+        console.warn("Firebase DB not initialized yet!");
+        return;
+      }
       if (liveMatchesUnsubscribe) liveMatchesUnsubscribe();
 
       const q = window.fbQuery(window.fbCollection(window.fbDb, "live_matches"), window.fbWhere("status", "==", "live"));
 
       // Need onSnapshot from firestore
       import("https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js").then(mod => {
+        console.log("Listening to live matches...", q);
         liveMatchesUnsubscribe = mod.onSnapshot(q, (snapshot) => {
+          console.log("Live match snapshot received. Count:", snapshot.size);
           let container = document.getElementById("liveMatchesGrid");
-          if (!container) return;
+          if (!container) {
+            console.error("liveMatchesGrid not found!");
+            return;
+          }
           
           let currentUser = localStorage.getItem('currentUser');
           let html = "";
@@ -6509,6 +6517,7 @@
 
           snapshot.forEach(doc => {
             let m = doc.data();
+            console.log("Processing match:", m.id, m.status, m.batTeam, "vs", m.bowlTeam);
             // Filter matches to show on home page
             
             // Auto-hide stale matches (older than 12 hours)
