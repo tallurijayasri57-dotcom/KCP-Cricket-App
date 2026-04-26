@@ -646,6 +646,100 @@
       margin-top: 2px;
     }
 
+    .premium-card {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .match-header-banner {
+      background: #ffffff;
+      padding: 16px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .status-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      color: #fff;
+    }
+    .status-live { background: #ef4444; }
+    .status-finished { background: #10b981; }
+    
+    .match-tabs-nav {
+      display: flex;
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .match-tabs-nav::-webkit-scrollbar { display: none; }
+    .match-tab-link {
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #6b7280;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .match-tab-link.active {
+      color: #ef4444;
+      border-bottom-color: #ef4444;
+    }
+
+    .match-layout {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 16px;
+      padding: 16px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    @media (max-width: 900px) {
+      .match-layout { grid-template-columns: 1fr; }
+    }
+
+    .sidebar-stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .stat-box {
+      background: #fff;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #f3f4f6;
+      text-align: center;
+    }
+    .stat-label { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; margin-bottom: 4px; }
+    .stat-value { font-size: 16px; font-weight: 800; color: #1e293b; }
+
+    /* Scorecard Tables */
+    .sc-table { width: 100%; border-collapse: collapse; font-family: 'Inter', sans-serif; }
+    .sc-table th { background: #f8fafc; padding: 10px; text-align: left; font-size: 12px; color: #64748b; border-bottom: 1px solid #f1f5f9; }
+    .sc-table td { padding: 12px 10px; font-size: 13px; border-bottom: 1px solid #f1f5f9; }
+    .sc-table .name-cell { color: #0d9488; font-weight: 600; cursor: pointer; }
+    
+    /* Commentary */
+    .comm-item { border-bottom: 1px solid #f1f5f9; padding: 12px 0; display: flex; gap: 12px; }
+    .comm-over { width: 40px; font-weight: 700; color: #64748b; font-size: 13px; padding-top: 2px; }
+    .comm-ball-icon { 
+      width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 800; color: #fff;
+    }
+    .comm-ball-4 { background: #3b82f6; }
+    .comm-ball-6 { background: #10b981; }
+    .comm-ball-w { background: #ef4444; }
+    .comm-ball-0 { background: #94a3b8; color: #1e293b; border: 1px solid #cbd5e1; }
+    
+    .over-summary { background: #f8fafc; padding: 12px; border-radius: 8px; margin: 12px 0; border: 1px solid #f1f5f9; }
+
     #loginPage {
       display: flex;
       align-items: center;
@@ -5131,155 +5225,44 @@
     <button onclick="finishMatch()">Finish Match</button>
   </div>
 
-  <div id="liveScoreView" class="page" style="padding:0; background:#f9fafb; min-height:100vh;">
-    <!-- Header -->
-    <div style="background:#ffffff; border-bottom:1px solid #e5e7eb; padding:12px 16px; display:flex; justify-content:space-between; align-items:center;">
-      <div style="display:flex; align-items:center; gap:10px;">
-        <span onclick="closeLiveView()" style="cursor:pointer; color:#111827; font-size:20px;">←</span>
-        <h2 style="margin:0; font-family:'Inter', sans-serif; font-size:16px; font-weight:700; color:#111827;">Individual Match</h2>
-      </div>
-      <div style="display:flex; align-items:center; gap:12px;">
-        <span style="background:#ef4444; color:#fff; font-size:10px; font-weight:700; padding:2px 10px; border-radius:20px; text-transform:uppercase;">Live</span>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer;"><path d="M3 3v18h18"/><path d="M18 9l-5 5-2-2-4 4"/></svg>
-        <svg onclick="shareScorecardLink()" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer;"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-      </div>
-    </div>
-
-    <!-- Match Info Sub-header -->
-    <div style="background:#ffffff; padding:8px 16px;">
-      <div style="font-family:'Inter', sans-serif; font-size:13px; color:#0d9488; margin-bottom:4px; display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
-        <span id="lvMatchLocation">BMS Cricket Ground Rohit Stands, Hyderabad (Telangana)</span>, 
-        <span id="lvMatchType">Limited Overs</span>, 
-        <span id="lvMatchOvers">25 Ov.</span>, 
-        <span id="lvMatchDate">24-Apr-26 09:03 AM</span>
-        <span style="display:inline-block; width:12px; height:12px; background:#ef4444; border-radius:50%; box-shadow:0 0 0 2px rgba(239, 68, 68, 0.2);"></span>
-      </div>
-      <div style="font-family:'Inter', sans-serif; font-size:13px; color:#6b7280;" id="lvTossInfo">Toss: House Of Play Cricket Acadamy U-12 opt to field</div>
-    </div>
-
-    <!-- Team Scores and Status -->
-    <div style="background:#ffffff; padding:16px; margin-bottom:8px; border-bottom:1px solid #f3f4f6;">
-      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-        <div style="flex:1;">
-          <div id="lvBatTeamNameDisplay" style="font-family:'Inter', sans-serif; font-size:18px; font-weight:800; color:#111827; text-transform:uppercase; margin-bottom:8px;">IN PLAY CRICKET ACADAMY U-12</div>
-          <div id="lvBowlTeamNameDisplay" style="font-family:'Inter', sans-serif; font-size:18px; font-weight:400; color:#374151; text-transform:uppercase;">HOUSE OF PLAY CRICKET ACADAMY U-12</div>
-        </div>
-        <div style="text-align:right;">
-          <div style="display:flex; align-items:baseline; justify-content:flex-end; gap:4px;">
-            <span id="lvScore" style="font-size:28px; font-weight:800; color:#111827;">0/0</span>
-            <span id="lvOvers" style="font-size:14px; color:#6b7280;">(0.0 Ov)</span>
-          </div>
-          <div style="font-size:14px; color:#6b7280; font-style:italic; margin-top:4px;" id="lvMatchStatus">Yet to Bat</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tabs Navigation -->
-    <style>
-      .lv-tab-btn {
-        flex: 1;
-        background: transparent;
-        border: none;
-        color: #6b7280;
-        font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        padding: 12px 0;
-        border-bottom: 2px solid transparent;
-        transition: all 0.2s;
-        text-align: center;
-        white-space: nowrap;
-      }
-
-      .lv-tab-btn.active {
-        color: #ef4444;
-        border-bottom-color: #ef4444;
-        font-weight: 600;
-      }
-
-      .lv-tab-content {
-        display: none;
-      }
-
-      .lv-tab-content.active {
-        display: block;
-      }
-      .lv-tab-content { display: none; }
-      .lv-tab-content.active { display: block; }
-    </style>
-
-    <div style="background:#ffffff; border-bottom:1px solid #e5e7eb; display:flex; overflow-x:auto;">
-      <button class="lv-tab-btn active" onclick="switchLvTab(event, 'live')">Live</button>
-      <button class="lv-tab-btn" onclick="switchLvTab(event, 'scorecard')">Scorecard</button>
-      <button class="lv-tab-btn" onclick="switchLvTab(event, 'commentary')">Commentary</button>
-      <button class="lv-tab-btn" onclick="switchLvTab(event, 'heros')">Heros</button>
-      <button class="lv-tab-btn" onclick="switchLvTab(event, 'teams')">Teams</button>
-      <button class="lv-tab-btn" onclick="switchLvTab(event, 'gallery')">Gallery</button>
-    </div>
-
-    <!-- Tab Content Area -->
-    <div id="lv-tab-live" class="lv-tab-content active" style="padding:0; background:#ffffff;">
-      <!-- Batters Header -->
-      <div style="background:#f9fafb; padding:8px 16px; border-bottom:1px solid #f3f4f6; display:flex; justify-content:space-between; font-family:'Inter', sans-serif; font-size:14px; font-weight:700; color:#111827;">
-        <span style="flex:2;">Batters</span>
-        <span style="width:40px; text-align:center;">R</span>
-        <span style="width:40px; text-align:center;">B</span>
-        <span style="width:40px; text-align:center;">4s</span>
-        <span style="width:40px; text-align:center;">6s</span>
-        <span style="width:60px; text-align:right;">SR</span>
-      </div>
-      <div id="lvBatTable" style="background:#fff;">
-        <!-- Filled by JS -->
-      </div>
-
-      <!-- Bowlers Header -->
-      <div style="background:#f9fafb; padding:8px 16px; border-top:16px solid #f9fafb; border-bottom:1px solid #f3f4f6; display:flex; justify-content:space-between; font-family:'Inter', sans-serif; font-size:14px; font-weight:700; color:#111827;">
-        <span style="flex:2;">Bowlers</span>
-        <span style="width:40px; text-align:center;">O</span>
-        <span style="width:40px; text-align:center;">M</span>
-        <span style="width:40px; text-align:center;">R</span>
-        <span style="width:40px; text-align:center;">W</span>
-        <span style="width:60px; text-align:right;">Eco</span>
-      </div>
-      <div id="lvBowlTable" style="background:#fff;">
-        <!-- Filled by JS -->
-      </div>
-
-      <div style="padding:16px; border-top:1px solid #f3f4f6; font-family:'Inter', sans-serif; font-size:13px; color:#111827;">
-        <strong>Current Partnership:</strong> <span id="lvLivePartnership">0(0)</span>
-      </div>
+    <div id="matchDetailsPage" class="page" style="background:#f3f4f6; min-height:100vh;">
+      <div id="matchHeaderContainer"></div>
       
-      <div style="padding:12px 16px; background:#f9fafb;">
-        <div style="font-family:'Inter',sans-serif; font-size:12px; color:#64748b; margin-bottom:8px; text-transform:uppercase; font-weight:600;">Recent Balls</div>
-        <div id="lvBalls" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+      <div class="match-tabs-nav">
+        <div class="match-tab-link active" onclick="switchMatchTab('live', this)">Live</div>
+        <div class="match-tab-link" onclick="switchMatchTab('scorecard', this)">Scorecard</div>
+        <div class="match-tab-link" onclick="switchMatchTab('commentary', this)">Commentary</div>
+        <div class="match-tab-link" onclick="switchMatchTab('analysis', this)">Analysis</div>
+        <div class="match-tab-link" onclick="switchMatchTab('teams', this)">Teams</div>
+        <div class="match-tab-link" onclick="switchMatchTab('gallery', this)">Gallery</div>
+      </div>
+
+      <div class="match-layout">
+        <div id="matchMainContent"></div>
+        
+        <div id="matchSidebar">
+          <div class="premium-card" style="padding:12px;">
+            <div class="sidebar-stats-grid">
+              <div class="stat-box"><div class="stat-label">Total Views</div><div class="stat-value" id="sbTotalViews">0</div></div>
+              <div class="stat-box"><div class="stat-label">Live Viewers</div><div class="stat-value" id="sbLiveViewers">0</div></div>
+              <div class="stat-box"><div class="stat-label">Current RR</div><div class="stat-value" id="sbCurrentRR">0.00</div></div>
+              <div class="stat-box"><div class="stat-label">Projected Score</div><div class="stat-value" id="sbProjected">0</div></div>
+            </div>
+          </div>
+          
+          <div class="premium-card">
+            <div style="padding:12px 16px; border-bottom:1px solid #f1f5f9; font-weight:700; color:#1e293b;">Match details</div>
+            <div style="padding:16px;">
+              <div style="margin-bottom:12px;"><div class="stat-label">Series Name</div><div style="color:#0d9488; font-weight:600;" id="sbSeriesName">-</div></div>
+              <div style="margin-bottom:12px;"><div class="stat-label">Match Date</div><div id="sbMatchDate">-</div></div>
+              <div style="margin-bottom:12px;"><div class="stat-label">Location</div><div style="color:#0d9488; font-weight:600;" id="sbLocation">-</div></div>
+              <div id="sbInningsDetails"></div>
+              <div style="margin-top:16px;"><div class="stat-label">Last Updated</div><div id="sbLastUpdated" style="font-size:12px;">-</div></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-
-    <div id="lv-tab-scorecard" class="lv-tab-content" style="padding:16px; background:#fff;">
-      <h3 style="font-family:'Inter', sans-serif; font-size:16px; font-weight:700; margin-top:0;">Detailed Scorecard</h3>
-      <div id="lvFullScorecard">Content coming soon</div>
-    </div>
-
-    <div id="lv-tab-commentary" class="lv-tab-content" style="padding:40px 16px; text-align:center; color:#6b7280; font-family:'Inter',sans-serif; background:#fff;">
-      Commentary not available for this match.
-    </div>
-
-    <div id="lv-tab-heros" class="lv-tab-content" style="padding:40px 16px; text-align:center; color:#6b7280; font-family:'Inter',sans-serif; background:#fff;">
-      Match analysis and top performers will be shown here.
-    </div>
-
-    <div id="lv-tab-teams" class="lv-tab-content" style="padding:16px; background:#fff;">
-      <h3 id="lvTeamsBatTitle" style="font-family:'Inter', sans-serif; font-size:16px; margin-top:0; color:#0d9488; border-bottom:1px solid #f3f4f6; padding-bottom:8px;">Batting Team</h3>
-      <ul id="lvTeamsBatList" style="list-style:none; padding:0; margin:0 0 24px 0;"></ul>
-      <h3 id="lvTeamsBowlTitle" style="font-family:'Inter', sans-serif; font-size:16px; margin-top:0; color:#0d9488; border-bottom:1px solid #f3f4f6; padding-bottom:8px;">Bowling Team</h3>
-      <ul id="lvTeamsBowlList" style="list-style:none; padding:0; margin:0;"></ul>
-    </div>
-
-    <div id="lv-tab-gallery" class="lv-tab-content" style="padding:40px 16px; text-align:center; color:#6b7280; font-family:'Inter',sans-serif; background:#fff;">
-      No photos available for this match.
-    </div>
-  </div>
 
   <div id="points" class="page">
     <h2>🏆 Points Table</h2>
@@ -6558,8 +6541,12 @@
 
     let liveViewUnsubscribe = null;
     let previousLiveMatchState = null;
+    let currentMatchViewId = null;
+    let currentMatchActiveTab = 'live';
+
     function viewLiveMatch(matchId) {
-      showPage('liveScoreView');
+      currentMatchViewId = matchId;
+      showPage('matchDetailsPage');
       if (liveViewUnsubscribe) liveViewUnsubscribe();
       previousLiveMatchState = null;
 
@@ -6572,9 +6559,226 @@
           }
           let mData = doc.data();
           mData.id = matchId;
-          renderLiveView(mData);
+          renderPremiumMatchView(mData);
         });
       });
+    }
+
+    function switchMatchTab(tabName, el) {
+      currentMatchActiveTab = tabName;
+      document.querySelectorAll('.match-tab-link').forEach(l => l.classList.remove('active'));
+      el.classList.add('active');
+      if (previousLiveMatchState) renderPremiumMatchView(previousLiveMatchState);
+    }
+
+    function renderPremiumMatchView(m) {
+      previousLiveMatchState = m;
+      
+      // Render Header
+      let headerHtml = `
+        <div class="match-header-banner">
+          <div style="font-family:'Inter', sans-serif; font-size:12px; color:#6b7280; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <span style="color:#0d9488; font-weight:700;">ccpl</span><span style="color:#94a3b8;">(League Matches)</span>
+              <div style="margin-top:4px; font-weight:600; color:#1e293b;">
+                ${m.location || 'KCP CRICKET GROUND'}, ${m.date || ''}
+              </div>
+            </div>
+            <div style="display:flex; gap:12px;">
+              <span class="status-badge ${m.status === 'Finished' ? 'status-finished' : 'status-live'}">${m.status || 'Live'}</span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14L21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+            </div>
+          </div>
+          <div style="font-size:13px; color:#64748b; margin-bottom:12px;">Toss: ${m.tossInfo || 'Toss info not available'}</div>
+          
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="flex:1;">
+              <div style="font-size:20px; font-weight:800; color:#1e293b; text-transform:uppercase;">${m.batTeam}</div>
+              <div style="font-size:18px; font-weight:500; color:#64748b; text-transform:uppercase; margin-top:4px;">${m.bowlTeam}</div>
+              <div style="font-size:14px; color:#ef4444; font-weight:700; margin-top:8px;">(${m.matchStatus || 'Live'})</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:32px; font-weight:800; color:#1e293b;">${m.runs}/${m.wickets} <span style="font-size:14px; color:#64748b; font-weight:500;">(${m.overs} Ov)</span></div>
+              <div style="font-size:13px; color:#64748b; margin-top:4px;">Yet to Bat</div>
+            </div>
+          </div>
+        </div>
+      `;
+      document.getElementById('matchHeaderContainer').innerHTML = headerHtml;
+
+      // Update Sidebar
+      document.getElementById('sbTotalViews').innerText = m.totalViews || '3';
+      document.getElementById('sbLiveViewers').innerText = m.liveViewers || '1';
+      document.getElementById('sbCurrentRR').innerText = m.currentRR || '10.29';
+      document.getElementById('sbProjected').innerText = m.projectedScore || '206';
+      document.getElementById('sbSeriesName').innerText = m.seriesName || 'ccpl';
+      document.getElementById('sbMatchDate').innerText = m.date || '23/04/2026';
+      document.getElementById('sbLocation').innerText = m.location || 'KCP CRICKET GROUND, Jaggayyapeta';
+      document.getElementById('sbLastUpdated').innerText = m.lastUpdated || 'Vamsi Krishna (2026-04-23 at 14:50)';
+
+      // Render Tab Content
+      let mainContent = document.getElementById('matchMainContent');
+      if (currentMatchActiveTab === 'live') {
+        renderPremiumLiveTab(m, mainContent);
+      } else if (currentMatchActiveTab === 'scorecard') {
+        renderPremiumScorecardTab(m, mainContent);
+      } else if (currentMatchActiveTab === 'commentary') {
+        renderPremiumCommentaryTab(m, mainContent);
+      } else {
+        mainContent.innerHTML = `<div class="premium-card" style="padding:40px; text-align:center; color:#64748b;">${currentMatchActiveTab.toUpperCase()} content coming soon</div>`;
+      }
+    }
+
+    function renderPremiumLiveTab(m, container) {
+      let batTable = `
+        <div class="premium-card">
+          <table class="sc-table">
+            <thead><tr><th>Batters</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead>
+            <tbody>
+              ${(m.batters || []).map(b => `
+                <tr>
+                  <td class="name-cell">${b.name} ${b.isStrike ? '*' : ''}</td>
+                  <td>${b.runs}</td><td>${b.balls}</td><td>${b.fours}</td><td>${b.sixes}</td><td>${b.sr}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      let bowlTable = `
+        <div class="premium-card">
+          <table class="sc-table">
+            <thead><tr><th>Bowlers</th><th>O</th><th>M</th><th>R</th><th>W</th><th>Eco</th></tr></thead>
+            <tbody>
+              ${(m.bowlers || []).map(b => `
+                <tr>
+                  <td class="name-cell">${b.name} ${b.isCurrent ? '*' : ''}</td>
+                  <td>${b.overs}</td><td>${b.maidens}</td><td>${b.runs}</td><td>${b.wickets}</td><td>${b.eco}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      let recentBalls = `
+        <div class="premium-card" style="padding:12px;">
+          <div style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; margin-bottom:8px;">Recent:</div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            ${(m.lastBalls || []).map(b => `<div class="comm-ball-icon ${b == 4 ? 'comm-ball-4' : b == 6 ? 'comm-ball-6' : b == 'W' ? 'comm-ball-w' : 'comm-ball-0'}">${b}</div>`).join('')}
+          </div>
+        </div>
+      `;
+
+      container.innerHTML = batTable + bowlTable + recentBalls + `
+        <div style="margin-top:16px;">
+          <div style="font-weight:700; color:#1e293b; margin-bottom:12px;">Commentary</div>
+          ${getCommentaryHtml(m, 3)}
+          <div style="text-align:center; padding:12px; color:#ef4444; font-weight:700; cursor:pointer;" onclick="switchMatchTab('commentary', document.querySelectorAll('.match-tab-link')[2])">Full Commentary</div>
+        </div>
+      `;
+    }
+
+    function renderPremiumScorecardTab(m, container) {
+      container.innerHTML = `
+        <div class="premium-card">
+          <div style="padding:12px 16px; background:#f8fafc; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-weight:700; color:#1e293b; text-transform:uppercase;">${m.batTeam}</div>
+            <div style="font-weight:700; color:#1e293b;">${m.runs}/${m.wickets} <span style="font-weight:500; font-size:12px; color:#64748b;">(${m.overs} Ov)</span></div>
+          </div>
+          <table class="sc-table">
+            <thead><tr><th>Batters</th><th style="flex:1;"></th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead>
+            <tbody>
+              ${(m.batters || []).map(b => `
+                <tr>
+                  <td class="name-cell">${b.name}</td>
+                  <td style="color:#94a3b8; font-size:11px;">${b.outDesc || 'not out'}</td>
+                  <td>${b.runs}</td><td>${b.balls}</td><td>${b.fours}</td><td>${b.sixes}</td><td>${b.sr}</td>
+                </tr>
+              `).join('')}
+              <tr style="background:#f8fafc; font-weight:700;">
+                <td colspan="2">Extras</td><td colspan="5">${m.extras || 0}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="padding:12px 16px; font-size:12px; color:#64748b; border-top:1px solid #f1f5f9;">
+            <strong>Yet to Bat:</strong> ${m.yetToBat || '-'}
+          </div>
+          <div style="padding:12px 16px; font-size:12px; color:#64748b; border-top:1px solid #f1f5f9;">
+            <strong>Fall Of Wickets:</strong> ${m.fow || '-'}
+          </div>
+          <table class="sc-table" style="margin-top:12px; border-top:8px solid #f1f5f9;">
+            <thead><tr><th>Bowlers</th><th>O</th><th>M</th><th>R</th><th>W</th><th>0s</th><th>4s</th><th>6s</th><th>WD</th><th>NB</th><th>Eco</th></tr></thead>
+            <tbody>
+              ${(m.bowlers || []).map(b => `
+                <tr>
+                  <td class="name-cell">${b.name}</td>
+                  <td>${b.overs}</td><td>${b.maidens}</td><td>${b.runs}</td><td>${b.wickets}</td><td>${b.dots || 0}</td><td>${b.fours || 0}</td><td>${b.sixes || 0}</td><td>${b.wd || 0}</td><td>${b.nb || 0}</td><td>${b.eco}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderPremiumCommentaryTab(m, container) {
+      container.innerHTML = `
+        <div class="premium-card" style="padding:16px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <div style="font-weight:700; color:#1e293b;">Full Commentary</div>
+          </div>
+          ${getCommentaryHtml(m)}
+        </div>
+      `;
+    }
+
+    function getCommentaryHtml(m, limit = null) {
+      let comms = m.commentary || [
+        {over: "1.1", ball: "W", text: "rakesh to kumar, OUT Caught out, Off Drive at Long-off, Caught by Vamsi Krishna", subText: "kumar c Vamsi Krishna b rakesh (7r 3b 0x4s 1x6s SR: 233.33)"},
+        {type: "over_summary", over: "1", runs: "12", wkts: "0", batters: [{name: "Jaya Sri", runs: "5", balls: "4"}, {name: "kumar", runs: "7", balls: "2"}], bowler: {name: "Vamsi Krishna", stats: "1 - 0 - 12 - 0"}},
+        {over: "1.0", ball: "0", text: "Vamsi Krishna to Jaya Sri, no run"},
+        {over: "0.5", ball: "2", text: "Vamsi Krishna to Jaya Sri, 2 runs"},
+        {over: "0.4", ball: "2", text: "Vamsi Krishna to Jaya Sri, 2 runs"},
+        {over: "0.3", ball: "1", text: "Vamsi Krishna to kumar, 1 run"},
+        {over: "0.2", ball: "6", text: "Vamsi Krishna to kumar, SIX, Backfoot Punch to Deep cover"},
+        {over: "0.1", ball: "1", text: "Vamsi Krishna to Jaya Sri, 1 run, Helicopter Shot to Long-on"}
+      ];
+
+      if (limit) comms = comms.slice(0, limit);
+
+      return comms.map(c => {
+        if (c.type === 'over_summary') {
+          return `
+            <div class="over-summary">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <div style="font-weight:800; color:#1e293b; font-size:14px; text-transform:uppercase;">End of Over ${c.over}</div>
+                <div style="font-weight:800; color:#1e293b; font-size:18px;">${c.runs}/${c.wkts}</div>
+              </div>
+              <div style="font-size:12px; color:#64748b; margin-bottom:4px;">${c.runs} Runs ${c.wkts} Wkts</div>
+              <div style="display:flex; justify-content:space-between; font-size:12px; color:#1e293b;">
+                <div>
+                  ${c.batters.map(b => `<div>${b.name}* <span style="margin-left:80px; color:#64748b;">${b.runs} (${b.balls})</span></div>`).join('')}
+                </div>
+                <div style="text-align:right;">
+                  <div>${c.bowler.name} <span style="margin-left:40px; color:#64748b;">${c.bowler.stats}</span></div>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+        return `
+          <div class="comm-item">
+            <div class="comm-over">${c.over}</div>
+            <div class="comm-ball-icon ${c.ball == 4 ? 'comm-ball-4' : c.ball == 6 ? 'comm-ball-6' : c.ball == 'W' ? 'comm-ball-w' : 'comm-ball-0'}">${c.ball}</div>
+            <div style="flex:1;">
+              <div style="font-weight:700; color:#1e293b; font-size:13px;">${c.text}</div>
+              ${c.subText ? `<div style="font-size:11px; color:#64748b; margin-top:2px;">${c.subText}</div>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
     async function openMatchScorecard(tIdx, mIdx) {
@@ -8643,7 +8847,7 @@
         if (parts.length >= 4) {
           let matchId = parts[2];
           setTimeout(() => {
-            showPage('liveScoreView');
+            showPage('matchDetailsPage');
             currentLiveMatchId = matchId;
           }, 500);
         }
