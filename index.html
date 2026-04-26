@@ -6509,8 +6509,7 @@
 
           snapshot.forEach(doc => {
             let m = doc.data();
-            // Filter by organiser to only show matches started by the logged-in user
-            if (m.organiser !== currentUser) return;
+            // Filter matches to show on home page
             
             // Auto-hide stale matches (older than 12 hours)
             if (m.updatedAt && Date.now() - m.updatedAt > 12 * 60 * 60 * 1000) return;
