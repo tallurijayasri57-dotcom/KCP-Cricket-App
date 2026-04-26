@@ -6493,7 +6493,11 @@
 
     let liveMatchesUnsubscribe = null;
     function listenToLiveMatches() {
-      if (!window.fbDb || !window.fbOnSnapshot) return;
+      if (!window.fbDb || !window.fbOnSnapshot) {
+        // Retry in 1 second if Firebase is not yet ready
+        setTimeout(listenToLiveMatches, 1000);
+        return;
+      }
       if (liveMatchesUnsubscribe) liveMatchesUnsubscribe();
 
       const q = window.fbQuery(window.fbCollection(window.fbDb, "live_matches"), window.fbWhere("status", "==", "live"));
@@ -8856,16 +8860,18 @@
       let savedUser = localStorage.getItem("currentUser");
       let isRegistered = localStorage.getItem("isRegistered") === "true";
 
-      if (savedUser || isRegistered) {
-        // Force LOGIN mode if any registration trace exists
+      if (savedUser) {
+        // Skip login screen and go straight to app if user is already logged in
+        startApp();
+      } else if (isRegistered) {
+        // Show login screen if user is registered but logged out
         isLogin = true;
         document.getElementById("authTitle").innerText = "Welcome Back";
         document.getElementById("authBtn").innerText = "LOGIN";
         document.getElementById("switchText").innerText = "Don't have an account? Register";
-        if (savedUser) document.getElementById('username').value = savedUser;
         showPage('loginPage');
       } else {
-        // Only show Register if absolutely NO user data exists
+        // Only show Register screen for absolutely new users
         isLogin = false;
         document.getElementById("authTitle").innerText = "Create Account";
         document.getElementById("authBtn").innerText = "REGISTER";
@@ -8878,9 +8884,13 @@
         if (parts.length >= 4) {
           let matchId = parts[2];
           setTimeout(() => {
-            showPage('matchDetailsPage');
-            currentLiveMatchId = matchId;
-          }, 500);
+            if (typeof viewLiveMatch === 'function') {
+              viewLiveMatch(matchId);
+            } else {
+              showPage('matchDetailsPage');
+              currentMatchViewId = matchId;
+            }
+          }, 800);
         }
       }
     });

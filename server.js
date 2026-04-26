@@ -608,7 +608,9 @@ app.get("/player-photo/:player_name", async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-
 app.get("/health", (req, res) => res.json({ status: "ok", mode: useJSON ? "JSON" : "SQL", connected: !!pool }));
 
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "index.html"));
+});
 app.listen(process.env.PORT || 3001, () => console.log("✅ Server Live on port 3001"));
