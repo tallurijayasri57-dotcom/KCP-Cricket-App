@@ -7033,6 +7033,7 @@
           .then(data => {
             if (data.success) {
               localStorage.setItem("currentUser", u);
+              localStorage.setItem("isRegistered", "true");
 
               if (window.fbGetDocs) {
                 const q = window.fbQuery(window.fbCollection(window.fbDb, "tournaments"));
@@ -7092,6 +7093,7 @@
             if (data.message === "Already Registered") alert("Already Registered");
             else {
               localStorage.setItem("currentUser", u);
+              localStorage.setItem("isRegistered", "true");
               startApp();
             }
           })
@@ -8589,16 +8591,18 @@
 
     document.addEventListener("DOMContentLoaded", function () {
       let savedUser = localStorage.getItem("currentUser");
-      // Explicitly set isLogin based on whether we have a saved user
-      if (savedUser) {
+      let isRegistered = localStorage.getItem("isRegistered") === "true";
+
+      if (savedUser || isRegistered) {
+        // Force LOGIN mode if any registration trace exists
         isLogin = true;
         document.getElementById("authTitle").innerText = "Welcome Back";
         document.getElementById("authBtn").innerText = "LOGIN";
         document.getElementById("switchText").innerText = "Don't have an account? Register";
-        document.getElementById('username').value = savedUser;
+        if (savedUser) document.getElementById('username').value = savedUser;
         showPage('loginPage');
       } else {
-        // Default to registration if no user exists at all
+        // Only show Register if absolutely NO user data exists
         isLogin = false;
         document.getElementById("authTitle").innerText = "Create Account";
         document.getElementById("authBtn").innerText = "REGISTER";
