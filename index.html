@@ -7150,13 +7150,19 @@
       let tmid = localStorage.getItem("currentTournamentMatchIdx");
       if (tmid !== null) currentTournamentMatchIdx = parseInt(tmid);
 
-      if (lp === "manageTournament" && tid !== null) {
-        manageTournament(parseInt(tid));
-      } else if (lp === "tournamentTeamsPage" && cttid !== null) {
-        openTournamentTeamsPage(parseInt(cttid));
-      } else {
-        showPage(lp || "home");
-        if (!lp || lp === "home") renderHomeBanner();
+      try {
+        if (lp === "manageTournament" && tid !== null && tournaments[parseInt(tid)]) {
+          manageTournament(parseInt(tid));
+        } else if (lp === "tournamentTeamsPage" && cttid !== null && tournaments[parseInt(cttid)]) {
+          openTournamentTeamsPage(parseInt(cttid));
+        } else {
+          showPage("home");
+          renderHomeBanner();
+        }
+      } catch(e) {
+        console.error("startApp nav error:", e);
+        showPage("home");
+        renderHomeBanner();
       }
 
       loadTeams();
