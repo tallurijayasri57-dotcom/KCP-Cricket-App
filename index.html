@@ -6434,6 +6434,11 @@
           maidens: bowlerStats[name].maidens || 0,
           runs: bowlerStats[name].runs,
           wickets: bowlerStats[name].wickets,
+          dots: bowlerStats[name].dots || 0,
+          fours: bowlerStats[name].fours || 0,
+          sixes: bowlerStats[name].sixes || 0,
+          wides: bowlerStats[name].wides || 0,
+          noballs: bowlerStats[name].noballs || 0,
           eco: bowlerStats[name].balls > 0 ? ((bowlerStats[name].runs / (bowlerStats[name].balls / 6))).toFixed(2) : "0.00",
           isCurrent: name === document.getElementById('bowler').value
         })),
@@ -6688,12 +6693,15 @@
       let bowlTable = `
         <div class="premium-card" style="overflow-x:auto;">
           <table class="sc-table" style="min-width:320px;">
-            <thead><tr><th>Bowlers</th><th>O</th><th>M</th><th>R</th><th>W</th><th>Eco</th></tr></thead>
+            <thead><tr><th>Bowlers</th><th>O</th><th>M</th><th>R</th><th>W</th><th>0s</th><th>4s</th><th>6s</th><th>WD</th><th>NB</th><th>Eco</th></tr></thead>
             <tbody>
               ${(m.bowlers || []).filter(b => b.isCurrent || b.overs > 0).slice(0, 2).map(b => `
                 <tr>
                   <td class="name-cell">${b.name} ${b.isCurrent ? '*' : ''}</td>
-                  <td>${b.overs}</td><td>${b.maidens}</td><td>${b.runs}</td><td>${b.wickets}</td><td>${b.eco}</td>
+                  <td>${b.overs}</td><td>${b.maidens}</td><td>${b.runs}</td><td>${b.wickets}</td>
+                  <td>${b.dots || 0}</td><td>${b.fours || 0}</td><td>${b.sixes || 0}</td><td>${b.wides || 0}</td><td>${b.noballs || 0}</td>
+                  <td>${b.eco}</td>
+                </tr>
                 </tr>
               `).join('')}
             </tbody>
@@ -7203,38 +7211,49 @@
       document.getElementById("winTeamName").innerText = winner;
       document.getElementById("winMarginText").innerText = margin;
       let momName = "—", momStatText = "—", momScore = -1;
-      let allBat = {};
-      for (let p in batsmanStats) {
-        allBat[p] = { runs: batsmanStats[p].runs || 0, balls: batsmanStats[p].balls || 0, fours: batsmanStats[p].fours || 0, sixes: batsmanStats[p].sixes || 0, wickets: 0 };
+      let players = {};
+
+      const getP = (n) => {
+        if (!players[n]) players[n] = { runs:0, balls:0, fours:0, sixes:0, wickets:0, dots:0, maidens:0, bRuns:0, bBalls:0, catches:0, run_outs:0, stumpings:0 };
+        return players[n];
+      };
+
+      // Aggregate all stats
+      for (let p in batsmanStats) { 
+        let s = getP(p); s.runs += batsmanStats[p].runs; s.balls += batsmanStats[p].balls; s.fours += batsmanStats[p].fours; s.sixes += batsmanStats[p].sixes;
       }
       for (let p in innings1BatStats) {
-        if (!allBat[p]) allBat[p] = { runs: 0, balls: 0, fours: 0, sixes: 0, wickets: 0 };
-        allBat[p].runs += innings1BatStats[p].runs || 0;
-        allBat[p].balls += innings1BatStats[p].balls || 0;
+        let s = getP(p); s.runs += innings1BatStats[p].runs; s.balls += innings1BatStats[p].balls; s.fours += (innings1BatStats[p].fours || 0); s.sixes += (innings1BatStats[p].sixes || 0);
       }
-      let allBowl = {};
       for (let p in bowlerStats) {
-        allBowl[p] = { wickets: bowlerStats[p].wickets || 0, runs: bowlerStats[p].runs || 0, balls: bowlerStats[p].balls || 0 };
+        let s = getP(p); s.wickets += bowlerStats[p].wickets; s.bRuns += bowlerStats[p].runs; s.bBalls += bowlerStats[p].balls; s.dots += (bowlerStats[p].dots || 0); s.maidens += (bowlerStats[p].maidens || 0);
+        s.catches += (bowlerStats[p].catches || 0); s.run_outs += (bowlerStats[p].run_outs || 0); s.stumpings += (bowlerStats[p].stumpings || 0);
       }
       for (let p in innings1BowlStats) {
-        if (!allBowl[p]) allBowl[p] = { wickets: 0, runs: 0, balls: 0 };
-        allBowl[p].wickets += innings1BowlStats[p].wickets || 0;
-        allBowl[p].balls += innings1BowlStats[p].balls || 0;
-        allBowl[p].runs += innings1BowlStats[p].runs || 0;
+        let s = getP(p); s.wickets += innings1BowlStats[p].wickets; s.bRuns += innings1BowlStats[p].runs; s.bBalls += innings1BowlStats[p].balls; s.dots += (innings1BowlStats[p].dots || 0); s.maidens += (innings1BowlStats[p].maidens || 0);
+        s.catches += (innings1BowlStats[p].catches || 0); s.run_outs += (innings1BowlStats[p].run_outs || 0); s.stumpings += (innings1BowlStats[p].stumpings || 0);
       }
-      for (let p in allBat) {
-        let s = allBat[p];
-        let sr = s.balls > 0 ? (s.runs / s.balls) * 100 : 0;
-        let wk = allBowl[p] ? allBowl[p].wickets : 0;
-        let score = s.runs + (sr > 150 ? 10 : sr > 100 ? 5 : 0) + wk * 20;
-        if (score > momScore) { momScore = score; momName = p; momStatText = s.runs + " runs (" + s.balls + " balls)" + (wk > 0 ? " • " + wk + " wkts" : ""); }
+
+      for (let n in players) {
+        let p = players[n];
+        let sr = p.balls > 0 ? (p.runs / p.balls) * 100 : 0;
+        let eco = p.bBalls > 0 ? (p.bRuns / (p.bBalls / 6)) : 99;
+        
+        let score = (p.runs * 1) + (p.fours * 1) + (p.sixes * 2) + (p.wickets * 20) + (p.dots * 1) + (p.maidens * 10) + (p.catches * 10) + (p.run_outs * 10) + (p.stumpings * 10);
+        if (sr > 150) score += 15; else if (sr > 120) score += 5;
+        if (p.bBalls >= 12) { if (eco < 6) score += 15; else if (eco < 8) score += 5; }
+
+        if (score > momScore) {
+          momScore = score;
+          momName = n;
+          let parts = [];
+          if (p.runs > 0) parts.push(`${p.runs} (${p.balls})`);
+          if (p.wickets > 0) parts.push(`${p.wickets} wkts`);
+          if (p.catches + p.run_outs + p.stumpings > 0) parts.push(`${p.catches+p.run_outs+p.stumpings} fld`);
+          momStatText = parts.join(" • ");
+        }
       }
-      for (let p in allBowl) {
-        if (allBat[p]) continue;
-        let s = allBowl[p];
-        let score = s.wickets * 20;
-        if (score > momScore) { momScore = score; momName = p; momStatText = s.wickets + " wkts / " + Math.floor(s.balls / 6) + "." + (s.balls % 6) + " ov"; }
-      }
+
       document.getElementById("momPlayerName").innerText = momName;
       document.getElementById("momStats").innerText = momStatText;
       document.getElementById("winPopupOverlay").classList.add("open");
@@ -8045,7 +8064,10 @@
         batsmanStats[p] = batsmanStats[p] || { runs: 0, balls: 0, fours: 0, sixes: 0 };
         if (outBatsmen.indexOf(p) === -1) { strike.innerHTML += '<option>' + p + '</option>'; nonstrike.innerHTML += '<option>' + p + '</option>'; }
       });
-      bowlPlayers.forEach(p => { bowlerStats[p] = bowlerStats[p] || { runs: 0, balls: 0, wickets: 0 }; bowler.innerHTML += '<option>' + p + '</option>'; });
+      bowlPlayers.forEach(p => { 
+        bowlerStats[p] = bowlerStats[p] || { runs: 0, balls: 0, wickets: 0, dots: 0, fours: 0, sixes: 0, wides: 0, noballs: 0 }; 
+        bowler.innerHTML += '<option>' + p + '</option>'; 
+      });
       updateTables(); updateScore();
     }
 
@@ -8068,6 +8090,9 @@
       if (r == 4) batsmanStats[s].fours++;
       if (r == 6) batsmanStats[s].sixes++;
       bowlerStats[b].runs += r; bowlerStats[b].balls++;
+      if (r === 0) bowlerStats[b].dots = (bowlerStats[b].dots || 0) + 1;
+      if (r === 4) bowlerStats[b].fours = (bowlerStats[b].fours || 0) + 1;
+      if (r === 6) bowlerStats[b].sixes = (bowlerStats[b].sixes || 0) + 1;
       if (!batsmanStats[s].shot_types) batsmanStats[s].shot_types = [];
       if (!batsmanStats[s].wagon_wheel) batsmanStats[s].wagon_wheel = [];
       if (shotType) batsmanStats[s].shot_types.push(shotType);
@@ -8093,7 +8118,7 @@
             {name: strike.value, runs: batsmanStats[strike.value].runs, balls: batsmanStats[strike.value].balls},
             {name: nonstrike.value, runs: batsmanStats[nonstrike.value].runs, balls: batsmanStats[nonstrike.value].balls}
           ],
-          bowler: {name: b, stats: `${Math.floor(bowlerStats[b].balls/6)}.${bowlerStats[b].balls%6} - ${bowlerStats[b].maidens || 0} - ${bowlerStats[b].runs} - ${bowlerStats[b].wickets}`}
+          bowler: {name: b, stats: `${Math.floor(bowlerStats[b].balls/6)}.${bowlerStats[b].balls%6} - ${bowlerStats[b].maidens || 0} - ${bowlerStats[b].runs} - ${bowlerStats[b].wickets} (0s:${bowlerStats[b].dots||0})`}
         });
 
         changeStrike();
@@ -8130,6 +8155,7 @@
       totalRuns += wideRuns;
       extrasWides += wideRuns;
       bowlerStats[bowler.value].runs += wideRuns;
+      bowlerStats[bowler.value].wides = (bowlerStats[bowler.value].wides || 0) + 1;
       let ballStr = runs === 0 ? "Wd" : "Wd+" + runs;
       addBall(ballStr);
       matchCommentary.unshift({
@@ -8149,6 +8175,7 @@
       totalRuns += totalAdd;
       extrasNoBalls += 1;
       bowlerStats[bowler.value].runs += totalAdd;
+      bowlerStats[bowler.value].noballs = (bowlerStats[bowler.value].noballs || 0) + 1;
       if (runs > 0) batsmanStats[strike.value].runs += runs;
       let ballStr = runs === 0 ? "NB" : "NB+" + runs;
       addBall(ballStr);
@@ -8274,6 +8301,7 @@
       addBall("W");
       bowlerStats[bowler.value].wickets++;
       bowlerStats[bowler.value].balls++;
+      bowlerStats[bowler.value].dots = (bowlerStats[bowler.value].dots || 0) + 1;
       if (batsmanStats[outPlayer]) {
         batsmanStats[outPlayer].balls++;
         batsmanStats[outPlayer].dismissal_type = dismissalType;
@@ -8638,19 +8666,34 @@
         }
       }
 
-      // MOM Calculation from current stats
-      let mom = "N/A", momStats = "";
-      let topBat = { name: "N/A", runs: -1 };
-      for (let p in batsmanStats) { if (batsmanStats[p].runs > topBat.runs) topBat = { name: p, runs: batsmanStats[p].runs, balls: batsmanStats[p].balls }; }
-      let topBowl = { name: "N/A", wkts: -1 };
-      for (let p in bowlerStats) { if (bowlerStats[p].wickets > topBowl.wkts) topBowl = { name: p, wkts: bowlerStats[p].wickets, overs: (Math.floor(bowlerStats[p].balls/6) + "." + (bowlerStats[p].balls%6)) }; }
-      
-      if (topBat.runs > topBowl.wkts * 20) {
-        mom = topBat.name;
-        momStats = `${topBat.runs} runs (${topBat.balls} balls)`;
-      } else {
-        mom = topBowl.name;
-        momStats = `${topBowl.wkts} wkts (${topBowl.overs} ov)`;
+      // Consolidated MOM Calculation
+      let players = {};
+      const getP = (n) => {
+        if (!players[n]) players[n] = { runs:0, balls:0, fours:0, sixes:0, wickets:0, dots:0, maidens:0, bRuns:0, bBalls:0, catches:0, run_outs:0, stumpings:0 };
+        return players[n];
+      };
+      for (let p in batsmanStats) { let s = getP(p); s.runs += batsmanStats[p].runs; s.balls += batsmanStats[p].balls; s.fours += batsmanStats[p].fours; s.sixes += batsmanStats[p].sixes; }
+      for (let p in innings1BatStats) { let s = getP(p); s.runs += innings1BatStats[p].runs; s.balls += innings1BatStats[p].balls; s.fours += (innings1BatStats[p].fours || 0); s.sixes += (innings1BatStats[p].sixes || 0); }
+      for (let p in bowlerStats) { let s = getP(p); s.wickets += bowlerStats[p].wickets; s.bRuns += bowlerStats[p].runs; s.bBalls += bowlerStats[p].balls; s.dots += (bowlerStats[p].dots || 0); s.maidens += (bowlerStats[p].maidens || 0); s.catches += (bowlerStats[p].catches || 0); s.run_outs += (bowlerStats[p].run_outs || 0); s.stumpings += (bowlerStats[p].stumpings || 0); }
+      for (let p in innings1BowlStats) { let s = getP(p); s.wickets += innings1BowlStats[p].wickets; s.bRuns += innings1BowlStats[p].runs; s.bBalls += innings1BowlStats[p].balls; s.dots += (innings1BowlStats[p].dots || 0); s.maidens += (innings1BowlStats[p].maidens || 0); s.catches += (innings1BowlStats[p].catches || 0); s.run_outs += (innings1BowlStats[p].run_outs || 0); s.stumpings += (innings1BowlStats[p].stumpings || 0); }
+
+      let mom = "N/A", momStats = "", momScore = -1;
+      for (let n in players) {
+        let p = players[n];
+        let sr = p.balls > 0 ? (p.runs / p.balls) * 100 : 0;
+        let eco = p.bBalls > 0 ? (p.bRuns / (p.bBalls / 6)) : 99;
+        let score = (p.runs * 1) + (p.fours * 1) + (p.sixes * 2) + (p.wickets * 20) + (p.dots * 1) + (p.maidens * 10) + (p.catches * 10) + (p.run_outs * 10) + (p.stumpings * 10);
+        if (sr > 150) score += 15; else if (sr > 120) score += 5;
+        if (p.bBalls >= 12) { if (eco < 6) score += 15; else if (eco < 8) score += 5; }
+
+        if (score > momScore) {
+          momScore = score; mom = n;
+          let parts = [];
+          if (p.runs > 0) parts.push(`${p.runs} runs`);
+          if (p.wickets > 0) parts.push(`${p.wickets} wkts`);
+          if (p.catches + p.run_outs + p.stumpings > 0) parts.push(`${p.catches+p.run_outs+p.stumpings} field`);
+          momStats = parts.join(", ");
+        }
       }
 
       showEventPopup('winner', {

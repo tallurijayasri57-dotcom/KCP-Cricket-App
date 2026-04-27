@@ -39,7 +39,7 @@ const dbConfig = {
 };
 
 let pool = null;
-let useJSON = (process.env.RENDER === "true" || !process.env.COMPUTERNAME);
+let useJSON = false; // Forced to always attempt SSMS
 const DB_FILE = path.join(__dirname, "db.json");
 let MEMORY_DB = { users: [], teams: [], players: [], match_results: [], upcoming_matches: [], player_stats: [], points_table: [], tournaments: [], live_matches: [] };
 
