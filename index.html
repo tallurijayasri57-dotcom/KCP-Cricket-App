@@ -7851,6 +7851,7 @@
       winShown = false; targetBox.innerText = ""; extrasWides = 0; extrasNoBalls = 0; updateExtras();
       outBatsmen = []; matchCommentary = [];
       loadScorePlayers();
+      updateLiveScore();
     }
 
     function addTeam() {
@@ -8914,6 +8915,7 @@
         if (matchId) {
           setTimeout(() => {
             if (typeof viewLiveMatch === 'function') {
+              currentMatchActiveTab = 'scorecard';
               viewLiveMatch(matchId);
             }
           }, 1000);
