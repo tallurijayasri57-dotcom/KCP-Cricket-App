@@ -2141,6 +2141,7 @@
       z-index: 9996;
       align-items: center;
       justify-content: center;
+      padding: 20px;
     }
 
     #playerProfileModal.open {
@@ -2148,56 +2149,364 @@
     }
 
     .profile-box {
-      background: linear-gradient(145deg, #0f172a, #1e293b);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
-      padding: 32px 28px;
-      width: 90%;
-      max-width: 460px;
-      max-height: 85vh;
+      background: #f8fafc;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 900px;
+      max-height: 90vh;
       overflow-y: auto;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
       animation: popupIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      display: flex;
+      flex-direction: column;
     }
 
-    .profile-header {
+    /* Professional Dark Banner */
+    .profile-banner {
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      color: white;
+      padding: 30px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .profile-header-left {
       display: flex;
       align-items: center;
-      gap: 18px;
-      margin-bottom: 24px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      gap: 20px;
     }
 
     .profile-avatar {
-      width: 70px;
-      height: 70px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #1d4ed8, #065f46);
+      width: 100px;
+      height: 100px;
+      border-radius: 8px;
+      background: #ffffff;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 32px;
+      font-size: 40px;
       flex-shrink: 0;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
       overflow: hidden;
+      border: 3px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .profile-info-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .profile-top-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
     }
 
     .profile-name {
       font-family: 'Rajdhani', sans-serif;
-      font-size: 26px;
+      font-size: 32px;
       font-weight: 700;
       color: #ffffff;
-      margin: 0 0 4px;
+      margin: 0;
+      line-height: 1.1;
     }
 
-    .profile-team {
-      font-family: 'Inter', sans-serif;
+    .profile-sub-info {
+      font-size: 13px;
+      color: #cbd5e1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .profile-styles {
+      margin-top: 8px;
+      font-size: 13px;
+      color: #f8fafc;
+      font-weight: 600;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .profile-header-right {
+      display: flex;
+      gap: 15px;
+    }
+
+    .profile-lock-stat {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 12px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 80px;
+      backdrop-filter: blur(4px);
+    }
+
+    .profile-lock-icon {
+      margin-bottom: 6px;
+      font-size: 16px;
+      opacity: 0.8;
+    }
+
+    .profile-lock-val {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .profile-lock-lbl {
+      font-size: 11px;
+      color: #94a3b8;
+      text-transform: uppercase;
+    }
+
+    /* Profile Tabs */
+    .profile-tabs-nav {
+      display: flex;
+      background: #ffffff;
+      border-bottom: 1px solid #e2e8f0;
+      overflow-x: auto;
+      padding: 0 10px;
+    }
+
+    .profile-tab-btn {
+      padding: 14px 20px;
+      background: none;
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      color: #64748b;
+      cursor: pointer;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .profile-tab-btn:hover {
+      color: #0f172a;
+    }
+
+    .profile-tab-btn.active {
+      color: #0f172a;
+      border-bottom-color: #0f172a;
+    }
+
+    .profile-tab-content-area {
+      padding: 20px;
+      flex: 1;
+    }
+
+    .profile-tab-pane {
+      display: none;
+    }
+
+    .profile-tab-pane.active {
+      display: block;
+    }
+
+    /* Matches Grid */
+    .profile-matches-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .pm-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .pm-card-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    .pm-badge-past {
+      background: #1e293b;
+      color: #fff;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .pm-tourney-name {
+      text-transform: uppercase;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 8px;
       font-size: 12px;
-      color: #6b7280;
-      letter-spacing: 0.5px;
     }
 
+    .pm-team-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    .pm-team-name {
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .pm-team-score {
+      font-weight: 700;
+      color: #0d9488;
+    }
+
+    .pm-team-score-loser {
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    .pm-overs {
+      font-size: 11px;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+
+    .pm-result {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #64748b;
+      padding-top: 10px;
+      border-top: 1px solid #f1f5f9;
+    }
+
+    .pm-load-more {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .pm-load-more-btn {
+      background: #0f172a;
+      color: white;
+      border: none;
+      padding: 8px 24px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Teams Tab Grid in Live Match */
+    .team-grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 15px;
+      padding: 15px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .team-grid-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .team-grid-title-badge {
+      background: #0f172a;
+      color: white;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .team-player-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s;
+    }
+
+    .team-player-card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      border-color: #cbd5e1;
+    }
+
+    .team-player-card:hover .team-player-name {
+      color: #ef4444; /* Red color on hover as requested */
+    }
+
+    .team-player-photo {
+      height: 120px;
+      background: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .team-player-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .team-player-info {
+      padding: 10px;
+      text-align: center;
+    }
+
+    .team-player-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1e293b;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: color 0.2s;
+    }
+
+    .team-player-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #0ea5e9;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .team-player-badge-playing {
+      background: #10b981; /* Green checkmark bg */
+    }
     .profile-stats-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -4981,81 +5290,126 @@
   </div>
 
   <div id="playerProfileModal">
-    <div class="profile-box">
-      <div class="profile-header">
-        <div class="profile-avatar" id="profileAvatar">🏏</div>
-        <div>
-          <div class="profile-name" id="profileName">—</div>
-          <div id="profileRoleBadge"></div>
-          <div class="profile-team" id="profileTeam">—</div>
+    <div class="profile-box" style="padding:0; overflow:hidden;">
+      
+      <!-- Top Banner -->
+      <div class="profile-banner">
+        <div class="profile-header-left">
+          <div class="profile-avatar" id="profileAvatar">🏏</div>
+          <div class="profile-info-block">
+            <div class="profile-top-label" id="profileRoleBadge">ACCUMULATOR</div>
+            <h2 class="profile-name" id="profileName">Player Name</h2>
+            <div class="profile-sub-info">
+              <span><span id="profileLocation">Jaggayyapeta</span> &bull; 95 Views</span>
+            </div>
+            <div class="profile-styles">
+              <span id="profileBatStyle" style="color:#38bdf8;">RHB</span> | <span id="profileBowlStyle">Right-arm Off Break</span>
+            </div>
+            <div class="profile-team" id="profileTeam" style="display:none;"></div>
+          </div>
         </div>
+        
+        <div class="profile-header-right">
+          <div class="profile-lock-stat">
+            <div class="profile-lock-icon">🔒</div>
+            <div class="profile-lock-val" id="profileTotalMatches">0</div>
+            <div class="profile-lock-lbl">Matches</div>
+          </div>
+          <div class="profile-lock-stat">
+            <div class="profile-lock-icon">🔒</div>
+            <div class="profile-lock-val" id="profileTotalRuns">0</div>
+            <div class="profile-lock-lbl">Runs</div>
+          </div>
+          <div class="profile-lock-stat">
+            <div class="profile-lock-icon">🔒</div>
+            <div class="profile-lock-val" id="profileTotalWickets">0</div>
+            <div class="profile-lock-lbl">Wickets</div>
+          </div>
+        </div>
+        <button class="profile-close-btn" style="position:absolute; top:20px; right:20px; background:rgba(255,255,255,0.1); color:white; border:none; padding:8px 12px; border-radius:6px; cursor:pointer;" onclick="closePlayerProfile()">✕ Close</button>
       </div>
-      <div style="text-align:center;margin-bottom:16px;">
-        <input type="file" id="photoUploadInput" accept="image/*" style="display:none;" onchange="uploadPlayerPhoto()">
-        <button class="photo-upload-btn" onclick="document.getElementById('photoUploadInput').click()">📷
-          Photo</button>
-        <span id="photoUploadStatus" style="font-size:12px;color:#6b7280;margin-left:8px;"></span>
+
+      <!-- Tabs Navigation -->
+      <div class="profile-tabs-nav">
+        <button class="profile-tab-btn active" onclick="switchProfileTab('matches', this)">Matches</button>
+        <button class="profile-tab-btn" onclick="switchProfileTab('stats', this)">Stats</button>
+        <button class="profile-tab-btn" onclick="switchProfileTab('awards', this)">Awards</button>
+        <button class="profile-tab-btn" onclick="switchProfileTab('badges', this)">Badges</button>
+        <button class="profile-tab-btn" onclick="switchProfileTab('teams', this)">Teams</button>
+        <button class="profile-tab-btn" onclick="switchProfileTab('photos', this)">Photos</button>
+        <button class="profile-tab-btn" onclick="switchProfileTab('connections', this)">Connections</button>
+        <button class="profile-tab-btn" onclick="switchProfileTab('profile', this)">Profile</button>
       </div>
-      <div class="profile-section-title">🏏 Batting Stats</div>
-      <div class="profile-stats-grid" id="profileBatStats">
-        <div class="profile-stat-box">
-          <div class="profile-stat-val" id="pRuns">0</div>
-          <div class="profile-stat-lbl">Runs</div>
+
+      <!-- Tab Content Area -->
+      <div class="profile-tab-content-area">
+        
+        <!-- Matches Tab -->
+        <div id="ptab-matches" class="profile-tab-pane active">
+          <div class="profile-matches-grid" id="profileMatchHistory">
+            <!-- Cards will be injected here -->
+          </div>
+          <div class="pm-load-more" id="profileMatchLoadMore" style="display:none;">
+            <button class="pm-load-more-btn" onclick="loadMoreProfileMatches()">Load More</button>
+          </div>
         </div>
-        <div class="profile-stat-box">
-          <div class="profile-stat-val" id="pBalls">0</div>
-          <div class="profile-stat-lbl">Balls</div>
+
+        <!-- Stats Tab (Old detailed stats) -->
+        <div id="ptab-stats" class="profile-tab-pane">
+          <div class="profile-section-title">🏏 Batting Stats</div>
+          <div class="profile-stats-grid" id="profileBatStats">
+            <div class="profile-stat-box"><div class="profile-stat-val" id="pRuns">0</div><div class="profile-stat-lbl">Runs</div></div>
+            <div class="profile-stat-box"><div class="profile-stat-val" id="pBalls">0</div><div class="profile-stat-lbl">Balls</div></div>
+            <div class="profile-stat-box"><div class="profile-stat-val" id="pSR">0</div><div class="profile-stat-lbl">Strike Rate</div></div>
+            <div class="profile-stat-box"><div class="profile-stat-val" id="pFours">0</div><div class="profile-stat-lbl">4s</div></div>
+            <div class="profile-stat-box"><div class="profile-stat-val" id="pSixes">0</div><div class="profile-stat-lbl">6s</div></div>
+            <div class="profile-stat-box"><div class="profile-stat-val" id="pHS">0</div><div class="profile-stat-lbl">Highest</div></div>
+          </div>
+          <div class="profile-section-title" style="margin-top:16px;">🎳 Bowling Stats</div>
+          <div class="profile-stats-grid">
+            <div class="profile-stat-box"><div class="profile-stat-val" id="pWickets">0</div><div class="profile-stat-lbl">Wickets</div></div>
+            <div class="profile-stat-box"><div class="profile-stat-val" id="pOvers">0</div><div class="profile-stat-lbl">Overs</div></div>
+            <div class="profile-stat-box"><div class="profile-stat-val" id="pEco">0</div><div class="profile-stat-lbl">Economy</div></div>
+          </div>
+          <div class="profile-section-title" style="margin-top:16px;">🧤 Fielding Stats</div>
+          <div class="profile-stats-grid">
+            <div class="profile-stat-box"><div class="profile-stat-val" id="pCatches">0</div><div class="profile-stat-lbl">Catches</div></div>
+            <div class="profile-stat-box"><div class="profile-stat-val" id="pRunOuts">0</div><div class="profile-stat-lbl">Run Outs</div></div>
+            <div class="profile-stat-box"><div class="profile-stat-val" id="pStumpings">0</div><div class="profile-stat-lbl">Stumpings</div></div>
+          </div>
         </div>
-        <div class="profile-stat-box">
-          <div class="profile-stat-val" id="pSR">0</div>
-          <div class="profile-stat-lbl">Strike Rate</div>
+
+        <!-- Profile Detail Tab -->
+        <div id="ptab-profile" class="profile-tab-pane">
+          <div style="background:#fff; border:1px solid #e2e8f0; border-radius:8px;">
+            <div style="padding:15px; border-bottom:1px solid #e2e8f0;">
+              <div style="font-size:11px; font-weight:700; color:#1e293b; margin-bottom:4px;">LOCATION</div>
+              <div style="font-size:14px; color:#475569;" id="profLocTab">Jaggayyapeta</div>
+            </div>
+            <div style="padding:15px; border-bottom:1px solid #e2e8f0;">
+              <div style="font-size:11px; font-weight:700; color:#1e293b; margin-bottom:4px;">BATTING STYLE</div>
+              <div style="font-size:14px; color:#475569;" id="profBatTab">RHB</div>
+            </div>
+            <div style="padding:15px;">
+              <div style="font-size:11px; font-weight:700; color:#1e293b; margin-bottom:4px;">BOWLING STYLE</div>
+              <div style="font-size:14px; color:#475569;" id="profBowlTab">Right-arm Off Break</div>
+            </div>
+          </div>
+          <div style="text-align:center;margin-top:20px;">
+            <input type="file" id="photoUploadInput" accept="image/*" style="display:none;" onchange="uploadPlayerPhoto()">
+            <button class="photo-upload-btn" onclick="document.getElementById('photoUploadInput').click()">📷 Upload New Photo</button>
+            <div id="photoUploadStatus" style="font-size:12px;color:#6b7280;margin-top:8px;"></div>
+          </div>
         </div>
-        <div class="profile-stat-box">
-          <div class="profile-stat-val" id="pFours">0</div>
-          <div class="profile-stat-lbl">4s</div>
-        </div>
-        <div class="profile-stat-box">
-          <div class="profile-stat-val" id="pSixes">0</div>
-          <div class="profile-stat-lbl">6s</div>
-        </div>
-        <div class="profile-stat-box">
-          <div class="profile-stat-val" id="pHS">0</div>
-          <div class="profile-stat-lbl">Highest</div>
-        </div>
+
+        <!-- Placeholder Tabs -->
+        <div id="ptab-awards" class="profile-tab-pane"><div style="text-align:center; padding:40px; color:#94a3b8;">🏆 Awards content coming soon</div></div>
+        <div id="ptab-badges" class="profile-tab-pane"><div style="text-align:center; padding:40px; color:#94a3b8;">🎖️ Badges content coming soon</div></div>
+        <div id="ptab-teams" class="profile-tab-pane"><div style="text-align:center; padding:40px; color:#94a3b8;">👕 Teams content coming soon</div></div>
+        <div id="ptab-photos" class="profile-tab-pane"><div style="text-align:center; padding:40px; color:#94a3b8;">📸 Photos content coming soon</div></div>
+        <div id="ptab-connections" class="profile-tab-pane"><div style="text-align:center; padding:40px; color:#94a3b8;">🤝 Connections content coming soon</div></div>
+
       </div>
-      <div class="profile-section-title" style="margin-top:16px;">🎳 Bowling Stats</div>
-      <div class="profile-stats-grid">
-        <div class="profile-stat-box">
-          <div class="profile-stat-val" id="pWickets">0</div>
-          <div class="profile-stat-lbl">Wickets</div>
-        </div>
-        <div class="profile-stat-box">
-          <div class="profile-stat-val" id="pOvers">0</div>
-          <div class="profile-stat-lbl">Overs</div>
-        </div>
-        <div class="profile-stat-box">
-          <div class="profile-stat-val" id="pEco">0</div>
-          <div class="profile-stat-lbl">Economy</div>
-        </div>
-      </div>
-      <div class="profile-section-title" style="margin-top:16px;">🧤 Fielding Stats</div>
-      <div class="profile-stats-grid">
-        <div class="profile-stat-box">
-          <div class="profile-stat-val" id="pCatches">0</div>
-          <div class="profile-stat-lbl">Catches</div>
-        </div>
-        <div class="profile-stat-box">
-          <div class="profile-stat-val" id="pRunOuts">0</div>
-          <div class="profile-stat-lbl">Run Outs</div>
-        </div>
-        <div class="profile-stat-box">
-          <div class="profile-stat-val" id="pStumpings">0</div>
-          <div class="profile-stat-lbl">Stumpings</div>
-        </div>
-      </div>
-      <div class="profile-section-title" style="margin-top:16px;">📋 Match History</div>
-      <div id="profileMatchHistory"></div>
-      <button class="profile-close-btn" onclick="closePlayerProfile()">Close</button>
     </div>
   </div>
 
@@ -6707,9 +7061,53 @@
         renderPremiumScorecardTab(m, mainContent);
       } else if (currentMatchActiveTab === 'commentary') {
         renderPremiumCommentaryTab(m, mainContent);
+      } else if (currentMatchActiveTab === 'teams') {
+        renderPremiumTeamsTab(m, mainContent);
       } else {
         mainContent.innerHTML = `<div class="premium-card" style="padding:40px; text-align:center; color:#64748b;">${currentMatchActiveTab.toUpperCase()} content coming soon</div>`;
       }
+    }
+
+    function renderPremiumTeamsTab(m, container) {
+      let allTours = loadTournaments();
+      let teamMap = {};
+      allTours.forEach(t => {
+        (t.teams || []).forEach(team => {
+          if (!teamMap[team.name]) teamMap[team.name] = { players: [], captain: '' };
+          teamMap[team.name].players = team.players || [];
+          team.players.forEach(p => { if (p.role === 'Captain' || p.isCaptain) teamMap[team.name].captain = p.name; });
+        });
+      });
+
+      function renderTeamGrid(teamName) {
+        let players = teamMap[teamName] ? teamMap[teamName].players : [];
+        if (players.length === 0) {
+          return `<div class="team-grid-container" style="display:block; text-align:center; padding:30px; color:#94a3b8;">No players found for ${teamName}</div>`;
+        }
+        
+        let html = `<div class="team-grid-title"><span class="team-grid-title-badge">${teamName.substring(0,2).toUpperCase()}</span> ${teamName}</div>`;
+        html += `<div class="team-grid-container">`;
+        players.forEach(p => {
+          let isCaptain = (p.role === 'Captain' || p.isCaptain);
+          let badgeHtml = isCaptain ? `<div class="team-player-badge">C</div>` : `<div class="team-player-badge team-player-badge-playing">✓</div>`;
+          let photoSrc = localStorage.getItem("userPhoto_" + p.name) || '';
+          let photoHtml = photoSrc ? `<img src="${photoSrc}">` : `<div style="font-size:32px;">🧑</div>`;
+          
+          html += `
+            <div class="team-player-card" onclick="openPlayerProfile('${escapeQ(p.name)}', '${escapeQ(teamName)}', '${escapeQ(p.role)}')">
+              ${badgeHtml}
+              <div class="team-player-photo">${photoHtml}</div>
+              <div class="team-player-info">
+                <div class="team-player-name">${p.name}</div>
+              </div>
+            </div>
+          `;
+        });
+        html += `</div>`;
+        return html;
+      }
+
+      container.innerHTML = renderTeamGrid(m.batTeam) + renderTeamGrid(m.bowlTeam);
     }
 
     function renderPremiumLiveTab(m, container) {
@@ -6822,8 +7220,46 @@
       `;
 
       let prevInningsHtml = "";
-      if (m.innings === 2 && m.innings1) {
-        let i1 = m.innings1;
+      let i1 = null;
+      if (m.innings === 2) {
+        if (m.innings1) {
+          i1 = m.innings1;
+        } else if (typeof innings1BatStats !== 'undefined' && Object.keys(innings1BatStats).length > 0) {
+          let targetVal = typeof target !== 'undefined' ? target : 0;
+          let extrasVal = (targetVal > 0 ? targetVal - 1 : 0) - Object.values(innings1BatStats).reduce((acc, b) => acc + b.runs, 0);
+          i1 = {
+            batTeam: typeof innings1BatTeam !== 'undefined' ? innings1BatTeam : "Team 1",
+            runs: targetVal > 0 ? targetVal - 1 : 0,
+            wickets: Object.values(typeof innings1BowlStats !== 'undefined' ? innings1BowlStats : {}).reduce((acc, b) => acc + (b.wickets || 0), 0),
+            overs: Object.values(typeof innings1BowlStats !== 'undefined' ? innings1BowlStats : {}).reduce((acc, b) => acc + (b.balls || 0), 0),
+            batsmen: Object.keys(innings1BatStats).map(name => {
+              let s = innings1BatStats[name];
+              return {
+                name: name, runs: s.runs, balls: s.balls, fours: s.fours, sixes: s.sixes,
+                sr: s.balls > 0 ? ((s.runs / s.balls) * 100).toFixed(2) : "0.00",
+                outDesc: s.dismissal_type ? (s.dismissal_type === "Bowled" ? "b " + s.dismissed_by : s.dismissal_type + (s.dismissed_by ? ' ' + s.dismissed_by : '')) : 'not out',
+                isOut: !!s.dismissal_type
+              };
+            }),
+            bowlers: Object.keys(typeof innings1BowlStats !== 'undefined' ? innings1BowlStats : {}).map(name => {
+              let s = innings1BowlStats[name];
+              return {
+                name: name, overs: Math.floor(s.balls / 6) + "." + (s.balls % 6),
+                maidens: s.maidens || 0, runs: s.runs, wickets: s.wickets,
+                dots: s.dots || 0, fours: s.fours || 0, sixes: s.sixes || 0,
+                wd: s.wides || 0, nb: s.noballs || 0, eco: s.balls > 0 ? ((s.runs / (s.balls / 6))).toFixed(2) : "0.00"
+              };
+            }),
+            extras: extrasVal > 0 ? extrasVal : 0
+          };
+        } else {
+          i1 = { batTeam: m.bowlTeam || "Team 1", runs: m.target > 0 ? m.target - 1 : 0, wickets: 0, overs: 0, batsmen: [], bowlers: [], extras: 0 };
+        }
+      } else {
+        i1 = { batTeam: m.bowlTeam || "Team 2", runs: 0, wickets: 0, overs: 0, batsmen: [], bowlers: [], extras: 0 };
+      }
+
+      if (i1) {
         let oversStr = Math.floor((i1.overs || 0) / 6) + "." + ((i1.overs || 0) % 6);
         prevInningsHtml = `
         <div class="premium-card" style="margin-bottom: 20px; overflow: hidden; border: 1px solid #e2e8f0; border-radius: 8px;">
@@ -6838,13 +7274,13 @@
             <table class="sc-table">
               <thead><tr><th>Batters</th><th style="flex:1;"></th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead>
               <tbody>
-                ${(i1.batsmen || []).map(b => `
+                ${(i1.batsmen && i1.batsmen.length > 0) ? i1.batsmen.map(b => `
                   <tr>
                     <td class="name-cell">${b.name}</td>
                     <td style="color:#94a3b8; font-size:11px;">${b.outDesc || (b.isOut ? 'out' : 'not out')}</td>
                     <td>${b.runs}</td><td>${b.balls}</td><td>${b.fours}</td><td>${b.sixes}</td><td>${b.sr}</td>
                   </tr>
-                `).join('')}
+                `).join('') : `<tr><td colspan="7" style="text-align:center; color:#94a3b8; font-size:12px; padding:10px;">No batting data available</td></tr>`}
                 <tr style="background:#f8fafc; font-weight:700;">
                   <td colspan="2">Extras</td><td colspan="5">${i1.extras || 0}</td>
                 </tr>
@@ -6853,12 +7289,12 @@
             <table class="sc-table" style="margin-top:12px; border-top:8px solid #f1f5f9;">
               <thead><tr><th>Bowlers</th><th>O</th><th>M</th><th>R</th><th>W</th><th>0s</th><th>4s</th><th>6s</th><th>WD</th><th>NB</th><th>Eco</th></tr></thead>
               <tbody>
-                ${(i1.bowlers || []).map(b => `
+                ${(i1.bowlers && i1.bowlers.length > 0) ? i1.bowlers.map(b => `
                   <tr>
                     <td class="name-cell">${b.name}</td>
                     <td>${b.overs}</td><td>${b.maidens}</td><td>${b.runs}</td><td>${b.wickets}</td><td>${b.dots || 0}</td><td>${b.fours || 0}</td><td>${b.sixes || 0}</td><td>${b.wd || b.wides || 0}</td><td>${b.nb || b.noballs || 0}</td><td>${b.eco}</td>
                   </tr>
-                `).join('')}
+                `).join('') : `<tr><td colspan="11" style="text-align:center; color:#94a3b8; font-size:12px; padding:10px;">No bowling data available</td></tr>`}
               </tbody>
             </table>
           </div>
@@ -6963,14 +7399,22 @@
           let m2 = (m.team2 || "").trim().toLowerCase();
           
           if ((dBat === m1 && dBowl === m2) || (dBat === m2 && dBowl === m1)) {
-            foundId = item.id;
+            if (!m.result) {
+              if (data.status === "live") foundId = item.id;
+            } else {
+              foundId = item.id;
+            }
           }
         });
         
         if (foundId) {
           viewLiveMatch(foundId);
         } else {
-          alert("Scorecard not found for this match. Detailed ball-by-ball data might not be available.");
+          if (!m.result) {
+            alert("This match has not started yet.");
+          } else {
+            alert("Scorecard not found for this match. Detailed ball-by-ball data might not be available.");
+          }
         }
       } catch (e) {
         console.error("Search error", e);
@@ -7835,72 +8279,162 @@
       await Promise.all(saves);
     }
 
+    window.currentProfileMatches = [];
+    window.profileMatchesLoaded = 0;
+
+    function switchProfileTab(tabId, el) {
+      document.querySelectorAll('.profile-tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.profile-tab-pane').forEach(pane => pane.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById('ptab-' + tabId).classList.add('active');
+    }
+
+    function renderProfileMatchCards() {
+      let histEl = document.getElementById("profileMatchHistory");
+      let loadBtn = document.getElementById("profileMatchLoadMore");
+      let toLoad = currentProfileMatches.slice(profileMatchesLoaded, profileMatchesLoaded + 6);
+      
+      let html = "";
+      toLoad.forEach(r => {
+        let d = new Date(r.match_date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "2-digit" });
+        let isBat = r.match_type === "bat";
+        
+        let team1Str = (r.team_name || "Team").toUpperCase();
+        let team2Str = (r.opponent_team || "Opponent").toUpperCase();
+        
+        let scoreStr = isBat ? `${r.runs} runs (${r.balls_faced})` : `${r.wickets}W / ${r.overs_bowled} ov`;
+        let dismissal = isBat && r.dismissal_type ? ` - ${r.dismissal_type}` : "";
+        let resultStr = isBat ? `Batting${dismissal}` : `Bowling - Eco: ${(r.runs_conceded/(parseFloat(r.overs_bowled)||1)).toFixed(1)}`;
+
+        html += `
+          <div class="pm-card">
+            <div class="pm-card-header">
+              <span class="pm-tourney-name">${r.tournament_name || "Match"}</span>
+              <span class="pm-badge-past">Past</span>
+            </div>
+            <div style="font-size:11px; color:#94a3b8; margin-bottom:8px;">${d}</div>
+            
+            <div class="pm-team-row">
+              <span class="pm-team-name">${team1Str}</span>
+              <span class="pm-team-score">${isBat ? r.runs : '-'}</span>
+            </div>
+            <div class="pm-team-row">
+              <span class="pm-team-name">${team2Str}</span>
+              <span class="pm-team-score-loser">${!isBat ? r.wickets : '-'}</span>
+            </div>
+            
+            <div class="pm-result">
+              <strong style="color:#1e293b;">Performance:</strong> ${scoreStr} <br>
+              <span style="font-size:11px;">${resultStr}</span>
+            </div>
+          </div>
+        `;
+      });
+      
+      if (profileMatchesLoaded === 0) {
+        histEl.innerHTML = html || "<div style='grid-column:1/-1; text-align:center; padding:30px; color:#94a3b8;'>No match history found.</div>";
+      } else {
+        histEl.innerHTML += html;
+      }
+      
+      profileMatchesLoaded += toLoad.length;
+      if (profileMatchesLoaded < currentProfileMatches.length) {
+        loadBtn.style.display = "block";
+      } else {
+        loadBtn.style.display = "none";
+      }
+    }
+
+    function loadMoreProfileMatches() {
+      renderProfileMatchCards();
+    }
+
     async function openPlayerProfile(playerName, teamName, role) {
-      document.getElementById("allPlayersModal").classList.remove("open");
+      if (document.getElementById("allPlayersModal")) document.getElementById("allPlayersModal").classList.remove("open");
       document.getElementById("playerProfileModal").classList.add("open");
+      
+      // Reset tabs to Matches
+      let tabs = document.querySelectorAll('.profile-tab-btn');
+      if (tabs.length > 0) switchProfileTab('matches', tabs[0]);
+
       currentProfilePlayerName = playerName;
       document.getElementById("photoUploadStatus").innerText = "";
       document.getElementById("photoUploadInput").value = "";
+      
       let profilePhoto = localStorage.getItem("userPhoto_" + playerName);
       if (profilePhoto) {
-        document.getElementById("profileAvatar").innerHTML = '<img src="' + profilePhoto + '" style="width:80px;height:80px;border-radius:50%;object-fit:cover;">';
+        document.getElementById("profileAvatar").innerHTML = '<img src="' + profilePhoto + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">';
       } else {
-        document.getElementById("profileAvatar").innerHTML = '<span style="font-size:32px;">' + roleEmoji(role) + '</span>';
+        document.getElementById("profileAvatar").innerHTML = '<span style="font-size:40px;">' + roleEmoji(role) + '</span>';
       }
+      
       document.getElementById("profileName").innerText = playerName;
-      document.getElementById("profileRoleBadge").innerHTML = roleBadge(role);
-      document.getElementById("profileTeam").innerText = "🏏 " + teamName;
+      document.getElementById("profileRoleBadge").innerText = role || "PLAYER";
+      let pTeamEl = document.getElementById("profileTeam");
+      if(pTeamEl) pTeamEl.innerText = teamName ? ("🏏 " + teamName) : "";
+
       fetch(API + "/player-photo/" + encodeURIComponent(playerName)).then(r => r.json()).then(d => {
-        if (d.photo_url) { document.getElementById("profileAvatar").innerHTML = '<img src="' + d.photo_url + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'; }
+        if (d.photo_url) { document.getElementById("profileAvatar").innerHTML = '<img src="' + d.photo_url + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">'; }
       }).catch(() => { });
-      ["pRuns", "pBalls", "pSR", "pFours", "pSixes", "pHS", "pWickets", "pOvers", "pEco", "pCatches", "pRunOuts", "pStumpings"].forEach(id => document.getElementById(id).innerText = "...");
-      document.getElementById("profileMatchHistory").innerHTML = "<div class='profile-no-matches'>⏳ Loading...</div>";
+
+      ["pRuns", "pBalls", "pSR", "pFours", "pSixes", "pHS", "pWickets", "pOvers", "pEco", "pCatches", "pRunOuts", "pStumpings", "profileTotalMatches", "profileTotalRuns", "profileTotalWickets"].forEach(id => {
+        let el = document.getElementById(id);
+        if(el) el.innerText = "...";
+      });
+
+      document.getElementById("profileMatchHistory").innerHTML = "<div style='grid-column:1/-1; text-align:center; padding:30px; color:#94a3b8;'>⏳ Loading...</div>";
+      document.getElementById("profileMatchLoadMore").style.display = "none";
+
       try {
         await fetch(API + "/player-profile", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ player_name: playerName, team_name: teamName, role: role, runs: 0 }) });
         const res = await fetch(API + "/player-stats/" + encodeURIComponent(playerName), { cache: "no-store" });
         const rows = await res.json();
+        
+        // Top Banner Stats
+        let totalMatchesCount = new Set(rows.map(r => r.match_id)).size;
+        document.getElementById("profileTotalMatches").innerText = totalMatchesCount || 0;
+
         let totalRn = 0, totalBl = 0, totalFr = 0, totalSx = 0, hs = 0;
         rows.filter(r => r.match_type === "bat").forEach(r => { totalRn += r.runs || 0; totalBl += r.balls_faced || 0; totalFr += r.fours || 0; totalSx += r.sixes || 0; if ((r.runs || 0) > hs) hs = r.runs; });
+        
+        document.getElementById("profileTotalRuns").innerText = totalRn;
         document.getElementById("pRuns").innerText = totalRn;
         document.getElementById("pBalls").innerText = totalBl;
         document.getElementById("pSR").innerText = totalBl > 0 ? ((totalRn / totalBl) * 100).toFixed(1) : "0.0";
         document.getElementById("pFours").innerText = totalFr;
         document.getElementById("pSixes").innerText = totalSx;
         document.getElementById("pHS").innerText = hs;
+        
         let totalWk = 0, totalBallsBwl = 0, totalRunsCon = 0;
         rows.filter(r => r.match_type === "bowl").forEach(r => { totalWk += r.wickets || 0; let pts = (r.overs_bowled || "0.0").split("."); totalBallsBwl += parseInt(pts[0]) * 6 + parseInt(pts[1] || 0); totalRunsCon += r.runs_conceded || 0; });
+        
+        document.getElementById("profileTotalWickets").innerText = totalWk;
         document.getElementById("pWickets").innerText = totalWk;
         document.getElementById("pOvers").innerText = Math.floor(totalBallsBwl / 6) + "." + (totalBallsBwl % 6);
         document.getElementById("pEco").innerText = totalBallsBwl > 0 ? ((totalRunsCon / totalBallsBwl) * 6).toFixed(2) : "0.00";
+        
         let totalCatches = 0, totalRunOuts = 0, totalStumpings = 0;
         rows.forEach(r => { totalCatches += r.catches || 0; totalRunOuts += r.run_outs || 0; totalStumpings += r.stumpings || 0; });
         document.getElementById("pCatches").innerText = totalCatches;
         document.getElementById("pRunOuts").innerText = totalRunOuts;
         document.getElementById("pStumpings").innerText = totalStumpings;
-        let histEl = document.getElementById("profileMatchHistory");
-        if (rows.length === 0) { histEl.innerHTML = "<div class='profile-no-matches'>No Match history</div>"; }
-        else {
-          histEl.innerHTML = rows.slice(0, 8).map(r => {
-            let d = new Date(r.match_date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
-            if (r.match_type === "bat") {
-              let dismissal = "";
-              if (r.dismissal_type === "Bowled") dismissal = ' <span style="color:#f87171;font-size:11px;">b ' + (r.dismissed_by || "") + '</span>';
-              else if (r.dismissal_type === "Caught") dismissal = ' <span style="color:#f87171;font-size:11px;">c ' + (r.dismissed_by || "") + '</span>';
-              else if (r.dismissal_type === "Run Out") dismissal = ' <span style="color:#f87171;font-size:11px;">run out (' + (r.dismissed_by || "") + ')</span>';
-              else if (r.dismissal_type === "Stumped") dismissal = ' <span style="color:#f87171;font-size:11px;">st ' + (r.dismissed_by || "") + '</span>';
-              return '<div class="profile-match-row"><span>' + d + ' &nbsp;🏏 Bat' + dismissal + '</span><span class="profile-match-score">' + r.runs + ' runs (' + r.balls_faced + ' balls)</span></div>';
-            } else {
-              return '<div class="profile-match-row"><span>' + d + ' &nbsp;🎳 Bowl</span><span class="profile-match-score">' + r.wickets + 'W / ' + r.overs_bowled + ' ov</span></div>';
-            }
-          }).join("");
-        }
+        
+        // Setup Match History Cards
+        currentProfileMatches = rows;
+        profileMatchesLoaded = 0;
+        renderProfileMatchCards();
+        
       } catch (err) {
-        ["pRuns", "pBalls", "pSR", "pFours", "pSixes", "pHS", "pWickets", "pOvers", "pEco"].forEach(id => document.getElementById(id).innerText = "0");
-        document.getElementById("profileMatchHistory").innerHTML = "<div class='profile-no-matches' style='color:#f87171;'>Failed to load.</div>";
+        ["pRuns", "pBalls", "pSR", "pFours", "pSixes", "pHS", "pWickets", "pOvers", "pEco", "profileTotalMatches", "profileTotalRuns", "profileTotalWickets"].forEach(id => {
+          let el = document.getElementById(id);
+          if(el) el.innerText = "0";
+        });
+        document.getElementById("profileMatchHistory").innerHTML = "<div style='grid-column:1/-1; text-align:center; padding:30px; color:#f87171;'>Failed to load stats.</div>";
       }
     }
 
     function closePlayerProfile() { document.getElementById("playerProfileModal").classList.remove("open"); }
+
 
     async function uploadPlayerPhoto() {
       let file = document.getElementById("photoUploadInput").files[0];
