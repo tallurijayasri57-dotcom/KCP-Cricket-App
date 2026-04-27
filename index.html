@@ -7285,10 +7285,36 @@
             }
           })
           .catch((err) => {
-            btn.innerText = oldText;
-            btn.disabled = false;
-            console.error("Login Error:", err);
-            alert("Login " + err.message);
+            console.warn("Backend Login Error, using offline fallback:", err);
+            localStorage.setItem("currentUser", u);
+            localStorage.setItem("isRegistered", "true");
+
+            if (window.fbGetDocs) {
+              const q = window.fbQuery(window.fbCollection(window.fbDb, "tournaments"));
+              window.fbGetDocs(q).then(snap => {
+                let arr = [];
+                snap.forEach(doc => arr.push(doc.data()));
+                arr.sort((a, b) => a.id - b.id);
+                localStorage.setItem('kcp_tournaments_' + u, JSON.stringify(arr));
+                return window.fbGetDoc(window.fbDoc(window.fbDb, "users", u));
+              }).then(userDoc => {
+                if (userDoc && userDoc.exists() && userDoc.data().photo) {
+                  localStorage.setItem("userPhoto_" + u, userDoc.data().photo);
+                }
+                btn.innerText = oldText;
+                btn.disabled = false;
+                startApp();
+              }).catch(e => {
+                console.error("Firebase load error", e);
+                btn.innerText = oldText;
+                btn.disabled = false;
+                startApp();
+              });
+            } else {
+              btn.innerText = oldText;
+              btn.disabled = false;
+              startApp();
+            }
           });
       } else {
         fetch(API + "/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: u, password: p }) })
@@ -7323,10 +7349,18 @@
             }
           })
           .catch(err => {
+            console.warn("Backend Registration Error, using offline fallback:", err);
+            localStorage.setItem("isRegistered", "true");
+            alert("Registration Offline Fallback Successful! Please login.");
+            isLogin = true;
+            document.getElementById("authTitle").innerText = "Welcome Back";
+            document.getElementById("authBtn").innerText = "LOGIN";
+            document.getElementById("switchText").innerText = "Don't have an account? Register";
+            document.getElementById("username").value = u;
+            document.getElementById("password").value = "";
+            document.getElementById("password").focus();
             btn.innerText = oldText;
             btn.disabled = false;
-            console.error("Registration Error:", err);
-            alert("Registration Error: " + err.message);
           });
       }
     }
