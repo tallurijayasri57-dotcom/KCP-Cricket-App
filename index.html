@@ -5248,8 +5248,6 @@
         <div id="matchSidebar">
           <div class="premium-card" style="padding:12px;">
             <div class="sidebar-stats-grid">
-              <div class="stat-box"><div class="stat-label">Total Views</div><div class="stat-value" id="sbTotalViews">0</div></div>
-              <div class="stat-box"><div class="stat-label">Live Viewers</div><div class="stat-value" id="sbLiveViewers">0</div></div>
               <div class="stat-box"><div class="stat-label">Current RR</div><div class="stat-value" id="sbCurrentRR">0.00</div></div>
               <div class="stat-box"><div class="stat-label">Projected Score</div><div class="stat-value" id="sbProjected">0</div></div>
             </div>
@@ -6394,12 +6392,14 @@
 
       let ground = "";
       let matchType = "Limited Overs";
+      let seriesName = "Friendly Match";
       if (currentTournamentId !== null) {
         let tours = loadTournaments();
         let t = tours[currentTournamentId];
         if (t) {
           ground = t.ground || "";
           matchType = t.matchType || "Limited Overs";
+          seriesName = t.name || "Tournament Match";
         }
       }
 
@@ -6443,10 +6443,12 @@
         updatedAt: Date.now(),
         status: "live",
         ground: ground,
+        seriesName: seriesName,
         tossInfo: matchTossText,
         matchType: matchType,
         matchDate: matchStartTime,
-        matchStatus: innings === 1 ? "In Progress" : "Run Chase"
+        matchStatus: innings === 1 ? "In Progress" : "Run Chase",
+        lastBalls: matchCommentary.filter(c => c.ball !== undefined).slice(0, 10).map(c => c.ball)
       };
 
       try {
@@ -6601,9 +6603,9 @@
         <div class="match-header-banner">
           <div style="font-family:'Inter', sans-serif; font-size:12px; color:#6b7280; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
             <div>
-              <span style="color:#0d9488; font-weight:700;">ccpl</span><span style="color:#94a3b8;">(League Matches)</span>
+              <span style="color:#0d9488; font-weight:700;">${m.seriesName || 'Friendly Match'}</span><span style="color:#94a3b8;">(${m.matchType || 'Limited Overs'})</span>
               <div style="margin-top:4px; font-weight:600; color:#1e293b;">
-                ${m.location || 'KCP CRICKET GROUND'}, ${m.date || ''}
+                ${m.ground || m.location || 'KCP CRICKET GROUND'}, ${m.matchDate || m.date || new Date().toLocaleDateString('en-IN')}
               </div>
             </div>
             <div style="display:flex; gap:12px;">
@@ -6629,14 +6631,29 @@
       document.getElementById('matchHeaderContainer').innerHTML = headerHtml;
 
       // Update Sidebar
-      document.getElementById('sbTotalViews').innerText = m.totalViews || '3';
-      document.getElementById('sbLiveViewers').innerText = m.liveViewers || '1';
-      document.getElementById('sbCurrentRR').innerText = m.currentRR || '10.29';
-      document.getElementById('sbProjected').innerText = m.projectedScore || '206';
-      document.getElementById('sbSeriesName').innerText = m.seriesName || 'ccpl';
-      document.getElementById('sbMatchDate').innerText = m.date || '23/04/2026';
-      document.getElementById('sbLocation').innerText = m.location || 'KCP CRICKET GROUND, Jaggayyapeta';
-      document.getElementById('sbLastUpdated').innerText = m.lastUpdated || 'Vamsi Krishna (2026-04-23 at 14:50)';
+      let currentRRVal = '0.00';
+      let projScore = '0';
+      if (m.overs && m.runs) {
+        let oversParts = m.overs.toString().split('.');
+        let totalBalls = parseInt(oversParts[0] || 0) * 6 + (parseInt(oversParts[1]) || 0);
+        if (totalBalls > 0) {
+          currentRRVal = ((m.runs / totalBalls) * 6).toFixed(2);
+          let totalOversNum = parseInt(m.matchType) || 20;
+          if (isNaN(totalOversNum)) totalOversNum = 20;
+          projScore = Math.floor((m.runs / totalBalls) * (totalOversNum * 6));
+        }
+      }
+
+      let sbTotalViews = document.getElementById('sbTotalViews');
+      if (sbTotalViews) sbTotalViews.innerText = m.totalViews || '3';
+      let sbLiveViewers = document.getElementById('sbLiveViewers');
+      if (sbLiveViewers) sbLiveViewers.innerText = m.liveViewers || '1';
+      document.getElementById('sbCurrentRR').innerText = currentRRVal;
+      document.getElementById('sbProjected').innerText = projScore;
+      document.getElementById('sbSeriesName').innerText = m.seriesName || 'Friendly Match';
+      document.getElementById('sbMatchDate').innerText = m.matchDate || m.date || new Date().toLocaleDateString('en-IN');
+      document.getElementById('sbLocation').innerText = m.ground || m.location || 'KCP CRICKET GROUND, Jaggayyapeta';
+      document.getElementById('sbLastUpdated').innerText = m.lastUpdated || (m.organiser ? m.organiser + ' (Live)' : 'Live');
 
       // Render Tab Content
       let mainContent = document.getElementById('matchMainContent');
@@ -6657,7 +6674,7 @@
           <table class="sc-table">
             <thead><tr><th>Batters</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead>
             <tbody>
-              ${(m.batsmen || []).map(b => `
+              ${(m.batsmen || []).filter(b => b.isStrike || b.name === m.nonstrike).map(b => `
                 <tr>
                   <td class="name-cell">${b.name} ${b.isStrike ? '*' : ''}</td>
                   <td>${b.runs}</td><td>${b.balls}</td><td>${b.fours}</td><td>${b.sixes}</td><td>${b.sr}</td>
@@ -6673,7 +6690,7 @@
           <table class="sc-table">
             <thead><tr><th>Bowlers</th><th>O</th><th>M</th><th>R</th><th>W</th><th>Eco</th></tr></thead>
             <tbody>
-              ${(m.bowlers || []).map(b => `
+              ${(m.bowlers || []).filter(b => b.isCurrent || b.overs > 0).slice(0, 2).map(b => `
                 <tr>
                   <td class="name-cell">${b.name} ${b.isCurrent ? '*' : ''}</td>
                   <td>${b.overs}</td><td>${b.maidens}</td><td>${b.runs}</td><td>${b.wickets}</td><td>${b.eco}</td>
@@ -6681,6 +6698,19 @@
               `).join('')}
             </tbody>
           </table>
+        </div>
+      `;
+
+      let pRuns = 0, pBalls = 0;
+      if (m.batsmen) {
+        let strikeBat = m.batsmen.find(b => b.isStrike);
+        let nonStrikeBat = m.batsmen.find(b => b.name === m.nonstrike);
+        pRuns = (strikeBat ? strikeBat.runs : 0) + (nonStrikeBat ? nonStrikeBat.runs : 0);
+        pBalls = (strikeBat ? strikeBat.balls : 0) + (nonStrikeBat ? nonStrikeBat.balls : 0);
+      }
+      let partnershipHtml = `
+        <div style="font-size:13px; font-weight:700; color:#1e293b; padding:12px; background:#f8fafc; border:1px solid #f1f5f9; border-radius:8px; margin-bottom:12px;">
+          Current Partnership: <span style="color:#64748b;">${pRuns}(${pBalls})</span>
         </div>
       `;
 
@@ -6693,7 +6723,7 @@
         </div>
       `;
 
-      container.innerHTML = batTable + bowlTable + recentBalls + `
+      container.innerHTML = batTable + bowlTable + partnershipHtml + recentBalls + `
         <div style="margin-top:16px;">
           <div style="font-weight:700; color:#1e293b; margin-bottom:12px;">Commentary</div>
           ${getCommentaryHtml(m, 3)}
