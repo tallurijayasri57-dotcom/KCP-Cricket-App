@@ -6431,7 +6431,7 @@
         bowlers: Object.keys(bowlerStats).map(name => ({
           name: name,
           overs: Math.floor(bowlerStats[name].balls / 6) + "." + (bowlerStats[name].balls % 6),
-          maidens: bowlerStats[name].maidens,
+          maidens: bowlerStats[name].maidens || 0,
           runs: bowlerStats[name].runs,
           wickets: bowlerStats[name].wickets,
           eco: bowlerStats[name].balls > 0 ? ((bowlerStats[name].runs / (bowlerStats[name].balls / 6))).toFixed(2) : "0.00",
