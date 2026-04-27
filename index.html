@@ -2144,19 +2144,21 @@
       padding: 20px;
     }
 
-    #playerProfileModal.open {
-      display: flex;
+    #playerProfilePage {
+      background: #f1f5f9;
+      min-height: 100vh;
+      padding-bottom: 40px;
     }
 
-    .profile-box {
-      background: #f8fafc;
-      border-radius: 12px;
+    #playerProfilePage .profile-box {
+      background: transparent;
+      border-radius: 0;
       width: 100%;
-      max-width: 900px;
-      max-height: 90vh;
-      overflow-y: auto;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
-      animation: popupIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      max-width: none;
+      max-height: none;
+      overflow-y: visible;
+      box-shadow: none;
+      animation: none;
       position: relative;
       display: flex;
       flex-direction: column;
@@ -2164,9 +2166,10 @@
 
     /* Professional Dark Banner */
     .profile-banner {
+      position: relative;
       background: linear-gradient(135deg, #0f172a, #1e293b);
       color: white;
-      padding: 30px;
+      padding: 30px 40px;
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
@@ -5289,12 +5292,13 @@
     </div>
   </div>
 
-  <div id="playerProfileModal">
+  <div id="playerProfilePage" class="page">
     <div class="profile-box" style="padding:0; overflow:hidden;">
       
       <!-- Top Banner -->
       <div class="profile-banner">
         <div class="profile-header-left">
+          <button class="profile-close-btn" style="background:rgba(255,255,255,0.1); color:white; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; margin-right:15px; font-weight:600; font-size:14px;" onclick="globalGoBack()">❮ Back</button>
           <div class="profile-avatar" id="profileAvatar">🏏</div>
           <div class="profile-info-block">
             <div class="profile-top-label" id="profileRoleBadge">ACCUMULATOR</div>
@@ -5326,7 +5330,6 @@
             <div class="profile-lock-lbl">Wickets</div>
           </div>
         </div>
-        <button class="profile-close-btn" style="position:absolute; top:20px; right:20px; background:rgba(255,255,255,0.1); color:white; border:none; padding:8px 12px; border-radius:6px; cursor:pointer;" onclick="closePlayerProfile()">✕ Close</button>
       </div>
 
       <!-- Tabs Navigation -->
@@ -8351,7 +8354,7 @@
 
     async function openPlayerProfile(playerName, teamName, role) {
       if (document.getElementById("allPlayersModal")) document.getElementById("allPlayersModal").classList.remove("open");
-      document.getElementById("playerProfileModal").classList.add("open");
+      showPage("playerProfilePage");
       
       // Reset tabs to Matches
       let tabs = document.querySelectorAll('.profile-tab-btn');
