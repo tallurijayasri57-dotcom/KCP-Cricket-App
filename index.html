@@ -29,7 +29,9 @@
     href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@300;400;500&display=swap"
     rel="stylesheet">
   <style>
-    *, *::before, *::after {
+    *,
+    *::before,
+    *::after {
       box-sizing: border-box;
     }
 
@@ -649,15 +651,17 @@
     .premium-card {
       background: #ffffff;
       border-radius: 12px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
       margin-bottom: 16px;
       overflow: hidden;
     }
+
     .match-header-banner {
       background: #ffffff;
       padding: 16px;
       border-bottom: 1px solid #f3f4f6;
     }
+
     .status-badge {
       font-size: 11px;
       font-weight: 700;
@@ -666,9 +670,15 @@
       text-transform: uppercase;
       color: #fff;
     }
-    .status-live { background: #ef4444; }
-    .status-finished { background: #10b981; }
-    
+
+    .status-live {
+      background: #ef4444;
+    }
+
+    .status-finished {
+      background: #10b981;
+    }
+
     .match-tabs-nav {
       display: flex;
       background: #fff;
@@ -676,7 +686,11 @@
       overflow-x: auto;
       scrollbar-width: none;
     }
-    .match-tabs-nav::-webkit-scrollbar { display: none; }
+
+    .match-tabs-nav::-webkit-scrollbar {
+      display: none;
+    }
+
     .match-tab-link {
       padding: 12px 20px;
       font-size: 14px;
@@ -687,6 +701,7 @@
       white-space: nowrap;
       transition: all 0.2s;
     }
+
     .match-tab-link.active {
       color: #ef4444;
       border-bottom-color: #ef4444;
@@ -700,8 +715,11 @@
       max-width: 1200px;
       margin: 0 auto;
     }
+
     @media (max-width: 900px) {
-      .match-layout { grid-template-columns: 1fr; }
+      .match-layout {
+        grid-template-columns: 1fr;
+      }
     }
 
     .sidebar-stats-grid {
@@ -710,6 +728,7 @@
       gap: 12px;
       margin-bottom: 16px;
     }
+
     .stat-box {
       background: #fff;
       padding: 12px;
@@ -717,28 +736,103 @@
       border: 1px solid #f3f4f6;
       text-align: center;
     }
-    .stat-label { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; margin-bottom: 4px; }
-    .stat-value { font-size: 16px; font-weight: 800; color: #1e293b; }
+
+    .stat-label {
+      font-size: 11px;
+      color: #64748b;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 16px;
+      font-weight: 800;
+      color: #1e293b;
+    }
 
     /* Scorecard Tables */
-    .sc-table { width: 100%; border-collapse: collapse; font-family: 'Inter', sans-serif; }
-    .sc-table th { background: #f8fafc; padding: 10px; text-align: left; font-size: 12px; color: #64748b; border-bottom: 1px solid #f1f5f9; }
-    .sc-table td { padding: 12px 10px; font-size: 13px; border-bottom: 1px solid #f1f5f9; color: #1e293b; }
-    .sc-table .name-cell { color: #0d9488; font-weight: 600; cursor: pointer; }
-    
-    /* Commentary */
-    .comm-item { border-bottom: 1px solid #f1f5f9; padding: 12px 0; display: flex; gap: 12px; }
-    .comm-over { width: 40px; font-weight: 700; color: #64748b; font-size: 13px; padding-top: 2px; }
-    .comm-ball-icon { 
-      width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      font-size: 11px; font-weight: 800; color: #fff;
+    .sc-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'Inter', sans-serif;
     }
-    .comm-ball-4 { background: #3b82f6; }
-    .comm-ball-6 { background: #10b981; }
-    .comm-ball-w { background: #ef4444; }
-    .comm-ball-0 { background: #94a3b8; color: #1e293b; border: 1px solid #cbd5e1; }
-    
-    .over-summary { background: #f8fafc; padding: 12px; border-radius: 8px; margin: 12px 0; border: 1px solid #f1f5f9; }
+
+    .sc-table th {
+      background: #f8fafc;
+      padding: 10px;
+      text-align: left;
+      font-size: 12px;
+      color: #64748b;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .sc-table td {
+      padding: 12px 10px;
+      font-size: 13px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #1e293b;
+    }
+
+    .sc-table .name-cell {
+      color: #0d9488;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Commentary */
+    .comm-item {
+      border-bottom: 1px solid #f1f5f9;
+      padding: 12px 0;
+      display: flex;
+      gap: 12px;
+    }
+
+    .comm-over {
+      width: 40px;
+      font-weight: 700;
+      color: #64748b;
+      font-size: 13px;
+      padding-top: 2px;
+    }
+
+    .comm-ball-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .comm-ball-4 {
+      background: #3b82f6;
+    }
+
+    .comm-ball-6 {
+      background: #10b981;
+    }
+
+    .comm-ball-w {
+      background: #ef4444;
+    }
+
+    .comm-ball-0 {
+      background: #94a3b8;
+      color: #1e293b;
+      border: 1px solid #cbd5e1;
+    }
+
+    .over-summary {
+      background: #f8fafc;
+      padding: 12px;
+      border-radius: 8px;
+      margin: 12px 0;
+      border: 1px solid #f1f5f9;
+    }
 
     #loginPage {
       display: flex;
@@ -754,6 +848,7 @@
       z-index: 99999;
       overflow: hidden;
     }
+
     .auth-card {
       margin: auto;
     }
@@ -2157,7 +2252,7 @@
       border-radius: 12px;
       overflow: hidden;
       color: white;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
     }
 
     .award-info {
@@ -2175,7 +2270,7 @@
       text-transform: uppercase;
       margin-bottom: 12px;
       letter-spacing: 1.5px;
-      border-bottom: 1px solid rgba(255,255,255,0.2);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
       padding-bottom: 8px;
     }
 
@@ -2205,7 +2300,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      border-left: 1px solid rgba(0,0,0,0.1);
+      border-left: 1px solid rgba(0, 0, 0, 0.1);
     }
 
     .award-photo img {
@@ -2214,9 +2309,17 @@
       object-fit: cover;
     }
 
-    .award-card-red { background: #dc2626; }
-    .award-card-teal { background: #0f766e; }
-    .award-card-orange { background: #f59e0b; }
+    .award-card-red {
+      background: #dc2626;
+    }
+
+    .award-card-teal {
+      background: #0f766e;
+    }
+
+    .award-card-orange {
+      background: #f59e0b;
+    }
 
     #playerProfilePage {
       background: #f1f5f9;
@@ -2404,7 +2507,7 @@
       border: 1px solid #e2e8f0;
       border-radius: 8px;
       padding: 16px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     }
 
     .pm-card-header {
@@ -2526,12 +2629,13 @@
     }
 
     .team-player-card:hover {
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
       border-color: #cbd5e1;
     }
 
     .team-player-card:hover .team-player-name {
-      color: #ef4444; /* Red color on hover as requested */
+      color: #ef4444;
+      /* Red color on hover as requested */
     }
 
     .team-player-photo {
@@ -2578,12 +2682,14 @@
       justify-content: center;
       font-size: 10px;
       font-weight: 700;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
-    
+
     .team-player-badge-playing {
-      background: #10b981; /* Green checkmark bg */
+      background: #10b981;
+      /* Green checkmark bg */
     }
+
     .profile-stats-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -3740,6 +3846,7 @@
         width: 0%;
       }
     }
+
     /* Premium Event Popups Styles */
     .event-popup-overlay {
       display: none;
@@ -3752,7 +3859,11 @@
       font-family: 'Inter', sans-serif;
       backdrop-filter: blur(10px);
     }
-    .event-popup-overlay.open { display: flex; }
+
+    .event-popup-overlay.open {
+      display: flex;
+    }
+
     .event-popup-box {
       width: 90%;
       max-width: 450px;
@@ -3760,10 +3871,19 @@
       color: #fff;
       animation: popupZoom 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
+
     @keyframes popupZoom {
-      from { transform: scale(0.5); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
+      from {
+        transform: scale(0.5);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
     }
+
     .event-title {
       font-family: 'Rajdhani', sans-serif;
       font-size: 14px;
@@ -3776,6 +3896,7 @@
       justify-content: center;
       gap: 10px;
     }
+
     .event-main-text {
       font-family: 'Inter', sans-serif;
       font-size: 32px;
@@ -3783,17 +3904,20 @@
       margin-bottom: 10px;
       line-height: 1.2;
     }
+
     .event-sub-text {
       font-size: 18px;
       color: #64748b;
       margin-bottom: 20px;
     }
+
     .event-highlight-text {
       font-size: 20px;
       font-weight: 700;
       color: #fbbf24;
       margin-bottom: 30px;
     }
+
     .event-mom-card {
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -3802,6 +3926,7 @@
       margin-top: 30px;
       position: relative;
     }
+
     .event-mom-card::before {
       content: '★';
       position: absolute;
@@ -3813,6 +3938,7 @@
       font-size: 20px;
       padding: 0 10px;
     }
+
     .event-done-btn {
       margin-top: 30px;
       padding: 14px 40px;
@@ -3827,10 +3953,12 @@
       text-transform: uppercase;
       letter-spacing: 1px;
     }
+
     .event-confetti {
       font-size: 40px;
       margin-bottom: 20px;
     }
+
     .boundary-animation {
       font-size: 80px;
       font-weight: 900;
@@ -3839,12 +3967,18 @@
       text-shadow: 0 0 20px rgba(37, 99, 235, 0.8);
       animation: boundaryBounce 0.6s infinite alternate;
     }
+
     @keyframes boundaryBounce {
-      from { transform: scale(1); }
-      to { transform: scale(1.1); }
+      from {
+        transform: scale(1);
+      }
+
+      to {
+        transform: scale(1.1);
+      }
     }
   </style>
-  
+
 </head>
 
 <body>
@@ -4048,17 +4182,22 @@
       margin-top: 16px;
     }
 
-    #myMatchesContainer, #myTournamentsContainer {
+    #myMatchesContainer,
+    #myTournamentsContainer {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
       gap: 0;
       padding: 0;
     }
+
     @media (max-width: 700px) {
-      #myMatchesContainer, #myTournamentsContainer {
+
+      #myMatchesContainer,
+      #myTournamentsContainer {
         grid-template-columns: 1fr;
       }
     }
+
     .my-card {
       background: #ffffff;
       border: 1px solid #e5e7eb;
@@ -4066,14 +4205,16 @@
       margin: 10px;
       padding: 16px;
       font-family: 'Inter', sans-serif;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
       position: relative;
     }
+
     .tourney-card {
       display: flex;
       gap: 12px;
       align-items: center;
     }
+
     .tourney-img {
       width: 70px;
       height: 70px;
@@ -4085,14 +4226,17 @@
       overflow: hidden;
       border: 1px solid #e5e7eb;
     }
+
     .tourney-img img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
+
     .tourney-info {
       flex: 1;
     }
+
     .tourney-badge-premium {
       position: absolute;
       top: 0;
@@ -4104,6 +4248,7 @@
       border-radius: 0 11px 0 11px;
       font-weight: 700;
     }
+
     .tourney-status-ongoing {
       background: #ef4444;
       color: #fff;
@@ -4114,6 +4259,7 @@
       display: inline-block;
       margin-bottom: 4px;
     }
+
     .tourney-name {
       font-weight: 800;
       color: #111827;
@@ -4132,7 +4278,11 @@
       justify-content: center;
       font-family: 'Inter', sans-serif;
     }
-    .dtp-overlay.open { display: flex; }
+
+    .dtp-overlay.open {
+      display: flex;
+    }
+
     .dtp-box {
       background: #fff;
       border-radius: 8px;
@@ -4141,56 +4291,261 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     }
-    .dtp-body { display: flex; flex-direction: row; }
+
+    .dtp-body {
+      display: flex;
+      flex-direction: row;
+    }
+
     @media (max-width: 600px) {
-      .dtp-body { flex-direction: column; }
-      .dtp-box { max-width: 350px; }
+      .dtp-body {
+        flex-direction: column;
+      }
+
+      .dtp-box {
+        max-width: 350px;
+      }
     }
-    .dtp-calendar-side { flex: 1; padding: 20px; border-right: 1px solid #eee; }
-    .dtp-clock-side { flex: 1; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; background: #f9f9f9; }
-    .dtp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-    .dtp-month-year { font-weight: 700; color: #333; font-size: 16px; display: flex; align-items: center; gap: 8px; }
-    .dtp-nav-btns { display: flex; gap: 15px; }
-    .dtp-nav-btn { cursor: pointer; color: #666; font-size: 18px; font-weight: bold; }
-    .dtp-days-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
-    .dtp-day-name { font-size: 12px; color: #999; padding: 5px 0; font-weight: 500; }
-    .dtp-day { font-size: 13px; color: #333; padding: 8px 0; cursor: pointer; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; margin: 0 auto; transition: background 0.2s; }
-    .dtp-day:hover:not(.disabled) { background: #f0f0f0; }
-    .dtp-day.selected { background: #10b981 !important; color: #fff !important; }
-    .dtp-day.disabled { color: #ccc; cursor: default; }
-    
-    .dtp-clock-face { width: 180px; height: 180px; background: #eee; border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center; margin: 10px 0; }
-    .dtp-clock-number { position: absolute; font-size: 13px; color: #333; cursor: pointer; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 50%; z-index: 2; }
-    .dtp-clock-number.selected { color: #fff; }
-    .dtp-clock-hand { position: absolute; bottom: 50%; left: 50%; width: 2px; height: 70px; background: #10b981; transform-origin: bottom center; z-index: 1; pointer-events: none; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-    .dtp-clock-hand::after { content: ''; position: absolute; top: -5px; left: -14px; width: 30px; height: 30px; background: #10b981; border-radius: 50%; z-index: -1; }
-    .dtp-clock-center { width: 6px; height: 6px; background: #10b981; border-radius: 50%; z-index: 3; }
-    
-    .dtp-ampm-row { display: flex; gap: 10px; width: 100%; justify-content: space-between; margin-top: 15px; }
-    .dtp-ampm-btns { display: flex; gap: 10px; }
-    .dtp-ampm-btn { font-size: 12px; font-weight: 700; color: #999; cursor: pointer; padding: 4px 10px; border-radius: 12px; transition: all 0.2s; }
-    .dtp-ampm-btn.selected { background: #10b981; color: #fff; }
-    
-    .dtp-footer { padding: 12px 20px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #fff; }
-    .dtp-current-val { font-size: 14px; color: #666; font-weight: 500; }
-    .dtp-ok-btn { background: #10b981; color: #fff; padding: 8px 24px; border: none; border-radius: 4px; font-weight: 700; cursor: pointer; font-family: 'Rajdhani', sans-serif; letter-spacing: 1px; }
-    
+
+    .dtp-calendar-side {
+      flex: 1;
+      padding: 20px;
+      border-right: 1px solid #eee;
+    }
+
+    .dtp-clock-side {
+      flex: 1;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      background: #f9f9f9;
+    }
+
+    .dtp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .dtp-month-year {
+      font-weight: 700;
+      color: #333;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dtp-nav-btns {
+      display: flex;
+      gap: 15px;
+    }
+
+    .dtp-nav-btn {
+      cursor: pointer;
+      color: #666;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .dtp-days-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+      text-align: center;
+    }
+
+    .dtp-day-name {
+      font-size: 12px;
+      color: #999;
+      padding: 5px 0;
+      font-weight: 500;
+    }
+
+    .dtp-day {
+      font-size: 13px;
+      color: #333;
+      padding: 8px 0;
+      cursor: pointer;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+      transition: background 0.2s;
+    }
+
+    .dtp-day:hover:not(.disabled) {
+      background: #f0f0f0;
+    }
+
+    .dtp-day.selected {
+      background: #10b981 !important;
+      color: #fff !important;
+    }
+
+    .dtp-day.disabled {
+      color: #ccc;
+      cursor: default;
+    }
+
+    .dtp-clock-face {
+      width: 180px;
+      height: 180px;
+      background: #eee;
+      border-radius: 50%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 10px 0;
+    }
+
+    .dtp-clock-number {
+      position: absolute;
+      font-size: 13px;
+      color: #333;
+      cursor: pointer;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      z-index: 2;
+    }
+
+    .dtp-clock-number.selected {
+      color: #fff;
+    }
+
+    .dtp-clock-hand {
+      position: absolute;
+      bottom: 50%;
+      left: 50%;
+      width: 2px;
+      height: 70px;
+      background: #10b981;
+      transform-origin: bottom center;
+      z-index: 1;
+      pointer-events: none;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .dtp-clock-hand::after {
+      content: '';
+      position: absolute;
+      top: -5px;
+      left: -14px;
+      width: 30px;
+      height: 30px;
+      background: #10b981;
+      border-radius: 50%;
+      z-index: -1;
+    }
+
+    .dtp-clock-center {
+      width: 6px;
+      height: 6px;
+      background: #10b981;
+      border-radius: 50%;
+      z-index: 3;
+    }
+
+    .dtp-ampm-row {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      justify-content: space-between;
+      margin-top: 15px;
+    }
+
+    .dtp-ampm-btns {
+      display: flex;
+      gap: 10px;
+    }
+
+    .dtp-ampm-btn {
+      font-size: 12px;
+      font-weight: 700;
+      color: #999;
+      cursor: pointer;
+      padding: 4px 10px;
+      border-radius: 12px;
+      transition: all 0.2s;
+    }
+
+    .dtp-ampm-btn.selected {
+      background: #10b981;
+      color: #fff;
+    }
+
+    .dtp-footer {
+      padding: 12px 20px;
+      border-top: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fff;
+    }
+
+    .dtp-current-val {
+      font-size: 14px;
+      color: #666;
+      font-weight: 500;
+    }
+
+    .dtp-ok-btn {
+      background: #10b981;
+      color: #fff;
+      padding: 8px 24px;
+      border: none;
+      border-radius: 4px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Rajdhani', sans-serif;
+      letter-spacing: 1px;
+    }
+
     .dtp-input-new {
-      flex: 1; min-width: 200px; padding: 10px; background: #111827; color: #fff; border: 1px solid #374151; border-radius: 8px; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 14px;
+      flex: 1;
+      min-width: 200px;
+      padding: 10px;
+      background: #111827;
+      color: #fff;
+      border: 1px solid #374151;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
     }
-    .dtp-input-new:focus { outline: none; border-color: #10b981; }
+
+    .dtp-input-new:focus {
+      outline: none;
+      border-color: #10b981;
+    }
+
     .tourney-title {
       color: #111827;
       font-size: 15px;
       margin-bottom: 2px;
     }
-    .tourney-dates, .tourney-loc {
+
+    .tourney-dates,
+    .tourney-loc {
       font-size: 11px;
       color: #6b7280;
       font-weight: 500;
     }
+
     .my-card-header {
       font-size: 13px;
       color: #6b7280;
@@ -4199,6 +4554,7 @@
       justify-content: space-between;
       align-items: center;
     }
+
     .my-card-meta {
       font-size: 12px;
       color: #374151;
@@ -4206,41 +4562,48 @@
       line-height: 1.4;
       margin-bottom: 8px;
     }
+
     .my-card-bold {
       font-weight: 700;
       color: #111827;
       font-size: 14px;
       margin-bottom: 12px;
     }
+
     .my-card-teams {
       display: flex;
       flex-direction: column;
       gap: 8px;
       margin-bottom: 12px;
     }
+
     .my-card-team-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
+
     .my-card-team-name {
       font-family: 'Rajdhani', sans-serif;
       font-size: 16px;
       font-weight: 700;
       color: #111827;
     }
+
     .my-card-score {
       font-family: 'Rajdhani', sans-serif;
       font-size: 18px;
       font-weight: 800;
       color: #059669;
     }
+
     .my-card-overs {
       font-size: 12px;
       color: #6b7280;
       font-weight: 500;
       margin-left: 4px;
     }
+
     .my-card-footer {
       border-top: 1px solid #f3f4f6;
       margin: 12px -16px -16px -16px;
@@ -4250,6 +4613,7 @@
       background: #fafafa;
       border-radius: 0 0 12px 12px;
     }
+
     .my-badge {
       padding: 2px 10px;
       border-radius: 20px;
@@ -4964,8 +5328,8 @@
   </script>
 
   <script>
-    const API = (['localhost', '127.0.0.1'].includes(window.location.hostname) || window.location.hostname.startsWith('192.168.')) 
-      ? `http://${window.location.hostname}:3001` 
+    const API = (['localhost', '127.0.0.1'].includes(window.location.hostname) || window.location.hostname.startsWith('192.168.'))
+      ? `http://${window.location.hostname}:3001`
       : window.location.origin;
 
     const IN_CITIES = [
@@ -5275,7 +5639,8 @@
               style="flex:1;min-width:120px;padding:10px;background:#111827;color:#fff;border:1px solid #374151;border-radius:8px;"></select>
           </div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            <input type="text" id="mtSchedDateTime" class="dtp-input-new" placeholder="Select Date & Time" readonly onclick="openDateTimePicker(val => this.value = val)">
+            <input type="text" id="mtSchedDateTime" class="dtp-input-new" placeholder="Select Date & Time" readonly
+              onclick="openDateTimePicker(val => this.value = val)">
             <button onclick="addTournamentMatch()"
               style="background:#1d4ed8;padding:10px 20px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;">Schedule</button>
           </div>
@@ -5368,11 +5733,13 @@
 
   <div id="playerProfilePage" class="page">
     <div class="profile-box" style="padding:0; overflow:hidden;">
-      
+
       <!-- Top Banner -->
       <div class="profile-banner">
         <div class="profile-header-left">
-          <button class="profile-close-btn" style="background:rgba(255,255,255,0.1); color:white; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; margin-right:15px; font-weight:600; font-size:14px;" onclick="globalGoBack()">❮ Back</button>
+          <button class="profile-close-btn"
+            style="background:rgba(255,255,255,0.1); color:white; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; margin-right:15px; font-weight:600; font-size:14px;"
+            onclick="globalGoBack()">❮ Back</button>
           <div class="profile-avatar" id="profileAvatar">🏏</div>
           <div class="profile-info-block">
             <div class="profile-top-label" id="profileRoleBadge">ACCUMULATOR</div>
@@ -5381,12 +5748,13 @@
               <span><span id="profileLocation">Jaggayyapeta</span> &bull; 95 Views</span>
             </div>
             <div class="profile-styles">
-              <span id="profileBatStyle" style="color:#38bdf8;">RHB</span> | <span id="profileBowlStyle">Right-arm Off Break</span>
+              <span id="profileBatStyle" style="color:#38bdf8;">RHB</span> | <span id="profileBowlStyle">Right-arm Off
+                Break</span>
             </div>
             <div class="profile-team" id="profileTeam" style="display:none;"></div>
           </div>
         </div>
-        
+
         <div class="profile-header-right">
           <div class="profile-lock-stat">
             <div class="profile-lock-icon">🔒</div>
@@ -5420,7 +5788,7 @@
 
       <!-- Tab Content Area -->
       <div class="profile-tab-content-area">
-        
+
         <!-- Matches Tab -->
         <div id="ptab-matches" class="profile-tab-pane active">
           <div class="profile-matches-grid" id="profileMatchHistory">
@@ -5435,24 +5803,60 @@
         <div id="ptab-stats" class="profile-tab-pane">
           <div class="profile-section-title">🏏 Batting Stats</div>
           <div class="profile-stats-grid" id="profileBatStats">
-            <div class="profile-stat-box"><div class="profile-stat-val" id="pRuns">0</div><div class="profile-stat-lbl">Runs</div></div>
-            <div class="profile-stat-box"><div class="profile-stat-val" id="pBalls">0</div><div class="profile-stat-lbl">Balls</div></div>
-            <div class="profile-stat-box"><div class="profile-stat-val" id="pSR">0</div><div class="profile-stat-lbl">Strike Rate</div></div>
-            <div class="profile-stat-box"><div class="profile-stat-val" id="pFours">0</div><div class="profile-stat-lbl">4s</div></div>
-            <div class="profile-stat-box"><div class="profile-stat-val" id="pSixes">0</div><div class="profile-stat-lbl">6s</div></div>
-            <div class="profile-stat-box"><div class="profile-stat-val" id="pHS">0</div><div class="profile-stat-lbl">Highest</div></div>
+            <div class="profile-stat-box">
+              <div class="profile-stat-val" id="pRuns">0</div>
+              <div class="profile-stat-lbl">Runs</div>
+            </div>
+            <div class="profile-stat-box">
+              <div class="profile-stat-val" id="pBalls">0</div>
+              <div class="profile-stat-lbl">Balls</div>
+            </div>
+            <div class="profile-stat-box">
+              <div class="profile-stat-val" id="pSR">0</div>
+              <div class="profile-stat-lbl">Strike Rate</div>
+            </div>
+            <div class="profile-stat-box">
+              <div class="profile-stat-val" id="pFours">0</div>
+              <div class="profile-stat-lbl">4s</div>
+            </div>
+            <div class="profile-stat-box">
+              <div class="profile-stat-val" id="pSixes">0</div>
+              <div class="profile-stat-lbl">6s</div>
+            </div>
+            <div class="profile-stat-box">
+              <div class="profile-stat-val" id="pHS">0</div>
+              <div class="profile-stat-lbl">Highest</div>
+            </div>
           </div>
           <div class="profile-section-title" style="margin-top:16px;">🎳 Bowling Stats</div>
           <div class="profile-stats-grid">
-            <div class="profile-stat-box"><div class="profile-stat-val" id="pWickets">0</div><div class="profile-stat-lbl">Wickets</div></div>
-            <div class="profile-stat-box"><div class="profile-stat-val" id="pOvers">0</div><div class="profile-stat-lbl">Overs</div></div>
-            <div class="profile-stat-box"><div class="profile-stat-val" id="pEco">0</div><div class="profile-stat-lbl">Economy</div></div>
+            <div class="profile-stat-box">
+              <div class="profile-stat-val" id="pWickets">0</div>
+              <div class="profile-stat-lbl">Wickets</div>
+            </div>
+            <div class="profile-stat-box">
+              <div class="profile-stat-val" id="pOvers">0</div>
+              <div class="profile-stat-lbl">Overs</div>
+            </div>
+            <div class="profile-stat-box">
+              <div class="profile-stat-val" id="pEco">0</div>
+              <div class="profile-stat-lbl">Economy</div>
+            </div>
           </div>
           <div class="profile-section-title" style="margin-top:16px;">🧤 Fielding Stats</div>
           <div class="profile-stats-grid">
-            <div class="profile-stat-box"><div class="profile-stat-val" id="pCatches">0</div><div class="profile-stat-lbl">Catches</div></div>
-            <div class="profile-stat-box"><div class="profile-stat-val" id="pRunOuts">0</div><div class="profile-stat-lbl">Run Outs</div></div>
-            <div class="profile-stat-box"><div class="profile-stat-val" id="pStumpings">0</div><div class="profile-stat-lbl">Stumpings</div></div>
+            <div class="profile-stat-box">
+              <div class="profile-stat-val" id="pCatches">0</div>
+              <div class="profile-stat-lbl">Catches</div>
+            </div>
+            <div class="profile-stat-box">
+              <div class="profile-stat-val" id="pRunOuts">0</div>
+              <div class="profile-stat-lbl">Run Outs</div>
+            </div>
+            <div class="profile-stat-box">
+              <div class="profile-stat-val" id="pStumpings">0</div>
+              <div class="profile-stat-lbl">Stumpings</div>
+            </div>
           </div>
         </div>
 
@@ -5473,18 +5877,30 @@
             </div>
           </div>
           <div style="text-align:center;margin-top:20px;">
-            <input type="file" id="photoUploadInput" accept="image/*" style="display:none;" onchange="uploadPlayerPhoto()">
-            <button class="photo-upload-btn" onclick="document.getElementById('photoUploadInput').click()">📷 Upload New Photo</button>
+            <input type="file" id="photoUploadInput" accept="image/*" style="display:none;"
+              onchange="uploadPlayerPhoto()">
+            <button class="photo-upload-btn" onclick="document.getElementById('photoUploadInput').click()">📷 Upload New
+              Photo</button>
             <div id="photoUploadStatus" style="font-size:12px;color:#6b7280;margin-top:8px;"></div>
           </div>
         </div>
 
         <!-- Placeholder Tabs -->
-        <div id="ptab-awards" class="profile-tab-pane"><div style="text-align:center; padding:40px; color:#94a3b8;">🏆 Awards content coming soon</div></div>
-        <div id="ptab-badges" class="profile-tab-pane"><div style="text-align:center; padding:40px; color:#94a3b8;">🎖️ Badges content coming soon</div></div>
-        <div id="ptab-teams" class="profile-tab-pane"><div style="text-align:center; padding:40px; color:#94a3b8;">👕 Teams content coming soon</div></div>
-        <div id="ptab-photos" class="profile-tab-pane"><div style="text-align:center; padding:40px; color:#94a3b8;">📸 Photos content coming soon</div></div>
-        <div id="ptab-connections" class="profile-tab-pane"><div style="text-align:center; padding:40px; color:#94a3b8;">🤝 Connections content coming soon</div></div>
+        <div id="ptab-awards" class="profile-tab-pane">
+          <div style="text-align:center; padding:40px; color:#94a3b8;">🏆 Awards content coming soon</div>
+        </div>
+        <div id="ptab-badges" class="profile-tab-pane">
+          <div style="text-align:center; padding:40px; color:#94a3b8;">🎖️ Badges content coming soon</div>
+        </div>
+        <div id="ptab-teams" class="profile-tab-pane">
+          <div style="text-align:center; padding:40px; color:#94a3b8;">👕 Teams content coming soon</div>
+        </div>
+        <div id="ptab-photos" class="profile-tab-pane">
+          <div style="text-align:center; padding:40px; color:#94a3b8;">📸 Photos content coming soon</div>
+        </div>
+        <div id="ptab-connections" class="profile-tab-pane">
+          <div style="text-align:center; padding:40px; color:#94a3b8;">🤝 Connections content coming soon</div>
+        </div>
 
       </div>
     </div>
@@ -5539,7 +5955,8 @@
         <div class="upcoming-form-row">
           <select id="upTeam1"></select>
           <select id="upTeam2"></select>
-          <input type="text" id="upMatchDateTime" class="dtp-input-new" style="margin:5px;" placeholder="Select Date & Time" readonly onclick="openDateTimePicker(val => this.value = val)">
+          <input type="text" id="upMatchDateTime" class="dtp-input-new" style="margin:5px;"
+            placeholder="Select Date & Time" readonly onclick="openDateTimePicker(val => this.value = val)">
           <button class="btn-green" onclick="scheduleUpcomingMatch()">➕ Schedule</button>
         </div>
       </div>
@@ -5661,42 +6078,61 @@
     <button onclick="finishMatch()">Finish Match</button>
   </div>
 
-    <div id="matchDetailsPage" class="page" style="background:#f3f4f6; min-height:100vh;">
-      <div id="matchHeaderContainer"></div>
-      
-      <div class="match-tabs-nav">
-        <div class="match-tab-link active" onclick="switchMatchTab('live', this)">Live</div>
-        <div class="match-tab-link" onclick="switchMatchTab('scorecard', this)">Scorecard</div>
-        <div class="match-tab-link" onclick="switchMatchTab('commentary', this)">Commentary</div>
-        <div class="match-tab-link" onclick="switchMatchTab('analysis', this)">Analysis</div>
-        <div class="match-tab-link" onclick="switchMatchTab('teams', this)">Teams</div>
-        <div class="match-tab-link" onclick="switchMatchTab('gallery', this)">Gallery</div>
-      </div>
+  <div id="matchDetailsPage" class="page" style="background:#f3f4f6; min-height:100vh;">
+    <div id="matchHeaderContainer"></div>
 
-      <div class="match-layout">
-        <div id="matchMainContent"></div>
-        
-        <div id="matchSidebar">
-          <div class="premium-card" style="padding:12px;">
-            <div class="sidebar-stats-grid">
-              <div class="stat-box"><div class="stat-label">Current RR</div><div class="stat-value" id="sbCurrentRR">0.00</div></div>
-              <div class="stat-box"><div class="stat-label">Projected Score</div><div class="stat-value" id="sbProjected">0</div></div>
+    <div class="match-tabs-nav">
+      <div class="match-tab-link active" onclick="switchMatchTab('live', this)">Live</div>
+      <div class="match-tab-link" onclick="switchMatchTab('scorecard', this)">Scorecard</div>
+      <div class="match-tab-link" onclick="switchMatchTab('commentary', this)">Commentary</div>
+      <div class="match-tab-link" onclick="switchMatchTab('analysis', this)">Analysis</div>
+      <div class="match-tab-link" onclick="switchMatchTab('teams', this)">Teams</div>
+      <div class="match-tab-link" onclick="switchMatchTab('gallery', this)">Gallery</div>
+    </div>
+
+    <div class="match-layout">
+      <div id="matchMainContent"></div>
+
+      <div id="matchSidebar">
+        <div class="premium-card" style="padding:12px;">
+          <div class="sidebar-stats-grid">
+            <div class="stat-box">
+              <div class="stat-label">Current RR</div>
+              <div class="stat-value" id="sbCurrentRR">0.00</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Projected Score</div>
+              <div class="stat-value" id="sbProjected">0</div>
             </div>
           </div>
-          
-          <div class="premium-card">
-            <div style="padding:12px 16px; border-bottom:1px solid #f1f5f9; font-weight:700; color:#1e293b;">Match details</div>
-            <div style="padding:16px;">
-              <div style="margin-bottom:12px;"><div class="stat-label">Series Name</div><div style="color:#0d9488; font-weight:600;" id="sbSeriesName">-</div></div>
-              <div style="margin-bottom:12px;"><div class="stat-label">Match Date</div><div id="sbMatchDate">-</div></div>
-              <div style="margin-bottom:12px;"><div class="stat-label">Location</div><div style="color:#0d9488; font-weight:600;" id="sbLocation">-</div></div>
-              <div id="sbInningsDetails"></div>
-              <div style="margin-top:16px;"><div class="stat-label">Last Updated</div><div id="sbLastUpdated" style="font-size:12px;">-</div></div>
+        </div>
+
+        <div class="premium-card">
+          <div style="padding:12px 16px; border-bottom:1px solid #f1f5f9; font-weight:700; color:#1e293b;">Match details
+          </div>
+          <div style="padding:16px;">
+            <div style="margin-bottom:12px;">
+              <div class="stat-label">Series Name</div>
+              <div style="color:#0d9488; font-weight:600;" id="sbSeriesName">-</div>
+            </div>
+            <div style="margin-bottom:12px;">
+              <div class="stat-label">Match Date</div>
+              <div id="sbMatchDate">-</div>
+            </div>
+            <div style="margin-bottom:12px;">
+              <div class="stat-label">Location</div>
+              <div style="color:#0d9488; font-weight:600;" id="sbLocation">-</div>
+            </div>
+            <div id="sbInningsDetails"></div>
+            <div style="margin-top:16px;">
+              <div class="stat-label">Last Updated</div>
+              <div id="sbLastUpdated" style="font-size:12px;">-</div>
             </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
   <div id="points" class="page">
     <h2>🏆 Points Table</h2>
@@ -6412,8 +6848,8 @@
         return;
       }
       grid.innerHTML = players.map(function (p) {
-        let avatarHtml = p.photo 
-          ? '<img src="' + p.photo + '" style="width:100%;height:100%;object-fit:cover;">' 
+        let avatarHtml = p.photo
+          ? '<img src="' + p.photo + '" style="width:100%;height:100%;object-fit:cover;">'
           : '<svg width="48" height="48" viewBox="0 0 24 24" fill="#9ca3af"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>';
         return '<div style="display:flex;flex-direction:column;align-items:center;width:120px;">' +
           '<div style="width:110px;height:110px;background:#e5e7eb;border-radius:4px;overflow:hidden;display:flex;align-items:center;justify-content:center;">' +
@@ -6644,8 +7080,8 @@
             ${team.players.length === 0
           ? '<div style="color:#4b5563;font-size:12px;padding:4px 0;">No players yet</div>'
           : team.players.map((p, pi) => {
-            let pPhotoHtml = p.photo 
-              ? `<img src="${p.photo}" style="width:20px;height:20px;border-radius:50%;object-fit:cover;margin-right:6px;">` 
+            let pPhotoHtml = p.photo
+              ? `<img src="${p.photo}" style="width:20px;height:20px;border-radius:50%;object-fit:cover;margin-right:6px;">`
               : '🧑 ';
             return `<div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.03);border-radius:6px;padding:6px 10px;">
                   <span style="font-size:13px;color:#d1fae5;display:flex;align-items:center;">${pPhotoHtml}${p.name} ${roleBadge(p.role)}</span>
@@ -6724,7 +7160,7 @@
       if (!t1 || !t2) return alert('Select both teams');
       if (t1 === t2) return alert('Select different teams');
       if (!dtStr) return alert('Select date and time');
-      
+
       let parts = dtStr.split(' ');
       let date = parts[0]; // MM/DD/YYYY
       let time = parts[1] + ' ' + parts[2]; // HH:MM AM/PM
@@ -6986,7 +7422,7 @@
       liveMatchesUnsubscribe = window.fbOnSnapshot(q, (snapshot) => {
         let container = document.getElementById("liveMatchesGrid");
         if (!container) return;
-        
+
         let html = "";
         let matchCount = 0;
 
@@ -6995,9 +7431,9 @@
           m.id = doc.id;
           // Auto-hide stale matches (older than 12 hours)
           if (m.updatedAt && Date.now() - m.updatedAt > 12 * 60 * 60 * 1000) return;
-          
+
           matchCount++;
-          
+
           html += `
           <div class="live-match-card" onclick="viewLiveMatch('${m.id}')" style="background:linear-gradient(135deg, #1e293b, #0f172a); border:1px solid rgba(110, 231, 183, 0.2); border-radius:12px; padding:16px; position:relative; overflow:hidden; cursor:pointer;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
@@ -7017,7 +7453,7 @@
             </div>
           </div>`;
         });
-        
+
         if (matchCount === 0) {
           container.innerHTML = `<div style="background:rgba(255,255,255,0.05); border:1px dashed rgba(255,255,255,0.1); border-radius:12px; padding:30px; text-align:center; color:#6b7280; font-size:13px;">No matches live at the moment</div>`;
           return;
@@ -7072,7 +7508,7 @@
 
     function renderPremiumMatchView(m) {
       previousLiveMatchState = m;
-      
+
       // Render Header
       let headerHtml = `
         <div class="match-header-banner">
@@ -7252,14 +7688,14 @@
         container.innerHTML = `<div class="premium-card" style="padding:40px; text-align:center; color:#64748b;">Awards will be declared once the match is Finished.</div>`;
         return;
       }
-      
+
       let awards = calculateMatchAwards(m);
-      
+
       function renderCard(title, playerObj, role, cssClass) {
         if (!playerObj) return '';
         let photoSrc = localStorage.getItem("userPhoto_" + playerObj.name);
         let photoHtml = photoSrc ? `<img src="${photoSrc}">` : `<div style="font-size:40px;">👤</div>`;
-        
+
         let statsHtml = '';
         if (role === 'mvp') {
           let b = playerObj.batData;
@@ -7292,7 +7728,7 @@
       html += renderCard("BEST BATTER", awards.bestBatter, 'bat', 'award-card-teal');
       html += renderCard("BEST BOWLER", awards.bestBowler, 'bowl', 'award-card-orange');
       html += `</div>`;
-      
+
       container.innerHTML = html;
     }
 
@@ -7312,15 +7748,15 @@
         if (players.length === 0) {
           return `<div class="team-grid-container" style="display:block; text-align:center; padding:30px; color:#94a3b8;">No players found for ${teamName}</div>`;
         }
-        
-        let html = `<div class="team-grid-title"><span class="team-grid-title-badge">${teamName.substring(0,2).toUpperCase()}</span> ${teamName}</div>`;
+
+        let html = `<div class="team-grid-title"><span class="team-grid-title-badge">${teamName.substring(0, 2).toUpperCase()}</span> ${teamName}</div>`;
         html += `<div class="team-grid-container">`;
         players.forEach(p => {
           let isCaptain = (p.role === 'Captain' || p.isCaptain);
           let badgeHtml = isCaptain ? `<div class="team-player-badge">C</div>` : `<div class="team-player-badge team-player-badge-playing">✓</div>`;
           let photoSrc = localStorage.getItem("userPhoto_" + p.name) || '';
           let photoHtml = photoSrc ? `<img src="${photoSrc}">` : `<div style="font-size:32px;">🧑</div>`;
-          
+
           html += `
             <div class="team-player-card" onclick="openPlayerProfile('${escapeQ(p.name)}', '${escapeQ(teamName)}', '${escapeQ(p.role)}')">
               ${badgeHtml}
@@ -7605,27 +8041,27 @@
       let tours = loadTournaments();
       let t = tours[tIdx];
       let m = t.matches[mIdx];
-      
+
       if (m.liveMatchId) {
         viewLiveMatch(m.liveMatchId);
         return;
       }
-      
+
       // Fallback search
       if (!window.fbGetDocs) return alert("Scorecard ID not found");
-      
+
       const q = window.fbQuery(
-        window.fbCollection(window.fbDb, "live_matches"), 
+        window.fbCollection(window.fbDb, "live_matches"),
         window.fbWhere("tournamentId", "==", tIdx),
         window.fbWhere("batTeam", "in", [m.team1, m.team2])
       );
-      
+
       try {
         const snap = await window.fbGetDocs(q);
         let foundId = null;
         let matches = [];
-        snap.forEach(doc => matches.push({id: doc.id, data: doc.data()}));
-        
+        snap.forEach(doc => matches.push({ id: doc.id, data: doc.data() }));
+
         // Try precise match first
         matches.forEach(item => {
           let data = item.data;
@@ -7633,7 +8069,7 @@
           let dBowl = (data.bowlTeam || "").trim().toLowerCase();
           let m1 = (m.team1 || "").trim().toLowerCase();
           let m2 = (m.team2 || "").trim().toLowerCase();
-          
+
           if ((dBat === m1 && dBowl === m2) || (dBat === m2 && dBowl === m1)) {
             if (!m.result) {
               if (data.status === "live") foundId = item.id;
@@ -7642,7 +8078,7 @@
             }
           }
         });
-        
+
         if (foundId) {
           viewLiveMatch(foundId);
         } else {
@@ -7663,7 +8099,7 @@
       if (previousLiveMatchState && previousLiveMatchState.id === m.id) {
         let oldBalls = previousLiveMatchState.lastBalls || [];
         let newBalls = m.lastBalls || [];
-        
+
         // Check if a new ball was added
         if (newBalls.length > oldBalls.length || (newBalls.length > 0 && oldBalls.length === 0)) {
           let lastEvent = newBalls[newBalls.length - 1];
@@ -7680,7 +8116,7 @@
       if (document.getElementById('lvBowlTeamNameDisplay')) document.getElementById('lvBowlTeamNameDisplay').innerText = m.bowlTeam;
       document.getElementById('lvScore').innerText = `${m.runs}/${m.wickets}`;
       document.getElementById('lvOvers').innerText = `(${m.overs} Ov)`;
-      
+
       if (document.getElementById('lvMatchStatus')) {
         document.getElementById('lvMatchStatus').innerText = (m.target > 0) ? `Target: ${m.target}` : (m.innings === 1 ? "1st Innings" : "2nd Innings");
       }
@@ -7706,7 +8142,7 @@
         let isOn = (p === m.strike || p === m.nonstrike);
         if (!isOut && !isOn) continue;
         let sr = s.balls > 0 ? ((s.runs / s.balls) * 100).toFixed(2) : "0.00";
-        
+
         batHtml += `<div style="padding:12px 16px; border-bottom:1px solid #f3f4f6; display:flex; justify-content:space-between; align-items:center; font-family:'Inter',sans-serif; font-size:14px; ${isOut ? 'opacity:0.5' : ''}">
           <div style="flex:2; color:#0d9488; font-weight:600;">${p}${p === m.strike ? '*' : ''}</div>
           <div style="width:40px; text-align:center; color:#374151;">${s.runs}</div>
@@ -7725,7 +8161,7 @@
         if (s.balls === 0 && p !== m.bowler) continue;
         let ov = Math.floor(s.balls / 6) + "." + (s.balls % 6);
         let eco = s.balls > 0 ? ((s.runs / s.balls) * 6).toFixed(2) : "0.00";
-        
+
         bowlHtml += `<div style="padding:12px 16px; border-bottom:1px solid #f3f4f6; display:flex; justify-content:space-between; align-items:center; font-family:'Inter',sans-serif; font-size:14px;">
           <div style="flex:2; color:#0d9488; font-weight:600;">${p}</div>
           <div style="width:40px; text-align:center; color:#374151;">${ov}</div>
@@ -7753,8 +8189,8 @@
       let teamsBatHtml = "";
       for (let p in m.batsmanStats) {
         let pPhoto = (m.playerPhotos && m.playerPhotos[p]) || "";
-        let pAvatar = pPhoto 
-          ? `<img src="${pPhoto}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:12px;">` 
+        let pAvatar = pPhoto
+          ? `<img src="${pPhoto}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:12px;">`
           : `<div style="width:32px; height:32px; background:#f3f4f6; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-right:12px; font-size:12px; font-weight:bold; color:#9ca3af;">${p.charAt(0)}</div>`;
         teamsBatHtml += `<li style="padding:12px 0; border-bottom:1px solid #f3f4f6; display:flex; align-items:center; font-family:'Inter',sans-serif;">${pAvatar} <span style="font-weight:500; color:#111827;">${p}</span></li>`;
       }
@@ -7763,8 +8199,8 @@
       let teamsBowlHtml = "";
       for (let p in m.bowlerStats) {
         let pPhoto = (m.playerPhotos && m.playerPhotos[p]) || "";
-        let pAvatar = pPhoto 
-          ? `<img src="${pPhoto}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:12px;">` 
+        let pAvatar = pPhoto
+          ? `<img src="${pPhoto}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:12px;">`
           : `<div style="width:32px; height:32px; background:#f3f4f6; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-right:12px; font-size:12px; font-weight:bold; color:#9ca3af;">${p.charAt(0)}</div>`;
         teamsBowlHtml += `<li style="padding:12px 0; border-bottom:1px solid #f3f4f6; display:flex; align-items:center; font-family:'Inter',sans-serif;">${pAvatar} <span style="font-weight:500; color:#111827;">${p}</span></li>`;
       }
@@ -7830,7 +8266,7 @@
     async function syncAllTournamentDataToSSMS() {
       let tours = loadTournaments();
       if (tours.length === 0) { alert("No tournament data to sync."); return; }
-      
+
       let btn = event.target;
       let originalText = btn.innerText;
       btn.innerText = "Syncing... ⏳";
@@ -7991,12 +8427,12 @@
       let players = {};
 
       const getP = (n) => {
-        if (!players[n]) players[n] = { runs:0, balls:0, fours:0, sixes:0, wickets:0, dots:0, maidens:0, bRuns:0, bBalls:0, catches:0, run_outs:0, stumpings:0 };
+        if (!players[n]) players[n] = { runs: 0, balls: 0, fours: 0, sixes: 0, wickets: 0, dots: 0, maidens: 0, bRuns: 0, bBalls: 0, catches: 0, run_outs: 0, stumpings: 0 };
         return players[n];
       };
 
       // Aggregate all stats
-      for (let p in batsmanStats) { 
+      for (let p in batsmanStats) {
         let s = getP(p); s.runs += batsmanStats[p].runs; s.balls += batsmanStats[p].balls; s.fours += batsmanStats[p].fours; s.sixes += batsmanStats[p].sixes;
       }
       for (let p in innings1BatStats) {
@@ -8015,7 +8451,7 @@
         let p = players[n];
         let sr = p.balls > 0 ? (p.runs / p.balls) * 100 : 0;
         let eco = p.bBalls > 0 ? (p.bRuns / (p.bBalls / 6)) : 99;
-        
+
         let score = (p.runs * 1) + (p.fours * 1) + (p.sixes * 2) + (p.wickets * 20) + (p.dots * 1) + (p.maidens * 10) + (p.catches * 10) + (p.run_outs * 10) + (p.stumpings * 10);
         if (sr > 150) score += 15; else if (sr > 120) score += 5;
         if (p.bBalls >= 12) { if (eco < 6) score += 15; else if (eco < 8) score += 5; }
@@ -8026,7 +8462,7 @@
           let parts = [];
           if (p.runs > 0) parts.push(`${p.runs} (${p.balls})`);
           if (p.wickets > 0) parts.push(`${p.wickets} wkts`);
-          if (p.catches + p.run_outs + p.stumpings > 0) parts.push(`${p.catches+p.run_outs+p.stumpings} fld`);
+          if (p.catches + p.run_outs + p.stumpings > 0) parts.push(`${p.catches + p.run_outs + p.stumpings} fld`);
           momStatText = parts.join(" • ");
         }
       }
@@ -8090,7 +8526,7 @@
           btn.disabled = false;
           startApp();
         }
-        fetch(API + "/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: u, password: p }) }).catch(e=>console.warn(e));
+        fetch(API + "/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: u, password: p }) }).catch(e => console.warn(e));
       } else {
         fetch(API + "/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: u, password: p }) })
           .then(async res => {
@@ -8140,13 +8576,13 @@
       }
     }
 
-    function logout() { 
-      localStorage.removeItem("currentUser"); 
+    function logout() {
+      localStorage.removeItem("currentUser");
       localStorage.removeItem("lastPage");
       localStorage.removeItem("currentTournamentId");
       localStorage.removeItem("currentTeamsTournamentIdx");
       localStorage.removeItem("currentTournamentMatchIdx");
-      location.reload(); 
+      location.reload();
     }
 
     function handleUserDropdownPhoto(event) {
@@ -8204,7 +8640,7 @@
           showPage("home");
           renderHomeBanner();
         }
-      } catch(e) {
+      } catch (e) {
         console.error("startApp nav error:", e);
         showPage("home");
         renderHomeBanner();
@@ -8219,7 +8655,7 @@
       document.getElementById(id).style.display = "block";
       pageHistory.push(id);
       if (id !== "loginPage") localStorage.setItem("lastPage", id);
-      
+
       if (id === "home") { renderHomeBanner(); }
       if (id === "matches") { loadMatchTeamDropdowns(); loadUpcomingTeamDropdowns(); loadUpcomingMatches(); }
       if (id === "points") { loadPointsTable(); }
@@ -8270,16 +8706,16 @@
         let isLive = m.result === "LIVE"; // Simplified check for now
         let badgeText = m.result ? (m.result === "LIVE" ? "Live" : "Finished") : "Upcoming";
         let badgeBg = m.result === "LIVE" ? "#ef4444" : (m.result ? "#10b981" : "#f59e0b");
-        
+
         let dateStr = "TBD";
         if (m.date) {
-            let d = new Date(m.date);
-            dateStr = d.toLocaleDateString("en-IN", { weekday: 'short', day: 'numeric', month: 'short' });
-            if (m.time) {
-                dateStr += ", " + formatTimeAMPM(m.time);
-            } else {
-                dateStr += ", " + d.toLocaleTimeString("en-IN", { hour: '2-digit', minute: '2-digit' });
-            }
+          let d = new Date(m.date);
+          dateStr = d.toLocaleDateString("en-IN", { weekday: 'short', day: 'numeric', month: 'short' });
+          if (m.time) {
+            dateStr += ", " + formatTimeAMPM(m.time);
+          } else {
+            dateStr += ", " + d.toLocaleTimeString("en-IN", { hour: '2-digit', minute: '2-digit' });
+          }
         }
 
         return `
@@ -8324,7 +8760,7 @@
         // If user is organiser or creator
         if (t.organiser === user || t.createdBy === user) return true;
         // If user is a player in any team
-        return (t.teams || []).some(team => 
+        return (t.teams || []).some(team =>
           (team.players || []).some(p => p.name === user)
         );
       });
@@ -8529,18 +8965,18 @@
       let histEl = document.getElementById("profileMatchHistory");
       let loadBtn = document.getElementById("profileMatchLoadMore");
       let toLoad = currentProfileMatches.slice(profileMatchesLoaded, profileMatchesLoaded + 6);
-      
+
       let html = "";
       toLoad.forEach(r => {
         let d = new Date(r.match_date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "2-digit" });
         let isBat = r.match_type === "bat";
-        
+
         let team1Str = (r.team_name || "Team").toUpperCase();
         let team2Str = (r.opponent_team || "Opponent").toUpperCase();
-        
+
         let scoreStr = isBat ? `${r.runs} runs (${r.balls_faced})` : `${r.wickets}W / ${r.overs_bowled} ov`;
         let dismissal = isBat && r.dismissal_type ? ` - ${r.dismissal_type}` : "";
-        let resultStr = isBat ? `Batting${dismissal}` : `Bowling - Eco: ${(r.runs_conceded/(parseFloat(r.overs_bowled)||1)).toFixed(1)}`;
+        let resultStr = isBat ? `Batting${dismissal}` : `Bowling - Eco: ${(r.runs_conceded / (parseFloat(r.overs_bowled) || 1)).toFixed(1)}`;
 
         html += `
           <div class="pm-card">
@@ -8566,13 +9002,13 @@
           </div>
         `;
       });
-      
+
       if (profileMatchesLoaded === 0) {
         histEl.innerHTML = html || "<div style='grid-column:1/-1; text-align:center; padding:30px; color:#94a3b8;'>No match history found.</div>";
       } else {
         histEl.innerHTML += html;
       }
-      
+
       profileMatchesLoaded += toLoad.length;
       if (profileMatchesLoaded < currentProfileMatches.length) {
         loadBtn.style.display = "block";
@@ -8588,7 +9024,7 @@
     async function openPlayerProfile(playerName, teamName, role) {
       if (document.getElementById("allPlayersModal")) document.getElementById("allPlayersModal").classList.remove("open");
       showPage("playerProfilePage");
-      
+
       // Reset tabs to Matches
       let tabs = document.querySelectorAll('.profile-tab-btn');
       if (tabs.length > 0) switchProfileTab('matches', tabs[0]);
@@ -8596,18 +9032,18 @@
       currentProfilePlayerName = playerName;
       document.getElementById("photoUploadStatus").innerText = "";
       document.getElementById("photoUploadInput").value = "";
-      
+
       let profilePhoto = localStorage.getItem("userPhoto_" + playerName);
       if (profilePhoto) {
         document.getElementById("profileAvatar").innerHTML = '<img src="' + profilePhoto + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">';
       } else {
         document.getElementById("profileAvatar").innerHTML = '<span style="font-size:40px;">' + roleEmoji(role) + '</span>';
       }
-      
+
       document.getElementById("profileName").innerText = playerName;
       document.getElementById("profileRoleBadge").innerText = role || "PLAYER";
       let pTeamEl = document.getElementById("profileTeam");
-      if(pTeamEl) pTeamEl.innerText = teamName ? ("🏏 " + teamName) : "";
+      if (pTeamEl) pTeamEl.innerText = teamName ? ("🏏 " + teamName) : "";
 
       fetch(API + "/player-photo/" + encodeURIComponent(playerName)).then(r => r.json()).then(d => {
         if (d.photo_url) { document.getElementById("profileAvatar").innerHTML = '<img src="' + d.photo_url + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">'; }
@@ -8615,7 +9051,7 @@
 
       ["pRuns", "pBalls", "pSR", "pFours", "pSixes", "pHS", "pWickets", "pOvers", "pEco", "pCatches", "pRunOuts", "pStumpings", "profileTotalMatches", "profileTotalRuns", "profileTotalWickets"].forEach(id => {
         let el = document.getElementById(id);
-        if(el) el.innerText = "...";
+        if (el) el.innerText = "...";
       });
 
       document.getElementById("profileMatchHistory").innerHTML = "<div style='grid-column:1/-1; text-align:center; padding:30px; color:#94a3b8;'>⏳ Loading...</div>";
@@ -8625,14 +9061,14 @@
         await fetch(API + "/player-profile", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ player_name: playerName, team_name: teamName, role: role, runs: 0 }) });
         const res = await fetch(API + "/player-stats/" + encodeURIComponent(playerName), { cache: "no-store" });
         const rows = await res.json();
-        
+
         // Top Banner Stats
         let totalMatchesCount = new Set(rows.map(r => r.match_id)).size;
         document.getElementById("profileTotalMatches").innerText = totalMatchesCount || 0;
 
         let totalRn = 0, totalBl = 0, totalFr = 0, totalSx = 0, hs = 0;
         rows.filter(r => r.match_type === "bat").forEach(r => { totalRn += r.runs || 0; totalBl += r.balls_faced || 0; totalFr += r.fours || 0; totalSx += r.sixes || 0; if ((r.runs || 0) > hs) hs = r.runs; });
-        
+
         document.getElementById("profileTotalRuns").innerText = totalRn;
         document.getElementById("pRuns").innerText = totalRn;
         document.getElementById("pBalls").innerText = totalBl;
@@ -8640,30 +9076,30 @@
         document.getElementById("pFours").innerText = totalFr;
         document.getElementById("pSixes").innerText = totalSx;
         document.getElementById("pHS").innerText = hs;
-        
+
         let totalWk = 0, totalBallsBwl = 0, totalRunsCon = 0;
         rows.filter(r => r.match_type === "bowl").forEach(r => { totalWk += r.wickets || 0; let pts = (r.overs_bowled || "0.0").split("."); totalBallsBwl += parseInt(pts[0]) * 6 + parseInt(pts[1] || 0); totalRunsCon += r.runs_conceded || 0; });
-        
+
         document.getElementById("profileTotalWickets").innerText = totalWk;
         document.getElementById("pWickets").innerText = totalWk;
         document.getElementById("pOvers").innerText = Math.floor(totalBallsBwl / 6) + "." + (totalBallsBwl % 6);
         document.getElementById("pEco").innerText = totalBallsBwl > 0 ? ((totalRunsCon / totalBallsBwl) * 6).toFixed(2) : "0.00";
-        
+
         let totalCatches = 0, totalRunOuts = 0, totalStumpings = 0;
         rows.forEach(r => { totalCatches += r.catches || 0; totalRunOuts += r.run_outs || 0; totalStumpings += r.stumpings || 0; });
         document.getElementById("pCatches").innerText = totalCatches;
         document.getElementById("pRunOuts").innerText = totalRunOuts;
         document.getElementById("pStumpings").innerText = totalStumpings;
-        
+
         // Setup Match History Cards
         currentProfileMatches = rows;
         profileMatchesLoaded = 0;
         renderProfileMatchCards();
-        
+
       } catch (err) {
         ["pRuns", "pBalls", "pSR", "pFours", "pSixes", "pHS", "pWickets", "pOvers", "pEco", "profileTotalMatches", "profileTotalRuns", "profileTotalWickets"].forEach(id => {
           let el = document.getElementById(id);
-          if(el) el.innerText = "0";
+          if (el) el.innerText = "0";
         });
         document.getElementById("profileMatchHistory").innerHTML = "<div style='grid-column:1/-1; text-align:center; padding:30px; color:#f87171;'>Failed to load stats.</div>";
       }
@@ -8931,9 +9367,9 @@
         batsmanStats[p] = batsmanStats[p] || { runs: 0, balls: 0, fours: 0, sixes: 0 };
         if (outBatsmen.indexOf(p) === -1) { strike.innerHTML += '<option>' + p + '</option>'; nonstrike.innerHTML += '<option>' + p + '</option>'; }
       });
-      bowlPlayers.forEach(p => { 
-        bowlerStats[p] = bowlerStats[p] || { runs: 0, balls: 0, wickets: 0, dots: 0, fours: 0, sixes: 0, wides: 0, noballs: 0 }; 
-        bowler.innerHTML += '<option>' + p + '</option>'; 
+      bowlPlayers.forEach(p => {
+        bowlerStats[p] = bowlerStats[p] || { runs: 0, balls: 0, wickets: 0, dots: 0, fours: 0, sixes: 0, wides: 0, noballs: 0 };
+        bowler.innerHTML += '<option>' + p + '</option>';
       });
       updateTables(); updateScore();
     }
@@ -8964,11 +9400,11 @@
       if (!batsmanStats[s].wagon_wheel) batsmanStats[s].wagon_wheel = [];
       if (shotType) batsmanStats[s].shot_types.push(shotType);
       if (wagonZone) batsmanStats[s].wagon_wheel.push(wagonZone);
-      
+
       // Commentary
       let over = Math.floor((ballCount - 1) / 6) + "." + ((ballCount - 1) % 6 + 1);
       matchCommentary.unshift({
-        over: over, ball: r, 
+        over: over, ball: r,
         text: `${b} to ${s}, ${r} run${r == 1 ? '' : 's'}${shotType ? ', ' + shotType : ''}`
       });
 
@@ -8982,10 +9418,10 @@
           runs: totalRuns,
           wkts: totalWickets,
           batters: [
-            {name: strike.value, runs: batsmanStats[strike.value].runs, balls: batsmanStats[strike.value].balls},
-            {name: nonstrike.value, runs: batsmanStats[nonstrike.value].runs, balls: batsmanStats[nonstrike.value].balls}
+            { name: strike.value, runs: batsmanStats[strike.value].runs, balls: batsmanStats[strike.value].balls },
+            { name: nonstrike.value, runs: batsmanStats[nonstrike.value].runs, balls: batsmanStats[nonstrike.value].balls }
           ],
-          bowler: {name: b, stats: `${Math.floor(bowlerStats[b].balls/6)}.${bowlerStats[b].balls%6} - ${bowlerStats[b].maidens || 0} - ${bowlerStats[b].runs} - ${bowlerStats[b].wickets} (0s:${bowlerStats[b].dots||0})`}
+          bowler: { name: b, stats: `${Math.floor(bowlerStats[b].balls / 6)}.${bowlerStats[b].balls % 6} - ${bowlerStats[b].maidens || 0} - ${bowlerStats[b].runs} - ${bowlerStats[b].wickets} (0s:${bowlerStats[b].dots || 0})` }
         });
 
         changeStrike();
@@ -9189,11 +9625,11 @@
       let strikeEl = document.getElementById("strike"), nonStrikeEl = document.getElementById("nonstrike");
       for (let i = strikeEl.options.length - 1; i >= 0; i--) { if (strikeEl.options[i].value === outPlayer) strikeEl.remove(i); }
       for (let i = nonStrikeEl.options.length - 1; i >= 0; i--) { if (nonStrikeEl.options[i].value === outPlayer) nonStrikeEl.remove(i); }
-      
+
       let over = Math.floor((ballCount - 1) / 6) + "." + ((ballCount - 1) % 6 + 1);
       let outDesc = dismissalType === "Bowled" || dismissalType === "LBW" ? dismissalType : `${dismissalType} (${dismissedBy})`;
       matchCommentary.unshift({
-        over: over, ball: "W", 
+        over: over, ball: "W",
         text: `${bowler.value} to ${outPlayer}, OUT, ${outDesc}`,
         subText: `${outPlayer} ${outDesc} b ${bowler.value} (${batsmanStats[outPlayer].runs}r ${batsmanStats[outPlayer].balls}b)`
       });
@@ -9536,7 +9972,7 @@
       // Consolidated MOM Calculation
       let players = {};
       const getP = (n) => {
-        if (!players[n]) players[n] = { runs:0, balls:0, fours:0, sixes:0, wickets:0, dots:0, maidens:0, bRuns:0, bBalls:0, catches:0, run_outs:0, stumpings:0 };
+        if (!players[n]) players[n] = { runs: 0, balls: 0, fours: 0, sixes: 0, wickets: 0, dots: 0, maidens: 0, bRuns: 0, bBalls: 0, catches: 0, run_outs: 0, stumpings: 0 };
         return players[n];
       };
       for (let p in batsmanStats) { let s = getP(p); s.runs += batsmanStats[p].runs; s.balls += batsmanStats[p].balls; s.fours += batsmanStats[p].fours; s.sixes += batsmanStats[p].sixes; }
@@ -9558,7 +9994,7 @@
           let parts = [];
           if (p.runs > 0) parts.push(`${p.runs} runs`);
           if (p.wickets > 0) parts.push(`${p.wickets} wkts`);
-          if (p.catches + p.run_outs + p.stumpings > 0) parts.push(`${p.catches+p.run_outs+p.stumpings} field`);
+          if (p.catches + p.run_outs + p.stumpings > 0) parts.push(`${p.catches + p.run_outs + p.stumpings} field`);
           momStats = parts.join(", ");
         }
       }
@@ -9590,7 +10026,7 @@
       dtpCallback = callback;
       let now = initialVal ? new Date(initialVal) : new Date();
       if (isNaN(now.getTime())) now = new Date();
-      
+
       dtpState.month = now.getMonth();
       dtpState.year = now.getFullYear();
       dtpState.day = now.getDate();
@@ -9598,7 +10034,7 @@
       dtpState.ampm = h >= 12 ? 'PM' : 'AM';
       dtpState.hour = h % 12 || 12;
       dtpState.minute = Math.floor(now.getMinutes() / 5) * 5;
-      
+
       dtpState.view = 'hour';
       renderDtCalendar();
       switchDtClock('hour');
@@ -9617,13 +10053,13 @@
     function renderDtCalendar() {
       const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
       document.getElementById('dtpMonthYear').innerText = `${months[dtpState.month]} ${dtpState.year}`;
-      
+
       const grid = document.getElementById('dtpDaysGrid');
       grid.innerHTML = ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => `<div class="dtp-day-name">${d}</div>`).join('');
-      
+
       const firstDay = new Date(dtpState.year, dtpState.month, 1).getDay();
       const daysInMonth = new Date(dtpState.year, dtpState.month + 1, 0).getDate();
-      
+
       for (let i = 0; i < firstDay; i++) grid.innerHTML += '<div></div>';
       for (let d = 1; d <= daysInMonth; d++) {
         const isSelected = d === dtpState.day;
@@ -9649,7 +10085,7 @@
       const numbersContainer = document.getElementById('dtpClockNumbers');
       let html = '';
       let handAngle = 0;
-      
+
       if (dtpState.view === 'hour') {
         for (let h = 1; h <= 12; h++) {
           const angle = (h * 30);
@@ -9670,7 +10106,7 @@
           if (isSelected) handAngle = angle;
         }
       }
-      
+
       numbersContainer.innerHTML = html;
       document.getElementById('dtpClockHand').style.transform = `rotate(${handAngle}deg)`;
     }
@@ -9723,9 +10159,9 @@
       face.addEventListener('mousedown', (e) => { dtpIsDragging = true; handleDtClockInteraction(e); });
       window.addEventListener('mousemove', (e) => { if (dtpIsDragging) handleDtClockInteraction(e); });
       window.addEventListener('mouseup', () => { dtpIsDragging = false; });
-      
-      face.addEventListener('touchstart', (e) => { dtpIsDragging = true; handleDtClockInteraction(e.touches[0]); e.preventDefault(); }, {passive: false});
-      window.addEventListener('touchmove', (e) => { if (dtpIsDragging) handleDtClockInteraction(e.touches[0]); }, {passive: false});
+
+      face.addEventListener('touchstart', (e) => { dtpIsDragging = true; handleDtClockInteraction(e.touches[0]); e.preventDefault(); }, { passive: false });
+      window.addEventListener('touchmove', (e) => { if (dtpIsDragging) handleDtClockInteraction(e.touches[0]); }, { passive: false });
       window.addEventListener('touchend', () => { dtpIsDragging = false; });
     }
 
@@ -9736,10 +10172,10 @@
       const cy = rect.top + rect.height / 2;
       const dx = e.clientX - cx;
       const dy = e.clientY - cy;
-      
+
       let angle = Math.atan2(dy, dx) * 180 / Math.PI + 90;
       if (angle < 0) angle += 360;
-      
+
       if (dtpState.view === 'hour') {
         let h = Math.round(angle / 30);
         if (h === 0) h = 12;
@@ -9812,7 +10248,7 @@
           let afterScorecard = path.split("/scorecard/")[1];
           matchId = afterScorecard.split("/")[0];
         }
-        
+
         if (matchId) {
           setTimeout(() => {
             if (typeof viewLiveMatch === 'function') {
@@ -10372,7 +10808,8 @@
           <div class="dtp-header" style="width: 100%;">
             <div class="dtp-month-year" id="dtpClockTitle">Select Hour</div>
             <div class="dtp-nav-btns">
-              <span class="dtp-nav-btn" id="dtpClockBackBtn" style="display:none;" onclick="switchDtClock('hour')">&lt;</span>
+              <span class="dtp-nav-btn" id="dtpClockBackBtn" style="display:none;"
+                onclick="switchDtClock('hour')">&lt;</span>
               <span class="dtp-nav-btn" id="dtpClockNextBtn" onclick="switchDtClock('minute')">&gt;</span>
             </div>
           </div>
@@ -10403,4 +10840,5 @@
     </div>
   </div>
 </body>
+
 </html>
