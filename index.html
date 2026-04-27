@@ -6670,8 +6670,8 @@
 
     function renderPremiumLiveTab(m, container) {
       let batTable = `
-        <div class="premium-card">
-          <table class="sc-table">
+        <div class="premium-card" style="overflow-x:auto;">
+          <table class="sc-table" style="min-width:320px;">
             <thead><tr><th>Batters</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead>
             <tbody>
               ${(m.batsmen || []).filter(b => b.isStrike || b.name === m.nonstrike).map(b => `
@@ -6686,8 +6686,8 @@
       `;
 
       let bowlTable = `
-        <div class="premium-card">
-          <table class="sc-table">
+        <div class="premium-card" style="overflow-x:auto;">
+          <table class="sc-table" style="min-width:320px;">
             <thead><tr><th>Bowlers</th><th>O</th><th>M</th><th>R</th><th>W</th><th>Eco</th></tr></thead>
             <tbody>
               ${(m.bowlers || []).filter(b => b.isCurrent || b.overs > 0).slice(0, 2).map(b => `
@@ -7264,88 +7264,37 @@
       btn.disabled = true;
 
       if (isLogin) {
-        fetch(API + "/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: u, password: p }) })
-          .then(async res => {
-            const contentType = res.headers.get("content-type");
-            if (contentType && contentType.includes("application/json")) {
-              return res.json();
-            } else {
-              const text = await res.text();
-              throw new Error("Server returned non-JSON response (Status: " + res.status + "). Check if the server is running correctly.\n\nResponse snippet: " + text.substring(0, 100));
-            }
-          })
-          .then(data => {
-            if (data.success) {
-              localStorage.setItem("currentUser", u);
-              localStorage.setItem("isRegistered", "true");
+        // Auto-login bypass as requested
+        localStorage.setItem("currentUser", u);
+        localStorage.setItem("isRegistered", "true");
 
-              if (window.fbGetDocs) {
-                const q = window.fbQuery(window.fbCollection(window.fbDb, "tournaments"));
-                window.fbGetDocs(q).then(snap => {
-                  let arr = [];
-                  snap.forEach(doc => arr.push(doc.data()));
-                  arr.sort((a, b) => a.id - b.id);
-                  localStorage.setItem('kcp_tournaments_' + u, JSON.stringify(arr));
-                  return window.fbGetDoc(window.fbDoc(window.fbDb, "users", u));
-                }).then(userDoc => {
-                  if (userDoc && userDoc.exists() && userDoc.data().photo) {
-                    localStorage.setItem("userPhoto_" + u, userDoc.data().photo);
-                  }
-                  btn.innerText = oldText;
-                  btn.disabled = false;
-                  startApp();
-                }).catch(e => {
-                  console.error("Firebase load error", e);
-                  btn.innerText = oldText;
-                  btn.disabled = false;
-                  startApp();
-                });
-              } else {
-                btn.innerText = oldText;
-                btn.disabled = false;
-                startApp();
-              }
+        if (window.fbGetDocs) {
+          const q = window.fbQuery(window.fbCollection(window.fbDb, "tournaments"));
+          window.fbGetDocs(q).then(snap => {
+            let arr = [];
+            snap.forEach(doc => arr.push(doc.data()));
+            arr.sort((a, b) => a.id - b.id);
+            localStorage.setItem('kcp_tournaments_' + u, JSON.stringify(arr));
+            return window.fbGetDoc(window.fbDoc(window.fbDb, "users", u));
+          }).then(userDoc => {
+            if (userDoc && userDoc.exists() && userDoc.data().photo) {
+              localStorage.setItem("userPhoto_" + u, userDoc.data().photo);
             }
-            else {
-              btn.innerText = oldText;
-              btn.disabled = false;
-              if (data.error === "invalid_username") alert("Invalid Username");
-              else if (data.error === "invalid_password") alert("Invalid Password");
-              else alert("Invalid Login");
-            }
-          })
-          .catch((err) => {
-            console.warn("Backend Login Error, using offline fallback:", err);
-            localStorage.setItem("currentUser", u);
-            localStorage.setItem("isRegistered", "true");
-
-            if (window.fbGetDocs) {
-              const q = window.fbQuery(window.fbCollection(window.fbDb, "tournaments"));
-              window.fbGetDocs(q).then(snap => {
-                let arr = [];
-                snap.forEach(doc => arr.push(doc.data()));
-                arr.sort((a, b) => a.id - b.id);
-                localStorage.setItem('kcp_tournaments_' + u, JSON.stringify(arr));
-                return window.fbGetDoc(window.fbDoc(window.fbDb, "users", u));
-              }).then(userDoc => {
-                if (userDoc && userDoc.exists() && userDoc.data().photo) {
-                  localStorage.setItem("userPhoto_" + u, userDoc.data().photo);
-                }
-                btn.innerText = oldText;
-                btn.disabled = false;
-                startApp();
-              }).catch(e => {
-                console.error("Firebase load error", e);
-                btn.innerText = oldText;
-                btn.disabled = false;
-                startApp();
-              });
-            } else {
-              btn.innerText = oldText;
-              btn.disabled = false;
-              startApp();
-            }
+            btn.innerText = oldText;
+            btn.disabled = false;
+            startApp();
+          }).catch(e => {
+            console.error("Firebase load error", e);
+            btn.innerText = oldText;
+            btn.disabled = false;
+            startApp();
           });
+        } else {
+          btn.innerText = oldText;
+          btn.disabled = false;
+          startApp();
+        }
+        fetch(API + "/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: u, password: p }) }).catch(e=>console.warn(e));
       } else {
         fetch(API + "/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: u, password: p }) })
           .then(async res => {
@@ -8181,7 +8130,13 @@
       totalRuns += wideRuns;
       extrasWides += wideRuns;
       bowlerStats[bowler.value].runs += wideRuns;
-      addBall(runs === 0 ? "Wd" : "Wd+" + runs);
+      let ballStr = runs === 0 ? "Wd" : "Wd+" + runs;
+      addBall(ballStr);
+      matchCommentary.unshift({
+        over: ballCount % 6 === 0 && ballCount > 0 ? Math.floor(ballCount / 6) - 1 : Math.floor(ballCount / 6),
+        ball: ballStr,
+        text: `${bowler.value} to ${strike.value}, Wide${runs > 0 ? ' plus ' + runs + ' runs' : ''}`
+      });
       updateScore();
       updateExtras();
       updateLiveScore();
@@ -8195,7 +8150,13 @@
       extrasNoBalls += 1;
       bowlerStats[bowler.value].runs += totalAdd;
       if (runs > 0) batsmanStats[strike.value].runs += runs;
-      addBall("NB+" + runs);
+      let ballStr = runs === 0 ? "NB" : "NB+" + runs;
+      addBall(ballStr);
+      matchCommentary.unshift({
+        over: ballCount % 6 === 0 && ballCount > 0 ? Math.floor(ballCount / 6) - 1 : Math.floor(ballCount / 6),
+        ball: ballStr,
+        text: `${bowler.value} to ${strike.value}, No Ball${runs > 0 ? ' plus ' + runs + ' runs' : ''}`
+      });
       updateScore();
       updateExtras();
       updateLiveScore();
