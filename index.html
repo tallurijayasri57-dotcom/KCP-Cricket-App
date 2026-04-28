@@ -10617,8 +10617,18 @@
           function tryViewMatch() {
             if (window.fbDb && window.fbOnSnapshot) {
               currentMatchActiveTab = 'live';
+              
+              // Ensure navbar is visible for the full experience (Home, Matches buttons)
+              let nav = document.getElementById('nav');
+              if (nav) nav.style.display = "flex";
+              
+              // Start background listeners so Home page and other views have data
+              if (typeof listenToLiveMatches === 'function') listenToLiveMatches();
+              if (typeof loadTeams === 'function') loadTeams();
+
               let splash = document.getElementById('splashScreen');
               if (splash) { splash.style.display = 'none'; }
+              
               if (typeof liveViewUnsubscribe === 'function') liveViewUnsubscribe();
               viewLiveMatch(matchId);
             } else {
