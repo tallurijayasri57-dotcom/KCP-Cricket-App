@@ -4712,7 +4712,7 @@
 
 
   <!-- LOGIN PAGE -->
-  <div id="loginPage">
+  <div id="loginPage" class="page">
     <div class="auth-card">
       <div class="auth-logo">
         <span class="logo-icon"><img
@@ -7511,17 +7511,6 @@
           let m = item.data;
           m.id = item.id;
           if (m.updatedAt && Date.now() - m.updatedAt > 24 * 60 * 60 * 1000) return;
-
-          // FILTER: Only show on home screen if current user belongs to the teams playing
-          // Organisers and Admins see all matches
-          if (userRole !== 'admin' && userRole !== 'organiser') {
-            let t1 = (m.batTeam || "").toLowerCase().trim();
-            let t2 = (m.bowlTeam || "").toLowerCase().trim();
-            // Note: If innings 2, we might need team1/team2, but assuming batTeam/bowlTeam covers current participants
-            if (t1 !== userTeam && t2 !== userTeam) {
-              return; 
-            }
-          }
 
           matchCount++;
 
