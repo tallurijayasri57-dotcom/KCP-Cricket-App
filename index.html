@@ -9476,6 +9476,8 @@
         ball: ballStr,
         text: `${bowler.value} to ${strike.value}, Wide${runs > 0 ? ' plus ' + runs + ' runs' : ''}`
       });
+      // Wide lo odd runs vasthy striker change avvali
+      if (runs % 2 === 1) changeStrike();
       updateScore();
       updateExtras();
       updateLiveScore();
@@ -9580,6 +9582,13 @@
     function noball() { }
     function wicket() {
       if (winShown) return;
+      // First show wk-runs popup (wk+0/+1/+2/+3)
+      document.getElementById('wicketRunsOverlay').classList.add('open');
+    }
+    function openWicketWithRuns(extraRuns) {
+      document.getElementById('wicketRunsOverlay').classList.remove('open');
+      // Store extra runs scored before wicket
+      window._wicketExtraRuns = extraRuns;
       let sel = document.getElementById("wicketPlayerSelect");
       sel.innerHTML = "";
       [strike.value, nonstrike.value].forEach(function (p) { sel.innerHTML += '<option value="' + p + '">' + p + '</option>'; });
@@ -9608,13 +9617,22 @@
       let outPlayer = document.getElementById("wicketPlayerSelect").value;
       let dismissalType = document.getElementById("dismissalTypeSelect").value;
       let dismissedBy = dismissalType === "Bowled" ? bowler.value : document.getElementById("dismissedBySelect").value;
+      let extraRuns = window._wicketExtraRuns || 0;
+      window._wicketExtraRuns = 0;
       saveSnapshot();
       document.getElementById("wicketOverlay").classList.remove("open");
+      // Extra runs before wicket add cheskodam
+      if (extraRuns > 0) {
+        totalRuns += extraRuns;
+        batsmanStats[strike.value] && (batsmanStats[strike.value].runs += extraRuns);
+        bowlerStats[bowler.value].runs += extraRuns;
+      }
       totalWickets++; ballCount++;
-      addBall("W");
+      let ballStr = extraRuns > 0 ? extraRuns + "+W" : "W";
+      addBall(ballStr);
       bowlerStats[bowler.value].wickets++;
       bowlerStats[bowler.value].balls++;
-      bowlerStats[bowler.value].dots = (bowlerStats[bowler.value].dots || 0) + 1;
+      if (extraRuns === 0) bowlerStats[bowler.value].dots = (bowlerStats[bowler.value].dots || 0) + 1;
       if (batsmanStats[outPlayer]) {
         batsmanStats[outPlayer].balls++;
         batsmanStats[outPlayer].dismissal_type = dismissalType;
@@ -9639,13 +9657,71 @@
       let over = Math.floor((ballCount - 1) / 6) + "." + ((ballCount - 1) % 6 + 1);
       let outDesc = dismissalType === "Bowled" || dismissalType === "LBW" ? dismissalType : `${dismissalType} (${dismissedBy})`;
       matchCommentary.unshift({
-        over: over, ball: "W",
+        over: over, ball: ballStr,
         text: `${bowler.value} to ${outPlayer}, OUT, ${outDesc}`,
         subText: `${outPlayer} ${outDesc} b ${bowler.value} (${batsmanStats[outPlayer].runs}r ${batsmanStats[outPlayer].balls}b)`
       });
 
+      // Over complete check — wicket on last ball
+      if (ballCount % 6 === 0) {
+        // Over summary add cheskodam
+        matchCommentary.unshift({
+          type: "over_summary",
+          over: Math.floor(ballCount / 6),
+          runs: totalRuns,
+          wkts: totalWickets,
+          batters: [
+            { name: strikeEl.options[0] ? strikeEl.options[0].value : '—', runs: batsmanStats[strikeEl.options[0] ? strikeEl.options[0].value : ''] ? batsmanStats[strikeEl.options[0].value].runs : 0, balls: batsmanStats[strikeEl.options[0] ? strikeEl.options[0].value : ''] ? batsmanStats[strikeEl.options[0].value].balls : 0 },
+            { name: nonStrikeEl.options[0] ? nonStrikeEl.options[0].value : '—', runs: 0, balls: 0 }
+          ],
+          bowler: { name: bowler.value, stats: '' }
+        });
+        if (totalOvers > 0 && ballCount >= totalOvers * 6) {
+          alert("All " + totalOvers + " overs complete! Innings ended.");
+        } else {
+          // Last ball wicket: first ask striker/non-striker, then bowler
+          setTimeout(openStrikerSelectPopup, 300);
+        }
+      }
+
       updateScore(); updateTables();
       updateLiveScore();
+    }
+
+    // Striker select popup after over-end wicket
+    function openStrikerSelectPopup() {
+      let strikeEl = document.getElementById('strike');
+      let nonStrikeEl = document.getElementById('nonstrike');
+      let newSel = document.getElementById('newStrikerSelect');
+      let newNonSel = document.getElementById('newNonStrikerSelect');
+      newSel.innerHTML = '';
+      newNonSel.innerHTML = '';
+      // Available batsmen (not out)
+      batPlayers.forEach(p => {
+        if (outBatsmen.indexOf(p) === -1) {
+          newSel.innerHTML += '<option value="' + p + '">' + p + '</option>';
+          newNonSel.innerHTML += '<option value="' + p + '">' + p + '</option>';
+        }
+      });
+      // Pre-select sensibly: non-striker becomes striker (he's still in), and first available is non-striker
+      if (nonStrikeEl.value && newSel.querySelector('option[value="' + nonStrikeEl.value + '"]')) {
+        newSel.value = nonStrikeEl.value;
+      }
+      document.getElementById('strikerSelectOverlay').classList.add('open');
+    }
+
+    function confirmStrikerSelect() {
+      let newStriker = document.getElementById('newStrikerSelect').value;
+      let newNonStriker = document.getElementById('newNonStrikerSelect').value;
+      if (newStriker === newNonStriker) {
+        alert('Striker and Non-Striker must be different players!');
+        return;
+      }
+      document.getElementById('strike').value = newStriker;
+      document.getElementById('nonstrike').value = newNonStriker;
+      document.getElementById('strikerSelectOverlay').classList.remove('open');
+      // Now open bowler change popup
+      setTimeout(openBowlerChangePopup, 200);
     }
     function addBall(t) { let d = document.createElement("span"); d.className = "ball"; d.innerText = t; balls.appendChild(d); }
     function changeStrike() { let s = strike.value; strike.value = nonstrike.value; nonstrike.value = s; }
@@ -10289,6 +10365,46 @@
       </div>
       <button onclick="document.getElementById('widePopupOverlay').classList.remove('open')"
         style="width:100%;margin-top:14px;padding:11px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#6b7280;font-family:'Rajdhani',sans-serif;font-size:14px;cursor:pointer;">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Wicket Runs Popup (wk+0/+1/+2/+3) -->
+  <div class="extra-popup-overlay" id="wicketRunsOverlay">
+    <div class="extra-popup-box">
+      <div class="extra-popup-title" style="color:#ef4444;">🎯 Wicket!</div>
+      <div class="extra-popup-subtitle">Wicket ki mundu ela runs vashayi?</div>
+      <div class="extra-btns-grid">
+        <button class="extra-opt-btn" style="background:rgba(220,38,38,0.25);border-color:#ef4444;"
+          onclick="openWicketWithRuns(0)">Wk +0</button>
+        <button class="extra-opt-btn" style="background:rgba(220,38,38,0.25);border-color:#ef4444;"
+          onclick="openWicketWithRuns(1)">Wk +1</button>
+        <button class="extra-opt-btn" style="background:rgba(220,38,38,0.25);border-color:#ef4444;"
+          onclick="openWicketWithRuns(2)">Wk +2</button>
+        <button class="extra-opt-btn" style="background:rgba(220,38,38,0.25);border-color:#ef4444;"
+          onclick="openWicketWithRuns(3)">Wk +3</button>
+      </div>
+      <button onclick="document.getElementById('wicketRunsOverlay').classList.remove('open')"
+        style="width:100%;margin-top:14px;padding:11px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#6b7280;font-family:'Rajdhani',sans-serif;font-size:14px;cursor:pointer;">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Striker / Non-Striker Select Popup (over-end wicket) -->
+  <div class="extra-popup-overlay" id="strikerSelectOverlay">
+    <div class="extra-popup-box">
+      <div class="extra-popup-title" style="color:#f59e0b;">🏏 New Over — Who Bats?</div>
+      <div class="extra-popup-subtitle">Striker evaru, Non-Striker evaru ani select cheyyandi</div>
+      <div style="margin-bottom:12px;">
+        <div style="font-size:13px;color:#6ee7b7;margin-bottom:6px;font-weight:600;">⚡ Striker (Facing):</div>
+        <select id="newStrikerSelect"
+          style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(245,158,11,0.4);border-radius:10px;color:#e5e7eb;font-family:'Inter',sans-serif;font-size:15px;box-sizing:border-box;outline:none;"></select>
+      </div>
+      <div style="margin-bottom:16px;">
+        <div style="font-size:13px;color:#93c5fd;margin-bottom:6px;font-weight:600;">🔄 Non-Striker:</div>
+        <select id="newNonStrikerSelect"
+          style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(147,197,253,0.3);border-radius:10px;color:#e5e7eb;font-family:'Inter',sans-serif;font-size:15px;box-sizing:border-box;outline:none;"></select>
+      </div>
+      <button onclick="confirmStrikerSelect()"
+        style="width:100%;padding:13px;background:linear-gradient(135deg,#d97706,#b45309);border:none;border-radius:10px;color:white;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">✅ Confirm Batsmen</button>
     </div>
   </div>
 
