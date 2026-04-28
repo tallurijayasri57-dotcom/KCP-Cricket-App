@@ -3181,6 +3181,16 @@
       max-width: 480px;
     }
 
+    /* Force dark background on native select dropdown options */
+    #newBowlerSelect option,
+    #newStrikerSelect option,
+    #newNonStrikerSelect option,
+    #wicketPlayerSelect option,
+    #dismissedBySelect option {
+      background-color: #1e293b;
+      color: #e5e7eb;
+    }
+
     .extra-popup-title {
       font-family: 'Rajdhani', sans-serif;
       font-size: 13px;
@@ -3525,7 +3535,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-end;
+      justify-content: center;
       z-index: 99999;
       overflow: hidden;
       padding: 0;
@@ -3533,46 +3543,20 @@
     }
 
     .splash-photo {
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100%;
-      max-width: 500px;
-      height: 75%;
-      object-fit: cover;
-      object-position: center top;
       display: block;
-      mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
-      -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
-    }
-
-    .splash-kcp-text {
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 52px;
-      font-weight: 700;
-      letter-spacing: 18px;
-      color: #fff;
-      text-transform: uppercase;
-      text-align: center;
-      position: relative;
-      z-index: 2;
-      margin: 0 0 60px 0;
-      text-shadow: 0 2px 20px rgba(255, 255, 255, 0.15);
-      padding-left: 18px;
+      width: 100%;
+      max-width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: center center;
+      mask-image: linear-gradient(to bottom, black 75%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to bottom, black 75%, transparent 100%);
     }
 
     @media (max-width: 768px) {
       .splash-photo {
         max-width: 100%;
-        height: 70%;
-      }
-
-      .splash-kcp-text {
-        font-size: 36px;
-        letter-spacing: 12px;
-        margin-bottom: 50px;
-        padding-left: 12px;
+        height: 100%;
       }
     }
 
@@ -4047,7 +4031,6 @@
 <body>
   <div id="splashScreen">
     <img src="/founder.png" class="splash-photo" alt="KCP Founder">
-    <div class="splash-kcp-text">K C P</div>
   </div>
 
   <div id="shotOverlay">
@@ -6095,7 +6078,7 @@
         <div class="extra-popup-subtitle" id="bowlerChangeMsg">Select New Bowler</div>
         <div style="margin-bottom:16px;">
           <select id="newBowlerSelect"
-            style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(110,231,183,0.3);border-radius:10px;color:#e5e7eb;font-family:'Inter',sans-serif;font-size:15px;box-sizing:border-box;outline:none;"></select>
+            style="width:100%;padding:12px 14px;background:#1e293b;border:1px solid rgba(110,231,183,0.3);border-radius:10px;color:#e5e7eb;font-family:'Inter',sans-serif;font-size:15px;box-sizing:border-box;outline:none;color-scheme:dark;"></select>
         </div>
         <button onclick="confirmBowlerChange()"
           style="width:100%;padding:13px;background:linear-gradient(135deg,#16a34a,#15803d);border:none;border-radius:10px;color:white;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">✅
