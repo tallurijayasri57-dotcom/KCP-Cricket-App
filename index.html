@@ -10476,36 +10476,34 @@
       document.getElementById("authTitle").innerText = "Welcome Back";
       document.getElementById("authBtn").innerText = "LOGIN";
       document.getElementById("switchText").innerText = "Don't have an account? Register";
-      // Show login only after splash screen finishes (3.5s total)
-      setTimeout(() => { showPage('loginPage'); }, 3500);
-
       // Scorecard deep-link handling — bypass login for viewers
-      if (window.location.pathname.includes("/scorecard/")) {
+      let isDeepLink = window.location.pathname.includes("/scorecard/");
+      let loginPageTimeout = null;
+
+      if (isDeepLink) {
+        // Scorecard link: show splash briefly, then go to match — NO login page
         let path = window.location.pathname;
         let matchId = "";
-        if (path.includes("/scorecard/")) {
-          let afterScorecard = path.split("/scorecard/")[1];
-          matchId = afterScorecard.split("/")[0];
-        }
+        let afterScorecard = path.split("/scorecard/")[1] || "";
+        matchId = afterScorecard.split("/")[0];
 
         if (matchId) {
-          // Don't show login — show match page directly for viewers
-          // Cancel the loginPage timeout
-          // Wait for Firebase to be ready, then open match
+          // Show splash for 2 seconds, then open match directly
           function tryViewMatch() {
             if (window.fbDb && window.fbOnSnapshot) {
               currentMatchActiveTab = 'live';
-              // Skip splash and login — go straight to match page
               let splash = document.getElementById('splashScreen');
-              if (splash) { splash.style.opacity = '0'; splash.style.display = 'none'; }
-              document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+              if (splash) { splash.style.display = 'none'; }
               viewLiveMatch(matchId);
             } else {
               setTimeout(tryViewMatch, 500);
             }
           }
-          setTimeout(tryViewMatch, 1500);
+          setTimeout(tryViewMatch, 2000);
         }
+      } else {
+        // Normal flow: show login after splash
+        loginPageTimeout = setTimeout(() => { showPage('loginPage'); }, 3500);
       }
     });
 
