@@ -855,7 +855,7 @@
     }
 
     #loginPage {
-      display: flex;
+      display: none;
       align-items: center;
       justify-content: center;
       width: 100%;
@@ -8683,7 +8683,7 @@
     function showPage(id) {
       if (!id || !document.getElementById(id)) return;
       document.querySelectorAll(".page").forEach(p => p.style.display = "none");
-      document.getElementById(id).style.display = "block";
+      document.getElementById(id).style.display = (id === 'loginPage') ? 'flex' : 'block';
       pageHistory.push(id);
       if (id !== "loginPage") localStorage.setItem("lastPage", id);
 
@@ -10355,7 +10355,8 @@
       document.getElementById("authTitle").innerText = "Welcome Back";
       document.getElementById("authBtn").innerText = "LOGIN";
       document.getElementById("switchText").innerText = "Don't have an account? Register";
-      showPage('loginPage');
+      // Show login only after splash screen finishes (3.5s total)
+      setTimeout(() => { showPage('loginPage'); }, 3500);
 
       if (window.location.pathname.includes("/scorecard/")) {
         let path = window.location.pathname;
