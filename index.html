@@ -6063,6 +6063,8 @@
         <button class="run-btn wicket-btn" onclick="wicket()">Wicket</button>
       </div>
       <div class="scoring-row" style="margin-top:8px;">
+        <button class="run-btn" style="background:linear-gradient(135deg,#0f766e,#0d9488);flex:1;font-size:14px;"
+          onclick="openByePopup()">Bye</button>
         <button class="run-btn" style="background:linear-gradient(135deg,#4b5563,#374151);flex:1;"
           onclick="undoLastBall()">↩ Undo</button>
       </div>
@@ -9198,7 +9200,7 @@
       showPage("score");
       balls.innerHTML = "";
       totalRuns = 0; totalWickets = 0; ballCount = 0; innings = 1; target = 0;
-      winShown = false; targetBox.innerText = ""; extrasWides = 0; extrasNoBalls = 0; updateExtras();
+      winShown = false; targetBox.innerText = ""; extrasWides = 0; extrasNoBalls = 0; extrasByes = 0; ballSnapshots = []; updateExtras();
       outBatsmen = []; matchCommentary = [];
       loadScorePlayers();
       updateLiveScore();
@@ -9432,7 +9434,6 @@
       document.querySelectorAll('.wagon-sector').forEach(s => s.classList.remove('selected'));
       saveSnapshot();
       document.getElementById('shotOverlay').classList.add('open');
-      updateLiveScore();
     }
     function processRun(r, shotType, wagonZone) {
       if (r === 4 || r === 6) showEventPopup('boundary', { runs: r });
@@ -9485,9 +9486,54 @@
     }
     let extrasWides = 0;
     let extrasNoBalls = 0;
+    let extrasByes = 0;
+
+    function openByePopup() {
+      if (winShown) return;
+      document.getElementById('byePopupOverlay').classList.add('open');
+    }
+    function processBye(runs) {
+      document.getElementById('byePopupOverlay').classList.remove('open');
+      if (winShown) return;
+      if (totalOvers > 0 && ballCount >= totalOvers * 6) { alert("Innings over! Switch innings."); return; }
+      saveSnapshot();
+      totalRuns += runs;
+      extrasByes += runs;
+      bowlerStats[bowler.value].balls++;
+      ballCount++;
+      let ballStr = 'B+' + runs;
+      addBall(ballStr);
+      matchCommentary.unshift({
+        over: Math.floor((ballCount - 1) / 6) + '.' + ((ballCount - 1) % 6 + 1),
+        ball: ballStr,
+        text: `${bowler.value} to ${strike.value}, Bye ${runs} run${runs !== 1 ? 's' : ''}`
+      });
+      if (runs % 2 === 1) changeStrike();
+      if (ballCount % 6 === 0) {
+        matchCommentary.unshift({
+          type: 'over_summary',
+          over: Math.floor(ballCount / 6),
+          runs: totalRuns, wkts: totalWickets,
+          batters: [
+            { name: strike.value, runs: batsmanStats[strike.value] ? batsmanStats[strike.value].runs : 0, balls: batsmanStats[strike.value] ? batsmanStats[strike.value].balls : 0 },
+            { name: nonstrike.value, runs: batsmanStats[nonstrike.value] ? batsmanStats[nonstrike.value].runs : 0, balls: batsmanStats[nonstrike.value] ? batsmanStats[nonstrike.value].balls : 0 }
+          ],
+          bowler: { name: bowler.value, stats: '' }
+        });
+        changeStrike();
+        if (totalOvers > 0 && ballCount >= totalOvers * 6) {
+          alert('All ' + totalOvers + ' overs complete! Innings ended.');
+        } else {
+          setTimeout(openBowlerChangePopup, 300);
+        }
+      }
+      updateScore();
+      updateExtras();
+      updateLiveScore();
+    }
 
     function updateExtras() {
-      document.getElementById('extrasTotal').innerText = extrasWides + extrasNoBalls;
+      document.getElementById('extrasTotal').innerText = extrasWides + extrasNoBalls + extrasByes;
       document.getElementById('widesCount').innerText = extrasWides;
       document.getElementById('noballsCount').innerText = extrasNoBalls;
     }
@@ -9543,22 +9589,32 @@
       updateLiveScore();
     }
     function wide() { }
-    let lastBallSnapshot = null;
+    // Stack of snapshots — supports unlimited undo
+    let ballSnapshots = [];
 
     function undoLastBall() {
-      if (!lastBallSnapshot) { alert("Nothing to undo!"); return; }
+      if (ballSnapshots.length === 0) { alert("Nothing to undo!"); return; }
       if (!confirm("Undo last ball?")) return;
-      let s = lastBallSnapshot;
+      let s = ballSnapshots.pop();
       totalRuns = s.totalRuns;
       totalWickets = s.totalWickets;
       ballCount = s.ballCount;
       extrasWides = s.extrasWides;
       extrasNoBalls = s.extrasNoBalls;
+      extrasByes = s.extrasByes;
       batsmanStats = JSON.parse(JSON.stringify(s.batsmanStats));
       bowlerStats = JSON.parse(JSON.stringify(s.bowlerStats));
       outBatsmen = s.outBatsmen.slice();
+      matchCommentary = JSON.parse(JSON.stringify(s.matchCommentary));
+      // Rebuild the balls display from scratch
       let ballsDiv = document.getElementById('balls');
-      if (ballsDiv.lastChild) ballsDiv.removeChild(ballsDiv.lastChild);
+      ballsDiv.innerHTML = '';
+      s.ballsDisplay.forEach(function(item) {
+        let sp = document.createElement('span');
+        sp.className = item.cls;
+        sp.innerText = item.text;
+        ballsDiv.appendChild(sp);
+      });
       let strikeEl = document.getElementById('strike');
       let nonStrikeEl = document.getElementById('nonstrike');
       strikeEl.innerHTML = '';
@@ -9571,7 +9627,6 @@
       });
       if (s.strikePlayer) strikeEl.value = s.strikePlayer;
       if (s.nonStrikePlayer) nonStrikeEl.value = s.nonStrikePlayer;
-      lastBallSnapshot = null;
       updateScore();
       updateTables();
       updateExtras();
@@ -9579,18 +9634,29 @@
     }
 
     function saveSnapshot() {
-      lastBallSnapshot = {
+      // Capture current balls display
+      let ballsDiv = document.getElementById('balls');
+      let ballsDisplay = [];
+      if (ballsDiv) {
+        Array.from(ballsDiv.children).forEach(function(el) {
+          ballsDisplay.push({ cls: el.className, text: el.innerText });
+        });
+      }
+      ballSnapshots.push({
         totalRuns: totalRuns,
         totalWickets: totalWickets,
         ballCount: ballCount,
         extrasWides: extrasWides,
         extrasNoBalls: extrasNoBalls,
+        extrasByes: extrasByes,
         batsmanStats: JSON.parse(JSON.stringify(batsmanStats)),
         bowlerStats: JSON.parse(JSON.stringify(bowlerStats)),
         outBatsmen: outBatsmen.slice(),
+        matchCommentary: JSON.parse(JSON.stringify(matchCommentary)),
+        ballsDisplay: ballsDisplay,
         strikePlayer: document.getElementById('strike').value,
         nonStrikePlayer: document.getElementById('nonstrike').value
-      };
+      });
     }
 
     let lastOverBowler = "";
@@ -9826,7 +9892,7 @@
         innings1BowlTeam = matchBowlTeam;
         target = totalRuns + 1; targetBox.innerText = "Target: " + target;
         totalRuns = 0; totalWickets = 0; ballCount = 0; balls.innerHTML = "";
-        winShown = false; outBatsmen = [];
+        winShown = false; outBatsmen = []; extrasByes = 0; ballSnapshots = [];
         let tmp = matchBatTeam; matchBatTeam = matchBowlTeam; matchBowlTeam = tmp;
         [batPlayers, bowlPlayers] = [bowlPlayers, batPlayers];
         [batPlayerRoles, bowlPlayerRoles] = [bowlPlayerRoles, batPlayerRoles];
@@ -10413,6 +10479,26 @@
           onclick="processWide(4)">Wide +4</button>
       </div>
       <button onclick="document.getElementById('widePopupOverlay').classList.remove('open')"
+        style="width:100%;margin-top:14px;padding:11px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#6b7280;font-family:'Rajdhani',sans-serif;font-size:14px;cursor:pointer;">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Bye Popup (B+1 / B+2 / B+3 / B+4) -->
+  <div class="extra-popup-overlay" id="byePopupOverlay">
+    <div class="extra-popup-box">
+      <div class="extra-popup-title" style="color:#0d9488;">Bye Runs</div>
+      <div class="extra-popup-subtitle">Select Bye Runs (extras only — batsman run count lo add avvadu)</div>
+      <div class="extra-btns-grid">
+        <button class="extra-opt-btn" style="background:rgba(13,148,136,0.25);border-color:#0d9488;"
+          onclick="processBye(1)">B+1</button>
+        <button class="extra-opt-btn" style="background:rgba(13,148,136,0.25);border-color:#0d9488;"
+          onclick="processBye(2)">B+2</button>
+        <button class="extra-opt-btn" style="background:rgba(13,148,136,0.25);border-color:#0d9488;"
+          onclick="processBye(3)">B+3</button>
+        <button class="extra-opt-btn" style="background:rgba(13,148,136,0.25);border-color:#0d9488;"
+          onclick="processBye(4)">B+4</button>
+      </div>
+      <button onclick="document.getElementById('byePopupOverlay').classList.remove('open')"
         style="width:100%;margin-top:14px;padding:11px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#6b7280;font-family:'Rajdhani',sans-serif;font-size:14px;cursor:pointer;">Cancel</button>
     </div>
   </div>
