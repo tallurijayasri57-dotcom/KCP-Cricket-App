@@ -7496,11 +7496,19 @@
         let html = "";
         let matchCount = 0;
         
-        // Get current user to filter by team
+        // Get current user robustly
+        let currentUser = null;
         const userStr = localStorage.getItem('currentUser');
-        const currentUser = userStr ? JSON.parse(userStr) : null;
-        const userTeam = currentUser ? (currentUser.team || "").toLowerCase().trim() : "";
-        const userRole = currentUser ? (currentUser.role || "").toLowerCase().trim() : "";
+        if (userStr) {
+          try {
+            currentUser = JSON.parse(userStr);
+          } catch (e) {
+            // Fallback for simple string username
+            currentUser = { username: userStr };
+          }
+        }
+        const userTeam = (currentUser && currentUser.team) ? currentUser.team.toLowerCase().trim() : "";
+        const userRole = (currentUser && currentUser.role) ? currentUser.role.toLowerCase().trim() : "";
 
         // Sort by updatedAt locally to ensure newest are first
         let docs = [];
@@ -8834,6 +8842,7 @@
       }
 
       loadTeams();
+      listenToLiveMatches();
     }
 
     function showPage(id) {
@@ -10572,7 +10581,7 @@
         mId = localStorage.getItem("currentLiveMatchId") || new Date().getTime();
       }
       // Use current origin if on Render, otherwise use production URL
-      let origin = window.location.origin.includes('localhost') ? "https://kcp-cricket-app-b7ni.onrender.com" : window.location.origin;
+      let origin = (window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1')) ? "https://kcp-cricket-app-b7ni.onrender.com" : window.location.origin;
       let link = origin + "/scorecard/" + mId + "/" + tName + "/" + mName + "/scorecard";
       // Send ONLY the link — WhatsApp will auto-generate a preview card
       let waUrl = "https://api.whatsapp.com/send?text=" + encodeURIComponent(link);
