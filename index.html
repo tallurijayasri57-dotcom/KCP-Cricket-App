@@ -7460,9 +7460,10 @@
     }
 
     let liveMatchesUnsubscribe = null;
+    window._liveMatchCache = {};
+
     function listenToLiveMatches() {
       if (!window.fbDb || !window.fbOnSnapshot) {
-        // Retry in 1 second if Firebase is not yet ready
         setTimeout(listenToLiveMatches, 1000);
         return;
       }
@@ -7476,6 +7477,8 @@
 
         let html = "";
         let matchCount = 0;
+        // Reset cache for this update
+        window._liveMatchCache = {};
 
         snapshot.forEach(doc => {
           let m = doc.data();
@@ -7483,6 +7486,8 @@
           // Auto-hide stale matches (older than 12 hours)
           if (m.updatedAt && Date.now() - m.updatedAt > 12 * 60 * 60 * 1000) return;
 
+          // Cache the full match data so viewLiveMatch can use it immediately
+          window._liveMatchCache[doc.id] = m;
           matchCount++;
 
           html += `
@@ -7538,52 +7543,46 @@
       if (liveViewUnsubscribe) liveViewUnsubscribe();
       previousLiveMatchState = null;
 
-      // Show a waiting/loading state until match data arrives
-      let waitingTimeout = null;
-      let matchFound = false;
-
-      function showWaitingScreen() {
+      // If we already have the data from the home screen cache, render immediately
+      if (window._liveMatchCache && window._liveMatchCache[matchId]) {
+        renderPremiumMatchView(window._liveMatchCache[matchId]);
+      } else {
+        // Show loading only when data isn't cached
         let hdr = document.getElementById('matchHeaderContainer');
         if (hdr) hdr.innerHTML = `
           <div style="padding:40px 20px; text-align:center;">
-            <div style="font-size:48px; margin-bottom:16px;">🏏</div>
+            <div style="font-size:48px; margin-bottom:16px;">&#127955;</div>
             <div style="font-family:'Rajdhani',sans-serif; font-size:22px; font-weight:700; color:#6ee7b7; margin-bottom:8px;">Match Loading...</div>
-            <div style="color:#94a3b8; font-size:14px; margin-bottom:20px;">Organiser match start chesaadu, data load avuthundhi...</div>
-            <div style="display:inline-block; width:40px; height:40px; border:3px solid rgba(110,231,183,0.2); border-top-color:#6ee7b7; border-radius:50%; animation:spin 1s linear infinite;"></div>
-          </div>
-          <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
-        `;
-        let mc = document.getElementById('matchMainContent');
-        if (mc) mc.innerHTML = '';
+            <div style="color:#94a3b8; font-size:14px;">Data load avuthundhi, wait cheyandi...</div>
+          </div>`;
       }
-      showWaitingScreen();
 
-      // After 90 seconds if still no data, show error
-      waitingTimeout = setTimeout(() => {
+      // Set up real-time listener for live updates
+      let matchFound = false;
+      let waitingTimeout = setTimeout(() => {
         if (!matchFound) {
-          if (liveViewUnsubscribe) liveViewUnsubscribe();
           let hdr = document.getElementById('matchHeaderContainer');
           if (hdr) hdr.innerHTML = `
             <div style="padding:40px 20px; text-align:center;">
-              <div style="font-size:48px; margin-bottom:16px;">⚠️</div>
+              <div style="font-size:48px; margin-bottom:16px;">&#9888;&#65039;</div>
               <div style="font-family:'Rajdhani',sans-serif; font-size:20px; font-weight:700; color:#ef4444; margin-bottom:8px;">Match Not Found</div>
               <div style="color:#94a3b8; font-size:14px; margin-bottom:20px;">Match data load avvatledu. Link check cheyandi.</div>
               <button onclick="showPage('home')" style="background:#6ee7b7; color:#0f172a; border:none; padding:10px 24px; border-radius:8px; font-weight:700; cursor:pointer;">Go Home</button>
-            </div>
-          `;
+            </div>`;
         }
       }, 90000);
 
       liveViewUnsubscribe = window.fbOnSnapshot(window.fbDoc(window.fbDb, "live_matches", matchId.toString()), (doc) => {
         if (!doc.exists()) {
-          // Document doesn't exist yet — keep waiting (organiser may not have saved yet)
-          showWaitingScreen();
+          // Document doesn't exist yet — keep waiting
           return;
         }
         matchFound = true;
-        if (waitingTimeout) clearTimeout(waitingTimeout);
+        clearTimeout(waitingTimeout);
         let mData = doc.data();
         mData.id = matchId;
+        // Update cache
+        window._liveMatchCache[matchId] = mData;
         renderPremiumMatchView(mData);
       });
     }
