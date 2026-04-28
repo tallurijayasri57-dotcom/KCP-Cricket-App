@@ -261,6 +261,16 @@
       border-radius: 4px;
     }
 
+    .ball.over-sep {
+      background: transparent;
+      color: #6b7280;
+      font-weight: 700;
+      font-size: 18px;
+      padding: 4px 6px;
+      margin: 2px 4px;
+      border-radius: 0;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
@@ -9723,7 +9733,16 @@
       // Now open bowler change popup
       setTimeout(openBowlerChangePopup, 200);
     }
-    function addBall(t) { let d = document.createElement("span"); d.className = "ball"; d.innerText = t; balls.appendChild(d); }
+    function addBall(t) {
+      let d = document.createElement("span"); d.className = "ball"; d.innerText = t; balls.appendChild(d);
+      // Every 6th legal ball ke baad over separator add cheskodam
+      if (ballCount > 0 && ballCount % 6 === 0) {
+        let sep = document.createElement("span");
+        sep.className = "ball over-sep";
+        sep.innerText = "|";
+        balls.appendChild(sep);
+      }
+    }
     function changeStrike() { let s = strike.value; strike.value = nonstrike.value; nonstrike.value = s; }
     function updateScore() {
       scoreRuns.innerText = totalRuns; scoreWkts.innerText = totalWickets;
@@ -10392,16 +10411,16 @@
   <div class="extra-popup-overlay" id="strikerSelectOverlay">
     <div class="extra-popup-box">
       <div class="extra-popup-title" style="color:#f59e0b;">🏏 New Over — Who Bats?</div>
-      <div class="extra-popup-subtitle">Striker evaru, Non-Striker evaru ani select cheyyandi</div>
+      <div class="extra-popup-subtitle">Select who will be Striker and Non-Striker for the new over</div>
       <div style="margin-bottom:12px;">
         <div style="font-size:13px;color:#6ee7b7;margin-bottom:6px;font-weight:600;">⚡ Striker (Facing):</div>
         <select id="newStrikerSelect"
-          style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(245,158,11,0.4);border-radius:10px;color:#e5e7eb;font-family:'Inter',sans-serif;font-size:15px;box-sizing:border-box;outline:none;"></select>
+          style="width:100%;padding:12px 14px;background:#1e293b;border:1px solid rgba(245,158,11,0.4);border-radius:10px;color:#e5e7eb;font-family:'Inter',sans-serif;font-size:15px;box-sizing:border-box;outline:none;color-scheme:dark;"></select>
       </div>
       <div style="margin-bottom:16px;">
         <div style="font-size:13px;color:#93c5fd;margin-bottom:6px;font-weight:600;">🔄 Non-Striker:</div>
         <select id="newNonStrikerSelect"
-          style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(147,197,253,0.3);border-radius:10px;color:#e5e7eb;font-family:'Inter',sans-serif;font-size:15px;box-sizing:border-box;outline:none;"></select>
+          style="width:100%;padding:12px 14px;background:#1e293b;border:1px solid rgba(147,197,253,0.3);border-radius:10px;color:#e5e7eb;font-family:'Inter',sans-serif;font-size:15px;box-sizing:border-box;outline:none;color-scheme:dark;"></select>
       </div>
       <button onclick="confirmStrikerSelect()"
         style="width:100%;padding:13px;background:linear-gradient(135deg,#d97706,#b45309);border:none;border-radius:10px;color:white;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">✅ Confirm Batsmen</button>
