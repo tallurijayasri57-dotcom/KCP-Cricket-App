@@ -10624,12 +10624,8 @@
         if (splash) {
           setTimeout(() => {
             splash.style.display = 'none';
-            if (!localStorage.getItem('currentUser')) {
-              showPage('loginPage');
-            } else {
-              showPage('home');
-              listenToLiveMatches();
-            }
+            // Force login page to appear for demo purposes as requested
+            showPage('loginPage');
           }, 3000);
         }
       }
