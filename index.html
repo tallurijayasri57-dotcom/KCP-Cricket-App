@@ -800,6 +800,41 @@
       cursor: pointer;
     }
 
+    /* ── Mobile scorecard alignment fix ── */
+    @media (max-width: 680px) {
+      .sc-table {
+        font-size: 11px;
+      }
+      .sc-table th {
+        padding: 8px 4px;
+        font-size: 10px;
+        white-space: nowrap;
+      }
+      .sc-table td {
+        padding: 9px 4px;
+        font-size: 11px;
+        white-space: nowrap;
+      }
+      /* Truncate long player names with ellipsis */
+      .sc-table .name-cell {
+        max-width: 90px;
+        min-width: 70px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      /* Hide the dismissal description column on mobile — saves space */
+      .sc-table .out-desc-cell {
+        display: none;
+      }
+      /* Center align all stat number columns */
+      .sc-table td:not(.name-cell):not(.out-desc-cell),
+      .sc-table th:not(:first-child) {
+        text-align: center;
+        min-width: 22px;
+      }
+    }
+
     /* Commentary */
     .comm-item {
       border-bottom: 1px solid #f1f5f9;
@@ -7886,7 +7921,7 @@
                 ${(m.batsmen || []).map(b => `
                   <tr>
                     <td class="name-cell">${b.name}</td>
-                    <td style="color:#94a3b8; font-size:11px;">${b.outDesc || (b.isOut ? 'out' : 'not out')}</td>
+                    <td class="out-desc-cell" style="color:#94a3b8; font-size:11px;">${b.outDesc || (b.isOut ? 'out' : 'not out')}</td>
                     <td>${b.runs}</td><td>${b.balls}</td><td>${b.fours}</td><td>${b.sixes}</td><td>${b.sr}</td>
                   </tr>
                 `).join('')}
@@ -7977,7 +8012,7 @@
                   ${(i1.batsmen && i1.batsmen.length > 0) ? i1.batsmen.map(b => `
                     <tr>
                       <td class="name-cell">${b.name}</td>
-                      <td style="color:#94a3b8; font-size:11px;">${b.outDesc || (b.isOut ? 'out' : 'not out')}</td>
+                      <td class="out-desc-cell" style="color:#94a3b8; font-size:11px;">${b.outDesc || (b.isOut ? 'out' : 'not out')}</td>
                       <td>${b.runs}</td><td>${b.balls}</td><td>${b.fours}</td><td>${b.sixes}</td><td>${b.sr}</td>
                     </tr>
                   `).join('') : `<tr><td colspan="7" style="text-align:center; color:#94a3b8; font-size:12px; padding:10px;">No batting data available</td></tr>`}
