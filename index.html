@@ -7495,7 +7495,12 @@
 
         let html = "";
         let matchCount = 0;
-        window._liveMatchCache = {};
+        
+        // Get current user to filter by team
+        const userStr = localStorage.getItem('currentUser');
+        const currentUser = userStr ? JSON.parse(userStr) : null;
+        const userTeam = currentUser ? (currentUser.team || "").toLowerCase().trim() : "";
+        const userRole = currentUser ? (currentUser.role || "").toLowerCase().trim() : "";
 
         // Sort by updatedAt locally to ensure newest are first
         let docs = [];
@@ -7505,9 +7510,19 @@
         docs.forEach(item => {
           let m = item.data;
           m.id = item.id;
-          if (m.updatedAt && Date.now() - m.updatedAt > 24 * 60 * 60 * 1000) return; // Increased to 24h to avoid accidental hides
+          if (m.updatedAt && Date.now() - m.updatedAt > 24 * 60 * 60 * 1000) return;
 
-          window._liveMatchCache[m.id] = m;
+          // FILTER: Only show on home screen if current user belongs to the teams playing
+          // Organisers and Admins see all matches
+          if (userRole !== 'admin' && userRole !== 'organiser') {
+            let t1 = (m.batTeam || "").toLowerCase().trim();
+            let t2 = (m.bowlTeam || "").toLowerCase().trim();
+            // Note: If innings 2, we might need team1/team2, but assuming batTeam/bowlTeam covers current participants
+            if (t1 !== userTeam && t2 !== userTeam) {
+              return; 
+            }
+          }
+
           matchCount++;
 
           html += `
@@ -7518,7 +7533,7 @@
                 <span class="live-pulse-dot" style="width:8px; height:8px; background:#ef4444; border-radius:50%;"></span>
                 <span style="color:#ef4444; font-size:10px; font-weight:700;">LIVE</span>
               </div>
-              <button onclick="event.stopPropagation(); deleteLiveMatch('${m.id}')" style="background:transparent; border:none; color:#94a3b8; cursor:pointer; font-size:14px; padding:4px; opacity:0.6;" title="Delete Stale Match">🗑️</button>
+              ${userRole === 'organiser' || userRole === 'admin' ? `<button onclick="event.stopPropagation(); deleteLiveMatch('${m.id}')" style="background:transparent; border:none; color:#94a3b8; cursor:pointer; font-size:14px; padding:4px; opacity:0.6;" title="Delete Stale Match">🗑️</button>` : ''}
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <div style="flex:1;">
@@ -7534,7 +7549,7 @@
         });
 
         if (matchCount === 0) {
-          container.innerHTML = `<div style="background:rgba(255,255,255,0.05); border:1px dashed rgba(255,255,255,0.1); border-radius:12px; padding:30px; text-align:center; color:#6b7280; font-size:13px;">No matches live at the moment</div>`;
+          container.innerHTML = `<div style="background:rgba(255,255,255,0.05); border:1px dashed rgba(255,255,255,0.1); border-radius:12px; padding:30px; text-align:center; color:#6b7280; font-size:13px;">No live matches for your team</div>`;
           return;
         }
         container.innerHTML = html;
@@ -10615,22 +10630,18 @@
           setTimeout(tryViewMatch, 500);
         }
       } else {
-        // Normal flow: Show HOME page by default instead of LOGIN
-        // This allows anyone (VVIPs/Public) to see live matches on home screen
+        // Normal flow: Redirect to login if not logged in
         let splash = document.getElementById('splashScreen');
         if (splash) {
           setTimeout(() => {
             splash.style.display = 'none';
-            // If not logged in, show home so they can see live matches
             if (!localStorage.getItem('currentUser')) {
-              showPage('home');
-              listenToLiveMatches();
+              showPage('loginPage');
             } else {
-              // If logged in, show home anyway (standard flow)
               showPage('home');
               listenToLiveMatches();
             }
-          }, 2500);
+          }, 3000);
         }
       }
     });
