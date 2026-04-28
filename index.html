@@ -7538,12 +7538,50 @@
       if (liveViewUnsubscribe) liveViewUnsubscribe();
       previousLiveMatchState = null;
 
-      liveViewUnsubscribe = window.fbOnSnapshot(window.fbDoc(window.fbDb, "live_matches", matchId), (doc) => {
+      // Show a waiting/loading state until match data arrives
+      let waitingTimeout = null;
+      let matchFound = false;
+
+      function showWaitingScreen() {
+        let hdr = document.getElementById('matchHeaderContainer');
+        if (hdr) hdr.innerHTML = `
+          <div style="padding:40px 20px; text-align:center;">
+            <div style="font-size:48px; margin-bottom:16px;">🏏</div>
+            <div style="font-family:'Rajdhani',sans-serif; font-size:22px; font-weight:700; color:#6ee7b7; margin-bottom:8px;">Match Loading...</div>
+            <div style="color:#94a3b8; font-size:14px; margin-bottom:20px;">Organiser match start chesaadu, data load avuthundhi...</div>
+            <div style="display:inline-block; width:40px; height:40px; border:3px solid rgba(110,231,183,0.2); border-top-color:#6ee7b7; border-radius:50%; animation:spin 1s linear infinite;"></div>
+          </div>
+          <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+        `;
+        let mc = document.getElementById('matchMainContent');
+        if (mc) mc.innerHTML = '';
+      }
+      showWaitingScreen();
+
+      // After 90 seconds if still no data, show error
+      waitingTimeout = setTimeout(() => {
+        if (!matchFound) {
+          if (liveViewUnsubscribe) liveViewUnsubscribe();
+          let hdr = document.getElementById('matchHeaderContainer');
+          if (hdr) hdr.innerHTML = `
+            <div style="padding:40px 20px; text-align:center;">
+              <div style="font-size:48px; margin-bottom:16px;">⚠️</div>
+              <div style="font-family:'Rajdhani',sans-serif; font-size:20px; font-weight:700; color:#ef4444; margin-bottom:8px;">Match Not Found</div>
+              <div style="color:#94a3b8; font-size:14px; margin-bottom:20px;">Match data load avvatledu. Link check cheyandi.</div>
+              <button onclick="showPage('home')" style="background:#6ee7b7; color:#0f172a; border:none; padding:10px 24px; border-radius:8px; font-weight:700; cursor:pointer;">Go Home</button>
+            </div>
+          `;
+        }
+      }, 90000);
+
+      liveViewUnsubscribe = window.fbOnSnapshot(window.fbDoc(window.fbDb, "live_matches", matchId.toString()), (doc) => {
         if (!doc.exists()) {
-          alert("Match not found");
-          showPage('home');
+          // Document doesn't exist yet — keep waiting (organiser may not have saved yet)
+          showWaitingScreen();
           return;
         }
+        matchFound = true;
+        if (waitingTimeout) clearTimeout(waitingTimeout);
         let mData = doc.data();
         mData.id = matchId;
         renderPremiumMatchView(mData);
@@ -10442,6 +10480,7 @@
       // Show login only after splash screen finishes (3.5s total)
       setTimeout(() => { showPage('loginPage'); }, 3500);
 
+      // Scorecard deep-link handling — bypass login for viewers
       if (window.location.pathname.includes("/scorecard/")) {
         let path = window.location.pathname;
         let matchId = "";
@@ -10451,12 +10490,22 @@
         }
 
         if (matchId) {
-          setTimeout(() => {
-            if (typeof viewLiveMatch === 'function') {
-              currentMatchActiveTab = 'scorecard';
+          // Don't show login — show match page directly for viewers
+          // Cancel the loginPage timeout
+          // Wait for Firebase to be ready, then open match
+          function tryViewMatch() {
+            if (window.fbDb && window.fbOnSnapshot) {
+              currentMatchActiveTab = 'live';
+              // Skip splash and login — go straight to match page
+              let splash = document.getElementById('splashScreen');
+              if (splash) { splash.style.opacity = '0'; splash.style.display = 'none'; }
+              document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
               viewLiveMatch(matchId);
+            } else {
+              setTimeout(tryViewMatch, 500);
             }
-          }, 1000);
+          }
+          setTimeout(tryViewMatch, 1500);
         }
       }
     });
