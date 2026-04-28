@@ -3486,48 +3486,58 @@
     #splashScreen {
       position: fixed;
       inset: 0;
-      background: #0a1628;
+      background: linear-gradient(180deg, #ffffff 0%, #e8edf5 30%, #1a2744 65%, #0a1628 100%);
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-end;
       z-index: 99999;
       overflow: hidden;
       padding: 0;
-      transition: opacity 0.7s ease;
+      transition: opacity 0.6s ease;
     }
 
     .splash-photo {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
       width: 100%;
-      height: 100%;
+      max-width: 500px;
+      height: 75%;
       object-fit: cover;
       object-position: center top;
       display: block;
+      mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
     }
 
     .splash-kcp-text {
       font-family: 'Rajdhani', sans-serif;
-      font-size: 56px;
+      font-size: 52px;
       font-weight: 700;
-      letter-spacing: 14px;
+      letter-spacing: 18px;
       color: #fff;
       text-transform: uppercase;
       text-align: center;
       position: relative;
       z-index: 2;
-      margin: 0;
-      text-shadow: 0 2px 20px rgba(255, 255, 255, 0.2);
+      margin: 0 0 60px 0;
+      text-shadow: 0 2px 20px rgba(255, 255, 255, 0.15);
+      padding-left: 18px;
     }
 
     @media (max-width: 768px) {
       .splash-photo {
-        max-height: 60vh;
-        margin-bottom: 20px;
+        max-width: 100%;
+        height: 70%;
       }
 
       .splash-kcp-text {
-        font-size: 32px;
-        letter-spacing: 6px;
+        font-size: 36px;
+        letter-spacing: 12px;
+        margin-bottom: 50px;
+        padding-left: 12px;
       }
     }
 
@@ -4001,7 +4011,8 @@
 
 <body>
   <div id="splashScreen">
-    <img src="/splash_hd.png" class="splash-photo" alt="KCP">
+    <img src="https://i.ibb.co/mFckS9wV/founder-kcp.jpg" class="splash-photo" alt="KCP Founder">
+    <div class="splash-kcp-text">K C P</div>
   </div>
 
   <div id="shotOverlay">
@@ -10423,7 +10434,8 @@
           style="width:100%;padding:12px 14px;background:#1e293b;border:1px solid rgba(147,197,253,0.3);border-radius:10px;color:#e5e7eb;font-family:'Inter',sans-serif;font-size:15px;box-sizing:border-box;outline:none;color-scheme:dark;"></select>
       </div>
       <button onclick="confirmStrikerSelect()"
-        style="width:100%;padding:13px;background:linear-gradient(135deg,#d97706,#b45309);border:none;border-radius:10px;color:white;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">✅ Confirm Batsmen</button>
+        style="width:100%;padding:13px;background:linear-gradient(135deg,#d97706,#b45309);border:none;border-radius:10px;color:white;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">✅
+        Confirm Batsmen</button>
     </div>
   </div>
 
