@@ -7313,16 +7313,19 @@
     async function updateLiveScore() {
       if (!currentLiveMatchId || !window.fbSetDoc) return;
 
-      // Collect photos for players in this match to show them in the live view
-      let playerPhotos = {};
-      let allTournaments = loadTournaments();
-      allTournaments.forEach(t => {
-        (t.teams || []).forEach(team => {
-          (team.players || []).forEach(p => {
-            if (p.photo) playerPhotos[p.name] = p.photo;
+      // Use cached player photos if available to avoid heavy loops
+      let playerPhotos = window._matchPlayerPhotos || {};
+      if (Object.keys(playerPhotos).length === 0) {
+        let allTournaments = loadTournaments();
+        allTournaments.forEach(t => {
+          (t.teams || []).forEach(team => {
+            (team.players || []).forEach(p => {
+              if (p.photo) playerPhotos[p.name] = p.photo;
+            });
           });
         });
-      });
+        window._matchPlayerPhotos = playerPhotos;
+      }
 
       let ground = "";
       let matchType = "Limited Overs";
@@ -7389,46 +7392,38 @@
         matchType: matchType,
         matchDate: matchStartTime,
         matchStatus: innings === 1 ? "In Progress" : "Run Chase",
-        lastBalls: matchCommentary.filter(c => c.ball !== undefined).slice(0, 10).map(c => c.ball),
-        ...(innings === 2 ? {
-          innings1: {
-            batTeam: innings1BatTeam,
-            bowlTeam: innings1BowlTeam,
-            runs: target > 0 ? target - 1 : 0,
-            wickets: Object.values(innings1BowlStats).reduce((acc, b) => acc + (b.wickets || 0), 0),
-            overs: Object.values(innings1BowlStats).reduce((acc, b) => acc + (b.balls || 0), 0),
-            batsmen: Object.keys(innings1BatStats).map(name => {
-              let s = innings1BatStats[name];
-              return {
-                name: name,
-                runs: s.runs,
-                balls: s.balls,
-                fours: s.fours,
-                sixes: s.sixes,
-                sr: s.balls > 0 ? ((s.runs / s.balls) * 100).toFixed(2) : "0.00",
-                outDesc: s.dismissal_type ? s.dismissal_type + (s.dismissed_by ? ' ' + s.dismissed_by : '') : 'not out',
-                isOut: !!s.dismissal_type
-              };
-            }),
-            bowlers: Object.keys(innings1BowlStats).map(name => {
-              let s = innings1BowlStats[name];
-              return {
-                name: name,
-                overs: Math.floor(s.balls / 6) + "." + (s.balls % 6),
-                maidens: s.maidens || 0,
-                runs: s.runs,
-                wickets: s.wickets,
-                dots: s.dots || 0,
-                fours: s.fours || 0,
-                sixes: s.sixes || 0,
-                wd: s.wides || 0,
-                nb: s.noballs || 0,
-                eco: s.balls > 0 ? ((s.runs / (s.balls / 6))).toFixed(2) : "0.00"
-              };
-            }),
-            extras: (target > 0 ? target - 1 : 0) - Object.values(innings1BatStats).reduce((acc, b) => acc + b.runs, 0)
-          }
-        } : {})
+        lastBalls: matchCommentary.filter(c => c.ball !== undefined).slice(0, 10).reverse().map(c => c.ball),
+        batsmanStats: batsmanStats, 
+        bowlerStats: bowlerStats,   
+        outBatsmen: outBatsmen,
+        strike: document.getElementById('strike').value,
+        nonstrike: document.getElementById('nonstrike').value,
+        bowler: document.getElementById('bowler').value,
+        innings1: (innings === 2 && typeof innings1BatStats !== 'undefined') ? {
+          batTeam: innings1BatTeam,
+          bowlTeam: innings1BowlTeam,
+          runs: target > 0 ? target - 1 : 0,
+          wickets: Object.values(innings1BowlStats).reduce((acc, b) => acc + (b.wickets || 0), 0),
+          overs: Object.values(innings1BowlStats).reduce((acc, b) => acc + (b.balls || 0), 0),
+          batsmen: Object.keys(innings1BatStats).map(name => {
+            let s = innings1BatStats[name];
+            return {
+              name: name, runs: s.runs, balls: s.balls, fours: s.fours, sixes: s.sixes,
+              sr: s.balls > 0 ? ((s.runs / s.balls) * 100).toFixed(2) : "0.00",
+              outDesc: s.dismissal_type ? s.dismissal_type + (s.dismissed_by ? ' ' + s.dismissed_by : '') : 'out',
+              isOut: true
+            };
+          }),
+          bowlers: Object.keys(innings1BowlStats).map(name => {
+            let s = innings1BowlStats[name];
+            return {
+              name: name, overs: Math.floor(s.balls / 6) + "." + (s.balls % 6),
+              maidens: s.maidens || 0, runs: s.runs, wickets: s.wickets,
+              eco: s.balls > 0 ? ((s.runs / (s.balls / 6))).toFixed(2) : "0.00"
+            };
+          }),
+          extras: (target > 0 ? target - 1 : 0) - Object.values(innings1BatStats).reduce((acc, b) => acc + b.runs, 0)
+        } : null
       };
 
       try {
@@ -7483,12 +7478,16 @@
 
     function listenToLiveMatches() {
       if (!window.fbDb || !window.fbOnSnapshot) {
-        setTimeout(listenToLiveMatches, 1000);
+        setTimeout(listenToLiveMatches, 500); // Reduced delay for faster first load
         return;
       }
       if (liveMatchesUnsubscribe) liveMatchesUnsubscribe();
 
-      const q = window.fbQuery(window.fbCollection(window.fbDb, "live_matches"), window.fbWhere("status", "==", "live"));
+      // Listen to all live matches, ordered by most recently updated
+      const q = window.fbQuery(
+        window.fbCollection(window.fbDb, "live_matches"), 
+        window.fbWhere("status", "==", "live")
+      );
 
       liveMatchesUnsubscribe = window.fbOnSnapshot(q, (snapshot) => {
         let container = document.getElementById("liveMatchesGrid");
@@ -7496,24 +7495,29 @@
 
         let html = "";
         let matchCount = 0;
-        // Reset cache for this update
         window._liveMatchCache = {};
 
-        snapshot.forEach(doc => {
-          let m = doc.data();
-          m.id = doc.id;
-          // Auto-hide stale matches (older than 12 hours)
-          if (m.updatedAt && Date.now() - m.updatedAt > 12 * 60 * 60 * 1000) return;
+        // Sort by updatedAt locally to ensure newest are first
+        let docs = [];
+        snapshot.forEach(doc => docs.push({id: doc.id, data: doc.data()}));
+        docs.sort((a, b) => (b.data.updatedAt || 0) - (a.data.updatedAt || 0));
 
-          // Cache the full match data so viewLiveMatch can use it immediately
-          window._liveMatchCache[doc.id] = m;
+        docs.forEach(item => {
+          let m = item.data;
+          m.id = item.id;
+          if (m.updatedAt && Date.now() - m.updatedAt > 24 * 60 * 60 * 1000) return; // Increased to 24h to avoid accidental hides
+
+          window._liveMatchCache[m.id] = m;
           matchCount++;
 
           html += `
-          <div class="live-match-card" onclick="viewLiveMatch('${m.id}')" style="background:linear-gradient(135deg, #1e293b, #0f172a); border:1px solid rgba(110, 231, 183, 0.2); border-radius:12px; padding:16px; position:relative; overflow:hidden; cursor:pointer;">
+          <div class="live-match-card" onclick="viewLiveMatch('${m.id}')" style="background:linear-gradient(135deg, #1e293b, #0f172a); border:1px solid rgba(110, 231, 183, 0.4); border-radius:12px; padding:16px; position:relative; overflow:hidden; cursor:pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-              <span style="font-size:11px; color:#94a3b8; font-weight:600; letter-spacing:0.5px;">INNINGS ${m.innings}</span>
-              <span style="background:rgba(239, 68, 68, 0.1); color:#ef4444; font-size:10px; padding:2px 8px; border-radius:10px; font-weight:700;">LIVE</span>
+              <span style="font-size:11px; color:#94a3b8; font-weight:600; letter-spacing:0.5px;">${m.seriesName || 'LIVE MATCH'}</span>
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span class="live-pulse-dot" style="width:8px; height:8px; background:#ef4444; border-radius:50%;"></span>
+                <span style="color:#ef4444; font-size:10px; font-weight:700;">LIVE</span>
+              </div>
               <button onclick="event.stopPropagation(); deleteLiveMatch('${m.id}')" style="background:transparent; border:none; color:#94a3b8; cursor:pointer; font-size:14px; padding:4px; opacity:0.6;" title="Delete Stale Match">🗑️</button>
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -9524,6 +9528,10 @@
       currentLiveMatchId = Date.now();
       localStorage.setItem("currentLiveMatchId", currentLiveMatchId);
       matchStartTime = new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', year: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true });
+      
+      // Reset photo cache for new match
+      window._matchPlayerPhotos = {};
+      
       if (currentTournamentMatchIdx !== null && currentTournamentId !== null) {
         let allTours = loadTournaments();
         if (allTours[currentTournamentId] && allTours[currentTournamentId].matches[currentTournamentMatchIdx]) {
@@ -9531,6 +9539,7 @@
           saveTournamentsData(allTours);
         }
       }
+      // Force initial sync to make it visible on home page instantly
       updateLiveScore();
     }
     function loadScorePlayers() {
