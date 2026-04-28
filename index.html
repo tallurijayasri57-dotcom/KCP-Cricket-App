@@ -727,6 +727,22 @@
       border-bottom-color: #ef4444;
     }
 
+    .live-pulse-dot {
+      width: 10px;
+      height: 10px;
+      background: #ef4444;
+      border-radius: 50%;
+      display: inline-block;
+      box-shadow: 0 0 0 rgba(239, 68, 68, 0.4);
+      animation: pulse-live 1.5s infinite;
+    }
+
+    @keyframes pulse-live {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+
     .match-layout {
       display: grid;
       grid-template-columns: minmax(0, 1fr) 320px;
@@ -7344,7 +7360,9 @@
           sixes: batsmanStats[name].sixes,
           sr: batsmanStats[name].balls > 0 ? ((batsmanStats[name].runs / batsmanStats[name].balls) * 100).toFixed(2) : "0.00",
           isStrike: name === document.getElementById('strike').value,
-          isOut: outBatsmen.includes(name)
+          isOut: outBatsmen.includes(name),
+          shot_types: batsmanStats[name].shot_types || [],
+          wagon_wheel: batsmanStats[name].wagon_wheel || []
         })),
         bowlers: Object.keys(bowlerStats).map(name => ({
           name: name,
@@ -7433,6 +7451,7 @@
       try {
         await window.fbSetDoc(window.fbDoc(window.fbDb, "live_matches", currentLiveMatchId.toString()), { status: "finished", updatedAt: Date.now() }, { merge: true });
         currentLiveMatchId = null;
+        localStorage.removeItem("currentLiveMatchId");
       } catch (e) { console.error(e); }
     }
 
@@ -7621,7 +7640,11 @@
               <div style="font-size:14px; color:#ef4444; font-weight:700; margin-top:8px;">(${m.matchStatus || 'Live'})</div>
             </div>
             <div style="text-align:right;">
-              <div style="font-size:32px; font-weight:800; color:#1e293b;">${m.runs}/${m.wickets} <span style="font-size:14px; color:#64748b; font-weight:500;">(${m.overs} Ov)</span></div>
+              <div style="font-size:32px; font-weight:800; color:#1e293b; display:flex; align-items:center; gap:8px;">
+                ${m.runs}/${m.wickets} 
+                <span style="font-size:14px; color:#64748b; font-weight:500;">(${m.overs} Ov)</span>
+                ${m.status !== 'Finished' ? '<span class="live-pulse-dot"></span>' : ''}
+              </div>
               <div style="font-size:13px; color:#64748b; margin-top:4px;">Yet to Bat</div>
             </div>
           </div>
@@ -7664,6 +7687,10 @@
         renderPremiumCommentaryTab(m, mainContent);
       } else if (currentMatchActiveTab === 'teams') {
         renderPremiumTeamsTab(m, mainContent);
+      } else if (currentMatchActiveTab === 'analysis') {
+        renderPremiumAnalysisTab(m, mainContent);
+      } else if (currentMatchActiveTab === 'gallery') {
+        renderPremiumGalleryTab(m, mainContent);
       } else if (currentMatchActiveTab === 'awards') {
         renderPremiumAwardsTab(m, mainContent);
       } else {
@@ -7818,6 +7845,63 @@
       html += `</div>`;
 
       container.innerHTML = html;
+    }
+
+    function renderPremiumAnalysisTab(m, container) {
+      // Calculate Analysis Data
+      let shotCounts = {};
+      let wagonRuns = {};
+      (m.batsmen || []).forEach(b => {
+        (b.shot_types || []).forEach(s => shotCounts[s] = (shotCounts[s] || 0) + 1);
+        (b.wagon_wheel || []).forEach(w => {
+           let runs = parseInt(w.split(':')[1]) || 0;
+           let zone = w.split(':')[0];
+           wagonRuns[zone] = (wagonRuns[zone] || 0) + runs;
+        });
+      });
+
+      let shotsHtml = Object.entries(shotCounts).sort((a,b) => b[1]-a[1]).map(([s, c]) => `
+        <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f1f5f9;">
+          <div style="font-weight:600; color:#1e293b;">${s}</div>
+          <div style="color:#0d9488; font-weight:700;">${c} times</div>
+        </div>
+      `).join('') || '<div style="color:#94a3b8; font-size:13px;">No shot data available yet.</div>';
+
+      let wagonHtml = Object.entries(wagonRuns).sort((a,b) => b[1]-a[1]).map(([z, r]) => `
+        <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f1f5f9;">
+          <div style="font-weight:600; color:#1e293b;">${z}</div>
+          <div style="color:#f59e0b; font-weight:700;">${r} Runs</div>
+        </div>
+      `).join('') || '<div style="color:#94a3b8; font-size:13px;">No wagon wheel data available yet.</div>';
+
+      container.innerHTML = `
+        <div class="premium-card" style="padding:16px; margin-bottom:16px;">
+          <div style="font-weight:700; color:#1e293b; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+            <span style="font-size:18px;">📊</span> Shot Analysis
+          </div>
+          ${shotsHtml}
+        </div>
+        <div class="premium-card" style="padding:16px;">
+          <div style="font-weight:700; color:#1e293b; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+            <span style="font-size:18px;">🎯</span> Run Distribution (Wagon Wheel)
+          </div>
+          ${wagonHtml}
+        </div>
+      `;
+    }
+
+    function renderPremiumGalleryTab(m, container) {
+      container.innerHTML = `
+        <div class="premium-card" style="padding:40px; text-align:center;">
+          <div style="font-size:48px; margin-bottom:16px;">📸</div>
+          <div style="font-family:'Rajdhani',sans-serif; font-size:22px; font-weight:700; color:#1e293b; margin-bottom:8px;">Match Gallery</div>
+          <div style="color:#64748b; font-size:14px; margin-bottom:24px;">Organiser inka photos upload cheyaledu. Stay tuned for live match photos!</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+             <div style="aspect-ratio:1; background:#f1f5f9; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#cbd5e1; font-size:12px;">Photo Placeholder</div>
+             <div style="aspect-ratio:1; background:#f1f5f9; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#cbd5e1; font-size:12px;">Photo Placeholder</div>
+          </div>
+        </div>
+      `;
     }
 
     function renderPremiumTeamsTab(m, container) {
@@ -9438,6 +9522,7 @@
       document.querySelectorAll(".overs-quick-btn").forEach(b => b.classList.remove("selected"));
       document.getElementById("oversOverlay").classList.add("open");
       currentLiveMatchId = Date.now();
+      localStorage.setItem("currentLiveMatchId", currentLiveMatchId);
       matchStartTime = new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', year: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true });
       if (currentTournamentMatchIdx !== null && currentTournamentId !== null) {
         let allTours = loadTournaments();
@@ -10471,6 +10556,12 @@
     }
 
     document.addEventListener("DOMContentLoaded", function () {
+      // Restore live match ID if organiser was in the middle of a match
+      let savedLiveId = localStorage.getItem("currentLiveMatchId");
+      if (savedLiveId) {
+        currentLiveMatchId = savedLiveId;
+      }
+
       // Always show login screen, no auto-login as per user request
       isLogin = true;
       document.getElementById("authTitle").innerText = "Welcome Back";
@@ -10488,7 +10579,7 @@
         matchId = afterScorecard.split("/")[0];
 
         if (matchId) {
-          // Show splash for 2 seconds, then open match directly
+          // Show splash briefly, then open match directly
           function tryViewMatch() {
             if (window.fbDb && window.fbOnSnapshot) {
               currentMatchActiveTab = 'live';
@@ -10496,10 +10587,10 @@
               if (splash) { splash.style.display = 'none'; }
               viewLiveMatch(matchId);
             } else {
-              setTimeout(tryViewMatch, 500);
+              setTimeout(tryViewMatch, 300);
             }
           }
-          setTimeout(tryViewMatch, 2000);
+          setTimeout(tryViewMatch, 500);
         }
       } else {
         // Normal flow: show login after splash
