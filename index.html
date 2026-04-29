@@ -7900,9 +7900,19 @@
       }
 
       // Render Tab Content
+      let isLive = (m.status !== 'finished' && m.status !== 'Finished' && !(m.target > 0 && (m.runs >= m.target || m.wickets >= 10)));
+      let sumTab = document.getElementById('matchLiveSummaryTab');
+      if (sumTab) {
+        sumTab.innerText = isLive ? 'Live' : 'Summary';
+      }
+
       let mainContent = document.getElementById('matchMainContent');
       if (currentMatchActiveTab === 'summary' || currentMatchActiveTab === 'live') {
-        renderPremiumLiveTab(m, mainContent);
+        if (isLive) {
+          renderTrueLiveTab(m, mainContent);
+        } else {
+          renderPremiumLiveTab(m, mainContent);
+        }
       } else if (currentMatchActiveTab === 'scorecard') {
         renderPremiumScorecardTab(m, mainContent);
       } else if (currentMatchActiveTab === 'commentary') {
@@ -8242,6 +8252,90 @@
       }
 
       container.innerHTML = renderTeamGrid(m.batTeam) + renderTeamGrid(m.bowlTeam);
+    }
+
+    function renderTrueLiveTab(m, container) {
+      let activeBatsmen = (m.batsmen || []).filter(b => b.name === m.strike || b.name === m.nonstrike);
+      if (activeBatsmen.length === 0) {
+        activeBatsmen = (m.batsmen || []).filter(b => !b.isOut).slice(0, 2);
+      }
+      let activeBowlers = (m.bowlers || []).slice(-2);
+
+      let pRuns = activeBatsmen.reduce((sum, b) => sum + parseInt(b.runs || 0), 0);
+      let pBalls = activeBatsmen.reduce((sum, b) => sum + parseInt(b.balls || 0), 0);
+
+      let recentBalls = [];
+      let comms = m.commentary || [];
+      for (let i = 0; i < Math.min(30, comms.length); i++) {
+        let c = comms[i];
+        if (c.type === 'over_summary') {
+          recentBalls.unshift('|');
+        } else {
+          recentBalls.unshift(c.ball);
+        }
+      }
+      recentBalls = recentBalls.slice(-18);
+      if (recentBalls[0] === '|') recentBalls.shift();
+
+      let recentHtml = recentBalls.map(b => {
+        if (b === '|') return `<span style="margin: 0 6px; color: #cbd5e1; font-weight: 800; font-size: 16px;">|</span>`;
+        let bg = '#f1f5f9'; let c = '#475569'; let border = '1px solid #cbd5e1';
+        if (b == 4) { bg = '#3b82f6'; c = '#fff'; border = 'none'; }
+        else if (b == 6) { bg = '#10b981'; c = '#fff'; border = 'none'; }
+        else if (b == 'W' || String(b).includes('W')) { bg = '#ef4444'; c = '#fff'; border = 'none'; }
+        return `<span style="display:inline-flex; width:26px; height:26px; align-items:center; justify-content:center; border-radius:50%; background:${bg}; border:${border}; color:${c}; font-size:12px; font-weight:700; margin-right:4px;">${b}</span>`;
+      }).join('');
+
+      let html = `
+        <div class="premium-card" style="margin-bottom: 16px;">
+          <div style="overflow-x: auto;">
+            <table class="sc-table" style="min-width:320px;">
+              <thead><tr style="background:#f8fafc;"><th>Batters</th><th style="flex:1;"></th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead>
+              <tbody>
+                ${activeBatsmen.map((b, idx) => `
+                  <tr style="border-bottom:1px solid #f1f5f9;">
+                    <td class="name-cell" style="color:#0d9488; font-weight:700;">${b.name}${b.name === m.strike || (idx === 0 && !m.strike) ? '*' : ''}</td>
+                    <td></td>
+                    <td>${b.runs}</td><td>${b.balls}</td><td>${b.fours}</td><td>${b.sixes}</td><td>${b.sr}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <div style="overflow-x: auto; margin-top: 16px;">
+            <table class="sc-table" style="min-width:320px;">
+              <thead><tr style="background:#f8fafc;"><th>Bowlers</th><th style="flex:1;"></th><th>O</th><th>M</th><th>R</th><th>W</th><th>Eco</th></tr></thead>
+              <tbody>
+                ${activeBowlers.map((b, idx) => `
+                  <tr style="border-bottom:1px solid #f1f5f9;">
+                    <td class="name-cell" style="color:#0d9488; font-weight:700;">${b.name}${b.name === m.bowler || (idx === activeBowlers.length - 1 && !m.bowler) ? '*' : ''}</td>
+                    <td></td>
+                    <td>${b.overs}</td><td>${b.maidens}</td><td>${b.runs}</td><td>${b.wickets}</td><td>${b.eco}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <div style="padding:12px 16px; font-size:12px; color:#1e293b; border-top:1px solid #f1f5f9; background:#f8fafc; font-weight:700;">
+            Current Partnership: <span style="font-weight:600; color:#64748b;">${pRuns}(${pBalls})</span>
+          </div>
+
+          <div style="padding:12px 16px; border-top:1px solid #f1f5f9; display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
+            <span style="font-weight:800; color:#475569; font-size:12px; letter-spacing:1px; text-transform:uppercase;">RECENT :</span>
+            <div style="display:flex; align-items:center;">
+              ${recentHtml}
+            </div>
+          </div>
+        </div>
+
+        <div class="premium-card" style="padding:16px;">
+          <div style="font-weight:700; color:#1e293b; margin-bottom:16px;">Commentary</div>
+          ${getCommentaryHtml(m, 15)}
+        </div>
+      `;
+      container.innerHTML = html;
     }
 
     function renderPremiumLiveTab(m, container) {
