@@ -10039,6 +10039,7 @@
       }
       for (let p in bowlerStats) {
         let s = bowlerStats[p];
+        let ov = Math.floor(s.balls / 6) + "." + (s.balls % 6);
         let eco = s.balls > 0 ? ((s.runs / s.balls) * 6).toFixed(2) : "0.00";
         let roleForProfile = bowlPlayerRoles[p] || "Bowler";
         bowlTable.innerHTML += '<tr>' +
@@ -10648,24 +10649,19 @@
               setTimeout(tryViewMatch, 300);
             }
           }
-          let fbReadyInterval = setInterval(() => {
-            if (window.fbDb && window.fbOnSnapshot) {
-              clearInterval(fbReadyInterval);
-              tryViewMatch();
-            }
-          }, 100);
-          setTimeout(() => clearInterval(fbReadyInterval), 10000);
+          setTimeout(tryViewMatch, 500);
+          return; // Exit early if deep-link is handled
         }
-      } else {
-        // Normal flow: Redirect to login if not logged in
-        let splash = document.getElementById('splashScreen');
-        if (splash) {
-          setTimeout(() => {
-            splash.style.display = 'none';
-            // Force login page to appear for demo purposes as requested
-            showPage('loginPage');
-          }, 3000);
-        }
+      }
+
+      // Normal flow: Redirect to login if not logged in
+      let splash = document.getElementById('splashScreen');
+      if (splash) {
+        setTimeout(() => {
+          splash.style.display = 'none';
+          // Force login page to appear for demo purposes as requested
+          showPage('loginPage');
+        }, 3000);
       }
     });
 
