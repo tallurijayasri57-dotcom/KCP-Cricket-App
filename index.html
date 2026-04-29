@@ -4723,6 +4723,193 @@
     <div id="myTournamentsContainer"></div>
   </div>
 
+  <style>
+    /* Tournament Details Styles */
+    .td-header-banner {
+      background: #1e293b; /* Dark navy as requested */
+      padding: 24px 20px;
+      display: flex;
+      justify-content: space-between;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+    }
+    .td-header-left {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .td-logo {
+      width: 80px;
+      height: 80px;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .td-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .td-info h1 {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0 0 6px 0;
+      color: #fff;
+    }
+    .td-info p {
+      font-size: 13px;
+      color: #cbd5e1;
+      margin: 0 0 4px 0;
+    }
+    .td-header-right {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .td-stat-box {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 12px 16px;
+      text-align: center;
+      min-width: 80px;
+    }
+    .td-stat-val {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 4px;
+      color: #fff;
+    }
+    .td-stat-label {
+      font-size: 11px;
+      color: #94a3b8;
+      text-transform: capitalize;
+    }
+    .td-tabs-wrapper {
+      border-bottom: 1px solid #e5e7eb;
+      background: #fff;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    .td-tabs {
+      display: inline-flex;
+      padding: 0 20px;
+    }
+    .td-tab {
+      padding: 16px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #4b5563;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+    }
+    .td-tab.active {
+      color: #0f766e;
+      border-bottom-color: #0f766e;
+      font-weight: 600;
+    }
+    .td-content-area {
+      padding: 20px;
+      background: #f9fafb;
+      min-height: 500px;
+    }
+    .td-pills {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+    .td-pill {
+      background: #f3f4f6;
+      color: #4b5563;
+      padding: 8px 24px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+    }
+    .td-pill.active {
+      background: #0f766e;
+      color: #fff;
+    }
+    .td-empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      text-align: center;
+    }
+    .td-empty-img {
+      width: 150px;
+      height: 100px;
+      background: #e5e7eb;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .td-empty-img svg {
+      width: 40px;
+      height: 40px;
+      fill: #9ca3af;
+    }
+    .td-empty-text {
+      font-size: 13px;
+      color: #6b7280;
+    }
+    .td-matches-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+    }
+  </style>
+
+  <!-- TOURNAMENT DETAILS PAGE -->
+  <div id="tournamentDetailsPage" class="page" style="display:none; background:#f9fafb; min-height:100vh;">
+    <!-- Top Nav Back -->
+    <div style="background:#1e293b; padding:12px 20px; color:#fff; display:flex; align-items:center;">
+       <button onclick="globalGoBack()" style="background:transparent; border:none; color:#cbd5e1; font-size:15px; cursor:pointer; display:flex; align-items:center; gap:6px;">
+         <span>←</span> Back
+       </button>
+    </div>
+    
+    <div class="td-header-banner" id="tdHeaderBanner">
+      <!-- Injected dynamically -->
+    </div>
+
+    <div class="td-tabs-wrapper">
+      <div class="td-tabs">
+        <div class="td-tab active">Matches</div>
+        <div class="td-tab">Leaderboard</div>
+        <div class="td-tab">Points Table</div>
+        <div class="td-tab">Stats</div>
+        <div class="td-tab">Heroes</div>
+        <div class="td-tab">Sponsors</div>
+        <div class="td-tab">Teams</div>
+        <div class="td-tab">Gallery</div>
+        <div class="td-tab">About Us</div>
+      </div>
+    </div>
+
+    <div class="td-content-area">
+      <div class="td-pills">
+        <button class="td-pill" id="tdPill-live" onclick="renderTournamentMatches('live')">Live</button>
+        <button class="td-pill active" id="tdPill-upcoming" onclick="renderTournamentMatches('upcoming')">Upcoming</button>
+        <button class="td-pill" id="tdPill-completed" onclick="renderTournamentMatches('completed')">Completed</button>
+      </div>
+
+      <div id="tdMatchesContainer">
+        <!-- Grid or empty state injected here -->
+      </div>
+    </div>
+  </div>
+
 
   <!-- LOGIN PAGE -->
   <div id="loginPage" class="page">
@@ -6159,10 +6346,12 @@
     <div id="matchHeaderContainer"></div>
 
     <div class="match-tabs-nav">
-      <div class="match-tab-link active" onclick="switchMatchTab('live', this)">Live</div>
+      <div id="matchLiveSummaryTab" class="match-tab-link active" onclick="switchMatchTab('summary', this)">Summary</div>
       <div class="match-tab-link" onclick="switchMatchTab('scorecard', this)">Scorecard</div>
       <div class="match-tab-link" onclick="switchMatchTab('commentary', this)">Commentary</div>
       <div class="match-tab-link" onclick="switchMatchTab('analysis', this)">Analysis</div>
+      <div class="match-tab-link" onclick="switchMatchTab('heroes', this)">Heroes</div>
+      <div class="match-tab-link" onclick="switchMatchTab('mvp', this)">MVP</div>
       <div class="match-tab-link" onclick="switchMatchTab('teams', this)">Teams</div>
       <div class="match-tab-link" onclick="switchMatchTab('gallery', this)">Gallery</div>
     </div>
@@ -7579,7 +7768,7 @@
     let liveViewUnsubscribe = null;
     let previousLiveMatchState = null;
     let currentMatchViewId = null;
-    let currentMatchActiveTab = 'live';
+    let currentMatchActiveTab = 'summary';
 
     function viewLiveMatch(matchId) {
       if (!window.fbDb || !window.fbOnSnapshot) {
@@ -7651,6 +7840,15 @@
       if (!m) return;
       previousLiveMatchState = m;
 
+      let tab = document.getElementById('matchLiveSummaryTab');
+      if (tab) {
+        if (m.status === 'Finished' || (m.result && m.result !== 'LIVE')) {
+          tab.innerText = 'Summary';
+        } else {
+          tab.innerText = 'Live';
+        }
+      }
+
       try {
         // Render Header - this will replace the "Match Loading" spinner
         let headerHtml = `
@@ -7715,7 +7913,7 @@
 
       // Render Tab Content
       let mainContent = document.getElementById('matchMainContent');
-      if (currentMatchActiveTab === 'live') {
+      if (currentMatchActiveTab === 'summary' || currentMatchActiveTab === 'live') {
         renderPremiumLiveTab(m, mainContent);
       } else if (currentMatchActiveTab === 'scorecard') {
         renderPremiumScorecardTab(m, mainContent);
@@ -7727,8 +7925,10 @@
         renderPremiumAnalysisTab(m, mainContent);
       } else if (currentMatchActiveTab === 'gallery') {
         renderPremiumGalleryTab(m, mainContent);
-      } else if (currentMatchActiveTab === 'awards') {
+      } else if (currentMatchActiveTab === 'heroes') {
         renderPremiumAwardsTab(m, mainContent);
+      } else if (currentMatchActiveTab === 'mvp') {
+        renderPremiumMvpTab(m, mainContent);
       } else {
         mainContent.innerHTML = `<div class="premium-card" style="padding:40px; text-align:center; color:#64748b;">${currentMatchActiveTab.toUpperCase()} content coming soon</div>`;
       }
@@ -7826,12 +8026,86 @@
 
       let mvp = null;
       let maxMvpPts = -1000;
-      Object.values(allPlayers).forEach(p => {
+      let allPlayersList = Object.values(allPlayers);
+      allPlayersList.forEach(p => {
         if (winningTeam && p.team === winningTeam) p.pts += 20;
         if (p.pts > maxMvpPts) { maxMvpPts = p.pts; mvp = p; }
       });
+      
+      allPlayersList.sort((a, b) => b.pts - a.pts);
 
-      return { bestBatter, bestBowler, mvp };
+      return { bestBatter, bestBowler, mvp, allPlayersList };
+    }
+
+    function renderPremiumMvpTab(m, container) {
+      if (m.status !== 'Finished') {
+        container.innerHTML = `<div class="premium-card" style="padding:40px; text-align:center; color:#64748b;">MVP will be declared once the match is Finished.</div>`;
+        return;
+      }
+
+      let awards = calculateMatchAwards(m);
+      
+      let html = `
+        <div class="premium-card" style="padding:20px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e5e7eb; padding-bottom:16px; margin-bottom:16px;">
+            <div style="font-size:18px; color:#4b5563; display:flex; align-items:center; gap:8px;">
+              MVP (Most Valuable Player)
+              <span style="background:#e5e7eb; border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:12px; color:#6b7280; font-weight:bold;">?</span>
+            </div>
+            <div style="color:#0d9488; font-weight:600; font-size:14px; cursor:pointer;">Export Leaderboard</div>
+          </div>
+      `;
+
+      awards.allPlayersList.forEach((p, index) => {
+        let photoSrc = localStorage.getItem("userPhoto_" + p.name);
+        let photoHtml = photoSrc ? `<img src="${photoSrc}" style="width:100%; height:100%; object-fit:cover; border-radius:4px;">` : `<div style="width:100%; height:100%; background:#f3f4f6; border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:24px;">👤</div>`;
+        
+        let batPts = p.batData ? p.batData.battingPoints : 0;
+        let bowlPts = p.bowlData ? p.bowlData.bowlingPoints : 0;
+        let fieldPts = 0; // Fielding points not currently tracked, but matching layout
+
+        html += `
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid #f3f4f6;">
+            <div style="display:flex; align-items:center; gap:16px;">
+              <div style="width:60px; height:60px; flex-shrink:0;">
+                ${photoHtml}
+              </div>
+              <div>
+                <div style="font-size:16px; font-weight:700; color:#1e293b; margin-bottom:4px;">
+                  ${p.name} <span style="font-weight:400; color:#6b7280; font-size:13px;">(${p.team})</span>
+                </div>
+                <div style="display:flex; gap:12px; font-size:12px; color:#6b7280; align-items:center;">
+                  <div>
+                    <div style="color:#4b5563; margin-bottom:2px;">Batting</div>
+                    <div style="font-weight:600; color:#1e293b;">${batPts}</div>
+                  </div>
+                  <div style="font-weight:600; color:#9ca3af;">+</div>
+                  <div>
+                    <div style="color:#4b5563; margin-bottom:2px;">Bowling</div>
+                    <div style="font-weight:600; color:#1e293b;">${bowlPts}</div>
+                  </div>
+                  <div style="font-weight:600; color:#9ca3af;">+</div>
+                  <div>
+                    <div style="color:#4b5563; margin-bottom:2px;">Fielding</div>
+                    <div style="font-weight:600; color:#1e293b;">${fieldPts}</div>
+                  </div>
+                  <div style="font-weight:600; color:#9ca3af;">=</div>
+                  <div>
+                    <div style="color:#4b5563; margin-bottom:2px;">Total</div>
+                    <div style="font-weight:700; color:#1e293b;">${p.pts}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div style="width:32px; height:32px; border-radius:50%; border:1.5px solid #fbbf24; display:flex; align-items:center; justify-content:center; color:#d97706; font-weight:700; font-size:14px; background:#fffbeb;">
+              ${index + 1}
+            </div>
+          </div>
+        `;
+      });
+
+      html += `</div>`;
+      container.innerHTML = html;
     }
 
     function renderPremiumAwardsTab(m, container) {
@@ -8293,7 +8567,11 @@
           if (!m.result) {
             alert("This match has not started yet.");
           } else {
-            alert("Scorecard not found for this match. Detailed ball-by-ball data might not be available.");
+            // It's a past match not in Firebase, so render it natively using the local data
+            currentMatchViewId = null;
+            if (typeof liveViewUnsubscribe === 'function' && liveViewUnsubscribe) liveViewUnsubscribe();
+            showPage('matchDetailsPage');
+            renderPremiumMatchView(m);
           }
         }
       } catch (e) {
@@ -8972,7 +9250,7 @@
           </div>
           <div class="my-card-team-row">
             <span class="my-card-team-name">${m.team2}</span>
-            ${m.score2 ? `<span class="my-card-score">${m.score2} <span class="my-card-overs">(${m.overs2})</span></span>` : '<span>Yet to bat</span>'}
+            ${m.score2 ? `<span class="my-card-score">${m.score2} <span class="my-card-overs">(${m.overs2})</span></span>` : (m.result ? '' : '<span>Yet to bat</span>')}
           </div>
         </div>
         <div class="my-card-footer">
@@ -8981,6 +9259,128 @@
       </div>
     `;
       }).join('');
+    }
+
+    let currentViewingTournament = null;
+    let currentViewingTournamentIdx = null;
+
+    function openTournamentDetails(tIdx) {
+      let allTournaments = loadTournaments();
+      let t = allTournaments[tIdx];
+      if (!t) return;
+      currentViewingTournament = t;
+      currentViewingTournamentIdx = tIdx;
+
+      showPage('tournamentDetailsPage');
+
+      let totalMatches = t.matches ? t.matches.length : 0;
+      let totalTeams = t.teams ? t.teams.length : 0;
+      let startDateStr = t.startDate ? t.startDate : 'N/A';
+      let endDateStr = t.endDate ? t.endDate : 'N/A';
+      
+      let headerHtml = `
+        <div class="td-header-left">
+          <div class="td-logo">
+            <img src="${t.logo || 'https://img.freepik.com/free-vector/cricket-logo-template-design_23-2150035048.jpg'}" alt="logo">
+          </div>
+          <div class="td-info">
+            <h1>${t.name}</h1>
+            <p>${t.city || 'Jaggayyapeta'}</p>
+            <p>${startDateStr} to ${endDateStr}</p>
+          </div>
+        </div>
+        <div class="td-header-right">
+          <div class="td-stat-box">
+            <div class="td-stat-val">${totalMatches}</div>
+            <div class="td-stat-label">Total Matches</div>
+          </div>
+          <div class="td-stat-box">
+            <div class="td-stat-val">${totalTeams}</div>
+            <div class="td-stat-label">Total Teams</div>
+          </div>
+        </div>
+      `;
+      document.getElementById('tdHeaderBanner').innerHTML = headerHtml;
+
+      // Default to completed or upcoming based on data
+      let completedCount = (t.matches || []).filter(m => m.result && m.result !== "LIVE").length;
+      if (completedCount > 0) {
+        renderTournamentMatches('completed');
+      } else {
+        renderTournamentMatches('upcoming');
+      }
+    }
+
+    function renderTournamentMatches(status) {
+      document.querySelectorAll('.td-pill').forEach(p => p.classList.remove('active'));
+      document.getElementById('tdPill-' + status).classList.add('active');
+
+      let container = document.getElementById('tdMatchesContainer');
+      let t = currentViewingTournament;
+      if (!t) return;
+
+      let filteredMatches = [];
+      let matches = t.matches || [];
+
+      if (status === 'live') {
+        filteredMatches = matches.filter(m => m.result === "LIVE");
+      } else if (status === 'completed') {
+        filteredMatches = matches.filter(m => m.result && m.result !== "LIVE");
+      } else if (status === 'upcoming') {
+        filteredMatches = matches.filter(m => !m.result);
+      }
+
+      if (filteredMatches.length === 0) {
+        let textMsg = "";
+        if (status === 'live') textMsg = `No live matches for ${t.name} at the moment. Check upcoming fixtures or past results.`;
+        if (status === 'upcoming') textMsg = `No upcoming matches for ${t.name} right now. Check live or past matches.`;
+        if (status === 'completed') textMsg = `No completed matches for ${t.name} right now.`;
+        
+        container.innerHTML = `
+          <div class="td-empty-state">
+            <div class="td-empty-img">
+              <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5.04-6.71l-2.75 3.54-1.96-2.36L6.5 17h11l-3.54-4.71z"/></svg>
+            </div>
+            <div class="td-empty-text">${textMsg}</div>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '<div class="td-matches-grid">';
+      filteredMatches.forEach(m => {
+        let badgeBg = status === 'live' ? '#ef4444' : (status === 'completed' ? '#374151' : '#0d9488');
+        let badgeText = status === 'live' ? 'LIVE' : (status === 'completed' ? 'Past' : 'Upcoming');
+        let resText = m.result ? m.result : (m.tossInfo ? m.tossInfo : 'Upcoming match scheduled');
+        
+        html += `
+          <div class="my-card" onclick="openMatchScorecard(${currentViewingTournamentIdx}, ${matches.indexOf(m)})" style="cursor:pointer; margin:0;">
+            <div class="my-card-header">
+              <span>${t.name}</span>
+              <span class="my-badge" style="background:${badgeBg};">${badgeText}</span>
+            </div>
+            <div class="my-card-meta">
+              ${t.ground || 'KCP CRICKET GROUND'}, ${t.city || 'Jaggayyapeta'}, ${m.date || ''}, ${t.overs || 20} Ov.
+            </div>
+            <div class="my-card-bold">League Matches</div>
+            <div class="my-card-teams">
+              <div class="my-card-team-row">
+                <span class="my-card-team-name">${m.team1}</span>
+                ${m.score1 ? `<span class="my-card-score">${m.score1} <span class="my-card-overs">(${m.overs1})</span></span>` : ''}
+              </div>
+              <div class="my-card-team-row">
+                <span class="my-card-team-name">${m.team2}</span>
+                ${m.score2 ? `<span class="my-card-score">${m.score2} <span class="my-card-overs">(${m.overs2})</span></span>` : (m.result ? '' : '<span style="font-size:13px; color:#6b7280; font-weight:500;">Yet to bat</span>')}
+              </div>
+            </div>
+            <div class="my-card-footer">
+              ${resText}
+            </div>
+          </div>
+        `;
+      });
+      html += '</div>';
+      container.innerHTML = html;
     }
 
     function loadMyTournaments() {
@@ -9008,8 +9408,9 @@
       }
 
       container.innerHTML = myTourneys.map(t => {
+        let tIdx = allTournaments.indexOf(t);
         return `
-      <div class="my-card">
+      <div class="my-card" onclick="openTournamentDetails(${tIdx})" style="cursor:pointer;">
         <div class="tourney-badge-premium">Premium</div>
         <div class="tourney-card">
           <div class="tourney-img">
@@ -10664,7 +11065,7 @@
 
           function tryViewMatch() {
             if (window.fbDb && window.fbOnSnapshot) {
-              currentMatchActiveTab = 'live';
+              currentMatchActiveTab = 'summary';
 
               // Ensure navbar is visible for the full experience (Home, Matches buttons)
               let nav = document.getElementById('nav');
