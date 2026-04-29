@@ -8772,9 +8772,9 @@
             }
           })
           .then(data => {
-            btn.innerText = oldText;
-            btn.disabled = false;
             if (data.message === "Already Registered") {
+              btn.innerText = oldText;
+              btn.disabled = false;
               alert("Already Registered! Please login.");
             } else {
               // Registration success - save locally and switch to Login screen
@@ -8785,11 +8785,12 @@
               // Switch to login mode
               isLogin = true;
               document.getElementById("authTitle").innerText = "Welcome Back";
-              document.getElementById("authBtn").innerText = "LOGIN";
               document.getElementById("switchText").innerText = "Don't have an account? Register";
               document.getElementById("username").value = u;
               document.getElementById("password").value = "";
               document.getElementById("password").focus();
+              btn.innerText = "LOGIN";
+              btn.disabled = false;
             }
           })
           .catch(err => {
@@ -8801,12 +8802,11 @@
             alert("Registration Successful! Please login.");
             isLogin = true;
             document.getElementById("authTitle").innerText = "Welcome Back";
-            document.getElementById("authBtn").innerText = "LOGIN";
             document.getElementById("switchText").innerText = "Don't have an account? Register";
             document.getElementById("username").value = u;
             document.getElementById("password").value = "";
             document.getElementById("password").focus();
-            btn.innerText = oldText;
+            btn.innerText = "LOGIN";
             btn.disabled = false;
           });
       }
