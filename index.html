@@ -10628,6 +10628,12 @@
         } catch (e) { console.error("Link parse error", e); }
 
         if (matchId) {
+          // Hide splash after 4 seconds as per user request (3-5sec range)
+          setTimeout(() => {
+            let splash = document.getElementById('splashScreen');
+            if (splash) splash.style.display = 'none';
+          }, 4000);
+
           function tryViewMatch() {
             if (window.fbDb && window.fbOnSnapshot) {
               currentMatchActiveTab = 'live';
@@ -10639,9 +10645,6 @@
               // Start background listeners so Home page and other views have data
               if (typeof listenToLiveMatches === 'function') listenToLiveMatches();
               if (typeof loadTeams === 'function') loadTeams();
-
-              let splash = document.getElementById('splashScreen');
-              if (splash) { splash.style.display = 'none'; }
 
               if (typeof liveViewUnsubscribe === 'function') liveViewUnsubscribe();
               viewLiveMatch(matchId);
@@ -10661,7 +10664,7 @@
           splash.style.display = 'none';
           // Force login page to appear for demo purposes as requested
           showPage('loginPage');
-        }, 3000);
+        }, 4000);
       }
     });
 
