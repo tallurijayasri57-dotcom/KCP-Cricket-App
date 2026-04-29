@@ -6345,8 +6345,8 @@
       <div class="match-tab-link" onclick="switchMatchTab('scorecard', this)">Scorecard</div>
       <div class="match-tab-link" onclick="switchMatchTab('commentary', this)">Commentary</div>
       <div class="match-tab-link" onclick="switchMatchTab('analysis', this)">Analysis</div>
-      <div class="match-tab-link" onclick="switchMatchTab('heroes', this)">Heroes</div>
-      <div class="match-tab-link" onclick="switchMatchTab('mvp', this)">MVP</div>
+      <div id="matchHeroesTab" class="match-tab-link" onclick="switchMatchTab('heroes', this)">Heroes</div>
+      <div id="matchMvpTab" class="match-tab-link" onclick="switchMatchTab('mvp', this)">MVP</div>
       <div class="match-tab-link" onclick="switchMatchTab('teams', this)">Teams</div>
       <div class="match-tab-link" onclick="switchMatchTab('gallery', this)">Gallery</div>
     </div>
@@ -7905,6 +7905,11 @@
       if (sumTab) {
         sumTab.innerText = isLive ? 'Live' : 'Summary';
       }
+
+      let heroesTab = document.getElementById('matchHeroesTab');
+      let mvpTab = document.getElementById('matchMvpTab');
+      if (heroesTab) heroesTab.style.display = isLive ? 'none' : 'block';
+      if (mvpTab) mvpTab.style.display = isLive ? 'none' : 'block';
 
       let mainContent = document.getElementById('matchMainContent');
       if (currentMatchActiveTab === 'summary' || currentMatchActiveTab === 'live') {
