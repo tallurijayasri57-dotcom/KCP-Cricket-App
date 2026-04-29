@@ -8283,70 +8283,7 @@
         `;
       }
 
-      let batTable = `
-        <div class="premium-card" style="overflow-x:auto;">
-          <table class="sc-table" style="min-width:320px;">
-            <thead><tr><th>Batters</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead>
-            <tbody>
-              ${(m.batsmen || []).filter(b => b.isStrike || b.name === m.nonstrike).map(b => `
-                <tr>
-                  <td class="name-cell">${b.name} ${b.isStrike ? '*' : ''}</td>
-                  <td>${b.runs}</td><td>${b.balls}</td><td>${b.fours}</td><td>${b.sixes}</td><td>${b.sr}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
-      `;
-
-      let bowlTable = `
-        <div class="premium-card" style="overflow-x:auto;">
-          <table class="sc-table" style="min-width:320px;">
-            <thead><tr><th>Bowlers</th><th>O</th><th>M</th><th>R</th><th>W</th><th>0s</th><th>4s</th><th>6s</th><th>WD</th><th>NB</th><th>Eco</th></tr></thead>
-            <tbody>
-              ${(m.bowlers || []).filter(b => b.isCurrent || b.overs > 0).slice(0, 2).map(b => `
-                <tr>
-                  <td class="name-cell">${b.name} ${b.isCurrent ? '*' : ''}</td>
-                  <td>${b.overs}</td><td>${b.maidens}</td><td>${b.runs}</td><td>${b.wickets}</td>
-                  <td>${b.dots || 0}</td><td>${b.fours || 0}</td><td>${b.sixes || 0}</td><td>${b.wides || 0}</td><td>${b.noballs || 0}</td>
-                  <td>${b.eco}</td>
-                </tr>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
-      `;
-
-      let pRuns = 0, pBalls = 0;
-      if (m.batsmen) {
-        let strikeBat = m.batsmen.find(b => b.isStrike);
-        let nonStrikeBat = m.batsmen.find(b => b.name === m.nonstrike);
-        pRuns = (strikeBat ? strikeBat.runs : 0) + (nonStrikeBat ? nonStrikeBat.runs : 0);
-        pBalls = (strikeBat ? strikeBat.balls : 0) + (nonStrikeBat ? nonStrikeBat.balls : 0);
-      }
-      let partnershipHtml = `
-        <div style="font-size:13px; font-weight:700; color:#1e293b; padding:12px; background:#f8fafc; border:1px solid #f1f5f9; border-radius:8px; margin-bottom:12px;">
-          Current Partnership: <span style="color:#64748b;">${pRuns}(${pBalls})</span>
-        </div>
-      `;
-
-      let recentBalls = `
-        <div class="premium-card" style="padding:12px;">
-          <div style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; margin-bottom:8px;">Recent:</div>
-          <div style="display:flex; gap:8px; align-items:center;">
-            ${(m.lastBalls || []).map(b => `<div class="comm-ball-icon ${b == 4 ? 'comm-ball-4' : b == 6 ? 'comm-ball-6' : b == 'W' ? 'comm-ball-w' : 'comm-ball-0'}">${b}</div>`).join('')}
-          </div>
-        </div>
-      `;
-
-      container.innerHTML = bestPerfHtml + batTable + bowlTable + partnershipHtml + recentBalls + `
-        <div style="margin-top:16px;">
-          <div style="font-weight:700; color:#1e293b; margin-bottom:12px;">Commentary</div>
-          ${getCommentaryHtml(m, 3)}
-          <div style="text-align:center; padding:12px; color:#ef4444; font-weight:700; cursor:pointer;" onclick="switchMatchTab('commentary', document.querySelectorAll('.match-tab-link')[2])">Full Commentary</div>
-        </div>
-      `;
+      container.innerHTML = bestPerfHtml;
     }
 
     function renderPremiumScorecardTab(m, container) {
