@@ -8703,8 +8703,25 @@
       btn.innerText = "Connecting...";
       btn.disabled = true;
 
+      // Get users from localStorage for validation
+      let localUsers = JSON.parse(localStorage.getItem('kcp_users') || '{}');
+
       if (isLogin) {
-        // Auto-login bypass as requested
+        // Validation logic
+        if (!localUsers.hasOwnProperty(u)) {
+          alert("invalid username");
+          btn.innerText = oldText;
+          btn.disabled = false;
+          return;
+        }
+        if (localUsers[u] !== p) {
+          alert("invalid password");
+          btn.innerText = oldText;
+          btn.disabled = false;
+          return;
+        }
+
+        // Login successful
         localStorage.setItem("currentUser", u);
         localStorage.setItem("isRegistered", "true");
 
@@ -8736,6 +8753,14 @@
         }
         fetch(API + "/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: u, password: p }) }).catch(e => console.warn(e));
       } else {
+        // Registration logic
+        if (localUsers.hasOwnProperty(u)) {
+          alert("Username already exists! Please choose another or login.");
+          btn.innerText = oldText;
+          btn.disabled = false;
+          return;
+        }
+
         fetch(API + "/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: u, password: p }) })
           .then(async res => {
             const contentType = res.headers.get("content-type");
@@ -8752,10 +8777,10 @@
             if (data.message === "Already Registered") {
               alert("Already Registered! Please login.");
             } else {
-              // Registration success - switch to Login screen
+              // Registration success - save locally and switch to Login screen
+              localUsers[u] = p;
+              localStorage.setItem('kcp_users', JSON.stringify(localUsers));
               localStorage.setItem("isRegistered", "true");
-              btn.innerText = oldText;
-              btn.disabled = false;
               alert("Registration Successful! Please login.");
               // Switch to login mode
               isLogin = true;
@@ -8769,8 +8794,11 @@
           })
           .catch(err => {
             console.warn("Backend Registration Error, using offline fallback:", err);
+            // Offline fallback registration success
+            localUsers[u] = p;
+            localStorage.setItem('kcp_users', JSON.stringify(localUsers));
             localStorage.setItem("isRegistered", "true");
-            alert("Registration Offline Fallback Successful! Please login.");
+            alert("Registration Successful! Please login.");
             isLogin = true;
             document.getElementById("authTitle").innerText = "Welcome Back";
             document.getElementById("authBtn").innerText = "LOGIN";
