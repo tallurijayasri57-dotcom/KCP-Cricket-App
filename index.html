@@ -738,9 +738,17 @@
     }
 
     @keyframes pulse-live {
-      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-      70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+      0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+      }
+
+      70% {
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+      }
     }
 
     .match-layout {
@@ -821,16 +829,19 @@
       .sc-table {
         font-size: 11px;
       }
+
       .sc-table th {
         padding: 8px 4px;
         font-size: 10px;
         white-space: nowrap;
       }
+
       .sc-table td {
         padding: 9px 4px;
         font-size: 11px;
         white-space: nowrap;
       }
+
       /* Truncate long player names with ellipsis */
       .sc-table .name-cell {
         max-width: 90px;
@@ -839,10 +850,12 @@
         text-overflow: ellipsis;
         white-space: nowrap;
       }
+
       /* Hide the dismissal description column on mobile — saves space */
       .sc-table .out-desc-cell {
         display: none;
       }
+
       /* Center align all stat number columns */
       .sc-table td:not(.name-cell):not(.out-desc-cell),
       .sc-table th:not(:first-child) {
@@ -7393,8 +7406,8 @@
         matchDate: matchStartTime,
         matchStatus: innings === 1 ? "In Progress" : "Run Chase",
         lastBalls: matchCommentary.filter(c => c.ball !== undefined).slice(0, 10).reverse().map(c => c.ball),
-        batsmanStats: batsmanStats, 
-        bowlerStats: bowlerStats,   
+        batsmanStats: batsmanStats,
+        bowlerStats: bowlerStats,
         outBatsmen: outBatsmen,
         strike: document.getElementById('strike').value,
         nonstrike: document.getElementById('nonstrike').value,
@@ -7485,7 +7498,7 @@
 
       // Listen to all live matches, ordered by most recently updated
       const q = window.fbQuery(
-        window.fbCollection(window.fbDb, "live_matches"), 
+        window.fbCollection(window.fbDb, "live_matches"),
         window.fbWhere("status", "==", "live")
       );
 
@@ -7495,7 +7508,7 @@
 
         let html = "";
         let matchCount = 0;
-        
+
         // Get current user robustly
         let currentUser = null;
         const userStr = localStorage.getItem('currentUser');
@@ -7512,7 +7525,7 @@
 
         // Sort by updatedAt locally to ensure newest are first
         let docs = [];
-        snapshot.forEach(doc => docs.push({id: doc.id, data: doc.data()}));
+        snapshot.forEach(doc => docs.push({ id: doc.id, data: doc.data() }));
         docs.sort((a, b) => (b.data.updatedAt || 0) - (a.data.updatedAt || 0));
 
         docs.forEach(item => {
@@ -7617,7 +7630,7 @@
         let mData = doc.data();
         if (!mData) return;
         mData.id = matchId.toString().trim();
-        
+
         // Ensure we are on the match page and hide any loading overlays
         showPage('matchDetailsPage');
         const loader = document.getElementById('matchLoadingOverlay');
@@ -7877,20 +7890,20 @@
       (m.batsmen || []).forEach(b => {
         (b.shot_types || []).forEach(s => shotCounts[s] = (shotCounts[s] || 0) + 1);
         (b.wagon_wheel || []).forEach(w => {
-           let runs = parseInt(w.split(':')[1]) || 0;
-           let zone = w.split(':')[0];
-           wagonRuns[zone] = (wagonRuns[zone] || 0) + runs;
+          let runs = parseInt(w.split(':')[1]) || 0;
+          let zone = w.split(':')[0];
+          wagonRuns[zone] = (wagonRuns[zone] || 0) + runs;
         });
       });
 
-      let shotsHtml = Object.entries(shotCounts).sort((a,b) => b[1]-a[1]).map(([s, c]) => `
+      let shotsHtml = Object.entries(shotCounts).sort((a, b) => b[1] - a[1]).map(([s, c]) => `
         <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f1f5f9;">
           <div style="font-weight:600; color:#1e293b;">${s}</div>
           <div style="color:#0d9488; font-weight:700;">${c} times</div>
         </div>
       `).join('') || '<div style="color:#94a3b8; font-size:13px;">No shot data available yet.</div>';
 
-      let wagonHtml = Object.entries(wagonRuns).sort((a,b) => b[1]-a[1]).map(([z, r]) => `
+      let wagonHtml = Object.entries(wagonRuns).sort((a, b) => b[1] - a[1]).map(([z, r]) => `
         <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f1f5f9;">
           <div style="font-weight:600; color:#1e293b;">${z}</div>
           <div style="color:#f59e0b; font-weight:700;">${r} Runs</div>
@@ -9548,10 +9561,10 @@
       currentLiveMatchId = Date.now();
       localStorage.setItem("currentLiveMatchId", currentLiveMatchId);
       matchStartTime = new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', year: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true });
-      
+
       // Reset photo cache for new match
       window._matchPlayerPhotos = {};
-      
+
       if (currentTournamentMatchIdx !== null && currentTournamentId !== null) {
         let allTours = loadTournaments();
         if (allTours[currentTournamentId] && allTours[currentTournamentId].matches[currentTournamentMatchIdx]) {
@@ -9760,7 +9773,7 @@
       // Rebuild the balls display from scratch
       let ballsDiv = document.getElementById('balls');
       ballsDiv.innerHTML = '';
-      s.ballsDisplay.forEach(function(item) {
+      s.ballsDisplay.forEach(function (item) {
         let sp = document.createElement('span');
         sp.className = item.cls;
         sp.innerText = item.text;
@@ -9789,7 +9802,7 @@
       let ballsDiv = document.getElementById('balls');
       let ballsDisplay = [];
       if (ballsDiv) {
-        Array.from(ballsDiv.children).forEach(function(el) {
+        Array.from(ballsDiv.children).forEach(function (el) {
           ballsDisplay.push({ cls: el.className, text: el.innerText });
         });
       }
@@ -10611,31 +10624,37 @@
         try {
           let afterScorecard = path.split("/scorecard/")[1] || "";
           matchId = afterScorecard.split("/")[0].trim();
-        } catch(e) { console.error("Link parse error", e); }
+        } catch (e) { console.error("Link parse error", e); }
 
         if (matchId) {
           function tryViewMatch() {
             if (window.fbDb && window.fbOnSnapshot) {
               currentMatchActiveTab = 'live';
-              
+
               // Ensure navbar is visible for the full experience (Home, Matches buttons)
               let nav = document.getElementById('nav');
               if (nav) nav.style.display = "flex";
-              
+
               // Start background listeners so Home page and other views have data
               if (typeof listenToLiveMatches === 'function') listenToLiveMatches();
               if (typeof loadTeams === 'function') loadTeams();
 
               let splash = document.getElementById('splashScreen');
               if (splash) { splash.style.display = 'none'; }
-              
+
               if (typeof liveViewUnsubscribe === 'function') liveViewUnsubscribe();
               viewLiveMatch(matchId);
             } else {
               setTimeout(tryViewMatch, 300);
             }
           }
-          setTimeout(tryViewMatch, 500);
+          let fbReadyInterval = setInterval(() => {
+            if (window.fbDb && window.fbOnSnapshot) {
+              clearInterval(fbReadyInterval);
+              tryViewMatch();
+            }
+          }, 100);
+          setTimeout(() => clearInterval(fbReadyInterval), 10000);
         }
       } else {
         // Normal flow: Redirect to login if not logged in
