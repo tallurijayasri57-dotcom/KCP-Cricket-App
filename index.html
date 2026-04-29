@@ -8008,7 +8008,7 @@
       });
 
       let winningTeam = null;
-      if (m.innings == 2 && m.status === 'Finished') {
+      if (m.innings == 2 && (m.status === 'Finished' || m.status === 'finished')) {
         let team1Runs = m.innings1 ? parseInt(m.innings1.runs) || 0 : 0;
         let team2Runs = parseInt(m.runs) || 0;
         if (team2Runs > team1Runs) winningTeam = m.batTeam;
@@ -8041,7 +8041,7 @@
     }
 
     function renderPremiumMvpTab(m, container) {
-      if (m.status !== 'Finished') {
+      if (m.status !== 'Finished' && m.status !== 'finished') {
         container.innerHTML = `<div class="premium-card" style="padding:40px; text-align:center; color:#64748b;">MVP will be declared once the match is Finished.</div>`;
         return;
       }
@@ -8112,7 +8112,7 @@
     }
 
     function renderPremiumAwardsTab(m, container) {
-      if (m.status !== 'Finished') {
+      if (m.status !== 'Finished' && m.status !== 'finished') {
         container.innerHTML = `<div class="premium-card" style="padding:40px; text-align:center; color:#64748b;">Awards will be declared once the match is Finished.</div>`;
         return;
       }
