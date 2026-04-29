@@ -4729,6 +4729,7 @@
       background: #1e293b; /* Dark navy as requested */
       padding: 24px 20px;
       display: flex;
+      position: relative;
       justify-content: space-between;
       color: #fff;
       font-family: 'Inter', sans-serif;
@@ -4872,12 +4873,6 @@
 
   <!-- TOURNAMENT DETAILS PAGE -->
   <div id="tournamentDetailsPage" class="page" style="display:none; background:#f9fafb; min-height:100vh;">
-    <!-- Top Nav Back -->
-    <div style="background:#1e293b; padding:12px 20px; color:#fff; display:flex; align-items:center;">
-       <button onclick="globalGoBack()" style="background:transparent; border:none; color:#cbd5e1; font-size:15px; cursor:pointer; display:flex; align-items:center; gap:6px;">
-         <span>←</span> Back
-       </button>
-    </div>
     
     <div class="td-header-banner" id="tdHeaderBanner">
       <!-- Injected dynamically -->
@@ -7840,19 +7835,11 @@
       if (!m) return;
       previousLiveMatchState = m;
 
-      let tab = document.getElementById('matchLiveSummaryTab');
-      if (tab) {
-        if (m.status === 'Finished' || (m.result && m.result !== 'LIVE')) {
-          tab.innerText = 'Summary';
-        } else {
-          tab.innerText = 'Live';
-        }
-      }
-
       try {
         // Render Header - this will replace the "Match Loading" spinner
         let headerHtml = `
-          <div class="match-header-banner">
+          <div class="match-header-banner" style="position:relative; padding-top:36px;">
+            <div style="position:absolute; top:12px; left:16px; color:#94a3b8; font-size:14px; cursor:pointer; font-weight:500;" onclick="goBack()">← Back</div>
             <div style="font-family:'Inter', sans-serif; font-size:12px; color:#6b7280; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
               <div>
                 <span style="color:#0d9488; font-weight:700;">${m.seriesName || 'Friendly Match'}</span><span style="color:#94a3b8;">(${m.matchType || 'Limited Overs'})</span>
@@ -8257,6 +8244,45 @@
     }
 
     function renderPremiumLiveTab(m, container) {
+      let awards = calculateMatchAwards(m);
+      let bestBatsmen = awards.allPlayersList.filter(p => p.batData && parseInt(p.batData.runs) > 0).sort((a,b) => parseInt(b.batData.runs) - parseInt(a.batData.runs)).slice(0, 3);
+      let bestBowlers = awards.allPlayersList.filter(p => p.bowlData && parseFloat(p.bowlData.overs) > 0).sort((a,b) => (parseInt(b.bowlData.wickets) || 0) - (parseInt(a.bowlData.wickets) || 0) || (parseFloat(a.bowlData.eco) || 0) - (parseFloat(b.bowlData.eco) || 0)).slice(0, 3);
+
+      let bestPerfHtml = '';
+      if (bestBatsmen.length > 0 || bestBowlers.length > 0) {
+        bestPerfHtml = `
+          <div class="premium-card" style="margin-bottom:16px;">
+            <div style="font-weight:700; color:#1e293b; padding:16px; font-size:18px; border-bottom:1px solid #e2e8f0;">Best performances</div>
+            <div style="overflow-x:auto;">
+              <table class="sc-table" style="min-width:320px;">
+                <thead><tr style="background:#f8fafc;"><th>Batters</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead>
+                <tbody>
+                  ${bestBatsmen.map(p => `
+                    <tr style="border-bottom:1px solid #f1f5f9;">
+                      <td class="name-cell" style="color:#0d9488; font-weight:700;">${p.name}<span style="color:#64748b; font-weight:400;">(${p.team})</span></td>
+                      <td>${p.batData.runs}</td><td>${p.batData.balls}</td><td>${p.batData.fours}</td><td>${p.batData.sixes}</td><td>${p.batData.sr}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+            <div style="overflow-x:auto; margin-top:16px;">
+              <table class="sc-table" style="min-width:320px;">
+                <thead><tr style="background:#f8fafc;"><th>Bowlers</th><th>O</th><th>M</th><th>R</th><th>W</th><th>Eco</th></tr></thead>
+                <tbody>
+                  ${bestBowlers.map(p => `
+                    <tr style="border-bottom:1px solid #f1f5f9;">
+                      <td class="name-cell" style="color:#0d9488; font-weight:700;">${p.name}<span style="color:#64748b; font-weight:400;">(${p.team})</span></td>
+                      <td>${parseFloat(p.bowlData.overs).toFixed(1)}</td><td>${p.bowlData.maidens}</td><td>${p.bowlData.runs}</td><td>${p.bowlData.wickets}</td><td>${p.bowlData.eco}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      }
+
       let batTable = `
         <div class="premium-card" style="overflow-x:auto;">
           <table class="sc-table" style="min-width:320px;">
@@ -8314,7 +8340,7 @@
         </div>
       `;
 
-      container.innerHTML = batTable + bowlTable + partnershipHtml + recentBalls + `
+      container.innerHTML = bestPerfHtml + batTable + bowlTable + partnershipHtml + recentBalls + `
         <div style="margin-top:16px;">
           <div style="font-weight:700; color:#1e293b; margin-bottom:12px;">Commentary</div>
           ${getCommentaryHtml(m, 3)}
@@ -9279,7 +9305,8 @@
       let endDateStr = t.endDate ? t.endDate : 'N/A';
       
       let headerHtml = `
-        <div class="td-header-left">
+        <div style="position:absolute; top:12px; left:16px; color:#94a3b8; font-size:14px; cursor:pointer; font-weight:500;" onclick="goBack()">← Back</div>
+        <div class="td-header-left" style="margin-top:16px;">
           <div class="td-logo">
             <img src="${t.logo || 'https://img.freepik.com/free-vector/cricket-logo-template-design_23-2150035048.jpg'}" alt="logo">
           </div>
