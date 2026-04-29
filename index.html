@@ -8149,12 +8149,12 @@
         if (role === 'mvp') {
           let b = playerObj.batData;
           let w = playerObj.bowlData;
-          if (b && parseInt(b.runs) > 0) statsHtml += `<div style="margin-bottom:4px;">Batting</div><div style="font-weight:600;">${b.runs} R &nbsp; ${b.balls} B &nbsp; ${b.fours} (4S) &nbsp; ${b.sixes} (6S) &nbsp; ${b.sr} SR</div>`;
-          if (w && parseFloat(w.overs) > 0) statsHtml += `<div style="margin-top:8px; margin-bottom:4px;">Bowling</div><div style="font-weight:600;">${w.overs} Ov &nbsp; ${w.maidens} M &nbsp; ${w.runs} R &nbsp; ${w.wickets} W &nbsp; ${w.eco} ECO</div>`;
+          if (b && parseInt(b.runs) > 0) statsHtml += `<div style="margin-bottom:6px;"><div style="margin-bottom:2px;">Batting</div><div style="font-weight:600;">${b.runs} R &nbsp; ${b.balls} B &nbsp; ${b.fours} (4S) &nbsp; ${b.sixes} (6S) &nbsp; ${b.sr} SR</div></div>`;
+          if (w && parseFloat(w.overs) > 0) statsHtml += `<div><div style="margin-bottom:2px;">Bowling</div><div style="font-weight:600;">${w.overs} Ov &nbsp; ${w.maidens} M &nbsp; ${w.runs} R &nbsp; ${w.wickets} W &nbsp; ${w.eco} ECO</div></div>`;
         } else if (role === 'bat') {
-          statsHtml = `<div style="margin-bottom:4px;">Batting</div><div style="font-weight:600;">${playerObj.runs} R &nbsp; ${playerObj.balls} B &nbsp; ${playerObj.fours} (4S) &nbsp; ${playerObj.sixes} (6S) &nbsp; ${playerObj.sr} (SR)</div>`;
+          statsHtml = `<div style="margin-bottom:2px;">Batting</div><div style="font-weight:600;">${playerObj.runs} R &nbsp; ${playerObj.balls} B &nbsp; ${playerObj.fours} (4S) &nbsp; ${playerObj.sixes} (6S) &nbsp; ${playerObj.sr} (SR)</div>`;
         } else if (role === 'bowl') {
-          statsHtml = `<div style="margin-bottom:4px;">Bowling</div><div style="font-weight:600;">${playerObj.overs} Ov &nbsp; ${playerObj.maidens} M &nbsp; ${playerObj.runs} R &nbsp; ${playerObj.wickets} W &nbsp; ${playerObj.eco} ECO</div>`;
+          statsHtml = `<div style="margin-bottom:2px;">Bowling</div><div style="font-weight:600;">${playerObj.overs} Ov &nbsp; ${playerObj.maidens} M &nbsp; ${playerObj.runs} R &nbsp; ${playerObj.wickets} W &nbsp; ${playerObj.eco} ECO</div>`;
         }
 
         return `
