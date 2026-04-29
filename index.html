@@ -4726,7 +4726,8 @@
   <style>
     /* Tournament Details Styles */
     .td-header-banner {
-      background: #1e293b; /* Dark navy as requested */
+      background: #1e293b;
+      /* Dark navy as requested */
       padding: 24px 20px;
       display: flex;
       position: relative;
@@ -4734,11 +4735,13 @@
       color: #fff;
       font-family: 'Inter', sans-serif;
     }
+
     .td-header-left {
       display: flex;
       gap: 16px;
       align-items: center;
     }
+
     .td-logo {
       width: 80px;
       height: 80px;
@@ -4749,56 +4752,66 @@
       align-items: center;
       justify-content: center;
     }
+
     .td-logo img {
       width: 100%;
       height: 100%;
       object-fit: contain;
     }
+
     .td-info h1 {
       font-size: 20px;
       font-weight: 700;
       margin: 0 0 6px 0;
       color: #fff;
     }
+
     .td-info p {
       font-size: 13px;
       color: #cbd5e1;
       margin: 0 0 4px 0;
     }
+
     .td-header-right {
       display: flex;
       gap: 12px;
       align-items: center;
     }
+
     .td-stat-box {
-      background: rgba(0,0,0,0.3);
-      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 8px;
       padding: 12px 16px;
       text-align: center;
       min-width: 80px;
     }
+
     .td-stat-val {
       font-size: 22px;
       font-weight: 800;
       margin-bottom: 4px;
       color: #fff;
     }
+
     .td-stat-label {
       font-size: 11px;
       color: #94a3b8;
       text-transform: capitalize;
     }
+
     .td-tabs-wrapper {
       border-bottom: 1px solid #e5e7eb;
       background: #fff;
       overflow-x: auto;
       white-space: nowrap;
     }
+
     .td-tabs {
       display: inline-flex;
       padding: 0 20px;
     }
+
     .td-tab {
       padding: 16px 20px;
       font-size: 14px;
@@ -4807,22 +4820,26 @@
       cursor: pointer;
       border-bottom: 3px solid transparent;
     }
+
     .td-tab.active {
       color: #0f766e;
       border-bottom-color: #0f766e;
       font-weight: 600;
     }
+
     .td-content-area {
       padding: 20px;
       background: #f9fafb;
       min-height: 500px;
     }
+
     .td-pills {
       display: flex;
       gap: 12px;
       justify-content: center;
       margin-bottom: 24px;
     }
+
     .td-pill {
       background: #f3f4f6;
       color: #4b5563;
@@ -4833,10 +4850,12 @@
       cursor: pointer;
       border: none;
     }
+
     .td-pill.active {
       background: #0f766e;
       color: #fff;
     }
+
     .td-empty-state {
       display: flex;
       flex-direction: column;
@@ -4845,6 +4864,7 @@
       padding: 40px 20px;
       text-align: center;
     }
+
     .td-empty-img {
       width: 150px;
       height: 100px;
@@ -4855,15 +4875,18 @@
       justify-content: center;
       margin-bottom: 20px;
     }
+
     .td-empty-img svg {
       width: 40px;
       height: 40px;
       fill: #9ca3af;
     }
+
     .td-empty-text {
       font-size: 13px;
       color: #6b7280;
     }
+
     .td-matches-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -4873,7 +4896,7 @@
 
   <!-- TOURNAMENT DETAILS PAGE -->
   <div id="tournamentDetailsPage" class="page" style="display:none; background:#f9fafb; min-height:100vh;">
-    
+
     <div class="td-header-banner" id="tdHeaderBanner">
       <!-- Injected dynamically -->
     </div>
@@ -4895,7 +4918,8 @@
     <div class="td-content-area">
       <div class="td-pills">
         <button class="td-pill" id="tdPill-live" onclick="renderTournamentMatches('live')">Live</button>
-        <button class="td-pill active" id="tdPill-upcoming" onclick="renderTournamentMatches('upcoming')">Upcoming</button>
+        <button class="td-pill active" id="tdPill-upcoming"
+          onclick="renderTournamentMatches('upcoming')">Upcoming</button>
         <button class="td-pill" id="tdPill-completed" onclick="renderTournamentMatches('completed')">Completed</button>
       </div>
 
@@ -6341,7 +6365,8 @@
     <div id="matchHeaderContainer"></div>
 
     <div class="match-tabs-nav">
-      <div id="matchLiveSummaryTab" class="match-tab-link active" onclick="switchMatchTab('summary', this)">Summary</div>
+      <div id="matchLiveSummaryTab" class="match-tab-link active" onclick="switchMatchTab('summary', this)">Summary
+      </div>
       <div class="match-tab-link" onclick="switchMatchTab('scorecard', this)">Scorecard</div>
       <div class="match-tab-link" onclick="switchMatchTab('commentary', this)">Commentary</div>
       <div class="match-tab-link" onclick="switchMatchTab('analysis', this)">Analysis</div>
@@ -8031,10 +8056,9 @@
       let maxMvpPts = -1000;
       let allPlayersList = Object.values(allPlayers);
       allPlayersList.forEach(p => {
-        if (winningTeam && p.team === winningTeam) p.pts += 20;
         if (p.pts > maxMvpPts) { maxMvpPts = p.pts; mvp = p; }
       });
-      
+
       allPlayersList.sort((a, b) => b.pts - a.pts);
 
       return { bestBatter, bestBowler, mvp, allPlayersList };
@@ -8047,7 +8071,7 @@
       }
 
       let awards = calculateMatchAwards(m);
-      
+
       let html = `
         <div class="premium-card" style="padding:20px;">
           <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e5e7eb; padding-bottom:16px; margin-bottom:16px;">
@@ -8062,7 +8086,7 @@
       awards.allPlayersList.forEach((p, index) => {
         let photoSrc = localStorage.getItem("userPhoto_" + p.name);
         let photoHtml = photoSrc ? `<img src="${photoSrc}" style="width:100%; height:100%; object-fit:cover; border-radius:4px;">` : `<div style="width:100%; height:100%; background:#f3f4f6; border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:24px;">👤</div>`;
-        
+
         let batPts = p.batData ? p.batData.battingPoints : 0;
         let bowlPts = p.bowlData ? p.bowlData.bowlingPoints : 0;
         let fieldPts = 0; // Fielding points not currently tracked, but matching layout
@@ -8345,8 +8369,8 @@
 
     function renderPremiumLiveTab(m, container) {
       let awards = calculateMatchAwards(m);
-      let bestBatsmen = awards.allPlayersList.filter(p => p.batData && parseInt(p.batData.runs) > 0).sort((a,b) => parseInt(b.batData.runs) - parseInt(a.batData.runs)).slice(0, 3);
-      let bestBowlers = awards.allPlayersList.filter(p => p.bowlData && parseFloat(p.bowlData.overs) > 0).sort((a,b) => (parseInt(b.bowlData.wickets) || 0) - (parseInt(a.bowlData.wickets) || 0) || (parseFloat(a.bowlData.eco) || 0) - (parseFloat(b.bowlData.eco) || 0)).slice(0, 3);
+      let bestBatsmen = awards.allPlayersList.filter(p => p.batData && parseInt(p.batData.runs) > 0).sort((a, b) => parseInt(b.batData.runs) - parseInt(a.batData.runs)).slice(0, 3);
+      let bestBowlers = awards.allPlayersList.filter(p => p.bowlData && parseFloat(p.bowlData.overs) > 0).sort((a, b) => (parseInt(b.bowlData.wickets) || 0) - (parseInt(a.bowlData.wickets) || 0) || (parseFloat(a.bowlData.eco) || 0) - (parseFloat(b.bowlData.eco) || 0)).slice(0, 3);
 
       let bestPerfHtml = '';
       if (bestBatsmen.length > 0 || bestBowlers.length > 0) {
@@ -9340,7 +9364,7 @@
       let totalTeams = t.teams ? t.teams.length : 0;
       let startDateStr = t.startDate ? t.startDate : 'N/A';
       let endDateStr = t.endDate ? t.endDate : 'N/A';
-      
+
       let headerHtml = `
         <div style="position:absolute; top:12px; left:16px; color:#94a3b8; font-size:14px; cursor:pointer; font-weight:500;" onclick="goBack()">← Back</div>
         <div class="td-header-left" style="margin-top:16px;">
@@ -9399,7 +9423,7 @@
         if (status === 'live') textMsg = `No live matches for ${t.name} at the moment. Check upcoming fixtures or past results.`;
         if (status === 'upcoming') textMsg = `No upcoming matches for ${t.name} right now. Check live or past matches.`;
         if (status === 'completed') textMsg = `No completed matches for ${t.name} right now.`;
-        
+
         container.innerHTML = `
           <div class="td-empty-state">
             <div class="td-empty-img">
@@ -9416,7 +9440,7 @@
         let badgeBg = status === 'live' ? '#ef4444' : (status === 'completed' ? '#374151' : '#0d9488');
         let badgeText = status === 'live' ? 'LIVE' : (status === 'completed' ? 'Past' : 'Upcoming');
         let resText = m.result ? m.result : (m.tossInfo ? m.tossInfo : 'Upcoming match scheduled');
-        
+
         html += `
           <div class="my-card" onclick="openMatchScorecard(${currentViewingTournamentIdx}, ${matches.indexOf(m)})" style="cursor:pointer; margin:0;">
             <div class="my-card-header">
