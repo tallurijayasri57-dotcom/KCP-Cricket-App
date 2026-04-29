@@ -7716,6 +7716,7 @@
           let m = item.data;
           m.id = item.id;
           if (m.updatedAt && Date.now() - m.updatedAt > 24 * 60 * 60 * 1000) return;
+          if (m.target > 0 && (m.runs >= m.target || m.wickets >= 10)) return;
 
           matchCount++;
 
@@ -7727,7 +7728,7 @@
                 <span class="live-pulse-dot" style="width:8px; height:8px; background:#ef4444; border-radius:50%;"></span>
                 <span style="color:#ef4444; font-size:10px; font-weight:700;">LIVE</span>
               </div>
-              ${userRole === 'organiser' || userRole === 'admin' ? `<button onclick="event.stopPropagation(); deleteLiveMatch('${m.id}')" style="background:transparent; border:none; color:#94a3b8; cursor:pointer; font-size:14px; padding:4px; opacity:0.6;" title="Delete Stale Match">🗑️</button>` : ''}
+              <button onclick="event.stopPropagation(); deleteLiveMatch('${m.id}')" style="background:transparent; border:none; color:#ef4444; cursor:pointer; font-size:16px; padding:4px; opacity:0.8; margin-left:8px;" title="Delete Match">🗑️</button>
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <div style="flex:1;">
