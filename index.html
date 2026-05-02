@@ -4987,28 +4987,57 @@
 
     <div class="td-tabs-wrapper">
       <div class="td-tabs">
-        <div class="td-tab active">Matches</div>
-        <div class="td-tab">Leaderboard</div>
-        <div class="td-tab">Points Table</div>
-        <div class="td-tab">Stats</div>
-        <div class="td-tab">Heroes</div>
-        <div class="td-tab">Sponsors</div>
-        <div class="td-tab">Teams</div>
-        <div class="td-tab">Gallery</div>
-        <div class="td-tab">About Us</div>
+        <div class="td-tab active" id="tdTab-matches" onclick="switchTdTab('matches')">Matches</div>
+        <div class="td-tab" id="tdTab-leaderboard" onclick="switchTdTab('leaderboard')">Leaderboard</div>
+        <div class="td-tab" id="tdTab-points" onclick="switchTdTab('points')">Points Table</div>
+        <div class="td-tab" id="tdTab-stats" onclick="switchTdTab('stats')">Stats</div>
+        <div class="td-tab" id="tdTab-heroes" onclick="switchTdTab('heroes')">Heroes</div>
+        <div class="td-tab" id="tdTab-sponsors" onclick="switchTdTab('sponsors')">Sponsors</div>
+        <div class="td-tab" id="tdTab-teams" onclick="switchTdTab('teams')">Teams</div>
+        <div class="td-tab" id="tdTab-gallery" onclick="switchTdTab('gallery')">Gallery</div>
+        <div class="td-tab" id="tdTab-about" onclick="switchTdTab('about')">About Us</div>
       </div>
     </div>
 
     <div class="td-content-area">
-      <div class="td-pills">
-        <button class="td-pill" id="tdPill-live" onclick="renderTournamentMatches('live')">Live</button>
-        <button class="td-pill active" id="tdPill-upcoming"
-          onclick="renderTournamentMatches('upcoming')">Upcoming</button>
-        <button class="td-pill" id="tdPill-completed" onclick="renderTournamentMatches('completed')">Completed</button>
+      <!-- MATCHES VIEW -->
+      <div id="tdView-matches">
+        <div class="td-pills">
+          <button class="td-pill" id="tdPill-live" onclick="renderTournamentMatches('live')">Live</button>
+          <button class="td-pill active" id="tdPill-upcoming"
+            onclick="renderTournamentMatches('upcoming')">Upcoming</button>
+          <button class="td-pill" id="tdPill-completed" onclick="renderTournamentMatches('completed')">Completed</button>
+        </div>
+        <div id="tdMatchesContainer">
+          <!-- Grid or empty state injected here -->
+        </div>
       </div>
 
-      <div id="tdMatchesContainer">
-        <!-- Grid or empty state injected here -->
+      <!-- POINTS TABLE VIEW -->
+      <div id="tdView-points" style="display:none;">
+        <div id="tdPointsTableContainer"></div>
+      </div>
+
+      <!-- LEADERBOARD VIEW -->
+      <div id="tdView-leaderboard" style="display:none;">
+        <div class="td-pills" id="tdLeaderboardPills">
+          <button class="td-pill active" onclick="renderTdLeaderboard('bat')">Bat</button>
+          <button class="td-pill" onclick="renderTdLeaderboard('bowl')">Bowl</button>
+          <button class="td-pill" onclick="renderTdLeaderboard('field')">Field</button>
+          <button class="td-pill" onclick="renderTdLeaderboard('mvp')">MVP</button>
+        </div>
+        
+        <!-- Filter Selectors matching design -->
+        <div style="display:flex; gap:10px; margin-bottom:20px;">
+           <select style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); border-radius:12px; padding:10px 14px; font-size:13px; flex:1; outline:none; cursor:pointer;">
+             <option>All Teams</option>
+           </select>
+           <select style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); border-radius:12px; padding:10px 14px; font-size:13px; flex:1; outline:none; cursor:pointer;" id="tdLeaderboardSubFilter">
+             <option>Top performers</option>
+           </select>
+        </div>
+
+        <div id="tdLeaderboardContainer"></div>
       </div>
     </div>
   </div>
@@ -9459,6 +9488,9 @@
 
       showPage('tournamentDetailsPage');
 
+      // Reset to Matches tab by default
+      switchTdTab('matches');
+
       let totalMatches = t.matches ? t.matches.length : 0;
       let totalTeams = t.teams ? t.teams.length : 0;
       let startDateStr = t.startDate ? t.startDate : 'N/A';
@@ -9488,14 +9520,6 @@
         </div>
       `;
       document.getElementById('tdHeaderBanner').innerHTML = headerHtml;
-
-      // Default to completed or upcoming based on data
-      let completedCount = (t.matches || []).filter(m => m.result && m.result !== "LIVE").length;
-      if (completedCount > 0) {
-        renderTournamentMatches('completed');
-      } else {
-        renderTournamentMatches('upcoming');
-      }
     }
 
     function renderTournamentMatches(status) {
@@ -9568,6 +9592,298 @@
         `;
       });
       html += '</div>';
+      container.innerHTML = html;
+    }
+
+    function switchTdTab(tabId) {
+      // Update Tab UI
+      document.querySelectorAll('.td-tab').forEach(t => t.classList.remove('active'));
+      let tabEl = document.getElementById('tdTab-' + tabId);
+      if (tabEl) tabEl.classList.add('active');
+
+      // Update View UI
+      let matchesView = document.getElementById('tdView-matches');
+      let pointsView = document.getElementById('tdView-points');
+      let leaderboardView = document.getElementById('tdView-leaderboard');
+
+      if (matchesView) matchesView.style.display = (tabId === 'matches') ? 'block' : 'none';
+      if (pointsView) pointsView.style.display = (tabId === 'points') ? 'block' : 'none';
+      if (leaderboardView) leaderboardView.style.display = (tabId === 'leaderboard') ? 'block' : 'none';
+
+      // Load data if needed
+      if (tabId === 'matches') {
+        let t = currentViewingTournament;
+        let completedCount = (t.matches || []).filter(m => m.result && m.result !== "LIVE").length;
+        if (completedCount > 0) {
+          renderTournamentMatches('completed');
+        } else {
+          renderTournamentMatches('upcoming');
+        }
+      } else if (tabId === 'points') {
+        renderTdPointsTable();
+      } else if (tabId === 'leaderboard') {
+        renderTdLeaderboard('bat');
+      }
+    }
+
+    function renderTdPointsTable() {
+      let t = currentViewingTournament;
+      if (!t) return;
+      let container = document.getElementById('tdPointsTableContainer');
+
+      // Build points from tournament matches
+      let teamPoints = {};
+      (t.teams || []).forEach(team => {
+        teamPoints[team.name] = { M: 0, W: 0, L: 0, Pts: 0 };
+      });
+
+      let finishedMatches = (t.matches || []).filter(m => m.result && m.result !== "LIVE");
+      finishedMatches.forEach(m => {
+        let winnerMatch = m.result.match(/^(.+?) won/);
+        if (!winnerMatch) return;
+        let winner = winnerMatch[1].trim();
+        let loser = winner === m.team1 ? m.team2 : m.team1;
+
+        if (!teamPoints[winner]) teamPoints[winner] = { M: 0, W: 0, L: 0, Pts: 0 };
+        if (!teamPoints[loser]) teamPoints[loser] = { M: 0, W: 0, L: 0, Pts: 0 };
+
+        teamPoints[winner].M++; teamPoints[winner].W++; teamPoints[winner].Pts += 2;
+        teamPoints[loser].M++; teamPoints[loser].L++;
+      });
+
+      let rows = Object.entries(teamPoints).sort((a, b) => b[1].Pts - a[1].Pts || b[1].W - a[1].W);
+
+      if (rows.length === 0) {
+        container.innerHTML = `<div class="td-empty-state"><div class="td-empty-text">No teams or matches yet to calculate points.</div></div>`;
+        return;
+      }
+
+      let html = `
+        <div class="oa-section-title" style="margin-top:0; color:#ffffff; font-family:'Rajdhani',sans-serif; font-size:20px; font-weight:700; margin-bottom:15px; letter-spacing:1px; text-transform:uppercase;">Tournament Points Table</div>
+        <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:12px; overflow-x:auto; backdrop-filter:blur(10px);">
+          <table style="width:100%; border-collapse:collapse; font-family:'Inter',sans-serif; text-align:left;">
+            <thead>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
+                <th style="padding:16px; font-size:14px; font-weight:600; color:rgba(255,255,255,0.7);">#</th>
+                <th style="padding:16px; font-size:14px; font-weight:600; color:rgba(255,255,255,0.7);">Team</th>
+                <th style="padding:16px; font-size:14px; font-weight:600; color:rgba(255,255,255,0.7); text-align:center;">M</th>
+                <th style="padding:16px; font-size:14px; font-weight:600; color:rgba(255,255,255,0.7); text-align:center;">W</th>
+                <th style="padding:16px; font-size:14px; font-weight:600; color:rgba(255,255,255,0.7); text-align:center;">L</th>
+                <th style="padding:16px; font-size:14px; font-weight:600; color:rgba(255,255,255,0.7); text-align:center;">Pts</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows.map(([name, s], i) => `
+                <tr style="border-bottom:1px solid rgba(255,255,255,0.04); ${i === 0 ? 'background:rgba(110,231,183,0.03);' : ''}">
+                  <td style="padding:16px; color:rgba(255,255,255,0.5); font-size:14px;">${i + 1}</td>
+                  <td style="padding:16px; color:#ffffff; font-weight:600; font-size:15px;">
+                    ${i === 0 ? '🥇 ' : ''}${name}
+                  </td>
+                  <td style="padding:16px; color:rgba(255,255,255,0.8); text-align:center;">${s.M}</td>
+                  <td style="padding:16px; color:#6ee7b7; text-align:center;">${s.W}</td>
+                  <td style="padding:16px; color:#f87171; text-align:center;">${s.L}</td>
+                  <td style="padding:16px; color:#6ee7b7; font-weight:800; text-align:center;">${s.Pts}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+      container.innerHTML = html;
+    }
+
+    function addTournamentOvers(ov1, ov2) {
+      let b1 = Math.floor(ov1) * 6 + Math.round((ov1 % 1) * 10);
+      let b2 = Math.floor(ov2) * 6 + Math.round((ov2 % 1) * 10);
+      let totalBalls = b1 + b2;
+      return Math.floor(totalBalls / 6) + (totalBalls % 6) / 10;
+    }
+
+    async function renderTdLeaderboard(category = 'bat') {
+      // Update pills UI
+      document.querySelectorAll('#tdLeaderboardPills .td-pill').forEach(p => {
+        p.classList.toggle('active', p.innerText.toLowerCase() === category.toLowerCase());
+      });
+
+      // Update sub-filter text
+      let subFilter = document.getElementById('tdLeaderboardSubFilter');
+      if (subFilter) {
+        if (category === 'bat') subFilter.innerHTML = '<option>Top runs scored</option>';
+        else if (category === 'bowl') subFilter.innerHTML = '<option>Top wicket takers</option>';
+        else if (category === 'field') subFilter.innerHTML = '<option>Top fielders</option>';
+        else if (category === 'mvp') subFilter.innerHTML = '<option>Most valuable players</option>';
+      }
+
+      let t = currentViewingTournament;
+      if (!t) return;
+      let container = document.getElementById('tdLeaderboardContainer');
+      container.innerHTML = `<div style="text-align:center; padding:40px; color:#6ee7b7; font-family:'Rajdhani',sans-serif; letter-spacing:1px;">⏳ Fetching Tournament Data...</div>`;
+
+      // Aggregate player stats
+      let players = {}; 
+
+      // Fetch all matches for this tournament from Firebase to get full stats
+      let tournamentMatches = [];
+      if (window.fbGetDocs) {
+        const q = window.fbQuery(
+          window.fbCollection(window.fbDb, "live_matches"),
+          window.fbWhere("tournamentId", "==", currentViewingTournamentIdx)
+        );
+        try {
+          const snap = await window.fbGetDocs(q);
+          snap.forEach(doc => tournamentMatches.push(doc.data()));
+        } catch (e) { console.error("Firebase fetch error:", e); }
+      }
+
+      // Fallback to local matches if Firebase empty (might not have full stats)
+      if (tournamentMatches.length === 0) {
+        tournamentMatches = (t.matches || []).filter(m => m.batsmen || m.innings1);
+      }
+      
+      if (tournamentMatches.length === 0) {
+        container.innerHTML = `<div class="td-empty-state"><div class="td-empty-text">No match data found for this tournament yet. Make sure matches are finished or live in the app.</div></div>`;
+        return;
+      }
+      
+      tournamentMatches.forEach(m => {
+        const processInning = (batsmen, bowlers, teamName) => {
+          (batsmen || []).forEach(b => {
+            if (!players[b.name]) players[b.name] = { 
+              name: b.name, team: teamName, 
+              bat: { runs: 0, balls: 0, inn: 0, outs: 0, fours: 0, sixes: 0 }, 
+              bowl: { wickets: 0, runs: 0, overs: 0, maidens: 0, inn: 0 },
+              field: { catches: 0, runouts: 0, stumpings: 0 },
+              pts: 0 
+            };
+            let p = players[b.name];
+            p.bat.inn++;
+            p.bat.runs += parseInt(b.runs) || 0;
+            p.bat.balls += parseInt(b.balls) || 0;
+            p.bat.fours += parseInt(b.fours) || 0;
+            p.bat.sixes += parseInt(b.sixes) || 0;
+            if (String(b.outDesc).toLowerCase() !== 'not out' && b.outDesc) p.bat.outs++;
+            
+            // Batting points logic
+            let runs = parseInt(b.runs) || 0;
+            let balls = parseInt(b.balls) || 0;
+            let mPts = runs / 10;
+            mPts += (parseInt(b.fours) || 0) * 0.012 + (parseInt(b.sixes) || 0) * 0.016;
+            if (balls >= 10) {
+              let sr = (runs/balls)*100;
+              if (sr >= 200) mPts += 0.05; else if (sr >= 150) mPts += 0.03; else if (sr < 100) mPts -= 0.05;
+            }
+            if (runs === 0 && balls > 0 && String(b.outDesc).toLowerCase() !== 'not out') mPts -= 0.15;
+            p.pts += mPts;
+          });
+          
+          (bowlers || []).forEach(b => {
+            if (!players[b.name]) players[b.name] = { 
+              name: b.name, team: teamName, 
+              bat: { runs: 0, balls: 0, inn: 0, outs: 0, fours: 0, sixes: 0 }, 
+              bowl: { wickets: 0, runs: 0, overs: 0, maidens: 0, inn: 0 },
+              field: { catches: 0, runouts: 0, stumpings: 0 },
+              pts: 0 
+            };
+            let p = players[b.name];
+            p.bowl.inn++;
+            p.bowl.wickets += parseInt(b.wickets) || 0;
+            p.bowl.runs += parseInt(b.runs) || 0;
+            p.bowl.maidens += parseInt(b.maidens) || 0;
+            p.bowl.overs = addTournamentOvers(p.bowl.overs, b.overs || 0);
+            
+            // Field stats aggregated in bowlers for now (matching app logic)
+            p.field.catches += parseInt(b.catches) || 0;
+            p.field.runouts += parseInt(b.run_outs) || 0;
+            p.field.stumpings += parseInt(b.stumpings) || 0;
+
+            // Bowling points logic
+            let wickets = parseInt(b.wickets) || 0;
+            let runsConceded = parseInt(b.runs) || 0;
+            let oversFloat = parseFloat(b.overs) || 0;
+            let totalBalls = (Math.floor(oversFloat) * 6) + Math.round((oversFloat % 1) * 10);
+            let mPts = wickets * 1.33 + (parseInt(b.maidens) || 0) * 0.25;
+            if (totalBalls >= 6) {
+               let eco = runsConceded / (totalBalls/6);
+               if (eco <= 5) mPts += 0.25; else if (eco <= 6) mPts += 0.15; else if (eco <= 7) mPts += 0.05; else if (eco >= 10) mPts -= 0.1;
+            }
+            // Field points (approximate)
+            mPts += (parseInt(b.catches) || 0) * 0.1 + (parseInt(b.run_outs) || 0) * 0.1 + (parseInt(b.stumpings) || 0) * 0.1;
+            
+            p.pts += mPts;
+          });
+        };
+
+        if (m.innings1) {
+          processInning(m.innings1.batsmen, m.innings1.bowlers, m.innings1.batTeam);
+          let b2 = m.innings2 ? m.innings2.batsmen : m.batsmen;
+          let w2 = m.innings2 ? m.innings2.bowlers : m.bowlers;
+          let t2 = m.innings2 ? m.innings2.batTeam : m.bowlTeam;
+          processInning(b2, w2, t2);
+        } else {
+          processInning(m.batsmen, m.bowlers, m.batTeam);
+        }
+      });
+
+      // Sort and Render
+      let playerList = Object.values(players);
+      if (category === 'bat') {
+        playerList = playerList.filter(p => p.bat.inn > 0).sort((a, b) => b.bat.runs - a.bat.runs);
+      } else if (category === 'bowl') {
+        playerList = playerList.filter(p => p.bowl.inn > 0).sort((a, b) => b.bowl.wickets - a.bowl.wickets);
+      } else if (category === 'field') {
+        playerList = playerList.filter(p => (p.field.catches + p.field.runouts + p.field.stumpings) > 0)
+                               .sort((a, b) => (b.field.catches + b.field.runouts + b.field.stumpings) - (a.field.catches + a.field.runouts + a.field.stumpings));
+      } else if (category === 'mvp') {
+        playerList.sort((a, b) => b.pts - a.pts);
+      }
+
+      if (playerList.length === 0) {
+        container.innerHTML = `<div class="td-empty-state"><div class="td-empty-text">No data available for this category yet.</div></div>`;
+        return;
+      }
+
+      let html = '';
+      playerList.forEach((p, i) => {
+        let rank = (i + 1).toString().padStart(2, '0');
+        let photoSrc = localStorage.getItem("userPhoto_" + p.name);
+        let photoHtml = photoSrc ? `<img src="${photoSrc}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : `<div style="width:100%; height:100%; background:rgba(255,255,255,0.06); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; color:rgba(255,255,255,0.3);">👤</div>`;
+        
+        let statsHtml = '';
+        if (category === 'bat') {
+          let avg = p.bat.outs > 0 ? (p.bat.runs / p.bat.outs).toFixed(2) : p.bat.runs.toFixed(2);
+          let sr = p.bat.balls > 0 ? ((p.bat.runs / p.bat.balls) * 100).toFixed(2) : "0.00";
+          statsHtml = `Inn: ${p.bat.inn.toString().padStart(2, '0')} | Runs: ${p.bat.runs} | Avg: ${avg} | SR: ${sr}`;
+        } else if (category === 'bowl') {
+          let totalBalls = Math.floor(p.bowl.overs) * 6 + Math.round((p.bowl.overs % 1) * 10);
+          let eco = totalBalls >= 6 ? (p.bowl.runs / (totalBalls / 6)).toFixed(2) : "0.00";
+          statsHtml = `Inn: ${p.bowl.inn.toString().padStart(2, '0')} | Wkts: ${p.bowl.wickets} | Runs: ${p.bowl.runs} | Eco: ${eco}`;
+        } else if (category === 'field') {
+          statsHtml = `Catches: ${p.field.catches} | Run Outs: ${p.field.runouts} | Stumpings: ${p.field.stumpings}`;
+        } else if (category === 'mvp') {
+          statsHtml = `Points: ${p.pts.toFixed(3)} | Matches: ${p.bat.inn + p.bowl.inn}`;
+        }
+
+        html += `
+          <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:16px; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; backdrop-filter:blur(10px);">
+            <div style="display:flex; align-items:center; gap:16px; flex:1;">
+              <div style="width:54px; height:54px; flex-shrink:0; border:2px solid rgba(110,231,183,0.2); border-radius:50%; padding:2px;">
+                ${photoHtml}
+              </div>
+              <div style="flex:1;">
+                <div style="font-family:'Rajdhani',sans-serif; font-size:17px; font-weight:700; color:#ffffff; line-height:1.2;">
+                  ${p.name} <span style="font-weight:500; font-size:13px; color:rgba(255,255,255,0.35); font-style:italic;">(${p.team})</span>
+                </div>
+                <div style="font-family:'Inter',sans-serif; font-size:12px; color:rgba(255,255,255,0.55); margin-top:5px; letter-spacing:0.2px;">
+                  ${statsHtml}
+                </div>
+              </div>
+            </div>
+            <div style="font-family:'Rajdhani',sans-serif; font-size:26px; font-weight:700; color:rgba(110,231,183,0.4); letter-spacing:1px; margin-left:10px;">
+              ${rank}
+            </div>
+          </div>
+        `;
+      });
       container.innerHTML = html;
     }
 
