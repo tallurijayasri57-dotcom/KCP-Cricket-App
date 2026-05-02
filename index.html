@@ -4377,7 +4377,7 @@
 
     .tourney-name {
       font-weight: 800;
-      color: #111827;
+      color: #ffffff;
       font-size: 16px;
       margin-bottom: 2px;
     }
@@ -4735,10 +4735,34 @@
       border-radius: 20px;
       font-size: 11px;
       font-weight: 700;
-      color: #f59e0b;
-      background: rgba(245,158,11,0.15);
-      border: 1px solid rgba(245,158,11,0.4);
       text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* PAST badge — gold amber (2nd pic style) */
+    .my-badge-past {
+      color: #f59e0b;
+      background: rgba(245,158,11,0.12);
+      border: 1px solid rgba(245,158,11,0.45);
+    }
+
+    /* LIVE badge — red with soft glow */
+    .my-badge-live {
+      color: #f87171;
+      background: rgba(239,68,68,0.15);
+      border: 1px solid rgba(239,68,68,0.5);
+      animation: livePulse 2s ease-in-out infinite;
+    }
+    @keyframes livePulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.3); }
+      50% { box-shadow: 0 0 0 4px rgba(239,68,68,0); }
+    }
+
+    /* SOON badge — teal blue */
+    .my-badge-soon {
+      color: #2dd4bf;
+      background: rgba(45,212,191,0.1);
+      border: 1px solid rgba(45,212,191,0.4);
     }
 
     .my-card-team {
@@ -5125,13 +5149,13 @@
 
   <!-- ORGANISER ADMIN PAGE -->
   <div id="organiserAdmin" class="page"
-    style="padding:0; background:#f9fafb; min-height:100vh; display:none; flex-direction:column;">
+    style="padding:0; min-height:100vh; display:none; flex-direction:column;">
     <div
       style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; text-align:center; height:calc(100vh - 60px);">
-      <h2 style="font-family:'Inter',sans-serif; font-size:28px; font-weight:700; color:#1f2937; margin-bottom:12px;">
+      <h2 style="font-family:'Inter',sans-serif; font-size:28px; font-weight:700; color:#ffffff; margin-bottom:12px;">
         Hey there!</h2>
       <p
-        style="font-family:'Inter',sans-serif; font-size:15px; color:#4b5563; margin-bottom:30px; line-height:1.5; max-width:400px;">
+        style="font-family:'Inter',sans-serif; font-size:15px; color:rgba(255,255,255,0.65); margin-bottom:30px; line-height:1.5; max-width:400px;">
         Seems like you already have created tournaments on KCP Premier League.<br>
         Go ahead and view your tournaments or create a new one.
       </p>
@@ -5158,7 +5182,7 @@
     <div style="max-width:1100px; margin:0 auto; padding:30px 20px; width:100%; box-sizing:border-box;">
       <div
         style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:16px;">
-        <h2 style="font-family:'Times New Roman', serif; font-size:32px; font-weight:700; color:#1f2937; margin:0;">
+        <h2 style="font-family:'Times New Roman', serif; font-size:32px; font-weight:700; color:#ffffff; margin:0;">
           Tournaments</h2>
         <button
           style="background:#ffffff; color:#0d9488; border:1px solid #0d9488; padding:10px 20px; border-radius:4px; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; cursor:pointer; text-transform:uppercase;"
@@ -5223,7 +5247,7 @@
     <div style="max-width:1100px; margin:0 auto; padding:30px 20px; width:100%; box-sizing:border-box;">
       <div
         style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:16px;">
-        <h2 style="font-family:'Times New Roman', serif; font-size:32px; font-weight:700; color:#1f2937; margin:0;">
+        <h2 style="font-family:'Times New Roman', serif; font-size:32px; font-weight:700; color:#ffffff; margin:0;">
           Teams</h2>
         <button
           style="background:#ffffff; color:#0d9488; border:1px solid #0d9488; padding:10px 20px; border-radius:4px; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; cursor:pointer; text-transform:uppercase;"
@@ -9507,14 +9531,15 @@
       let html = '<div class="td-matches-grid">';
       filteredMatches.forEach(m => {
         let badgeBg = status === 'live' ? '#ef4444' : (status === 'completed' ? '#374151' : '#0d9488');
-        let badgeText = status === 'live' ? 'LIVE' : (status === 'completed' ? 'Past' : 'Upcoming');
+        let badgeText = status === 'live' ? 'LIVE' : (status === 'completed' ? 'PAST' : 'SOON');
+        let badgeClass = status === 'live' ? 'my-badge my-badge-live' : (status === 'completed' ? 'my-badge my-badge-past' : 'my-badge my-badge-soon');
         let resText = m.result ? m.result : (m.tossInfo ? m.tossInfo : 'Upcoming match scheduled');
 
         html += `
           <div class="my-card" onclick="openMatchScorecard(${currentViewingTournamentIdx}, ${matches.indexOf(m)})" style="cursor:pointer; margin:0;">
             <div class="my-card-header">
               <span>${t.name}</span>
-              <span class="my-badge" style="background:${badgeBg};">${badgeText}</span>
+              <span class="${badgeClass}">${badgeText}</span>
             </div>
             <div class="my-card-meta">
               ${t.ground || 'KCP CRICKET GROUND'}, ${t.city || 'Jaggayyapeta'}, ${m.date || ''}, ${t.overs || 20} Ov.
