@@ -8285,7 +8285,23 @@
       if (activeBatsmen.length === 0) {
         activeBatsmen = (m.batsmen || []).filter(b => !b.isOut).slice(0, 2);
       }
-      let activeBowlers = (m.bowlers || []).slice(-2);
+      // Only bowlers who have bowled at least 1 ball — show current bowler + previous bowler
+      let allBowledBowlers = (m.bowlers || []).filter(b => {
+        let oversStr = String(b.overs || '0.0');
+        let parts = oversStr.split('.');
+        let totalBalls = (parseInt(parts[0]) || 0) * 6 + (parseInt(parts[1]) || 0);
+        return totalBalls > 0;
+      });
+      // Sort: current bowler first, then others by order (most recent last)
+      let currentBowler = m.bowler || '';
+      let activeBowlers = allBowledBowlers.slice(-2);
+      // Ensure current bowler is always included if they have balls
+      if (currentBowler) {
+        let currIdx = allBowledBowlers.findIndex(b => b.name === currentBowler);
+        if (currIdx !== -1 && !activeBowlers.find(b => b.name === currentBowler)) {
+          activeBowlers = [allBowledBowlers[currIdx], ...activeBowlers].slice(0, 2);
+        }
+      }
 
       let pRuns = activeBatsmen.reduce((sum, b) => sum + parseInt(b.runs || 0), 0);
       let pBalls = activeBatsmen.reduce((sum, b) => sum + parseInt(b.balls || 0), 0);
@@ -8329,6 +8345,7 @@
             </table>
           </div>
 
+          ${activeBowlers.length > 0 ? `
           <div style="overflow-x: auto; margin-top: 16px;">
             <table class="sc-table" style="min-width:320px;">
               <thead><tr style="background:#f8fafc;"><th>Bowlers</th><th style="flex:1;"></th><th>O</th><th>M</th><th>R</th><th>W</th><th>Eco</th></tr></thead>
@@ -8343,6 +8360,7 @@
               </tbody>
             </table>
           </div>
+          ` : ''}
 
           <div style="padding:12px 16px; font-size:12px; color:#1e293b; border-top:1px solid #f1f5f9; background:#f8fafc; font-weight:700;">
             Current Partnership: <span style="font-weight:600; color:#64748b;">${pRuns}(${pBalls})</span>
