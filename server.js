@@ -637,4 +637,32 @@ app.get("/health", (req, res) => res.json({ status: "ok", mode: useJSON ? "JSON"
 app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname, "index.html"));
 });
-app.listen(process.env.PORT || 3001, () => console.log("✅ Server Live on port 3001"));
+
+const PORT = process.env.PORT || 3001;
+const server = app.listen(PORT, () => console.log(`✅ Server Live on port ${PORT}`));
+
+server.on('error', (e) => {
+  if (e.code === 'EADDRINUSE') {
+    console.log(`⚠️ Port ${PORT} is busy. Auto-fixing it for you...`);
+    const { exec } = require('child_process');
+    
+    // Command to forcefully close the old server
+    const cmd = process.platform === 'win32' 
+      ? `powershell.exe -Command "Stop-Process -Id (Get-NetTCPConnection -LocalPort ${PORT}).OwningProcess -Force"`
+      : `lsof -i :${PORT} -t | xargs kill -9`;
+      
+    exec(cmd, (err) => {
+      if (err) {
+        console.error("❌ Auto-fix failed. Please close the other terminal manually.");
+        process.exit(1);
+      }
+      console.log(`✅ Old server closed! Starting the new one...`);
+      setTimeout(() => {
+        server.close();
+        app.listen(PORT, () => console.log(`✅ Server Live on port ${PORT}`));
+      }, 1000);
+    });
+  } else {
+    console.error(e);
+  }
+});

@@ -30,7 +30,7 @@ async function init() {
         console.log("Connected to 'cricket_db'");
 
         const tables = [
-            `CREATE TABLE users (id INT PRIMARY KEY IDENTITY(1,1), username NVARCHAR(100) NOT NULL UNIQUE, password NVARCHAR(255) NOT NULL)`,
+            `CREATE TABLE users (id INT PRIMARY KEY IDENTITY(1,1), username NVARCHAR(100) NOT NULL UNIQUE, password NVARCHAR(255) NOT NULL, photo_url NVARCHAR(MAX))`,
             `CREATE TABLE teams (id INT PRIMARY KEY IDENTITY(1,1), team_name NVARCHAR(100) NOT NULL)`,
             `CREATE TABLE players (id INT PRIMARY KEY IDENTITY(1,1), team_name NVARCHAR(100), player_name NVARCHAR(100), role NVARCHAR(50), photo_url NVARCHAR(MAX))`,
             `CREATE TABLE match_results (id INT PRIMARY KEY IDENTITY(1,1), winner NVARCHAR(100), loser NVARCHAR(100), win_type NVARCHAR(50), margin NVARCHAR(100), played_on NVARCHAR(50))`,
