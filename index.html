@@ -48,20 +48,51 @@
     body {
       font-family: Arial;
       margin: 0;
-      background: #0b0f1a;
+      background: linear-gradient(135deg, #0d1117 0%, #0f1a2e 40%, #091221 70%, #0d1117 100%);
+      background-attachment: fixed;
       color: white;
       overflow-x: hidden;
       width: 100vw;
+      min-height: 100vh;
+    }
+
+    /* Global dark theme glow effects — visible on ALL pages */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 5%;
+      left: -15%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(0,212,255,0.07) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      bottom: 15%;
+      right: -10%;
+      width: 350px;
+      height: 350px;
+      background: radial-gradient(circle, rgba(245,158,11,0.07) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
     }
 
     /* NAV - only KCPL logo left + hamburger right */
     nav {
-      background: #020617;
+      background: rgba(2, 6, 23, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       padding: 10px 16px;
       display: none;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      border-bottom: 1px solid rgba(45,212,191,0.12);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
     .nav-left {
@@ -220,6 +251,10 @@
     .page {
       display: none;
       padding: 20px;
+      background: transparent !important;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
     }
 
     input,
@@ -4195,9 +4230,9 @@
     .my-page-title {
       font-family: 'Inter', sans-serif;
       font-size: 22px;
-      color: #6b7280;
+      color: rgba(255,255,255,0.85);
       margin: 16px 20px;
-      font-weight: 400;
+      font-weight: 600;
     }
 
     .empty-state-box {
@@ -4274,14 +4309,19 @@
     }
 
     .my-card {
-      background: #ffffff;
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-      margin: 10px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px;
+      margin: 10px 0;
       padding: 16px;
       font-family: 'Inter', sans-serif;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08);
       position: relative;
+      backdrop-filter: blur(10px);
+      transition: box-shadow 0.2s;
+    }
+    .my-card:hover {
+      box-shadow: 0 6px 28px rgba(0,212,255,0.12), 0 4px 20px rgba(0,0,0,0.4);
     }
 
     .tourney-card {
@@ -4623,7 +4663,7 @@
 
     .my-card-header {
       font-size: 13px;
-      color: #6b7280;
+      color: rgba(255,255,255,0.5);
       margin-bottom: 8px;
       display: flex;
       justify-content: space-between;
@@ -4632,7 +4672,7 @@
 
     .my-card-meta {
       font-size: 12px;
-      color: #374151;
+      color: rgba(255,255,255,0.55);
       font-weight: 500;
       line-height: 1.4;
       margin-bottom: 8px;
@@ -4640,7 +4680,7 @@
 
     .my-card-bold {
       font-weight: 700;
-      color: #111827;
+      color: rgba(255,255,255,0.85);
       font-size: 14px;
       margin-bottom: 12px;
     }
@@ -4662,63 +4702,61 @@
       font-family: 'Rajdhani', sans-serif;
       font-size: 16px;
       font-weight: 700;
-      color: #111827;
+      color: #ffffff;
     }
 
     .my-card-score {
       font-family: 'Rajdhani', sans-serif;
       font-size: 18px;
       font-weight: 800;
-      color: #059669;
+      color: #6ee7b7;
     }
 
     .my-card-overs {
       font-size: 12px;
-      color: #6b7280;
+      color: rgba(255,255,255,0.45);
       font-weight: 500;
       margin-left: 4px;
     }
 
     .my-card-footer {
-      border-top: 1px solid #f3f4f6;
+      border-top: 1px solid rgba(255,255,255,0.08);
       margin: 12px -16px -16px -16px;
       padding: 10px 16px;
-      font-size: 12px;
-      color: #4b5563;
-      background: #fafafa;
-      border-radius: 0 0 12px 12px;
+      font-size: 13px;
+      color: #6ee7b7;
+      font-weight: 600;
+      background: rgba(110,231,183,0.05);
+      border-radius: 0 0 16px 16px;
     }
 
     .my-badge {
-      padding: 2px 10px;
+      padding: 3px 12px;
       border-radius: 20px;
       font-size: 11px;
       font-weight: 700;
-      color: #fff;
+      color: #f59e0b;
+      background: rgba(245,158,11,0.15);
+      border: 1px solid rgba(245,158,11,0.4);
       text-transform: uppercase;
     }
 
     .my-card-team {
       font-size: 15px;
-      color: #111827;
+      color: #ffffff;
       margin-bottom: 8px;
-    }
-
-    .my-card-footer {
-      font-size: 13px;
-      color: #111827;
     }
   </style>
 
   <!-- MY MATCHES PAGE -->
-  <div id="myMatchesPage" class="page" style="display:none; background:#ffffff; min-height:100vh; padding-bottom:30px;">
+  <div id="myMatchesPage" class="page" style="display:none; min-height:100vh; padding-bottom:30px;">
     <div class="my-page-title">My Matches</div>
     <div id="myMatchesContainer"></div>
   </div>
 
   <!-- MY TOURNAMENTS PAGE -->
   <div id="myTournamentsPage" class="page"
-    style="display:none; background:#ffffff; min-height:100vh; padding-bottom:30px;">
+    style="display:none; min-height:100vh; padding-bottom:30px;">
     <div class="my-page-title">My Tournaments</div>
     <div id="myTournamentsContainer"></div>
   </div>
@@ -4726,14 +4764,15 @@
   <style>
     /* Tournament Details Styles */
     .td-header-banner {
-      background: #1e293b;
-      /* Dark navy as requested */
+      background: linear-gradient(135deg, #0f1f3d 0%, #1a2744 50%, #0d1a35 100%);
       padding: 24px 20px;
       display: flex;
       position: relative;
       justify-content: space-between;
       color: #fff;
       font-family: 'Inter', sans-serif;
+      border-bottom: 1px solid rgba(45,212,191,0.15);
+      box-shadow: 0 4px 30px rgba(0,0,0,0.4);
     }
 
     .td-header-left {
@@ -4745,12 +4784,13 @@
     .td-logo {
       width: 80px;
       height: 80px;
-      background: #fff;
-      border-radius: 8px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
+      border: 1px solid rgba(255,255,255,0.15);
     }
 
     .td-logo img {
@@ -4768,7 +4808,7 @@
 
     .td-info p {
       font-size: 13px;
-      color: #cbd5e1;
+      color: rgba(255,255,255,0.6);
       margin: 0 0 4px 0;
     }
 
@@ -4779,12 +4819,13 @@
     }
 
     .td-stat-box {
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
       padding: 12px 16px;
       text-align: center;
       min-width: 80px;
+      backdrop-filter: blur(8px);
     }
 
     .td-stat-val {
@@ -4796,13 +4837,13 @@
 
     .td-stat-label {
       font-size: 11px;
-      color: #94a3b8;
+      color: rgba(255,255,255,0.55);
       text-transform: capitalize;
     }
 
     .td-tabs-wrapper {
-      border-bottom: 1px solid #e5e7eb;
-      background: #fff;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.25);
       overflow-x: auto;
       white-space: nowrap;
     }
@@ -4816,20 +4857,21 @@
       padding: 16px 20px;
       font-size: 14px;
       font-weight: 500;
-      color: #4b5563;
+      color: rgba(255,255,255,0.55);
       cursor: pointer;
       border-bottom: 3px solid transparent;
+      transition: color 0.2s;
     }
 
     .td-tab.active {
-      color: #0f766e;
-      border-bottom-color: #0f766e;
+      color: #2dd4bf;
+      border-bottom-color: #2dd4bf;
       font-weight: 600;
     }
 
     .td-content-area {
       padding: 20px;
-      background: #f9fafb;
+      background: transparent;
       min-height: 500px;
     }
 
@@ -4838,22 +4880,30 @@
       gap: 12px;
       justify-content: center;
       margin-bottom: 24px;
+      flex-wrap: wrap;
     }
 
     .td-pill {
-      background: #f3f4f6;
-      color: #4b5563;
+      background: transparent;
+      color: rgba(255,255,255,0.7);
       padding: 8px 24px;
-      border-radius: 20px;
+      border-radius: 24px;
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
-      border: none;
+      border: 1.5px solid rgba(168,85,247,0.5);
+      transition: all 0.2s;
+    }
+    .td-pill:hover {
+      border-color: #a855f7;
+      color: #fff;
     }
 
     .td-pill.active {
-      background: #0f766e;
+      background: rgba(168,85,247,0.25);
+      border-color: #a855f7;
       color: #fff;
+      box-shadow: 0 0 12px rgba(168,85,247,0.3);
     }
 
     .td-empty-state {
@@ -4868,23 +4918,24 @@
     .td-empty-img {
       width: 150px;
       height: 100px;
-      background: #e5e7eb;
-      border-radius: 8px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
       margin-bottom: 20px;
+      border: 1px solid rgba(255,255,255,0.1);
     }
 
     .td-empty-img svg {
       width: 40px;
       height: 40px;
-      fill: #9ca3af;
+      fill: rgba(255,255,255,0.3);
     }
 
     .td-empty-text {
       font-size: 13px;
-      color: #6b7280;
+      color: rgba(255,255,255,0.45);
     }
 
     .td-matches-grid {
@@ -4895,7 +4946,10 @@
   </style>
 
   <!-- TOURNAMENT DETAILS PAGE -->
-  <div id="tournamentDetailsPage" class="page" style="display:none; background:#f9fafb; min-height:100vh;">
+  <div id="tournamentDetailsPage" class="page" style="display:none; background:linear-gradient(135deg,#0d1117 0%,#0f1a2e 40%,#091221 70%,#0d1117 100%); min-height:100vh; position:relative; overflow:hidden;">
+    <!-- Dark theme glow effects -->
+    <div style="position:fixed; top:10%; left:-10%; width:350px; height:350px; background:radial-gradient(circle,rgba(0,212,255,0.08) 0%,transparent 70%); pointer-events:none; z-index:0;"></div>
+    <div style="position:fixed; bottom:20%; right:-5%; width:300px; height:300px; background:radial-gradient(circle,rgba(245,158,11,0.07) 0%,transparent 70%); pointer-events:none; z-index:0;"></div>
 
     <div class="td-header-banner" id="tdHeaderBanner">
       <!-- Injected dynamically -->
@@ -6361,7 +6415,7 @@
     <button onclick="finishMatch()">Finish Match</button>
   </div>
 
-  <div id="matchDetailsPage" class="page" style="background:#f3f4f6; min-height:100vh;">
+  <div id="matchDetailsPage" class="page" style="min-height:100vh;">
     <div id="matchHeaderContainer"></div>
 
     <div class="match-tabs-nav">
