@@ -48,8 +48,14 @@
     body {
       font-family: Arial;
       margin: 0;
-      background: linear-gradient(135deg, #0d1117 0%, #0f1a2e 40%, #091221 70%, #0d1117 100%);
+      background-color: #0d1117;
+      background-image:
+        linear-gradient(135deg, rgba(13,17,23,0.82) 0%, rgba(15,26,46,0.78) 40%, rgba(9,18,33,0.85) 70%, rgba(13,17,23,0.82) 100%),
+        url('cricket_bg.png');
+      background-size: cover;
+      background-position: center center;
       background-attachment: fixed;
+      background-repeat: no-repeat;
       color: white;
       overflow-x: hidden;
       width: 100vw;
@@ -64,7 +70,7 @@
       left: -15%;
       width: 400px;
       height: 400px;
-      background: radial-gradient(circle, rgba(0,212,255,0.07) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(0,212,255,0.06) 0%, transparent 70%);
       pointer-events: none;
       z-index: 0;
     }
@@ -75,7 +81,7 @@
       right: -10%;
       width: 350px;
       height: 350px;
-      background: radial-gradient(circle, rgba(245,158,11,0.07) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(245,158,11,0.06) 0%, transparent 70%);
       pointer-events: none;
       z-index: 0;
     }
@@ -5172,10 +5178,10 @@
 
   <!-- TOURNAMENTS TABLE PAGE -->
   <div id="tournamentsTablePage" class="page"
-    style="padding:0; background:#f9fafb; min-height:100vh; display:none; flex-direction:column;">
-    <div class="page-top-back" style="background:#ffffff; border-bottom:1px solid #e5e7eb; padding:16px 20px;">
-      <button class="page-top-back-btn" onclick="globalGoBack()" style="color:#4b5563;">
-        <span class="page-top-back-arrow" style="color:#4b5563;">←</span> <span style="font-size:18px;">Back</span>
+    style="padding:0; min-height:100vh; display:none; flex-direction:column;">
+    <div class="page-top-back" style="background:rgba(2,6,23,0.85); backdrop-filter:blur(12px); border-bottom:1px solid rgba(45,212,191,0.12); padding:16px 20px;">
+      <button class="page-top-back-btn" onclick="globalGoBack()" style="color:#fff;">
+        <span class="page-top-back-arrow" style="color:#2dd4bf;">←</span> <span style="font-size:18px;">Back</span>
       </button>
     </div>
 
@@ -5189,17 +5195,17 @@
           onclick="openAddTournament()">ADD A NEW TOURNAMENT</button>
       </div>
 
-      <div style="background:#ffffff; border:1px solid #e5e7eb; border-radius:4px; overflow-x:auto;">
+      <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:12px; overflow-x:auto; backdrop-filter:blur(10px);">
         <table
           style="width:100%; min-width:700px; border-collapse:collapse; font-family:'Inter',sans-serif; text-align:left;">
           <thead>
-            <tr style="border-bottom:1px solid #e5e7eb;">
-              <th style="padding:16px; font-size:14px; font-weight:600; color:#111827;">Name</th>
-              <th style="padding:16px; font-size:14px; font-weight:600; color:#111827;">Ball Type</th>
-              <th style="padding:16px; font-size:14px; font-weight:600; color:#111827;">From Date</th>
-              <th style="padding:16px; font-size:14px; font-weight:600; color:#111827;">To Date</th>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
+              <th style="padding:16px; font-size:14px; font-weight:600; color:rgba(255,255,255,0.7);">Name</th>
+              <th style="padding:16px; font-size:14px; font-weight:600; color:rgba(255,255,255,0.7);">Ball Type</th>
+              <th style="padding:16px; font-size:14px; font-weight:600; color:rgba(255,255,255,0.7);">From Date</th>
+              <th style="padding:16px; font-size:14px; font-weight:600; color:rgba(255,255,255,0.7);">To Date</th>
               <th
-                style="padding:16px; font-size:14px; font-weight:600; color:#111827; background:#f3f4f6; width:120px;">
+                style="padding:16px; font-size:14px; font-weight:600; color:rgba(255,255,255,0.7); background:rgba(255,255,255,0.03); width:120px;">
                 Actions</th>
             </tr>
           </thead>
@@ -5208,14 +5214,14 @@
         </table>
 
         <div
-          style="display:flex; justify-content:flex-end; align-items:center; padding:12px 16px; border-top:1px solid #e5e7eb; font-size:13px; color:#4b5563; font-family:'Inter',sans-serif;">
+          style="display:flex; justify-content:flex-end; align-items:center; padding:12px 16px; border-top:1px solid rgba(255,255,255,0.08); font-size:13px; color:rgba(255,255,255,0.5); font-family:'Inter',sans-serif;">
           <span style="margin-right:16px;">Rows per page: 10 <span
               style="font-size:10px;margin-left:4px;">▼</span></span>
           <span style="margin-right:16px;" id="oaPaginationText">1-1 of 1</span>
-          <span style="color:#d1d5db; margin-right:16px; cursor:default;">&lt;</span>
+          <span style="color:rgba(255,255,255,0.2); margin-right:16px; cursor:default;">&lt;</span>
           <span
             style="background:#0d9488; color:#ffffff; width:24px; height:24px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; margin-right:16px; font-weight:600;">1</span>
-          <span style="color:#9ca3af; cursor:pointer;">&gt;</span>
+          <span style="color:rgba(255,255,255,0.3); cursor:pointer;">&gt;</span>
         </div>
       </div>
     </div>
@@ -5223,24 +5229,24 @@
 
   <!-- SETTINGS DROPDOWN MENU -->
   <div id="settingsDropdownMenu"
-    style="display:none; position:absolute; background:#ffffff; border:1px solid #e5e7eb; border-radius:4px; box-shadow:0 4px 6px rgba(0,0,0,0.1); z-index:10000; padding:8px 0; min-width:120px; font-family:'Inter',sans-serif; font-size:14px;">
-    <div style="padding:10px 16px; cursor:pointer; color:#374151;" onmouseover="this.style.background='#f3f4f6'"
+    style="display:none; position:absolute; background:rgba(15,26,46,0.97); border:1px solid rgba(255,255,255,0.12); border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,0.5); z-index:10000; padding:8px 0; min-width:140px; font-family:'Inter',sans-serif; font-size:14px; backdrop-filter:blur(12px);">
+    <div style="padding:10px 16px; cursor:pointer; color:rgba(255,255,255,0.8);" onmouseover="this.style.background='rgba(255,255,255,0.07)'"
       onmouseout="this.style.background='transparent'" onclick="handleSettingsOption('teams')">Teams</div>
-    <div style="padding:10px 16px; cursor:pointer; color:#374151;" onmouseover="this.style.background='#f3f4f6'"
+    <div style="padding:10px 16px; cursor:pointer; color:rgba(255,255,255,0.8);" onmouseover="this.style.background='rgba(255,255,255,0.07)'"
       onmouseout="this.style.background='transparent'" onclick="handleSettingsOption('rounds')">Rounds</div>
-    <div style="padding:10px 16px; cursor:pointer; color:#374151;" onmouseover="this.style.background='#f3f4f6'"
+    <div style="padding:10px 16px; cursor:pointer; color:rgba(255,255,255,0.8);" onmouseover="this.style.background='rgba(255,255,255,0.07)'"
       onmouseout="this.style.background='transparent'" onclick="handleSettingsOption('groups')">Groups</div>
-    <div style="padding:10px 16px; cursor:pointer; color:#374151;" onmouseover="this.style.background='#f3f4f6'"
+    <div style="padding:10px 16px; cursor:pointer; color:rgba(255,255,255,0.8);" onmouseover="this.style.background='rgba(255,255,255,0.07)'"
       onmouseout="this.style.background='transparent'" onclick="handleSettingsOption('matches')">Matches</div>
   </div>
 
   <!-- TOURNAMENT TEAMS PAGE -->
   <div id="tournamentTeamsPage" class="page"
-    style="padding:0; background:#f9fafb; min-height:100vh; display:none; flex-direction:column;">
-    <div class="page-top-back" style="background:#ffffff; border-bottom:1px solid #e5e7eb; padding:16px 20px;">
+    style="padding:0; min-height:100vh; display:none; flex-direction:column;">
+    <div class="page-top-back" style="background:rgba(2,6,23,0.85); backdrop-filter:blur(12px); border-bottom:1px solid rgba(45,212,191,0.12); padding:16px 20px;">
       <button class="page-top-back-btn" onclick="openTournamentsTable()"
-        style="color:#4b5563; background:none; border:none; cursor:pointer; font-family:'Inter',sans-serif; display:inline-flex; align-items:center; gap:8px; padding:0;">
-        <span class="page-top-back-arrow" style="color:#4b5563;">←</span> <span style="font-size:18px;">Back</span>
+        style="color:#fff; background:none; border:none; cursor:pointer; font-family:'Inter',sans-serif; display:inline-flex; align-items:center; gap:8px; padding:0;">
+        <span class="page-top-back-arrow" style="color:#2dd4bf;">←</span> <span style="font-size:18px;">Back</span>
       </button>
     </div>
 
@@ -5254,14 +5260,14 @@
           onclick="openAddTeam()">ADD A NEW TEAM</button>
       </div>
 
-      <div style="background:#ffffff; border:1px solid #e5e7eb; border-radius:4px; overflow-x:auto;">
+      <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:12px; overflow-x:auto; backdrop-filter:blur(10px);">
         <table
           style="width:100%; min-width:700px; border-collapse:collapse; font-family:'Inter',sans-serif; text-align:left;">
           <thead>
-            <tr style="border-bottom:1px solid #e5e7eb;">
-              <th style="padding:16px; font-size:14px; font-weight:600; color:#111827;">Team Name</th>
-              <th style="padding:16px; font-size:14px; font-weight:600; color:#111827; text-align:center;">Members</th>
-              <th style="padding:16px; font-size:14px; font-weight:600; color:#111827; width:120px;">Actions</th>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
+              <th style="padding:16px; font-size:14px; font-weight:600; color:rgba(255,255,255,0.7);">Team Name</th>
+              <th style="padding:16px; font-size:14px; font-weight:600; color:rgba(255,255,255,0.7); text-align:center;">Members</th>
+              <th style="padding:16px; font-size:14px; font-weight:600; color:rgba(255,255,255,0.7); width:120px;">Actions</th>
             </tr>
           </thead>
           <tbody id="oaTeamsTableBody">
@@ -5269,12 +5275,12 @@
         </table>
 
         <div
-          style="display:flex; justify-content:flex-end; align-items:center; padding:12px 16px; border-top:1px solid #e5e7eb; font-size:13px; color:#4b5563; font-family:'Inter',sans-serif;">
+          style="display:flex; justify-content:flex-end; align-items:center; padding:12px 16px; border-top:1px solid rgba(255,255,255,0.08); font-size:13px; color:rgba(255,255,255,0.5); font-family:'Inter',sans-serif;">
           <span style="margin-right:16px;">Rows per page: 10 <span
               style="font-size:10px;margin-left:4px;">▼</span></span>
           <span style="margin-right:16px;" id="oaTeamsPaginationText">0-0 of 0</span>
-          <span style="color:#d1d5db; margin-right:16px; cursor:default;">&lt;</span>
-          <span style="color:#9ca3af; cursor:default;">&gt;</span>
+          <span style="color:rgba(255,255,255,0.2); margin-right:16px; cursor:default;">&lt;</span>
+          <span style="color:rgba(255,255,255,0.3); cursor:default;">&gt;</span>
         </div>
       </div>
     </div>
