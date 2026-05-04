@@ -5877,14 +5877,19 @@
 
       const user = localStorage.getItem('currentUser') || 'guest';
 
-      // ✅ Sync with SSMS 19 Database via Server
+      // 1. Update Local Storage First
+      let allTournaments = JSON.parse(localStorage.getItem('kcp_tournaments_' + user) || '[]');
+      allTournaments.push(window.tempTournamentData);
+      localStorage.setItem('kcp_tournaments_' + user, JSON.stringify(allTournaments));
+
+      // 2. Sync Full Array with SSMS 19 Database via Server
       try {
         const res = await fetch(API + '/tournaments', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             user_id: user,
-            tournament_data: JSON.stringify(window.tempTournamentData)
+            tournament_data: JSON.stringify(allTournaments) // Send full array!
           })
         });
         if (res.ok) console.log("✅ SSMS Sync Successful");
@@ -5892,11 +5897,6 @@
       } catch (err) {
         console.warn("⚠️ SSMS Sync Failed (Connection Error):", err.message);
       }
-
-      // Local Fallback
-      let allTournaments = JSON.parse(localStorage.getItem('kcp_tournaments_' + user) || '[]');
-      allTournaments.push(window.tempTournamentData);
-      localStorage.setItem('kcp_tournaments_' + user, JSON.stringify(allTournaments));
 
       if (typeof syncArrayToFirebase === 'function') syncArrayToFirebase(allTournaments);
 
@@ -6656,12 +6656,14 @@
           if (serverData && serverData.length > 0) {
             localStorage.setItem(getTournamentsKey(), JSON.stringify(serverData));
             tournaments = serverData;
-            if (typeof renderTournamentList === 'function' && document.getElementById('tournamentsTablePage').style.display !== 'none') {
+            if (typeof renderTournamentList === 'function' && document.getElementById('tournamentsTablePage') && document.getElementById('tournamentsTablePage').style.display !== 'none') {
               renderTournamentList();
             }
+            return true;
           }
         }
-      } catch (e) { console.warn("Background sync failed"); }
+      } catch (e) { console.warn("Sync failed:", e); }
+      return false;
     }
     async function syncArrayToFirebase(arr) {
       if (!window.fbSetDoc) return;
@@ -9460,7 +9462,7 @@
       reader.readAsDataURL(file);
     }
 
-    function startApp() {
+    async function startApp() {
       document.getElementById("loginPage").style.display = "none";
       let nav = document.getElementById('nav');
       if (nav) nav.style.display = "flex";
@@ -9470,17 +9472,14 @@
       let savedPhoto = localStorage.getItem("userPhoto_" + u);
       let navPic = document.getElementById("navProfilePic");
       if (savedPhoto && navPic) navPic.src = savedPhoto;
-      tournaments = loadTournaments();
-
-      // Auto-sync existing tournaments to SSMS on every login
-      if (tournaments && tournaments.length > 0) {
-        let u = localStorage.getItem("currentUser") || "default";
-        fetch(API + "/tournaments", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ user_id: u, tournament_data: JSON.stringify(tournaments) })
-        }).then(() => console.log("Tournaments synced to SSMS on login"))
-          .catch(err => console.error("Tournament sync error:", err));
+      
+      // 1. Fetch latest from SQL Server First (SQL-First approach)
+      console.log("🔄 Syncing with SQL Server...");
+      await refreshTournamentsFromServer();
+      
+      // 2. Fallback if sync failed or no server data, load from local
+      if (!tournaments || tournaments.length === 0) {
+        tournaments = loadTournaments();
       }
 
       let lp = localStorage.getItem("lastPage");

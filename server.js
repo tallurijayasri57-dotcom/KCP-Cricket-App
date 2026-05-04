@@ -310,11 +310,22 @@ app.get("/tournaments/:user", async (req, res) => {
     try {
         if (useJSON || !pool) {
             const filtered = (MEMORY_DB.tournaments || []).filter(t => t.user_id === req.params.user);
-            return res.json(filtered.map(t => JSON.parse(t.tournament_data)));
+            if (filtered.length === 0) return res.json([]);
+            // Since we store one blob per user, return the parsed blob of the first match
+            return res.json(JSON.parse(filtered[0].tournament_data));
         }
-        const r = await pool.request().input("u", sql.NVarChar, req.params.user).query("SELECT tournament_data FROM tournaments WHERE user_id=@u");
-        res.json(r.recordset.map(row => JSON.parse(row.tournament_data)));
+        const r = await pool.request()
+            .input("u", sql.NVarChar, req.params.user)
+            .query("SELECT TOP 1 tournament_data FROM tournaments WHERE user_id=@u");
+        
+        if (r.recordset.length === 0) {
+            return res.json([]);
+        }
+        
+        const data = JSON.parse(r.recordset[0].tournament_data);
+        res.json(Array.isArray(data) ? data : [data]);
     } catch (err) {
+        console.error("Fetch Tournaments Error:", err);
         res.status(500).json({ error: err.message });
     }
 });
