@@ -3615,18 +3615,16 @@
     .splash-photo {
       display: block;
       width: 100%;
-      max-width: 100%;
-      height: 100%;
+      max-width: none;
+      height: 100vh;
       object-fit: contain;
       object-position: center center;
-      mask-image: linear-gradient(to bottom, black 75%, transparent 100%);
-      -webkit-mask-image: linear-gradient(to bottom, black 75%, transparent 100%);
     }
 
     @media (max-width: 768px) {
       .splash-photo {
-        max-width: 100%;
-        height: 100%;
+        width: 100vw;
+        height: 100vh;
       }
     }
 
@@ -4100,7 +4098,7 @@
 
 <body>
   <div id="splashScreen">
-    <img src="/founder.png" class="splash-photo" alt="KCP Founder">
+    <img src="./founder.png" class="splash-photo" alt="KCP Founder">
   </div>
 
   <div id="shotOverlay">
@@ -9200,51 +9198,95 @@
       let localUsers = JSON.parse(localStorage.getItem('kcp_users') || '{}');
 
       if (isLogin) {
-        // Validation logic
-        if (!localUsers.hasOwnProperty(u)) {
-          alert("invalid username");
-          btn.innerText = oldText;
-          btn.disabled = false;
+        // Check localStorage first
+        if (localUsers.hasOwnProperty(u) && localUsers[u] === p) {
+          // Local cache found and matches
+          localStorage.setItem("currentUser", u);
+          localStorage.setItem("isRegistered", "true");
+          
+          if (window.fbGetDocs) {
+            const q = window.fbQuery(window.fbCollection(window.fbDb, "tournaments"));
+            window.fbGetDocs(q).then(snap => {
+              let arr = [];
+              snap.forEach(doc => arr.push(doc.data()));
+              arr.sort((a, b) => a.id - b.id);
+              localStorage.setItem('kcp_tournaments_' + u, JSON.stringify(arr));
+              return window.fbGetDoc(window.fbDoc(window.fbDb, "users", u));
+            }).then(userDoc => {
+              if (userDoc && userDoc.exists() && userDoc.data().photo) {
+                localStorage.setItem("userPhoto_" + u, userDoc.data().photo);
+              }
+              btn.innerText = oldText;
+              btn.disabled = false;
+              startApp();
+            }).catch(e => {
+              console.error("Firebase load error", e);
+              btn.innerText = oldText;
+              btn.disabled = false;
+              startApp();
+            });
+          } else {
+            btn.innerText = oldText;
+            btn.disabled = false;
+            startApp();
+          }
+          fetch(API + "/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: u, password: p }) }).catch(e => console.warn(e));
           return;
         }
-        if (localUsers[u] !== p) {
-          alert("invalid password");
-          btn.innerText = oldText;
-          btn.disabled = false;
-          return;
-        }
-
-        // Login successful
-        localStorage.setItem("currentUser", u);
-        localStorage.setItem("isRegistered", "true");
-
-        if (window.fbGetDocs) {
-          const q = window.fbQuery(window.fbCollection(window.fbDb, "tournaments"));
-          window.fbGetDocs(q).then(snap => {
-            let arr = [];
-            snap.forEach(doc => arr.push(doc.data()));
-            arr.sort((a, b) => a.id - b.id);
-            localStorage.setItem('kcp_tournaments_' + u, JSON.stringify(arr));
-            return window.fbGetDoc(window.fbDoc(window.fbDb, "users", u));
-          }).then(userDoc => {
-            if (userDoc && userDoc.exists() && userDoc.data().photo) {
-              localStorage.setItem("userPhoto_" + u, userDoc.data().photo);
+        
+        // If not in localStorage, validate against backend
+        fetch(API + "/login", { 
+          method: "POST", 
+          headers: { "Content-Type": "application/json" }, 
+          body: JSON.stringify({ username: u, password: p }) 
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            // Backend validated - save to localStorage and login
+            localUsers[u] = p;
+            localStorage.setItem('kcp_users', JSON.stringify(localUsers));
+            localStorage.setItem("currentUser", u);
+            localStorage.setItem("isRegistered", "true");
+            
+            if (window.fbGetDocs) {
+              const q = window.fbQuery(window.fbCollection(window.fbDb, "tournaments"));
+              window.fbGetDocs(q).then(snap => {
+                let arr = [];
+                snap.forEach(doc => arr.push(doc.data()));
+                arr.sort((a, b) => a.id - b.id);
+                localStorage.setItem('kcp_tournaments_' + u, JSON.stringify(arr));
+                return window.fbGetDoc(window.fbDoc(window.fbDb, "users", u));
+              }).then(userDoc => {
+                if (userDoc && userDoc.exists() && userDoc.data().photo) {
+                  localStorage.setItem("userPhoto_" + u, userDoc.data().photo);
+                }
+                btn.innerText = oldText;
+                btn.disabled = false;
+                startApp();
+              }).catch(e => {
+                console.error("Firebase load error", e);
+                btn.innerText = oldText;
+                btn.disabled = false;
+                startApp();
+              });
+            } else {
+              btn.innerText = oldText;
+              btn.disabled = false;
+              startApp();
             }
+          } else {
+            alert("invalid username or password");
             btn.innerText = oldText;
             btn.disabled = false;
-            startApp();
-          }).catch(e => {
-            console.error("Firebase load error", e);
-            btn.innerText = oldText;
-            btn.disabled = false;
-            startApp();
-          });
-        } else {
+          }
+        })
+        .catch(e => {
+          console.warn("Backend login error:", e);
+          alert("invalid username or password");
           btn.innerText = oldText;
           btn.disabled = false;
-          startApp();
-        }
-        fetch(API + "/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: u, password: p }) }).catch(e => console.warn(e));
+        });
       } else {
         // Registration logic
         if (localUsers.hasOwnProperty(u)) {
