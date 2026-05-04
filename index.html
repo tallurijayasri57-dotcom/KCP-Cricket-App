@@ -4186,6 +4186,7 @@
     <div class="nav-left">
       <img src="https://companieslogo.com/img/orig/KCP.NS-d965ad33.png?download=true" class="nav-kcpl-logo"
         alt="KCP Logo">
+      <div id="dbSyncStatus" title="Checking Connection..." style="width: 10px; height: 10px; border-radius: 50%; background: #9ca3af; margin-left: 8px; border: 1px solid rgba(255,255,255,0.2);"></div>
       <div class="nav-links">
       </div>
     </div>
@@ -5724,6 +5725,27 @@
       ? `http://${window.location.hostname}:3001`
       : window.location.origin;
 
+    async function checkDbSync() {
+      const dot = document.getElementById('dbSyncStatus');
+      if (!dot) return;
+      try {
+        const res = await fetch(API + '/health');
+        const data = await res.json();
+        if (data.connected) {
+          dot.style.background = '#10b981'; // Green
+          dot.title = "Connected to SSMS 19";
+        } else {
+          dot.style.background = '#f59e0b'; // Orange
+          dot.title = "Server Running (JSON Mode)";
+        }
+      } catch (e) {
+        dot.style.background = '#ef4444'; // Red
+        dot.title = "Server Offline (Run 'node server.js')";
+      }
+    }
+    setInterval(checkDbSync, 5000);
+    checkDbSync();
+
     const IN_CITIES = [
       "Mumbai", "Delhi", "Bengaluru", "Hyderabad", "Ahmedabad", "Chennai", "Kolkata", "Surat", "Pune", "Jaipur", "Lucknow", "Kanpur", "Nagpur", "Indore", "Thane", "Bhopal", "Visakhapatnam", "Pimpri-Chinchwad", "Patna", "Vadodara", "Ghaziabad", "Ludhiana", "Agra", "Nashik", "Faridabad", "Meerut", "Rajkot", "Kalyan-Dombivli", "Vasai-Virar", "Varanasi", "Srinagar", "Aurangabad", "Dhanbad", "Amritsar", "Navi Mumbai", "Allahabad", "Howrah", "Ranchi", "Gwalior", "Jabalpur", "Coimbatore", "Vijayawada", "Jodhpur", "Madurai", "Raipur", "Kota", "Guwahati", "Chandigarh", "Solapur", "Hubli-Dharwad", "Tiruchirappalli", "Bareilly", "Moradabad", "Mysore", "Tiruppur", "Gurgaon", "Aligarh", "Jalandhar", "Bhubaneswar", "Salem", "Mira-Bhayandar", "Warangal", "Guntur", "Bhiwandi", "Saharanpur", "Gorakhpur", "Bikaner", "Amravati", "Noida", "Jamshedpur", "Bhilai", "Cuttack", "Firozabad", "Kochi", "Nellore", "Bhavnagar", "Dehradun", "Durgapur", "Asansol", "Rourkela", "Nanded", "Kolhapur", "Ajmer", "Akola", "Gulbarga", "Jamnagar", "Ujjain", "Loni", "Siliguri", "Jhansi", "Ulhasnagar", "Jammu", "Sangli-Miraj & Kupwad", "Mangalore", "Erode", "Belgaum", "Ambattur", "Tirunelveli", "Malegaon", "Gaya", "Jalgaon", "Udaipur", "Maheshtala", "Davanagere", "Kozhikode", "Akbarpur", "Rajpur Sonarpur", "Rajahmundry", "Bokaro", "South Dumdum", "Bellary", "Patiala", "Gopalpur", "Agartala", "Bhagalpur", "Muzaffarnagar", "Bhatpara", "Panihati", "Latur", "Dhule", "Tirupati", "Rohtak", "Korba", "Bhilwara", "Berhampur", "Muzaffarpur", "Ahmednagar", "Mathura", "Kollam", "Avadi", "Kadapa", "Kamarhati", "Sambalpur", "Bilaspur", "Shahjahanpur", "Satara", "Bijapur", "Rampur", "Shivamogga", "Chandrapur", "Junagadh", "Thrissur", "Alwar", "Bardhaman", "Kulti", "Kakinada", "Nizamabad", "Parbhani", "Tumkur", "Khammam", "Ozhukarai", "Bihar Sharif", "Panipat", "Darbhanga", "Bally", "Aizawl", "Dewas", "Ichalkaranji", "Karnal", "Bathinda", "Jalna", "Eluru", "Barasat", "Kirari Suleman Nagar", "Purnia", "Satna", "Mau", "Sonipat", "Farrukhabad", "Sagar", "Rourkela", "Durg", "Imphal", "Ratlam", "Hapur", "Arrah", "Anantapur", "Karimnagar", "Etawah", "Ambernath", "North Dumdum", "Bharatpur", "Begusarai", "New Delhi", "Gandhidham", "Baranagar", "Tiruvottiyur", "Puducherry", "Sikar", "Thoothukudi", "Rewa", "Mirzapur", "Raichur", "Pali", "Ramagundam", "Silchar", "Haridwar", "Vijayanagaram", "Tenali", "Nagercoil", "Sri Ganganagar", "Karawal Nagar", "Mango", "Thanjavur", "Bulandshahr", "Uluberia", "Katni", "Khandwa", "Nadiad", "Singrauli", "Bhiwani", "Yamunanagar", "Bidhannagar", "Panchkula", "Burhanpur", "Raurkela Industrial Township", "Kharagpur", "Dindigul", "Gandhinagar", "Hospet", "Nangloi Jat", "English Bazar", "Ongole", "Deoghar", "Chapra", "Haldia", "Khandwa", "Nandyal", "Morena", "Amroha", "Anand", "Bhind", "Bhalswa Jahangir Pur", "Madhyamgram", "Bhiwani", "Berhampore", "Ambala", "Morbi", "Fatehpur", "Raebareli", "Khora, Ghaziabad", "Chittoor", "Bhusawal", "Orai", "Bahraich", "Phusro", "Vellore", "Mehsana", "Raiganj", "Sirsa", "Danapur", "Serampore", "Sultan Pur Majra", "Guna", "Jaunpur", "Panvel", "Shivpuri", "Surendranagar Dudhrej", "Unnao", "Chinsurah", "Alappuzha", "Kottayam", "Machilipatnam", "Shimla", "Adoni", "Udupi", "Katihar", "Proddatur", "Mahbubnagar", "Saharsa", "Dibrugarh", "Jorhat", "Hazaribagh", "Hindupur", "Nagaon", "Sasaram", "Hajipur", "Bhimavaram", "Kumbakonam", "Bongaigaon", "Dehri", "Madanapalle", "Bhiwadi", "Navsari", "Jaggayyapeta", "Kanneveedu"
     ];
@@ -5850,12 +5872,31 @@
       }
     }
 
-    function publishTournament() {
+    async function publishTournament() {
       if (!window.tempTournamentData) return alert('Tournament data missing!');
 
-      let allTournaments = JSON.parse(localStorage.getItem('kcp_tournaments_' + (localStorage.getItem('currentUser') || 'guest')) || '[]');
+      const user = localStorage.getItem('currentUser') || 'guest';
+
+      // ✅ Sync with SSMS 19 Database via Server
+      try {
+        const res = await fetch(API + '/tournaments', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: user,
+            tournament_data: JSON.stringify(window.tempTournamentData)
+          })
+        });
+        if (res.ok) console.log("✅ SSMS Sync Successful");
+        else console.warn("⚠️ SSMS Sync Failed (Server Error)");
+      } catch (err) {
+        console.warn("⚠️ SSMS Sync Failed (Connection Error):", err.message);
+      }
+
+      // Local Fallback
+      let allTournaments = JSON.parse(localStorage.getItem('kcp_tournaments_' + user) || '[]');
       allTournaments.push(window.tempTournamentData);
-      localStorage.setItem('kcp_tournaments_' + (localStorage.getItem('currentUser') || 'guest'), JSON.stringify(allTournaments));
+      localStorage.setItem('kcp_tournaments_' + user, JSON.stringify(allTournaments));
 
       if (typeof syncArrayToFirebase === 'function') syncArrayToFirebase(allTournaments);
 
@@ -6602,7 +6643,25 @@
       return 'kcp_tournaments_' + user;
     }
     function loadTournaments() {
+      const user = localStorage.getItem('currentUser') || 'guest';
       return JSON.parse(localStorage.getItem(getTournamentsKey()) || '[]');
+    }
+
+    async function refreshTournamentsFromServer() {
+      const user = localStorage.getItem('currentUser') || 'guest';
+      try {
+        const response = await fetch(API + '/tournaments/' + user);
+        if (response.ok) {
+          const serverData = await response.json();
+          if (serverData && serverData.length > 0) {
+            localStorage.setItem(getTournamentsKey(), JSON.stringify(serverData));
+            tournaments = serverData;
+            if (typeof renderTournamentList === 'function' && document.getElementById('tournamentsTablePage').style.display !== 'none') {
+              renderTournamentList();
+            }
+          }
+        }
+      } catch (e) { console.warn("Background sync failed"); }
     }
     async function syncArrayToFirebase(arr) {
       if (!window.fbSetDoc) return;
@@ -6618,15 +6677,42 @@
       }
     }
 
-    function saveTournamentsData(arr) {
+    async function saveTournamentsData(arr) {
       localStorage.setItem(getTournamentsKey(), JSON.stringify(arr));
       syncArrayToFirebase(arr);
       let u = localStorage.getItem("currentUser") || "default";
-      fetch(API + "/tournaments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: u, tournament_data: JSON.stringify(arr) })
-      }).catch(err => console.error("SSMS Tournament Sync Error:", err));
+      try {
+        const res = await fetch(API + "/tournaments", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_id: u, tournament_data: JSON.stringify(arr) })
+        });
+        if (res.ok) {
+          console.log("✅ SSMS Bulk Sync Success");
+          return true;
+        }
+      } catch (err) {
+        console.error("❌ SSMS Bulk Sync Error:", err);
+      }
+      return false;
+    }
+
+    async function syncAllLocalToSSMS() {
+      let localData = loadTournaments();
+      if (localData.length === 0) return alert("No local data found to sync!");
+      
+      const btn = document.getElementById('syncAllBtn');
+      if (btn) { btn.innerText = "⏳ SYNCING..."; btn.disabled = true; }
+      
+      const success = await saveTournamentsData(localData);
+      
+      if (success) {
+        alert("All your old data has been synced to SSMS successfully! ✅");
+      } else {
+        alert("Sync failed. Please make sure 'node server.js' is running and connected to SQL.");
+      }
+      
+      if (btn) { btn.innerText = "SYNC ALL TO SSMS"; btn.disabled = false; }
     }
 
     let tournaments = [];
@@ -6643,6 +6729,7 @@
       tournaments = loadTournaments();
       showPage('tournamentsTablePage');
       renderTournamentList();
+      refreshTournamentsFromServer(); // Background refresh
     }
 
     function renderTournamentList() {
