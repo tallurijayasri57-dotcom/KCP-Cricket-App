@@ -343,12 +343,21 @@ app.post("/tournaments", async (req, res) => {
             saveDB();
             return res.send("Ok");
         }
-        // Delete old, then insert new (two separate queries)
-        await pool.request().input("u", sql.NVarChar, user_id).query("DELETE FROM tournaments WHERE user_id=@u");
+
+        // Use UPSERT (MERGE) to prevent race conditions during rapid player/team additions
         await pool.request()
             .input("u", sql.NVarChar, user_id)
             .input("d", sql.NVarChar(sql.MAX), tournament_data)
-            .query("INSERT INTO tournaments (user_id, tournament_data) VALUES (@u, @d)");
+            .query(`
+                MERGE INTO tournaments AS target
+                USING (SELECT @u AS user_id) AS source
+                ON (target.user_id = source.user_id)
+                WHEN MATCHED THEN
+                    UPDATE SET tournament_data = @d
+                WHEN NOT MATCHED THEN
+                    INSERT (user_id, tournament_data)
+                    VALUES (@u, @d);
+            `);
         res.send("Ok");
     } catch (err) {
         console.error("Tournament save error:", err);

@@ -7289,7 +7289,9 @@
       let tName = t.teams[currentAddPlayerTeamIdx].name;
       if (!t.teams[currentAddPlayerTeamIdx].players) t.teams[currentAddPlayerTeamIdx].players = [];
       t.teams[currentAddPlayerTeamIdx].players.push({ name: name, role: role, photo: photo });
-      saveTournamentsData(tournaments);
+      
+      await saveTournamentsData(tournaments); // Wait for SQL to finish saving
+      
       syncPlayerToSSMS(tName, name, role); // Sync to SSMS
       document.getElementById('addTeamPlayerNameInput').value = '';
       document.getElementById('addTeamPlayerRoleInput').value = '';
