@@ -50,7 +50,7 @@
       margin: 0;
       background-color: #0d1117;
       background-image:
-        linear-gradient(135deg, rgba(13,17,23,0.82) 0%, rgba(15,26,46,0.78) 40%, rgba(9,18,33,0.85) 70%, rgba(13,17,23,0.82) 100%),
+        linear-gradient(135deg, rgba(13, 17, 23, 0.82) 0%, rgba(15, 26, 46, 0.78) 40%, rgba(9, 18, 33, 0.85) 70%, rgba(13, 17, 23, 0.82) 100%),
         url('cricket_bg.png');
       background-size: cover;
       background-position: center center;
@@ -70,10 +70,11 @@
       left: -15%;
       width: 400px;
       height: 400px;
-      background: radial-gradient(circle, rgba(0,212,255,0.06) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(0, 212, 255, 0.06) 0%, transparent 70%);
       pointer-events: none;
       z-index: 0;
     }
+
     body::after {
       content: '';
       position: fixed;
@@ -81,7 +82,7 @@
       right: -10%;
       width: 350px;
       height: 350px;
-      background: radial-gradient(circle, rgba(245,158,11,0.06) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.06) 0%, transparent 70%);
       pointer-events: none;
       z-index: 0;
     }
@@ -95,7 +96,7 @@
       display: none;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid rgba(45,212,191,0.12);
+      border-bottom: 1px solid rgba(45, 212, 191, 0.12);
       position: sticky;
       top: 0;
       z-index: 100;
@@ -4186,7 +4187,9 @@
     <div class="nav-left">
       <img src="https://companieslogo.com/img/orig/KCP.NS-d965ad33.png?download=true" class="nav-kcpl-logo"
         alt="KCP Logo">
-      <div id="dbSyncStatus" title="Checking Connection..." style="width: 10px; height: 10px; border-radius: 50%; background: #9ca3af; margin-left: 8px; border: 1px solid rgba(255,255,255,0.2);"></div>
+      <div id="dbSyncStatus" title="Checking Connection..."
+        style="width: 10px; height: 10px; border-radius: 50%; background: #9ca3af; margin-left: 8px; border: 1px solid rgba(255,255,255,0.2);">
+      </div>
       <div class="nav-links">
       </div>
     </div>
@@ -4235,7 +4238,7 @@
     .my-page-title {
       font-family: 'Inter', sans-serif;
       font-size: 22px;
-      color: rgba(255,255,255,0.85);
+      color: rgba(255, 255, 255, 0.85);
       margin: 16px 20px;
       font-weight: 600;
     }
@@ -4314,19 +4317,20 @@
     }
 
     .my-card {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 16px;
       margin: 10px 0;
       padding: 16px;
       font-family: 'Inter', sans-serif;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.08);
       position: relative;
       backdrop-filter: blur(10px);
       transition: box-shadow 0.2s;
     }
+
     .my-card:hover {
-      box-shadow: 0 6px 28px rgba(0,212,255,0.12), 0 4px 20px rgba(0,0,0,0.4);
+      box-shadow: 0 6px 28px rgba(0, 212, 255, 0.12), 0 4px 20px rgba(0, 0, 0, 0.4);
     }
 
     .tourney-card {
@@ -4668,7 +4672,7 @@
 
     .my-card-header {
       font-size: 13px;
-      color: rgba(255,255,255,0.5);
+      color: rgba(255, 255, 255, 0.5);
       margin-bottom: 8px;
       display: flex;
       justify-content: space-between;
@@ -4677,7 +4681,7 @@
 
     .my-card-meta {
       font-size: 12px;
-      color: rgba(255,255,255,0.55);
+      color: rgba(255, 255, 255, 0.55);
       font-weight: 500;
       line-height: 1.4;
       margin-bottom: 8px;
@@ -4685,7 +4689,7 @@
 
     .my-card-bold {
       font-weight: 700;
-      color: rgba(255,255,255,0.85);
+      color: rgba(255, 255, 255, 0.85);
       font-size: 14px;
       margin-bottom: 12px;
     }
@@ -4719,19 +4723,19 @@
 
     .my-card-overs {
       font-size: 12px;
-      color: rgba(255,255,255,0.45);
+      color: rgba(255, 255, 255, 0.45);
       font-weight: 500;
       margin-left: 4px;
     }
 
     .my-card-footer {
-      border-top: 1px solid rgba(255,255,255,0.08);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
       margin: 12px -16px -16px -16px;
       padding: 10px 16px;
       font-size: 13px;
       color: #6ee7b7;
       font-weight: 600;
-      background: rgba(110,231,183,0.05);
+      background: rgba(110, 231, 183, 0.05);
       border-radius: 0 0 16px 16px;
     }
 
@@ -4747,27 +4751,35 @@
     /* PAST badge — gold amber (2nd pic style) */
     .my-badge-past {
       color: #f59e0b;
-      background: rgba(245,158,11,0.12);
-      border: 1px solid rgba(245,158,11,0.45);
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.45);
     }
 
     /* LIVE badge — red with soft glow */
     .my-badge-live {
       color: #f87171;
-      background: rgba(239,68,68,0.15);
-      border: 1px solid rgba(239,68,68,0.5);
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.5);
       animation: livePulse 2s ease-in-out infinite;
     }
+
     @keyframes livePulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.3); }
-      50% { box-shadow: 0 0 0 4px rgba(239,68,68,0); }
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.3);
+      }
+
+      50% {
+        box-shadow: 0 0 0 4px rgba(239, 68, 68, 0);
+      }
     }
 
     /* SOON badge — teal blue */
     .my-badge-soon {
       color: #2dd4bf;
-      background: rgba(45,212,191,0.1);
-      border: 1px solid rgba(45,212,191,0.4);
+      background: rgba(45, 212, 191, 0.1);
+      border: 1px solid rgba(45, 212, 191, 0.4);
     }
 
     .my-card-team {
@@ -4784,8 +4796,7 @@
   </div>
 
   <!-- MY TOURNAMENTS PAGE -->
-  <div id="myTournamentsPage" class="page"
-    style="display:none; min-height:100vh; padding-bottom:30px;">
+  <div id="myTournamentsPage" class="page" style="display:none; min-height:100vh; padding-bottom:30px;">
     <div class="my-page-title">My Tournaments</div>
     <div id="myTournamentsContainer"></div>
   </div>
@@ -4800,8 +4811,8 @@
       justify-content: space-between;
       color: #fff;
       font-family: 'Inter', sans-serif;
-      border-bottom: 1px solid rgba(45,212,191,0.15);
-      box-shadow: 0 4px 30px rgba(0,0,0,0.4);
+      border-bottom: 1px solid rgba(45, 212, 191, 0.15);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
     }
 
     .td-header-left {
@@ -4813,13 +4824,13 @@
     .td-logo {
       width: 80px;
       height: 80px;
-      background: rgba(255,255,255,0.1);
+      background: rgba(255, 255, 255, 0.1);
       border-radius: 12px;
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
-      border: 1px solid rgba(255,255,255,0.15);
+      border: 1px solid rgba(255, 255, 255, 0.15);
     }
 
     .td-logo img {
@@ -4837,7 +4848,7 @@
 
     .td-info p {
       font-size: 13px;
-      color: rgba(255,255,255,0.6);
+      color: rgba(255, 255, 255, 0.6);
       margin: 0 0 4px 0;
     }
 
@@ -4848,8 +4859,8 @@
     }
 
     .td-stat-box {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 12px;
       padding: 12px 16px;
       text-align: center;
@@ -4866,13 +4877,13 @@
 
     .td-stat-label {
       font-size: 11px;
-      color: rgba(255,255,255,0.55);
+      color: rgba(255, 255, 255, 0.55);
       text-transform: capitalize;
     }
 
     .td-tabs-wrapper {
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      background: rgba(0,0,0,0.25);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(0, 0, 0, 0.25);
       overflow-x: auto;
       white-space: nowrap;
     }
@@ -4886,7 +4897,7 @@
       padding: 16px 20px;
       font-size: 14px;
       font-weight: 500;
-      color: rgba(255,255,255,0.55);
+      color: rgba(255, 255, 255, 0.55);
       cursor: pointer;
       border-bottom: 3px solid transparent;
       transition: color 0.2s;
@@ -4914,25 +4925,26 @@
 
     .td-pill {
       background: transparent;
-      color: rgba(255,255,255,0.7);
+      color: rgba(255, 255, 255, 0.7);
       padding: 8px 24px;
       border-radius: 24px;
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
-      border: 1.5px solid rgba(168,85,247,0.5);
+      border: 1.5px solid rgba(168, 85, 247, 0.5);
       transition: all 0.2s;
     }
+
     .td-pill:hover {
       border-color: #a855f7;
       color: #fff;
     }
 
     .td-pill.active {
-      background: rgba(168,85,247,0.25);
+      background: rgba(168, 85, 247, 0.25);
       border-color: #a855f7;
       color: #fff;
-      box-shadow: 0 0 12px rgba(168,85,247,0.3);
+      box-shadow: 0 0 12px rgba(168, 85, 247, 0.3);
     }
 
     .td-empty-state {
@@ -4947,24 +4959,24 @@
     .td-empty-img {
       width: 150px;
       height: 100px;
-      background: rgba(255,255,255,0.06);
+      background: rgba(255, 255, 255, 0.06);
       border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
       margin-bottom: 20px;
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .td-empty-img svg {
       width: 40px;
       height: 40px;
-      fill: rgba(255,255,255,0.3);
+      fill: rgba(255, 255, 255, 0.3);
     }
 
     .td-empty-text {
       font-size: 13px;
-      color: rgba(255,255,255,0.45);
+      color: rgba(255, 255, 255, 0.45);
     }
 
     .td-matches-grid {
@@ -4975,10 +4987,15 @@
   </style>
 
   <!-- TOURNAMENT DETAILS PAGE -->
-  <div id="tournamentDetailsPage" class="page" style="display:none; background:linear-gradient(135deg,#0d1117 0%,#0f1a2e 40%,#091221 70%,#0d1117 100%); min-height:100vh; position:relative; overflow:hidden;">
+  <div id="tournamentDetailsPage" class="page"
+    style="display:none; background:linear-gradient(135deg,#0d1117 0%,#0f1a2e 40%,#091221 70%,#0d1117 100%); min-height:100vh; position:relative; overflow:hidden;">
     <!-- Dark theme glow effects -->
-    <div style="position:fixed; top:10%; left:-10%; width:350px; height:350px; background:radial-gradient(circle,rgba(0,212,255,0.08) 0%,transparent 70%); pointer-events:none; z-index:0;"></div>
-    <div style="position:fixed; bottom:20%; right:-5%; width:300px; height:300px; background:radial-gradient(circle,rgba(245,158,11,0.07) 0%,transparent 70%); pointer-events:none; z-index:0;"></div>
+    <div
+      style="position:fixed; top:10%; left:-10%; width:350px; height:350px; background:radial-gradient(circle,rgba(0,212,255,0.08) 0%,transparent 70%); pointer-events:none; z-index:0;">
+    </div>
+    <div
+      style="position:fixed; bottom:20%; right:-5%; width:300px; height:300px; background:radial-gradient(circle,rgba(245,158,11,0.07) 0%,transparent 70%); pointer-events:none; z-index:0;">
+    </div>
 
     <div class="td-header-banner" id="tdHeaderBanner">
       <!-- Injected dynamically -->
@@ -5005,7 +5022,8 @@
           <button class="td-pill" id="tdPill-live" onclick="renderTournamentMatches('live')">Live</button>
           <button class="td-pill active" id="tdPill-upcoming"
             onclick="renderTournamentMatches('upcoming')">Upcoming</button>
-          <button class="td-pill" id="tdPill-completed" onclick="renderTournamentMatches('completed')">Completed</button>
+          <button class="td-pill" id="tdPill-completed"
+            onclick="renderTournamentMatches('completed')">Completed</button>
         </div>
         <div id="tdMatchesContainer">
           <!-- Grid or empty state injected here -->
@@ -5025,15 +5043,18 @@
           <button class="td-pill" onclick="renderTdLeaderboard('field')">Field</button>
           <button class="td-pill" onclick="renderTdLeaderboard('mvp')">MVP</button>
         </div>
-        
+
         <!-- Filter Selectors matching design -->
         <div style="display:flex; gap:10px; margin-bottom:20px;">
-           <select style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); border-radius:12px; padding:10px 14px; font-size:13px; flex:1; outline:none; cursor:pointer;">
-             <option>All Teams</option>
-           </select>
-           <select style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); border-radius:12px; padding:10px 14px; font-size:13px; flex:1; outline:none; cursor:pointer;" id="tdLeaderboardSubFilter">
-             <option>Top performers</option>
-           </select>
+          <select
+            style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); border-radius:12px; padding:10px 14px; font-size:13px; flex:1; outline:none; cursor:pointer;">
+            <option>All Teams</option>
+          </select>
+          <select
+            style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); border-radius:12px; padding:10px 14px; font-size:13px; flex:1; outline:none; cursor:pointer;"
+            id="tdLeaderboardSubFilter">
+            <option>Top performers</option>
+          </select>
         </div>
 
         <div id="tdLeaderboardContainer"></div>
@@ -5182,8 +5203,7 @@
   </div>
 
   <!-- ORGANISER ADMIN PAGE -->
-  <div id="organiserAdmin" class="page"
-    style="padding:0; min-height:100vh; display:none; flex-direction:column;">
+  <div id="organiserAdmin" class="page" style="padding:0; min-height:100vh; display:none; flex-direction:column;">
     <div
       style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; text-align:center; height:calc(100vh - 60px);">
       <h2 style="font-family:'Inter',sans-serif; font-size:28px; font-weight:700; color:#ffffff; margin-bottom:12px;">
@@ -5205,9 +5225,9 @@
   </div>
 
   <!-- TOURNAMENTS TABLE PAGE -->
-  <div id="tournamentsTablePage" class="page"
-    style="padding:0; min-height:100vh; display:none; flex-direction:column;">
-    <div class="page-top-back" style="background:rgba(2,6,23,0.85); backdrop-filter:blur(12px); border-bottom:1px solid rgba(45,212,191,0.12); padding:16px 20px;">
+  <div id="tournamentsTablePage" class="page" style="padding:0; min-height:100vh; display:none; flex-direction:column;">
+    <div class="page-top-back"
+      style="background:rgba(2,6,23,0.85); backdrop-filter:blur(12px); border-bottom:1px solid rgba(45,212,191,0.12); padding:16px 20px;">
       <button class="page-top-back-btn" onclick="globalGoBack()" style="color:#fff;">
         <span class="page-top-back-arrow" style="color:#2dd4bf;">←</span> <span style="font-size:18px;">Back</span>
       </button>
@@ -5223,7 +5243,8 @@
           onclick="openAddTournament()">ADD A NEW TOURNAMENT</button>
       </div>
 
-      <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:12px; overflow-x:auto; backdrop-filter:blur(10px);">
+      <div
+        style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:12px; overflow-x:auto; backdrop-filter:blur(10px);">
         <table
           style="width:100%; min-width:700px; border-collapse:collapse; font-family:'Inter',sans-serif; text-align:left;">
           <thead>
@@ -5258,20 +5279,24 @@
   <!-- SETTINGS DROPDOWN MENU -->
   <div id="settingsDropdownMenu"
     style="display:none; position:absolute; background:rgba(15,26,46,0.97); border:1px solid rgba(255,255,255,0.12); border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,0.5); z-index:10000; padding:8px 0; min-width:140px; font-family:'Inter',sans-serif; font-size:14px; backdrop-filter:blur(12px);">
-    <div style="padding:10px 16px; cursor:pointer; color:rgba(255,255,255,0.8);" onmouseover="this.style.background='rgba(255,255,255,0.07)'"
-      onmouseout="this.style.background='transparent'" onclick="handleSettingsOption('teams')">Teams</div>
-    <div style="padding:10px 16px; cursor:pointer; color:rgba(255,255,255,0.8);" onmouseover="this.style.background='rgba(255,255,255,0.07)'"
-      onmouseout="this.style.background='transparent'" onclick="handleSettingsOption('rounds')">Rounds</div>
-    <div style="padding:10px 16px; cursor:pointer; color:rgba(255,255,255,0.8);" onmouseover="this.style.background='rgba(255,255,255,0.07)'"
-      onmouseout="this.style.background='transparent'" onclick="handleSettingsOption('groups')">Groups</div>
-    <div style="padding:10px 16px; cursor:pointer; color:rgba(255,255,255,0.8);" onmouseover="this.style.background='rgba(255,255,255,0.07)'"
-      onmouseout="this.style.background='transparent'" onclick="handleSettingsOption('matches')">Matches</div>
+    <div style="padding:10px 16px; cursor:pointer; color:rgba(255,255,255,0.8);"
+      onmouseover="this.style.background='rgba(255,255,255,0.07)'" onmouseout="this.style.background='transparent'"
+      onclick="handleSettingsOption('teams')">Teams</div>
+    <div style="padding:10px 16px; cursor:pointer; color:rgba(255,255,255,0.8);"
+      onmouseover="this.style.background='rgba(255,255,255,0.07)'" onmouseout="this.style.background='transparent'"
+      onclick="handleSettingsOption('rounds')">Rounds</div>
+    <div style="padding:10px 16px; cursor:pointer; color:rgba(255,255,255,0.8);"
+      onmouseover="this.style.background='rgba(255,255,255,0.07)'" onmouseout="this.style.background='transparent'"
+      onclick="handleSettingsOption('groups')">Groups</div>
+    <div style="padding:10px 16px; cursor:pointer; color:rgba(255,255,255,0.8);"
+      onmouseover="this.style.background='rgba(255,255,255,0.07)'" onmouseout="this.style.background='transparent'"
+      onclick="handleSettingsOption('matches')">Matches</div>
   </div>
 
   <!-- TOURNAMENT TEAMS PAGE -->
-  <div id="tournamentTeamsPage" class="page"
-    style="padding:0; min-height:100vh; display:none; flex-direction:column;">
-    <div class="page-top-back" style="background:rgba(2,6,23,0.85); backdrop-filter:blur(12px); border-bottom:1px solid rgba(45,212,191,0.12); padding:16px 20px;">
+  <div id="tournamentTeamsPage" class="page" style="padding:0; min-height:100vh; display:none; flex-direction:column;">
+    <div class="page-top-back"
+      style="background:rgba(2,6,23,0.85); backdrop-filter:blur(12px); border-bottom:1px solid rgba(45,212,191,0.12); padding:16px 20px;">
       <button class="page-top-back-btn" onclick="openTournamentsTable()"
         style="color:#fff; background:none; border:none; cursor:pointer; font-family:'Inter',sans-serif; display:inline-flex; align-items:center; gap:8px; padding:0;">
         <span class="page-top-back-arrow" style="color:#2dd4bf;">←</span> <span style="font-size:18px;">Back</span>
@@ -5288,14 +5313,18 @@
           onclick="openAddTeam()">ADD A NEW TEAM</button>
       </div>
 
-      <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:12px; overflow-x:auto; backdrop-filter:blur(10px);">
+      <div
+        style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:12px; overflow-x:auto; backdrop-filter:blur(10px);">
         <table
           style="width:100%; min-width:700px; border-collapse:collapse; font-family:'Inter',sans-serif; text-align:left;">
           <thead>
             <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
               <th style="padding:16px; font-size:14px; font-weight:600; color:rgba(255,255,255,0.7);">Team Name</th>
-              <th style="padding:16px; font-size:14px; font-weight:600; color:rgba(255,255,255,0.7); text-align:center;">Members</th>
-              <th style="padding:16px; font-size:14px; font-weight:600; color:rgba(255,255,255,0.7); width:120px;">Actions</th>
+              <th
+                style="padding:16px; font-size:14px; font-weight:600; color:rgba(255,255,255,0.7); text-align:center;">
+                Members</th>
+              <th style="padding:16px; font-size:14px; font-weight:600; color:rgba(255,255,255,0.7); width:120px;">
+                Actions</th>
             </tr>
           </thead>
           <tbody id="oaTeamsTableBody">
@@ -5879,23 +5908,22 @@
 
       // 1. Update Local Storage First
       let allTournaments = JSON.parse(localStorage.getItem('kcp_tournaments_' + user) || '[]');
+      if (Array.isArray(allTournaments)) allTournaments = allTournaments.flat(Infinity);
       allTournaments.push(window.tempTournamentData);
       localStorage.setItem('kcp_tournaments_' + user, JSON.stringify(allTournaments));
 
-      // 2. Sync Full Array with SSMS 19 Database via Server
+      // 2. Sync with SSMS 19 Database via Server
       try {
-        const res = await fetch(API + '/tournaments', {
+        await fetch(API + '/tournaments', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             user_id: user,
-            tournament_data: JSON.stringify(allTournaments) // Send full array!
+            tournament_data: JSON.stringify(allTournaments)
           })
         });
-        if (res.ok) console.log("✅ SSMS Sync Successful");
-        else console.warn("⚠️ SSMS Sync Failed (Server Error)");
       } catch (err) {
-        console.warn("⚠️ SSMS Sync Failed (Connection Error):", err.message);
+        console.warn("SSMS Sync Failed:", err.message);
       }
 
       if (typeof syncArrayToFirebase === 'function') syncArrayToFirebase(allTournaments);
@@ -6644,26 +6672,30 @@
     }
     function loadTournaments() {
       const user = localStorage.getItem('currentUser') || 'guest';
-      return JSON.parse(localStorage.getItem(getTournamentsKey()) || '[]');
+      let data = JSON.parse(localStorage.getItem(getTournamentsKey()) || '[]');
+      if (Array.isArray(data)) data = data.flat(Infinity);
+      return data.filter(t => t && t.name && t.name !== 'undefined');
     }
 
-    async function refreshTournamentsFromServer() {
+    function refreshTournamentsFromServer() {
       const user = localStorage.getItem('currentUser') || 'guest';
-      try {
-        const response = await fetch(API + '/tournaments/' + user);
-        if (response.ok) {
-          const serverData = await response.json();
-          if (serverData && serverData.length > 0) {
-            localStorage.setItem(getTournamentsKey(), JSON.stringify(serverData));
-            tournaments = serverData;
-            if (typeof renderTournamentList === 'function' && document.getElementById('tournamentsTablePage') && document.getElementById('tournamentsTablePage').style.display !== 'none') {
-              renderTournamentList();
+      fetch(API + '/tournaments/' + user)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.length > 0) {
+            let flatData = (Array.isArray(data) && data.length > 0 && Array.isArray(data[0])) ? data[0] : data;
+            let validData = flatData.filter(t => t && t.name && t.name !== 'undefined');
+            // Only overwrite local data if server has MORE or EQUAL tournaments
+            // This prevents stale server data from wiping fresh local data
+            let localData = loadTournaments();
+            if (validData.length >= localData.length) {
+              localStorage.setItem(getTournamentsKey(), JSON.stringify(validData));
+              tournaments = validData;
+              if (typeof renderTournamentList === 'function') renderTournamentList();
             }
-            return true;
           }
-        }
-      } catch (e) { console.warn("Sync failed:", e); }
-      return false;
+        })
+        .catch(err => console.log("Server sync failed, using local data.", err));
     }
     async function syncArrayToFirebase(arr) {
       if (!window.fbSetDoc) return;
@@ -6682,7 +6714,7 @@
     async function saveTournamentsData(arr) {
       localStorage.setItem(getTournamentsKey(), JSON.stringify(arr));
       syncArrayToFirebase(arr);
-      let u = localStorage.getItem("currentUser") || "default";
+      let u = localStorage.getItem("currentUser") || "guest";
       try {
         const res = await fetch(API + "/tournaments", {
           method: "POST",
@@ -6702,18 +6734,18 @@
     async function syncAllLocalToSSMS() {
       let localData = loadTournaments();
       if (localData.length === 0) return alert("No local data found to sync!");
-      
+
       const btn = document.getElementById('syncAllBtn');
       if (btn) { btn.innerText = "⏳ SYNCING..."; btn.disabled = true; }
-      
+
       const success = await saveTournamentsData(localData);
-      
+
       if (success) {
         alert("All your old data has been synced to SSMS successfully! ✅");
       } else {
         alert("Sync failed. Please make sure 'node server.js' is running and connected to SQL.");
       }
-      
+
       if (btn) { btn.innerText = "SYNC ALL TO SSMS"; btn.disabled = false; }
     }
 
@@ -7199,11 +7231,15 @@
       if (!role) { alert('Select player role'); return; }
 
       let photo = localStorage.getItem("userPhoto_" + name) || "";
-      if (!photo && window.fbGetDoc) {
+      if (!photo) {
         try {
-          let userDoc = await window.fbGetDoc(window.fbDoc(window.fbDb, "users", name));
-          if (userDoc.exists()) { photo = userDoc.data().photo || ""; if (photo) localStorage.setItem("userPhoto_" + name, photo); }
-        } catch (e) { }
+          let res = await fetch(API + "/player-photo/" + encodeURIComponent(name));
+          let data = await res.json();
+          if (data && data.photo_url) {
+            photo = data.photo_url;
+            localStorage.setItem("userPhoto_" + name, photo);
+          }
+        } catch (e) { console.error(e); }
       }
 
       tournaments = loadTournaments();
@@ -7289,9 +7325,7 @@
       let tName = t.teams[currentAddPlayerTeamIdx].name;
       if (!t.teams[currentAddPlayerTeamIdx].players) t.teams[currentAddPlayerTeamIdx].players = [];
       t.teams[currentAddPlayerTeamIdx].players.push({ name: name, role: role, photo: photo });
-      
-      await saveTournamentsData(tournaments); // Wait for SQL to finish saving
-      
+      saveTournamentsData(tournaments);
       syncPlayerToSSMS(tName, name, role); // Sync to SSMS
       document.getElementById('addTeamPlayerNameInput').value = '';
       document.getElementById('addTeamPlayerRoleInput').value = '';
@@ -7321,9 +7355,11 @@
       renderTeamMembersView();
       document.getElementById('teamMembersModal').style.display = 'flex';
     }
+
     function closeTeamMembersModal() {
       document.getElementById('teamMembersModal').style.display = 'none';
     }
+
     function renderTeamMembersView() {
       tournaments = loadTournaments();
       let t = tournaments[currentTeamsTournamentIdx];
@@ -7351,6 +7387,8 @@
           '</div>';
       }).join('');
     }
+
+
     function openAddPlayerFromMembers() {
       document.getElementById('teamMembersModal').style.display = 'none';
       document.getElementById('addTeamPlayerNameInput').value = '';
@@ -8183,7 +8221,7 @@
         let balls = parseInt(b.balls) || 0;
         let fours = parseInt(b.fours) || 0;
         let sixes = parseInt(b.sixes) || 0;
-        
+
         let pts = runs / 10;
         pts += (fours * 0.012) + (sixes * 0.016);
         if (balls >= 10) {
@@ -8193,7 +8231,7 @@
           else if (sr < 100) pts -= 0.05;
         }
         if (runs === 0 && balls > 0 && String(b.outDesc).toLowerCase() !== 'not out') pts -= 0.15;
-        
+
         b.battingPoints = parseFloat(pts.toFixed(3));
         if (b.battingPoints > maxBatPts) { maxBatPts = b.battingPoints; bestBatter = b; }
       });
@@ -9294,7 +9332,7 @@
           // Local cache found and matches
           localStorage.setItem("currentUser", u);
           localStorage.setItem("isRegistered", "true");
-          
+
           if (window.fbGetDocs) {
             const q = window.fbQuery(window.fbCollection(window.fbDb, "tournaments"));
             window.fbGetDocs(q).then(snap => {
@@ -9324,60 +9362,60 @@
           fetch(API + "/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: u, password: p }) }).catch(e => console.warn(e));
           return;
         }
-        
+
         // If not in localStorage, validate against backend
-        fetch(API + "/login", { 
-          method: "POST", 
-          headers: { "Content-Type": "application/json" }, 
-          body: JSON.stringify({ username: u, password: p }) 
+        fetch(API + "/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: u, password: p })
         })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            // Backend validated - save to localStorage and login
-            localUsers[u] = p;
-            localStorage.setItem('kcp_users', JSON.stringify(localUsers));
-            localStorage.setItem("currentUser", u);
-            localStorage.setItem("isRegistered", "true");
-            
-            if (window.fbGetDocs) {
-              const q = window.fbQuery(window.fbCollection(window.fbDb, "tournaments"));
-              window.fbGetDocs(q).then(snap => {
-                let arr = [];
-                snap.forEach(doc => arr.push(doc.data()));
-                arr.sort((a, b) => a.id - b.id);
-                localStorage.setItem('kcp_tournaments_' + u, JSON.stringify(arr));
-                return window.fbGetDoc(window.fbDoc(window.fbDb, "users", u));
-              }).then(userDoc => {
-                if (userDoc && userDoc.exists() && userDoc.data().photo) {
-                  localStorage.setItem("userPhoto_" + u, userDoc.data().photo);
-                }
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              // Backend validated - save to localStorage and login
+              localUsers[u] = p;
+              localStorage.setItem('kcp_users', JSON.stringify(localUsers));
+              localStorage.setItem("currentUser", u);
+              localStorage.setItem("isRegistered", "true");
+
+              if (window.fbGetDocs) {
+                const q = window.fbQuery(window.fbCollection(window.fbDb, "tournaments"));
+                window.fbGetDocs(q).then(snap => {
+                  let arr = [];
+                  snap.forEach(doc => arr.push(doc.data()));
+                  arr.sort((a, b) => a.id - b.id);
+                  localStorage.setItem('kcp_tournaments_' + u, JSON.stringify(arr));
+                  return window.fbGetDoc(window.fbDoc(window.fbDb, "users", u));
+                }).then(userDoc => {
+                  if (userDoc && userDoc.exists() && userDoc.data().photo) {
+                    localStorage.setItem("userPhoto_" + u, userDoc.data().photo);
+                  }
+                  btn.innerText = oldText;
+                  btn.disabled = false;
+                  startApp();
+                }).catch(e => {
+                  console.error("Firebase load error", e);
+                  btn.innerText = oldText;
+                  btn.disabled = false;
+                  startApp();
+                });
+              } else {
                 btn.innerText = oldText;
                 btn.disabled = false;
                 startApp();
-              }).catch(e => {
-                console.error("Firebase load error", e);
-                btn.innerText = oldText;
-                btn.disabled = false;
-                startApp();
-              });
+              }
             } else {
+              alert("invalid username or password");
               btn.innerText = oldText;
               btn.disabled = false;
-              startApp();
             }
-          } else {
+          })
+          .catch(e => {
+            console.warn("Backend login error:", e);
             alert("invalid username or password");
             btn.innerText = oldText;
             btn.disabled = false;
-          }
-        })
-        .catch(e => {
-          console.warn("Backend login error:", e);
-          alert("invalid username or password");
-          btn.innerText = oldText;
-          btn.disabled = false;
-        });
+          });
       } else {
         // Registration logic
         if (localUsers.hasOwnProperty(u)) {
@@ -9464,7 +9502,7 @@
       reader.readAsDataURL(file);
     }
 
-    async function startApp() {
+    function startApp() {
       document.getElementById("loginPage").style.display = "none";
       let nav = document.getElementById('nav');
       if (nav) nav.style.display = "flex";
@@ -9474,15 +9512,8 @@
       let savedPhoto = localStorage.getItem("userPhoto_" + u);
       let navPic = document.getElementById("navProfilePic");
       if (savedPhoto && navPic) navPic.src = savedPhoto;
-      
-      // 1. Fetch latest from SQL Server First (SQL-First approach)
-      console.log("🔄 Syncing with SQL Server...");
-      await refreshTournamentsFromServer();
-      
-      // 2. Fallback if sync failed or no server data, load from local
-      if (!tournaments || tournaments.length === 0) {
-        tournaments = loadTournaments();
-      }
+
+      refreshTournamentsFromServer();
 
       let lp = localStorage.getItem("lastPage");
       let tid = localStorage.getItem("currentTournamentId");
@@ -9850,7 +9881,7 @@
       container.innerHTML = `<div style="text-align:center; padding:40px; color:#6ee7b7; font-family:'Rajdhani',sans-serif; letter-spacing:1px;">⏳ Fetching Tournament Data...</div>`;
 
       // Aggregate player stats
-      let players = {}; 
+      let players = {};
 
       // Fetch all matches for this tournament from Firebase to get full stats
       let tournamentMatches = [];
@@ -9869,21 +9900,21 @@
       if (tournamentMatches.length === 0) {
         tournamentMatches = (t.matches || []).filter(m => m.batsmen || m.innings1);
       }
-      
+
       if (tournamentMatches.length === 0) {
         container.innerHTML = `<div class="td-empty-state"><div class="td-empty-text">No match data found for this tournament yet. Make sure matches are finished or live in the app.</div></div>`;
         return;
       }
-      
+
       tournamentMatches.forEach(m => {
         const processInning = (batsmen, bowlers, teamName) => {
           (batsmen || []).forEach(b => {
-            if (!players[b.name]) players[b.name] = { 
-              name: b.name, team: teamName, 
-              bat: { runs: 0, balls: 0, inn: 0, outs: 0, fours: 0, sixes: 0 }, 
+            if (!players[b.name]) players[b.name] = {
+              name: b.name, team: teamName,
+              bat: { runs: 0, balls: 0, inn: 0, outs: 0, fours: 0, sixes: 0 },
               bowl: { wickets: 0, runs: 0, overs: 0, maidens: 0, inn: 0 },
               field: { catches: 0, runouts: 0, stumpings: 0 },
-              pts: 0 
+              pts: 0
             };
             let p = players[b.name];
             p.bat.inn++;
@@ -9892,27 +9923,27 @@
             p.bat.fours += parseInt(b.fours) || 0;
             p.bat.sixes += parseInt(b.sixes) || 0;
             if (String(b.outDesc).toLowerCase() !== 'not out' && b.outDesc) p.bat.outs++;
-            
+
             // Batting points logic
             let runs = parseInt(b.runs) || 0;
             let balls = parseInt(b.balls) || 0;
             let mPts = runs / 10;
             mPts += (parseInt(b.fours) || 0) * 0.012 + (parseInt(b.sixes) || 0) * 0.016;
             if (balls >= 10) {
-              let sr = (runs/balls)*100;
+              let sr = (runs / balls) * 100;
               if (sr >= 200) mPts += 0.05; else if (sr >= 150) mPts += 0.03; else if (sr < 100) mPts -= 0.05;
             }
             if (runs === 0 && balls > 0 && String(b.outDesc).toLowerCase() !== 'not out') mPts -= 0.15;
             p.pts += mPts;
           });
-          
+
           (bowlers || []).forEach(b => {
-            if (!players[b.name]) players[b.name] = { 
-              name: b.name, team: teamName, 
-              bat: { runs: 0, balls: 0, inn: 0, outs: 0, fours: 0, sixes: 0 }, 
+            if (!players[b.name]) players[b.name] = {
+              name: b.name, team: teamName,
+              bat: { runs: 0, balls: 0, inn: 0, outs: 0, fours: 0, sixes: 0 },
               bowl: { wickets: 0, runs: 0, overs: 0, maidens: 0, inn: 0 },
               field: { catches: 0, runouts: 0, stumpings: 0 },
-              pts: 0 
+              pts: 0
             };
             let p = players[b.name];
             p.bowl.inn++;
@@ -9920,7 +9951,7 @@
             p.bowl.runs += parseInt(b.runs) || 0;
             p.bowl.maidens += parseInt(b.maidens) || 0;
             p.bowl.overs = addTournamentOvers(p.bowl.overs, b.overs || 0);
-            
+
             // Field stats aggregated in bowlers for now (matching app logic)
             p.field.catches += parseInt(b.catches) || 0;
             p.field.runouts += parseInt(b.run_outs) || 0;
@@ -9933,12 +9964,12 @@
             let totalBalls = (Math.floor(oversFloat) * 6) + Math.round((oversFloat % 1) * 10);
             let mPts = wickets * 1.33 + (parseInt(b.maidens) || 0) * 0.25;
             if (totalBalls >= 6) {
-               let eco = runsConceded / (totalBalls/6);
-               if (eco <= 5) mPts += 0.25; else if (eco <= 6) mPts += 0.15; else if (eco <= 7) mPts += 0.05; else if (eco >= 10) mPts -= 0.1;
+              let eco = runsConceded / (totalBalls / 6);
+              if (eco <= 5) mPts += 0.25; else if (eco <= 6) mPts += 0.15; else if (eco <= 7) mPts += 0.05; else if (eco >= 10) mPts -= 0.1;
             }
             // Field points (approximate)
             mPts += (parseInt(b.catches) || 0) * 0.1 + (parseInt(b.run_outs) || 0) * 0.1 + (parseInt(b.stumpings) || 0) * 0.1;
-            
+
             p.pts += mPts;
           });
         };
@@ -9962,7 +9993,7 @@
         playerList = playerList.filter(p => p.bowl.inn > 0).sort((a, b) => b.bowl.wickets - a.bowl.wickets);
       } else if (category === 'field') {
         playerList = playerList.filter(p => (p.field.catches + p.field.runouts + p.field.stumpings) > 0)
-                               .sort((a, b) => (b.field.catches + b.field.runouts + b.field.stumpings) - (a.field.catches + a.field.runouts + a.field.stumpings));
+          .sort((a, b) => (b.field.catches + b.field.runouts + b.field.stumpings) - (a.field.catches + a.field.runouts + a.field.stumpings));
       } else if (category === 'mvp') {
         playerList.sort((a, b) => b.pts - a.pts);
       }
@@ -9977,7 +10008,7 @@
         let rank = (i + 1).toString().padStart(2, '0');
         let photoSrc = localStorage.getItem("userPhoto_" + p.name);
         let photoHtml = photoSrc ? `<img src="${photoSrc}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : `<div style="width:100%; height:100%; background:rgba(255,255,255,0.06); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; color:rgba(255,255,255,0.3);">👤</div>`;
-        
+
         let statsHtml = '';
         if (category === 'bat') {
           let avg = p.bat.outs > 0 ? (p.bat.runs / p.bat.outs).toFixed(2) : p.bat.runs.toFixed(2);

@@ -123,7 +123,10 @@ app.post("/login", async (req, res) => {
 // ================= TEAMS =================
 app.get("/teams", async (req, res) => {
     try {
-        if (useJSON || !pool) return res.json(MEMORY_DB.teams);
+        if (useJSON || !pool) {
+            // Ensure teams have IDs for deletion to work
+            return res.json(MEMORY_DB.teams.map((t, i) => ({ id: t.id || i + 1, ...t })));
+        }
         const r = await pool.request().query("SELECT * FROM teams");
         res.json(r.recordset);
     } catch (err) {
@@ -134,7 +137,7 @@ app.get("/teams", async (req, res) => {
 app.post("/teams", async (req, res) => {
     try {
         if (useJSON || !pool) { 
-            MEMORY_DB.teams.push({ team_name: req.body.name }); 
+            MEMORY_DB.teams.push({ id: Date.now(), team_name: req.body.name }); 
             saveDB(); 
             return res.send("Ok"); 
         }
@@ -148,7 +151,7 @@ app.post("/teams", async (req, res) => {
 app.delete("/teams/:id", async (req, res) => {
     try {
         if (useJSON || !pool) {
-            MEMORY_DB.teams = MEMORY_DB.teams.filter((_, i) => i != req.params.id);
+            MEMORY_DB.teams = MEMORY_DB.teams.filter((t, i) => (t.id || i + 1) != req.params.id);
             saveDB();
             return res.send({ message: "Team Deleted" });
         }
@@ -163,7 +166,9 @@ app.delete("/teams/:id", async (req, res) => {
 app.get("/players/:team", async (req, res) => {
     try {
         if (useJSON || !pool) {
-            const filtered = MEMORY_DB.players.filter(p => p.team_name === req.params.team);
+            const filtered = MEMORY_DB.players
+                .filter(p => p.team_name === req.params.team)
+                .map((p, i) => ({ id: p.id || i + 1, ...p }));
             return res.json(filtered);
         }
         const r = await pool.request().input("t", sql.NVarChar, req.params.team).query("SELECT * FROM players WHERE team_name=@t");
@@ -177,7 +182,7 @@ app.post("/players", async (req, res) => {
     try {
         const { team_name, player_name, role } = req.body;
         if (useJSON || !pool) {
-            MEMORY_DB.players.push({ team_name, player_name, role });
+            MEMORY_DB.players.push({ id: Date.now(), team_name, player_name, role });
             saveDB();
             return res.send("Player Added");
         }
@@ -195,7 +200,7 @@ app.post("/players", async (req, res) => {
 app.delete("/players/:id", async (req, res) => {
     try {
         if (useJSON || !pool) {
-            MEMORY_DB.players = MEMORY_DB.players.filter((_, i) => i != req.params.id);
+            MEMORY_DB.players = MEMORY_DB.players.filter((p, i) => (p.id || i + 1) != req.params.id);
             saveDB();
             return res.send({ message: "Player Deleted" });
         }
@@ -310,22 +315,11 @@ app.get("/tournaments/:user", async (req, res) => {
     try {
         if (useJSON || !pool) {
             const filtered = (MEMORY_DB.tournaments || []).filter(t => t.user_id === req.params.user);
-            if (filtered.length === 0) return res.json([]);
-            // Since we store one blob per user, return the parsed blob of the first match
-            return res.json(JSON.parse(filtered[0].tournament_data));
+            return res.json(filtered.map(t => JSON.parse(t.tournament_data)));
         }
-        const r = await pool.request()
-            .input("u", sql.NVarChar, req.params.user)
-            .query("SELECT TOP 1 tournament_data FROM tournaments WHERE user_id=@u");
-        
-        if (r.recordset.length === 0) {
-            return res.json([]);
-        }
-        
-        const data = JSON.parse(r.recordset[0].tournament_data);
-        res.json(Array.isArray(data) ? data : [data]);
+        const r = await pool.request().input("u", sql.NVarChar, req.params.user).query("SELECT tournament_data FROM tournaments WHERE user_id=@u");
+        res.json(r.recordset.map(row => JSON.parse(row.tournament_data)));
     } catch (err) {
-        console.error("Fetch Tournaments Error:", err);
         res.status(500).json({ error: err.message });
     }
 });
@@ -343,21 +337,12 @@ app.post("/tournaments", async (req, res) => {
             saveDB();
             return res.send("Ok");
         }
-
-        // Use UPSERT (MERGE) to prevent race conditions during rapid player/team additions
+        // Delete old, then insert new (two separate queries)
+        await pool.request().input("u", sql.NVarChar, user_id).query("DELETE FROM tournaments WHERE user_id=@u");
         await pool.request()
             .input("u", sql.NVarChar, user_id)
             .input("d", sql.NVarChar(sql.MAX), tournament_data)
-            .query(`
-                MERGE INTO tournaments AS target
-                USING (SELECT @u AS user_id) AS source
-                ON (target.user_id = source.user_id)
-                WHEN MATCHED THEN
-                    UPDATE SET tournament_data = @d
-                WHEN NOT MATCHED THEN
-                    INSERT (user_id, tournament_data)
-                    VALUES (@u, @d);
-            `);
+            .query("INSERT INTO tournaments (user_id, tournament_data) VALUES (@u, @d)");
         res.send("Ok");
     } catch (err) {
         console.error("Tournament save error:", err);

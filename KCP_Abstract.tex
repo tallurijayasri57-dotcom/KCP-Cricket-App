@@ -1,0 +1,42 @@
+\documentclass[12pt, a4paper]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{helvet} % For Calibri/Arial style font
+\renewcommand{\familydefault}{\sfdefault} % Set default font to sans-serif
+\usepackage{setspace}
+\setstretch{1.5} % 1.5 line spacing for better readability
+
+% Title Information
+\title{\textbf{Project Abstract} \\ \vspace{0.5cm} \Large KCP Cricket App - Digital Tournament Manager}
+\author{\textbf{Presented By:} \\ Your Team Name \\ Your College / Organization Name}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty} % Removes page number from title page
+
+\vspace{1cm}
+
+\begin{abstract}
+    \noindent The \textbf{KCP Cricket App} is a comprehensive web application developed to modernize and simplify the management of local cricket tournaments. Traditionally, local matches rely on manual paper-based scoring, which frequently leads to calculation errors, disputes, and the loss of historical data. To overcome these challenges, we built a fully digital platform that allows organizers to effortlessly manage teams, players, and live match scores. 
+    
+    \vspace{0.3cm}
+    
+    \noindent The frontend of the application is designed using HTML, CSS, and JavaScript, providing a highly attractive, intuitive, and responsive user interface. The backend is powered by a Node.js server that efficiently handles all API requests. For data security and persistence, all tournament records are securely stored in a Microsoft SQL Server (SSMS) database. A standout feature of our application is its fault-tolerant fallback mechanism: if the database connection drops, the app seamlessly shifts to local JSON storage, ensuring zero downtime and uninterrupted scoring. Overall, the KCP Cricket App elevates local cricket matches to a professional standard by eliminating paperwork and providing real-time digital scoring.
+\end{abstract}
+
+\vspace{1cm}
+
+\section*{Key Highlights}
+\begin{itemize}
+    \item \textbf{100\% Paperless:} Eliminates the need for manual scorebooks.
+    \item \textbf{Real-Time Live Dashboard:} Ball-by-ball updates accessible to everyone.
+    \item \textbf{Automated Leaderboard:} The points table and Net Run Rate update automatically based on match outcomes.
+    \item \textbf{High Security:} Employs parameterized queries to prevent SQL injection attacks.
+\end{itemize}
+
+\end{document}
