@@ -2470,14 +2470,15 @@
     /* Professional Dark Banner */
     .profile-banner {
       position: relative;
-      background: linear-gradient(135deg, #0f172a, #1e293b);
+      background: linear-gradient(135deg, #0f172a 0%, #1a2744 60%, #1e293b 100%);
       color: white;
-      padding: 30px 40px;
+      padding: 36px 48px;
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
       gap: 20px;
+      min-height: 140px;
     }
 
     .profile-header-left {
@@ -4206,7 +4207,7 @@
             style="font-family:'Inter',sans-serif; font-size:16px; font-weight:500; color:#111827; margin-bottom:8px; text-transform:none; letter-spacing:normal;">
             Vamsi Krishna</div>
           <div style="font-family:'Inter',sans-serif; font-size:15px; color:#0d9488; cursor:pointer; font-weight:500;"
-            onclick="document.getElementById('userPhotoUploadInput').click()">Profile</div>
+            onclick="document.getElementById('dotsDropdown').classList.remove('open'); openCurrentUserProfile()">Profile</div>
           <input type="file" id="userPhotoUploadInput" accept="image/*" style="display:none;"
             onchange="handleUserDropdownPhoto(event)">
         </div>
@@ -6197,38 +6198,37 @@
       <div class="profile-banner">
         <div class="profile-header-left">
           <button class="profile-close-btn"
-            style="background:rgba(255,255,255,0.1); color:white; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; margin-right:15px; font-weight:600; font-size:14px;"
+            style="background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.8); border:1px solid rgba(255,255,255,0.15); padding:8px 14px; border-radius:6px; cursor:pointer; margin-right:20px; font-weight:600; font-size:13px; letter-spacing:0.5px;"
             onclick="globalGoBack()">❮ Back</button>
-          <div class="profile-avatar" id="profileAvatar">🏏</div>
-          <div class="profile-info-block">
-            <div class="profile-top-label" id="profileRoleBadge">ACCUMULATOR</div>
-            <h2 class="profile-name" id="profileName">Player Name</h2>
-            <div class="profile-sub-info">
-              <span><span id="profileLocation">Jaggayyapeta</span> &bull; 95 Views</span>
+          <div class="profile-avatar" id="profileAvatar" style="width:110px;height:110px;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,0.4);border:2px solid rgba(255,255,255,0.15);">🏏</div>
+          <div class="profile-info-block" style="gap:6px;">
+            <div id="profileRoleBadge" style="display:none;"></div>
+            <h2 class="profile-name" id="profileName" style="font-size:28px;margin:2px 0;">Player Name</h2>
+            <div class="profile-sub-info" style="font-size:13px; color:#94a3b8; margin:0;">
+              <span id="profileLocation">Jaggayyapeta</span>
             </div>
-            <div class="profile-styles">
-              <span id="profileBatStyle" style="color:#38bdf8;">RHB</span> | <span id="profileBowlStyle">Right-arm Off
-                Break</span>
+            <div style="border-top:1px dashed rgba(255,255,255,0.15); margin:8px 0 6px;"></div>
+            <div class="profile-styles" style="font-size:13px; color:#e2e8f0; font-weight:600; display:flex; align-items:center; white-space:nowrap; flex-wrap:nowrap;">
+              <span id="profileBatStyle" style="color:#38bdf8;">RHB</span>
+              <span style="color:rgba(255,255,255,0.3); margin:0 8px;">|</span>
+              <span id="profileBowlStyle">Player</span>
             </div>
             <div class="profile-team" id="profileTeam" style="display:none;"></div>
           </div>
         </div>
 
-        <div class="profile-header-right">
-          <div class="profile-lock-stat">
-            <div class="profile-lock-icon">🔒</div>
-            <div class="profile-lock-val" id="profileTotalMatches">0</div>
-            <div class="profile-lock-lbl">Matches</div>
+        <div class="profile-header-right" style="display:flex; gap:12px;">
+          <div style="border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.05); padding:14px 20px; border-radius:10px; text-align:center; min-width:80px; cursor:pointer;" onclick="switchProfileTab('matches', document.querySelectorAll('.profile-tab-btn')[0])">
+            <div id="profileTotalMatches" style="font-size:26px; font-weight:800; color:#fff; line-height:1;">0</div>
+            <div style="color:#94a3b8; font-size:11px; text-transform:uppercase; letter-spacing:1.5px; margin-top:4px;">Matches</div>
           </div>
-          <div class="profile-lock-stat">
-            <div class="profile-lock-icon">🔒</div>
-            <div class="profile-lock-val" id="profileTotalRuns">0</div>
-            <div class="profile-lock-lbl">Runs</div>
+          <div style="border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.05); padding:14px 20px; border-radius:10px; text-align:center; min-width:80px; cursor:pointer;" onclick="switchProfileTab('stats', document.querySelectorAll('.profile-tab-btn')[1])">
+            <div id="profileTotalRuns" style="font-size:26px; font-weight:800; color:#fff; line-height:1;">0</div>
+            <div style="color:#94a3b8; font-size:11px; text-transform:uppercase; letter-spacing:1.5px; margin-top:4px;">Runs</div>
           </div>
-          <div class="profile-lock-stat">
-            <div class="profile-lock-icon">🔒</div>
-            <div class="profile-lock-val" id="profileTotalWickets">0</div>
-            <div class="profile-lock-lbl">Wickets</div>
+          <div style="border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.05); padding:14px 20px; border-radius:10px; text-align:center; min-width:80px; cursor:pointer;" onclick="switchProfileTab('stats', document.querySelectorAll('.profile-tab-btn')[1])">
+            <div id="profileTotalWickets" style="font-size:26px; font-weight:800; color:#fff; line-height:1;">0</div>
+            <div style="color:#94a3b8; font-size:11px; text-transform:uppercase; letter-spacing:1.5px; margin-top:4px;">Wickets</div>
           </div>
         </div>
       </div>
@@ -9190,6 +9190,28 @@
       return "🏏";
     }
 
+    function openCurrentUserProfile() {
+      let currentUser = localStorage.getItem('currentUser') || 'User';
+      let foundRole = '';
+      let foundTeam = '';
+      // Search all tournaments for current user's player entry
+      try {
+        let allTournaments = loadTournaments();
+        outerLoop: for (let t of allTournaments) {
+          for (let team of (t.teams || [])) {
+            for (let p of (team.players || [])) {
+              if (p.name && p.name.toLowerCase() === currentUser.toLowerCase()) {
+                foundRole = p.role || '';
+                foundTeam = team.name || '';
+                break outerLoop;
+              }
+            }
+          }
+        }
+      } catch(e) {}
+      openPlayerProfile(currentUser, foundTeam, foundRole || 'Player');
+    }
+
     function showEventPopup(type, data) {
       let modal = document.getElementById('eventPopupModal');
       let content = document.getElementById('eventPopupContent');
@@ -10348,6 +10370,21 @@
       document.getElementById("photoUploadStatus").innerText = "";
       document.getElementById("photoUploadInput").value = "";
 
+      // Always look up actual role from tournament player data (source of truth)
+      try {
+        let allTours = loadTournaments();
+        outerSearch: for (let t of allTours) {
+          for (let team of (t.teams || [])) {
+            for (let p of (team.players || [])) {
+              if (p.name && p.name.toLowerCase() === playerName.toLowerCase()) {
+                if (p.role) role = p.role;
+                if (!teamName && team.name) teamName = team.name;
+                break outerSearch;
+              }
+            }
+          }
+        }
+      } catch(e) {}
       let profilePhoto = localStorage.getItem("userPhoto_" + playerName);
       if (profilePhoto) {
         document.getElementById("profileAvatar").innerHTML = '<img src="' + profilePhoto + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">';
@@ -10357,6 +10394,21 @@
 
       document.getElementById("profileName").innerText = playerName;
       document.getElementById("profileRoleBadge").innerText = role || "PLAYER";
+      // Show role label: Batsman, Bowler, All Rounder, Wicket Keeper etc.
+      let roleEl = document.getElementById("profileBowlStyle");
+      if (roleEl) {
+        let roleMap = {
+          'bat': 'Batsman', 'batsman': 'Batsman',
+          'bowl': 'Bowler', 'bowler': 'Bowler',
+          'ar': 'All Rounder', 'all rounder': 'All Rounder', 'allrounder': 'All Rounder',
+          'all-rounder': 'All-Rounder', 'all rounder': 'All Rounder',
+          'wk': 'Wicket Keeper', 'wicket keeper': 'Wicket Keeper', 'wicketkeeper': 'Wicket Keeper',
+          'wicket-keeper': 'Wicket-Keeper',
+          'player': 'Player'
+        };
+        let roleKey = (role || '').toLowerCase().trim();
+        roleEl.innerText = roleMap[roleKey] || (role ? role.charAt(0).toUpperCase() + role.slice(1) : 'Player');
+      }
       let pTeamEl = document.getElementById("profileTeam");
       if (pTeamEl) pTeamEl.innerText = teamName ? ("🏏 " + teamName) : "";
 
