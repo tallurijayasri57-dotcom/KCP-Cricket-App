@@ -8122,6 +8122,19 @@
               <div style="flex:1;">
                 <div style="font-size:20px; font-weight:800; color:#1e293b; text-transform:uppercase;">${m.batTeam || 'Team A'}</div>
                 <div style="font-size:18px; font-weight:500; color:#64748b; text-transform:uppercase; margin-top:4px;">${m.bowlTeam || 'Team B'}</div>
+                ${(m.innings == 2 && m.target > 0 && m.status !== 'finished' && m.status !== 'Finished' && m.runs < m.target && m.wickets < 10) ? 
+                  (() => {
+                    let rNeeded = m.target - (m.runs || 0);
+                    let oParts = (m.overs || '0.0').toString().split('.');
+                    let bBowled = (parseInt(oParts[0]) || 0) * 6 + (parseInt(oParts[1]) || 0);
+                    let maxO = parseInt(m.matchType);
+                    if (isNaN(maxO)) maxO = 20;
+                    let bRem = (maxO * 6) - bBowled;
+                    if(bRem < 0) bRem = 0;
+                    let dlsText = m.dlsPar ? ' (DLS par score: ' + m.dlsPar + ')' : '';
+                    return '<div style="border: 2px solid #ef4444; padding: 4px 8px; display: inline-block; font-size: 14px; color: #1e293b; font-weight: 600; margin-top: 8px;">Need ' + rNeeded + ' runs in ' + bRem + ' balls' + dlsText + '</div>';
+                  })() 
+                : ''}
                 <div style="font-size:14px; color:#ef4444; font-weight:700; margin-top:8px;">(${m.matchStatus || 'Live'})</div>
               </div>
               <div style="text-align:right;">
