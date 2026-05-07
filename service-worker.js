@@ -1,10 +1,10 @@
-const CACHE_NAME = 'kcp-cricket-v16';
+const CACHE_NAME = 'kcp-cricket-v17';
 const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
   '/kcp_logo_new.jpg',
-  '/founder.png?v=2'
+  '/founder_splash.png'
 ];
 
 self.addEventListener('install', event => {
