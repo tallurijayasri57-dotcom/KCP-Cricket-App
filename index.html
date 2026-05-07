@@ -10370,19 +10370,54 @@
       document.getElementById("photoUploadStatus").innerText = "";
       document.getElementById("photoUploadInput").value = "";
 
-      // Always look up actual role from tournament player data (source of truth)
+      // Robust role lookup: source of truth is tournament data
       try {
         let allTours = loadTournaments();
-        outerSearch: for (let t of allTours) {
+        let searchName = (playerName || "").trim().toLowerCase();
+        let searchTeam = (teamName || "").trim().toLowerCase();
+        
+        let foundRole = "";
+        let foundTeam = "";
+        
+        // Priority 1: Find match in the EXACT team passed
+        for (let t of allTours) {
           for (let team of (t.teams || [])) {
-            for (let p of (team.players || [])) {
-              if (p.name && p.name.toLowerCase() === playerName.toLowerCase()) {
-                if (p.role) role = p.role;
-                if (!teamName && team.name) teamName = team.name;
-                break outerSearch;
+            let tName = (team.name || "").trim().toLowerCase();
+            if (searchTeam && tName === searchTeam) {
+              for (let p of (team.players || [])) {
+                if ((p.name || "").trim().toLowerCase() === searchName) {
+                  if (p.role && p.role.toLowerCase() !== "player") {
+                    foundRole = p.role;
+                    break;
+                  }
+                }
+              }
+            }
+            if (foundRole) break;
+          }
+          if (foundRole) break;
+        }
+
+        // Priority 2: If not found in exact team, find in ANY team
+        if (!foundRole) {
+          outer: for (let t of allTours) {
+            for (let team of (t.teams || [])) {
+              for (let p of (team.players || [])) {
+                if ((p.name || "").trim().toLowerCase() === searchName) {
+                  if (p.role && p.role.toLowerCase() !== "player") {
+                    foundRole = p.role;
+                    foundTeam = team.name;
+                    break outer;
+                  }
+                }
               }
             }
           }
+        }
+
+        if (foundRole) {
+          role = foundRole;
+          if (!teamName && foundTeam) teamName = foundTeam;
         }
       } catch(e) {}
       let profilePhoto = localStorage.getItem("userPhoto_" + playerName);
