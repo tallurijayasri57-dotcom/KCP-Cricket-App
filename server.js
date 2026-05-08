@@ -104,6 +104,23 @@ app.post("/register", async (req, res) => {
     }
 });
 
+app.post("/update-user-photo", async (req, res) => {
+    try {
+        const { username, photo_url } = req.body;
+        if (!username || !photo_url) return res.status(400).json({ message: "Username and photo required" });
+        if (pool) {
+            await pool.request()
+                .input("u", sql.NVarChar, username)
+                .input("p", sql.NVarChar(sql.MAX), photo_url)
+                .query("UPDATE users SET photo_url = @p WHERE username = @u");
+        }
+        res.json({ message: "Photo updated successfully" });
+    } catch (err) {
+        console.error("Update photo error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.post("/login", async (req, res) => {
     try {
         const { username, password } = req.body;

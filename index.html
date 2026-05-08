@@ -9890,6 +9890,13 @@
         if (window.fbSetDoc) {
           window.fbSetDoc(window.fbDoc(window.fbDb, "users", u), { photo: base64 }).catch(err => console.error(err));
         }
+
+        // Save to SQL Server via backend
+        fetch(API + "/update-user-photo", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: u, photo_url: base64 })
+        }).catch(err => console.error("SQL photo update error:", err));
       };
       reader.readAsDataURL(file);
     }
