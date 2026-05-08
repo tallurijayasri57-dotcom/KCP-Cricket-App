@@ -151,11 +151,16 @@ app.post("/teams", async (req, res) => {
 app.delete("/teams/:id", async (req, res) => {
     try {
         if (useJSON || !pool) {
-            MEMORY_DB.teams = MEMORY_DB.teams.filter((t, i) => (t.id || i + 1) != req.params.id);
+            MEMORY_DB.teams = MEMORY_DB.teams.filter((t, i) => (t.id || i + 1) != req.params.id && t.team_name !== req.params.id);
             saveDB();
             return res.send({ message: "Team Deleted" });
         }
-        await pool.request().input("id", sql.Int, req.params.id).query("DELETE FROM teams WHERE id=@id");
+        let reqId = req.params.id;
+        if (!isNaN(reqId)) {
+            await pool.request().input("id", sql.Int, reqId).query("DELETE FROM teams WHERE id=@id");
+        } else {
+            await pool.request().input("n", sql.NVarChar, reqId).query("DELETE FROM teams WHERE team_name=@n");
+        }
         res.send({ message: "Team Deleted" });
     } catch (err) {
         res.status(500).send(err.message);
@@ -200,11 +205,16 @@ app.post("/players", async (req, res) => {
 app.delete("/players/:id", async (req, res) => {
     try {
         if (useJSON || !pool) {
-            MEMORY_DB.players = MEMORY_DB.players.filter((p, i) => (p.id || i + 1) != req.params.id);
+            MEMORY_DB.players = MEMORY_DB.players.filter((p, i) => (p.id || i + 1) != req.params.id && p.team_name !== req.params.id);
             saveDB();
             return res.send({ message: "Player Deleted" });
         }
-        await pool.request().input("id", sql.Int, req.params.id).query("DELETE FROM players WHERE id=@id");
+        let reqId = req.params.id;
+        if (!isNaN(reqId)) {
+            await pool.request().input("id", sql.Int, reqId).query("DELETE FROM players WHERE id=@id");
+        } else {
+            await pool.request().input("t", sql.NVarChar, reqId).query("DELETE FROM players WHERE team_name=@t");
+        }
         res.send({ message: "Player Deleted" });
     } catch (err) {
         res.status(500).send(err.message);
@@ -327,7 +337,9 @@ app.get("/tournaments/:user", async (req, res) => {
 app.post("/tournaments", async (req, res) => {
     try {
         const { user_id, tournament_data } = req.body;
-        if (!user_id || !tournament_data) return res.status(400).send("Missing fields");
+        if (!user_id) return res.status(400).send("Missing user_id");
+        // tournament_data can be "[]" (empty list)
+        if (tournament_data === undefined) return res.status(400).send("Missing tournament_data");
 
         if (useJSON || !pool) {
             MEMORY_DB.tournaments = MEMORY_DB.tournaments || [];
@@ -337,15 +349,47 @@ app.post("/tournaments", async (req, res) => {
             saveDB();
             return res.send("Ok");
         }
-        // Delete old, then insert new (two separate queries)
-        await pool.request().input("u", sql.NVarChar, user_id).query("DELETE FROM tournaments WHERE user_id=@u");
-        await pool.request()
-            .input("u", sql.NVarChar, user_id)
-            .input("d", sql.NVarChar(sql.MAX), tournament_data)
-            .query("INSERT INTO tournaments (user_id, tournament_data) VALUES (@u, @d)");
-        res.send("Ok");
+        
+        const transaction = new sql.Transaction(pool);
+        await transaction.begin();
+        try {
+            await transaction.request().input("u", sql.NVarChar, user_id).query("DELETE FROM tournaments WHERE user_id=@u");
+            await transaction.request()
+                .input("u", sql.NVarChar, user_id)
+                .input("d", sql.NVarChar(sql.MAX), tournament_data)
+                .query("INSERT INTO tournaments (user_id, tournament_data) VALUES (@u, @d)");
+            await transaction.commit();
+            res.send("Ok");
+        } catch (err) {
+            await transaction.rollback();
+            throw err;
+        }
     } catch (err) {
         console.error("Tournament save error:", err);
+        fs.appendFileSync("server_errors.txt", `${new Date().toISOString()} - Tournament POST error: ${err.message}\n`);
+        res.status(500).send(err.message);
+    }
+});
+
+app.delete("/tournaments/:user/:id", async (req, res) => {
+    try {
+        const { user, id } = req.params;
+        if (useJSON || !pool) {
+            if (MEMORY_DB.tournaments) {
+                const idx = MEMORY_DB.tournaments.findIndex(t => t.user_id === user);
+                if (idx > -1) {
+                   let data = JSON.parse(MEMORY_DB.tournaments[idx].tournament_data);
+                   data = data.filter(t => (t.id || t.name) != id);
+                   MEMORY_DB.tournaments[idx].tournament_data = JSON.stringify(data);
+                   saveDB();
+                }
+            }
+            return res.send("Deleted");
+        }
+        // REDUNDANT DELETE for safety: remove any row for this user just in case
+        // But usually POST handles it with the full array
+        res.send("Sync handled by POST");
+    } catch (err) {
         res.status(500).send(err.message);
     }
 });

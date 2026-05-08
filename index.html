@@ -5078,8 +5078,36 @@
       <div class="auth-field"><span class="field-icon">🔒</span><input id="password" type="password"
           placeholder="Enter password"></div>
       <button class="auth-btn" onclick="authenticate()" id="authBtn">LOGIN</button>
+      <div style="text-align:center; margin-top:4px;">
+        <span onclick="openForgotPassword()" style="font-family:'Inter',sans-serif; font-size:13px; color:#60a5fa; cursor:pointer; text-decoration:underline;">Forgot password?</span>
+      </div>
       <div class="auth-divider"><span>or</span></div>
       <div class="auth-switch"><span id="switchText" onclick="toggleAuth()">Don't have an account? Register</span></div>
+    </div>
+  </div>
+
+  <!-- FORGOT PASSWORD MODAL -->
+  <div id="forgotPasswordModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:99999; align-items:center; justify-content:center;">
+    <div style="background:#1e293b; border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:32px; width:90%; max-width:380px; font-family:'Inter',sans-serif; box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+      <h3 style="color:#ffffff; margin:0 0 6px 0; font-size:20px;">Reset Password</h3>
+      <p style="color:rgba(255,255,255,0.5); font-size:13px; margin:0 0 20px 0;">Enter your username and set a new password.</p>
+      <div style="margin-bottom:14px;">
+        <label style="color:rgba(255,255,255,0.6); font-size:12px; text-transform:uppercase; letter-spacing:0.5px;">Username</label>
+        <input id="fpUsername" placeholder="Enter your username" style="width:100%; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15); border-radius:8px; padding:10px 12px; color:#fff; font-size:14px; outline:none; margin-top:6px; box-sizing:border-box;">
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="color:rgba(255,255,255,0.6); font-size:12px; text-transform:uppercase; letter-spacing:0.5px;">New Password</label>
+        <input id="fpNewPassword" type="password" placeholder="Enter new password" style="width:100%; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15); border-radius:8px; padding:10px 12px; color:#fff; font-size:14px; outline:none; margin-top:6px; box-sizing:border-box;">
+      </div>
+      <div style="margin-bottom:20px;">
+        <label style="color:rgba(255,255,255,0.6); font-size:12px; text-transform:uppercase; letter-spacing:0.5px;">Confirm New Password</label>
+        <input id="fpConfirmPassword" type="password" placeholder="Confirm new password" style="width:100%; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15); border-radius:8px; padding:10px 12px; color:#fff; font-size:14px; outline:none; margin-top:6px; box-sizing:border-box;">
+      </div>
+      <div id="fpResult" style="display:none; border-radius:8px; padding:12px; margin-bottom:16px; font-size:14px;"></div>
+      <div style="display:flex; gap:10px;">
+        <button onclick="closeForgotPassword()" style="flex:1; background:rgba(255,255,255,0.07); color:#fff; border:1px solid rgba(255,255,255,0.15); padding:11px; border-radius:8px; cursor:pointer; font-size:14px;">Cancel</button>
+        <button onclick="submitForgotPassword()" style="flex:1; background:#3b82f6; color:#fff; border:none; padding:11px; border-radius:8px; cursor:pointer; font-size:14px; font-weight:600;">Change Password</button>
+      </div>
     </div>
   </div>
 
@@ -5172,7 +5200,53 @@
         <input type="text" id="deleteReasonDesc" placeholder="Enter Reason description"
           style="width:100%; border:none; border-bottom:1px solid #d1d5db; padding:8px 0; font-family:'Inter',sans-serif; font-size:14px; color:#4b5563; outline:none; margin-bottom:20px;">
         <div style="display:flex; justify-content:flex-end;">
-          <button onclick="confirmDeleteTournament()"
+          <button id="confirmDeleteTourBtn" onclick="confirmDeleteTournament()"
+            style="background:#ff5722; color:#ffffff; border:none; padding:10px 24px; border-radius:4px; font-family:'Inter',sans-serif; font-size:14px; font-weight:600; cursor:pointer; text-transform:uppercase;">DELETE</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEAM DELETE REASON MODAL [NEW] -->
+  <div id="teamDeleteReasonModal"
+    style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+    <div
+      style="background:#ffffff; width:100%; max-width:400px; border-radius:4px; display:flex; flex-direction:column; box-shadow:0 4px 6px rgba(0,0,0,0.1);">
+      <div
+        style="display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid #e5e7eb;">
+        <h3 style="font-family:'Inter',sans-serif; font-size:18px; font-weight:600; color:#4b5563; margin:0;">Team
+          Delete Reason</h3>
+        <span style="cursor:pointer; font-size:20px; color:#4b5563;" onclick="closeTeamDeleteReasonModal()">×</span>
+      </div>
+      <div style="padding:20px;">
+        <h4 style="font-family:'Inter',sans-serif; font-size:16px; font-weight:500; color:#1f2937; margin:0 0 16px 0;">
+          Select Reason</h4>
+        <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px;">
+          <label
+            style="display:flex; align-items:center; gap:12px; cursor:pointer; font-family:'Inter',sans-serif; font-size:14px; color:#1f2937;">
+            <input type="radio" name="teamDeleteReason" value="Duplicate Team"
+              style="width:18px; height:18px; accent-color:#f97316;"> Duplicate Team
+          </label>
+          <label
+            style="display:flex; align-items:center; gap:12px; cursor:pointer; font-family:'Inter',sans-serif; font-size:14px; color:#1f2937;">
+            <input type="radio" name="teamDeleteReason" value="Wrong Tournament"
+              style="width:18px; height:18px; accent-color:#f97316;"> Wrong Tournament
+          </label>
+          <label
+            style="display:flex; align-items:center; gap:12px; cursor:pointer; font-family:'Inter',sans-serif; font-size:14px; color:#1f2937;">
+            <input type="radio" name="teamDeleteReason" value="Players not available"
+              style="width:18px; height:18px; accent-color:#f97316;"> Players not available
+          </label>
+          <label
+            style="display:flex; align-items:center; gap:12px; cursor:pointer; font-family:'Inter',sans-serif; font-size:14px; color:#1f2937;">
+            <input type="radio" name="teamDeleteReason" value="Others"
+              style="width:18px; height:18px; accent-color:#f97316;"> Others
+          </label>
+        </div>
+        <input type="text" id="teamDeleteReasonDesc" placeholder="Enter Reason description"
+          style="width:100%; border:none; border-bottom:1px solid #d1d5db; padding:8px 0; font-family:'Inter',sans-serif; font-size:14px; color:#4b5563; outline:none; margin-bottom:20px;">
+        <div style="display:flex; justify-content:flex-end;">
+          <button id="confirmDeleteTeamBtn" onclick="confirmDeleteTeam()"
             style="background:#ff5722; color:#ffffff; border:none; padding:10px 24px; border-radius:4px; font-family:'Inter',sans-serif; font-size:14px; font-weight:600; cursor:pointer; text-transform:uppercase;">DELETE</button>
         </div>
       </div>
@@ -5346,12 +5420,13 @@
   <style>
     .at-title-new {
       font-family: 'Times New Roman', serif;
-      font-size: 24px;
+      font-size: 28px;
       font-weight: bold;
       text-align: center;
       margin: 30px 0;
-      color: #333;
-      letter-spacing: 1px;
+      color: #ffffff;
+      letter-spacing: 2px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.5);
     }
 
     .at-field-new {
@@ -5361,23 +5436,27 @@
 
     .at-label-new {
       font-size: 11px;
-      color: #9ca3af;
+      color: rgba(255,255,255,0.75);
       margin-bottom: 4px;
       font-family: 'Inter', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .at-input-new {
       width: 100%;
       border: none;
-      border-bottom: 1px solid #d1d5db;
+      border-bottom: 1px solid rgba(255,255,255,0.4);
       padding: 8px 0;
       font-size: 15px;
-      color: #1f2937;
+      color: #ffffff;
       outline: none;
       background: transparent;
       transition: border-color 0.2s;
       font-family: 'Inter', sans-serif;
     }
+
+    .at-input-new::placeholder { color: rgba(255,255,255,0.35); }
 
     .at-input-new:focus {
       border-bottom-color: #10b981;
@@ -5473,7 +5552,7 @@
     .select-container {
       display: flex;
       align-items: center;
-      border-bottom: 1px solid #d1d5db;
+      border-bottom: 1px solid rgba(255,255,255,0.4);
       padding-bottom: 4px;
       position: relative;
       cursor: text;
@@ -5522,10 +5601,11 @@
       flex: 1;
       min-width: 50px;
       font-size: 15px;
-      color: #1f2937;
+      color: #ffffff;
       font-family: 'Inter', sans-serif;
       padding: 4px 0;
     }
+    .select-input::placeholder { color: rgba(255,255,255,0.35); }
 
     .select-actions {
       display: flex;
@@ -5560,10 +5640,10 @@
     }
   </style>
 
-  <div id="addTournament" class="page" style="padding:0; background:#ffffff; min-height:100vh; padding-bottom:50px;">
-    <div class="page-top-back" style="background:#ffffff; border-bottom:1px solid #e5e7eb; padding:16px 20px;">
-      <button class="page-top-back-btn" onclick="globalGoBack()" style="color:#4b5563;">
-        <span class="page-top-back-arrow" style="color:#4b5563;">←</span> <span style="font-size:18px;">Back</span>
+  <div id="addTournament" class="page" style="padding:0; background:linear-gradient(135deg,rgba(2,14,28,0.92) 0%,rgba(10,40,25,0.88) 100%), url('https://images.unsplash.com/photo-1540747913346-19212a4b423a?w=1400&q=80') center/cover no-repeat; min-height:100vh; padding-bottom:50px;">
+    <div class="page-top-back" style="background:rgba(0,0,0,0.3); border-bottom:1px solid rgba(255,255,255,0.1); padding:16px 20px; backdrop-filter:blur(6px);">
+      <button class="page-top-back-btn" onclick="globalGoBack()" style="color:#ffffff;">
+        <span class="page-top-back-arrow" style="color:#ffffff;">←</span> <span style="font-size:18px;">Back</span>
       </button>
     </div>
     <div style="max-width:900px; margin:0 auto; padding:20px;">
@@ -5625,7 +5705,7 @@
           <div style="display:flex; gap:10px;">
             <div class="at-field-new" style="width:80px;">
               <div class="at-label-new">Country Code*</div>
-              <input class="at-input-new" value="+91" disabled style="background:transparent; color:#374151;">
+              <input class="at-input-new" value="+91" disabled style="background:transparent; color:#ffffff;">
             </div>
             <div class="at-field-new" style="flex:1;">
               <div class="at-label-new">Organiser Contact*</div>
@@ -5634,17 +5714,17 @@
           </div>
           <div style="display:flex; align-items:center; gap:8px; margin-bottom:20px;">
             <input type="checkbox" id="tContactCheck" style="width:16px;height:16px;" checked>
-            <label for="tContactCheck" style="font-size:13px; color:#374151; font-family:'Inter',sans-serif;">Allow
+            <label for="tContactCheck" style="font-size:13px; color:rgba(255,255,255,0.8); font-family:'Inter',sans-serif;">Allow
               players to contact me for Team Registration</label>
           </div>
           <div style="display:flex; gap:20px;">
             <div class="at-field-new" style="flex:1;">
               <div class="at-label-new">Start Date*</div>
-              <input class="at-input-new" id="tStartDateNew" type="date">
+              <input class="at-input-new" id="tStartDateNew" type="date" style="color-scheme:dark;">
             </div>
             <div class="at-field-new" style="flex:1;">
               <div class="at-label-new">End Date*</div>
-              <input class="at-input-new" id="tEndDateNew" type="date">
+              <input class="at-input-new" id="tEndDateNew" type="date" style="color-scheme:dark;">
             </div>
           </div>
         </div>
@@ -5691,17 +5771,17 @@
               <div style="text-align:center;">
                 <div class="ball-opt-new" onclick="selectBallNew(this, 'Tennis')"><span
                     style="font-size:24px;">🎾</span></div>
-                <div style="font-size:12px; margin-top:4px; color:#4b5563; font-family:'Inter',sans-serif;">Tennis</div>
+                <div style="font-size:12px; margin-top:4px; color:rgba(255,255,255,0.7); font-family:'Inter',sans-serif;">Tennis</div>
               </div>
               <div style="text-align:center;">
                 <div class="ball-opt-new" onclick="selectBallNew(this, 'Other')"><span style="font-size:24px;">🔴</span>
                 </div>
-                <div style="font-size:12px; margin-top:4px; color:#4b5563; font-family:'Inter',sans-serif;">Other</div>
+                <div style="font-size:12px; margin-top:4px; color:rgba(255,255,255,0.7); font-family:'Inter',sans-serif;">Other</div>
               </div>
               <div style="text-align:center;">
                 <div class="ball-opt-new" onclick="selectBallNew(this, 'Leather')"><span
                     style="font-size:24px;">🏏</span></div>
-                <div style="font-size:12px; margin-top:4px; color:#4b5563; font-family:'Inter',sans-serif;">Leather
+                <div style="font-size:12px; margin-top:4px; color:rgba(255,255,255,0.7); font-family:'Inter',sans-serif;">Leather
                 </div>
               </div>
             </div>
@@ -5710,7 +5790,7 @@
       </div>
 
       <div style="display:flex; justify-content:center; gap:16px; margin-top:40px;">
-        <button class="btn-outline" onclick="globalGoBack()">CANCEL</button>
+        <button class="btn-outline" onclick="globalGoBack()" style="background:transparent; color:#10b981; border-color:#10b981;">CANCEL</button>
         <button class="btn-solid" onclick="saveTournamentNew()">NEXT</button>
       </div>
     </div>
@@ -5775,7 +5855,8 @@
     checkDbSync();
 
     const IN_CITIES = [
-      "Mumbai", "Delhi", "Bengaluru", "Hyderabad", "Ahmedabad", "Chennai", "Kolkata", "Surat", "Pune", "Jaipur", "Lucknow", "Kanpur", "Nagpur", "Indore", "Thane", "Bhopal", "Visakhapatnam", "Pimpri-Chinchwad", "Patna", "Vadodara", "Ghaziabad", "Ludhiana", "Agra", "Nashik", "Faridabad", "Meerut", "Rajkot", "Kalyan-Dombivli", "Vasai-Virar", "Varanasi", "Srinagar", "Aurangabad", "Dhanbad", "Amritsar", "Navi Mumbai", "Allahabad", "Howrah", "Ranchi", "Gwalior", "Jabalpur", "Coimbatore", "Vijayawada", "Jodhpur", "Madurai", "Raipur", "Kota", "Guwahati", "Chandigarh", "Solapur", "Hubli-Dharwad", "Tiruchirappalli", "Bareilly", "Moradabad", "Mysore", "Tiruppur", "Gurgaon", "Aligarh", "Jalandhar", "Bhubaneswar", "Salem", "Mira-Bhayandar", "Warangal", "Guntur", "Bhiwandi", "Saharanpur", "Gorakhpur", "Bikaner", "Amravati", "Noida", "Jamshedpur", "Bhilai", "Cuttack", "Firozabad", "Kochi", "Nellore", "Bhavnagar", "Dehradun", "Durgapur", "Asansol", "Rourkela", "Nanded", "Kolhapur", "Ajmer", "Akola", "Gulbarga", "Jamnagar", "Ujjain", "Loni", "Siliguri", "Jhansi", "Ulhasnagar", "Jammu", "Sangli-Miraj & Kupwad", "Mangalore", "Erode", "Belgaum", "Ambattur", "Tirunelveli", "Malegaon", "Gaya", "Jalgaon", "Udaipur", "Maheshtala", "Davanagere", "Kozhikode", "Akbarpur", "Rajpur Sonarpur", "Rajahmundry", "Bokaro", "South Dumdum", "Bellary", "Patiala", "Gopalpur", "Agartala", "Bhagalpur", "Muzaffarnagar", "Bhatpara", "Panihati", "Latur", "Dhule", "Tirupati", "Rohtak", "Korba", "Bhilwara", "Berhampur", "Muzaffarpur", "Ahmednagar", "Mathura", "Kollam", "Avadi", "Kadapa", "Kamarhati", "Sambalpur", "Bilaspur", "Shahjahanpur", "Satara", "Bijapur", "Rampur", "Shivamogga", "Chandrapur", "Junagadh", "Thrissur", "Alwar", "Bardhaman", "Kulti", "Kakinada", "Nizamabad", "Parbhani", "Tumkur", "Khammam", "Ozhukarai", "Bihar Sharif", "Panipat", "Darbhanga", "Bally", "Aizawl", "Dewas", "Ichalkaranji", "Karnal", "Bathinda", "Jalna", "Eluru", "Barasat", "Kirari Suleman Nagar", "Purnia", "Satna", "Mau", "Sonipat", "Farrukhabad", "Sagar", "Rourkela", "Durg", "Imphal", "Ratlam", "Hapur", "Arrah", "Anantapur", "Karimnagar", "Etawah", "Ambernath", "North Dumdum", "Bharatpur", "Begusarai", "New Delhi", "Gandhidham", "Baranagar", "Tiruvottiyur", "Puducherry", "Sikar", "Thoothukudi", "Rewa", "Mirzapur", "Raichur", "Pali", "Ramagundam", "Silchar", "Haridwar", "Vijayanagaram", "Tenali", "Nagercoil", "Sri Ganganagar", "Karawal Nagar", "Mango", "Thanjavur", "Bulandshahr", "Uluberia", "Katni", "Khandwa", "Nadiad", "Singrauli", "Bhiwani", "Yamunanagar", "Bidhannagar", "Panchkula", "Burhanpur", "Raurkela Industrial Township", "Kharagpur", "Dindigul", "Gandhinagar", "Hospet", "Nangloi Jat", "English Bazar", "Ongole", "Deoghar", "Chapra", "Haldia", "Khandwa", "Nandyal", "Morena", "Amroha", "Anand", "Bhind", "Bhalswa Jahangir Pur", "Madhyamgram", "Bhiwani", "Berhampore", "Ambala", "Morbi", "Fatehpur", "Raebareli", "Khora, Ghaziabad", "Chittoor", "Bhusawal", "Orai", "Bahraich", "Phusro", "Vellore", "Mehsana", "Raiganj", "Sirsa", "Danapur", "Serampore", "Sultan Pur Majra", "Guna", "Jaunpur", "Panvel", "Shivpuri", "Surendranagar Dudhrej", "Unnao", "Chinsurah", "Alappuzha", "Kottayam", "Machilipatnam", "Shimla", "Adoni", "Udupi", "Katihar", "Proddatur", "Mahbubnagar", "Saharsa", "Dibrugarh", "Jorhat", "Hazaribagh", "Hindupur", "Nagaon", "Sasaram", "Hajipur", "Bhimavaram", "Kumbakonam", "Bongaigaon", "Dehri", "Madanapalle", "Bhiwadi", "Navsari", "Jaggayyapeta", "Kanneveedu"
+      "Mumbai", "Delhi", "Bengaluru", "Hyderabad", "Ahmedabad", "Chennai", "Kolkata", "Surat", "Pune", "Jaipur", "Lucknow", "Kanpur", "Nagpur", "Indore", "Thane", "Bhopal", "Visakhapatnam", "Pimpri-Chinchwad", "Patna", "Vadodara", "Ghaziabad", "Ludhiana", "Agra", "Nashik", "Faridabad", "Meerut", "Rajkot", "Kalyan-Dombivli", "Vasai-Virar", "Varanasi", "Srinagar", "Aurangabad", "Dhanbad", "Amritsar", "Navi Mumbai", "Allahabad", "Howrah", "Ranchi", "Gwalior", "Jabalpur", "Coimbatore", "Vijayawada", "Jodhpur", "Madurai", "Raipur", "Kota", "Guwahati", "Chandigarh", "Solapur", "Hubli-Dharwad", "Tiruchirappalli", "Bareilly", "Moradabad", "Mysore", "Tiruppur", "Gurgaon", "Aligarh", "Jalandhar", "Bhubaneswar", "Salem", "Mira-Bhayandar", "Warangal", "Guntur", "Bhiwandi", "Saharanpur", "Gorakhpur", "Bikaner", "Amravati", "Noida", "Jamshedpur", "Bhilai", "Cuttack", "Firozabad", "Kochi", "Nellore", "Bhavnagar", "Dehradun", "Durgapur", "Asansol", "Rourkela", "Nanded", "Kolhapur", "Ajmer", "Akola", "Gulbarga", "Jamnagar", "Ujjain", "Loni", "Siliguri", "Jhansi", "Ulhasnagar", "Jammu", "Sangli-Miraj & Kupwad", "Mangalore", "Erode", "Belgaum", "Ambattur", "Tirunelveli", "Malegaon", "Gaya", "Jalgaon", "Udaipur", "Maheshtala", "Davanagere", "Kozhikode", "Akbarpur", "Rajpur Sonarpur", "Rajahmundry", "Bokaro", "South Dumdum", "Bellary", "Patiala", "Gopalpur", "Agartala", "Bhagalpur", "Muzaffarnagar", "Bhatpara", "Panihati", "Latur", "Dhule", "Tirupati", "Rohtak", "Korba", "Bhilwara", "Berhampur", "Muzaffarpur", "Ahmednagar", "Mathura", "Kollam", "Avadi", "Kadapa", "Kamarhati", "Sambalpur", "Bilaspur", "Shahjahanpur", "Satara", "Bijapur", "Rampur", "Shivamogga", "Chandrapur", "Junagadh", "Thrissur", "Alwar", "Bardhaman", "Kulti", "Kakinada", "Nizamabad", "Parbhani", "Tumkur", "Khammam", "Ozhukarai", "Bihar Sharif", "Panipat", "Darbhanga", "Bally", "Aizawl", "Dewas", "Ichalkaranji", "Karnal", "Bathinda", "Jalna", "Eluru", "Barasat", "Kirari Suleman Nagar", "Purnia", "Satna", "Mau", "Sonipat", "Farrukhabad", "Sagar", "Rourkela", "Durg", "Imphal", "Ratlam", "Hapur", "Arrah", "Anantapur", "Karimnagar", "Etawah", "Ambernath", "North Dumdum", "Bharatpur", "Begusarai", "New Delhi", "Gandhidham", "Baranagar", "Tiruvottiyur", "Puducherry", "Sikar", "Thoothukudi", "Rewa", "Mirzapur", "Raichur", "Pali", "Ramagundam", "Silchar", "Haridwar", "Vijayanagaram", "Tenali", "Nagercoil", "Sri Ganganagar", "Karawal Nagar", "Mango", "Thanjavur", "Bulandshahr", "Uluberia", "Katni", "Khandwa", "Nadiad", "Singrauli", "Bhiwani", "Yamunanagar", "Bidhannagar", "Panchkula", "Burhanpur", "Raurkela Industrial Township", "Kharagpur", "Dindigul", "Gandhinagar", "Hospet", "Nangloi Jat", "English Bazar", "Ongole", "Deoghar", "Chapra", "Haldia", "Khandwa", "Nandyal", "Morena", "Amroha", "Anand", "Bhind", "Bhalswa Jahangir Pur", "Madhyamgram", "Bhiwani", "Berhampore", "Ambala", "Morbi", "Fatehpur", "Raebareli", "Khora, Ghaziabad", "Chittoor", "Bhusawal", "Orai", "Bahraich", "Phusro", "Vellore", "Mehsana", "Raiganj", "Sirsa", "Danapur", "Serampore", "Sultan Pur Majra", "Guna", "Jaunpur", "Panvel", "Shivpuri", "Surendranagar Dudhrej", "Unnao", "Chinsurah", "Alappuzha", "Kottayam", "Machilipatnam", "Shimla", "Adoni", "Udupi", "Katihar", "Proddatur", "Mahbubnagar", "Saharsa", "Dibrugarh", "Bhimavaram", "Kumbakonam", "Bongaigaon", "Dehri", "Madanapalle", "Bhiwadi", "Navsari", "Jaggayyapeta", "Kanneveedu",
+      "Nandigama", "Tiruvuru", "Mylavaram", "Vissannapeta", "Vuyyuru", "Avanigadda", "Gudivada", "Bantumilli", "Pamarru", "Kanchikacherla", "Gampalagudem", "Nuzvid", "Unguturu", "Gannavaram", "Penamaluru", "Ibrahimpatnam", "Vatsavai", "Mandavalli", "Pedana", "Koduru", "Challapalli", "Movva", "Hanuman Junction", "Guduru", "Madhira", "Khammam", "Suryapet", "Nalgonda", "Miryalaguda", "Nakrekal", "Huzurnagar", "Kodad"
     ];
 
     const IN_GROUNDS = [
@@ -5843,8 +5924,46 @@
       if (!e.target.closest('.at-field-new')) {
         document.getElementById('cityList').style.display = 'none';
         document.getElementById('groundList').style.display = 'none';
+        let ls = document.getElementById('locationSuggestions');
+        if (ls) ls.style.display = 'none';
       }
     });
+
+    let _locationTimer = null;
+    function onLocationInput() {
+      clearTimeout(_locationTimer);
+      let q = document.getElementById('tLocationSearch').value.trim();
+      let box = document.getElementById('locationSuggestions');
+      document.getElementById('tLocationVal').value = '';
+      if (q.length < 2) { box.style.display = 'none'; return; }
+      box.innerHTML = '<div style="padding:10px; color:rgba(255,255,255,0.5); font-size:13px;">Searching...</div>';
+      box.style.display = 'block';
+      _locationTimer = setTimeout(() => {
+        fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&countrycodes=in&format=json&limit=8&addressdetails=1`, {
+          headers: { 'Accept-Language': 'en', 'User-Agent': 'KCP-Cricket-App' }
+        })
+        .then(r => r.json())
+        .then(results => {
+          if (!results.length) {
+            box.innerHTML = '<div style="padding:10px; color:rgba(255,255,255,0.4); font-size:13px;">No results found in India</div>';
+            return;
+          }
+          box.innerHTML = results.map(r => {
+            let label = r.display_name;
+            return `<div onclick="selectLocation('${label.replace(/'/g,"\\'").replace(/"/g,'&quot;')}')" style="padding:10px 12px; font-size:13px; color:#ffffff; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.07); font-family:'Inter',sans-serif;" onmouseover="this.style.background='rgba(16,185,129,0.15)'" onmouseout="this.style.background='transparent'">${label}</div>`;
+          }).join('');
+        })
+        .catch(() => {
+          box.innerHTML = '<div style="padding:10px; color:#f87171; font-size:13px;">Search failed. Check internet.</div>';
+        });
+      }, 500);
+    }
+
+    function selectLocation(label) {
+      document.getElementById('tLocationSearch').value = label;
+      document.getElementById('tLocationVal').value = label;
+      document.getElementById('locationSuggestions').style.display = 'none';
+    }
 
     function saveTournamentNew() {
       let name = document.getElementById('tNameNew').value.trim();
@@ -5854,6 +5973,13 @@
       let contact = document.getElementById('tContactNew').value.trim();
       let startDate = document.getElementById('tStartDateNew').value;
       let endDate = document.getElementById('tEndDateNew').value;
+      let locationEl = document.getElementById('tLocationVal');
+      let location = locationEl ? locationEl.value.trim() : '';
+      // fallback: if user typed but didn't pick from suggestions, use the typed value
+      if (!location) {
+        let ls = document.getElementById('tLocationSearch');
+        if (ls) location = ls.value.trim();
+      }
 
       let categoryEl = document.querySelector('#tCategoryNew .chip-new.selected');
       let matchTypeEl = document.querySelector('#tMatchTypeNew .chip-new.selected');
@@ -5870,6 +5996,7 @@
       window.tempTournamentData = {
         id: Date.now(),
         name, city, ground, organiser, contact, startDate, endDate,
+        location,
         category: categoryEl.innerText,
         matchType: matchTypeEl.innerText,
         pitch: pitchEl ? pitchEl.innerText : '',
@@ -6677,19 +6804,32 @@
 
     function refreshTournamentsFromServer() {
       const user = localStorage.getItem('currentUser') || 'guest';
-      fetch(API + '/tournaments/' + user)
+      fetch(API + '/tournaments/' + user, { cache: 'no-store' })
         .then(res => res.json())
         .then(data => {
-          if (data && data.length > 0) {
+          if (data && data.length >= 0) {
             let flatData = (Array.isArray(data) && data.length > 0 && Array.isArray(data[0])) ? data[0] : data;
             let validData = flatData.filter(t => t && t.name && t.name !== 'undefined');
-            // Only overwrite local data if server has MORE or EQUAL tournaments
-            // This prevents stale server data from wiping fresh local data
+            
             let localData = loadTournaments();
-            if (validData.length >= localData.length) {
-              localStorage.setItem(getTournamentsKey(), JSON.stringify(validData));
-              tournaments = validData;
-              if (typeof renderTournamentList === 'function') renderTournamentList();
+            
+            // Only overwrite if data is actually different
+            // and we are not in the middle of a local deletion/save
+            if (JSON.stringify(validData) !== JSON.stringify(localData)) {
+              // Sync Lock: Ignore server data if we recently saved locally (persist across refreshes)
+              const lastSaveStr = localStorage.getItem('lastLocalSaveTime') || '0';
+              const syncLockTime = parseInt(lastSaveStr);
+              const now = Date.now();
+              
+              // Extended lock to 10 seconds for deletion stability
+              if (!window.isSavingData && (now - syncLockTime > 10000)) {
+                localStorage.setItem(getTournamentsKey(), JSON.stringify(validData));
+                tournaments = validData;
+                if (typeof renderTournamentList === 'function') renderTournamentList();
+                if (typeof renderTeamsList === 'function') renderTeamsList();
+              } else {
+                console.log("Sync skipped to prevent overwriting recent local changes.");
+              }
             }
           }
         })
@@ -6709,9 +6849,19 @@
       }
     }
 
-    async function saveTournamentsData(arr) {
+    async function saveTournamentsData(arr, retries = 2) {
+      window.isSavingData = true;
+      const now = Date.now();
+      localStorage.setItem('lastLocalSaveTime', now.toString());
+      
+      // Add lastModified timestamp to all tournaments
+      if (Array.isArray(arr)) {
+        arr.forEach(t => { if (t && !t.lastModified) t.lastModified = now; });
+      }
+      
       localStorage.setItem(getTournamentsKey(), JSON.stringify(arr));
-      syncArrayToFirebase(arr);
+      if (typeof syncArrayToFirebase === 'function') syncArrayToFirebase(arr);
+      
       let u = localStorage.getItem("currentUser") || "guest";
       try {
         const res = await fetch(API + "/tournaments", {
@@ -6719,13 +6869,25 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ user_id: u, tournament_data: JSON.stringify(arr) })
         });
+        
         if (res.ok) {
-          console.log("✅ SSMS Bulk Sync Success");
+          window.isSavingData = false;
+          console.log("✅ Sync Success");
           return true;
+        } else if (retries > 0) {
+          console.warn(`Sync failed with status ${res.status}, retrying... (${retries} left)`);
+          await new Promise(r => setTimeout(r, 1000));
+          return await saveTournamentsData(arr, retries - 1);
         }
       } catch (err) {
-        console.error("❌ SSMS Bulk Sync Error:", err);
+        if (retries > 0) {
+           console.warn("Sync error, retrying...", err);
+           await new Promise(r => setTimeout(r, 1000));
+           return await saveTournamentsData(arr, retries - 1);
+        }
+        console.error("❌ Sync Error:", err);
       }
+      window.isSavingData = false;
       return false;
     }
 
@@ -6790,12 +6952,12 @@
       };
 
       tbody.innerHTML = tournaments.map((t, i) =>
-        `<tr style="border-bottom:1px solid #e5e7eb;">
+        `<tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
           <td style="padding:16px; color:#0d9488; font-weight:500;">${t.name}</td>
-          <td style="padding:16px; color:#374151;">${(t.ball || 'LEATHER').toUpperCase()}</td>
-          <td style="padding:16px; color:#374151;">${formatOutDate(t.startDate)}</td>
-          <td style="padding:16px; color:#374151;">${formatOutDate(t.endDate)}</td>
-          <td style="padding:16px; color:#6b7280; font-size:16px; background:#f9fafb;">
+          <td style="padding:16px; color:#ffffff;">${(t.ball || 'LEATHER').toUpperCase()}</td>
+          <td style="padding:16px; color:#ffffff;">${formatOutDate(t.startDate)}</td>
+          <td style="padding:16px; color:#ffffff;">${formatOutDate(t.endDate)}</td>
+          <td style="padding:16px; color:rgba(255,255,255,0.7); font-size:16px; background:rgba(255,255,255,0.03);">
             <span style="cursor:pointer;margin-right:12px;opacity:0.8;display:inline-flex;vertical-align:middle;" title="Edit" onclick="openEditTournament(${i})">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
             </span>
@@ -6953,14 +7115,14 @@
       tournamentToDeleteIdx = null;
     }
 
-    function confirmDeleteTournament() {
+    async function confirmDeleteTournament() {
       let selected = document.querySelector('input[name="deleteReason"]:checked');
       if (!selected) {
         alert("Please select a reason");
         return;
       }
 
-      if (!confirm('Are you sure you want to delete Tournament?')) return;
+      if (!confirm('Are you sure you want to delete Tournament? This cannot be undone.')) return;
 
       let idx = tournamentToDeleteIdx;
       if (idx === null) return;
@@ -6969,13 +7131,44 @@
 
       tournaments = loadTournaments();
       let tId = tournaments[idx].id || tournaments[idx].name;
+      let teamsToDelete = tournaments[idx].teams || [];
+      
+      // Update locally
       tournaments.splice(idx, 1);
-      saveTournamentsData(tournaments);
+      
+      // Force sync and WAIT
+      let btn = document.getElementById("confirmDeleteTourBtn");
+      let originalText = btn ? btn.innerText : "DELETE";
+      if (btn) {
+        btn.innerText = "Deleting...";
+        btn.disabled = true;
+      }
+
+      const syncSuccess = await saveTournamentsData(tournaments);
+      
+      // Secondary explicit delete call for redundancy
+      let user = localStorage.getItem('currentUser') || 'guest';
+      fetch(`${API}/tournaments/${user}/${encodeURIComponent(tId)}`, { method: 'DELETE' }).catch(() => {});
+
+      // Delete associated teams from the DB
+      teamsToDelete.forEach(team => {
+        if(team && team.name) {
+          fetch(API + "/teams/" + encodeURIComponent(team.name), { method: "DELETE" }).catch(() => {});
+          fetch(API + "/players/" + encodeURIComponent(team.name), { method: "DELETE" }).catch(() => {});
+        }
+      });
 
       if (window.fbDeleteDoc && tId) {
         window.fbDeleteDoc(window.fbDoc(window.fbDb, "tournaments", tId.toString())).catch(e => console.error(e));
       }
 
+      if (btn) {
+        btn.innerText = originalText;
+        btn.disabled = false;
+      }
+      
+      if (!syncSuccess) alert("Warning: Server sync failed. Tournament deleted locally, but may reappear if you refresh soon.");
+      
       renderTournamentList();
       showDeleteSuccessToast();
     }
@@ -7373,17 +7566,47 @@
         return;
       }
       grid.innerHTML = players.map(function (p) {
+        let isCaptain = team.captain === p.name;
         let avatarHtml = p.photo
           ? '<img src="' + p.photo + '" style="width:100%;height:100%;object-fit:cover;">'
           : '<svg width="48" height="48" viewBox="0 0 24 24" fill="#9ca3af"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>';
-        return '<div style="display:flex;flex-direction:column;align-items:center;width:120px;">' +
-          '<div style="width:110px;height:110px;background:#e5e7eb;border-radius:4px;overflow:hidden;display:flex;align-items:center;justify-content:center;">' +
+        
+        let cardStyle = isCaptain 
+          ? 'display:flex;flex-direction:column;align-items:center;width:120px;background:#ffffff;border:2px solid #ef4444;border-radius:8px;padding:6px;cursor:pointer;position:relative;' 
+          : 'display:flex;flex-direction:column;align-items:center;width:120px;background:#ffffff;border:1px solid #e5e7eb;border-radius:8px;padding:6px;cursor:pointer;position:relative;';
+        
+        let nameStyle = isCaptain
+          ? 'margin-top:6px;font-size:13px;font-family:Inter,sans-serif;color:#ef4444;text-align:center;font-weight:700;'
+          : 'margin-top:6px;font-size:13px;font-family:Inter,sans-serif;color:#1f2937;text-align:center;font-weight:600;';
+          
+        let badgeHtml = isCaptain
+          ? '<div style="position:absolute; top:-8px; right:-8px; width:22px; height:22px; border-radius:50%; background:#0d9488; color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:12px; box-shadow:0 2px 4px rgba(0,0,0,0.2);">C</div>'
+          : '<div style="position:absolute; top:-8px; right:-8px; width:22px; height:22px; border-radius:50%; background:#10b981; color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:12px; box-shadow:0 2px 4px rgba(0,0,0,0.2);">✔</div>';
+
+        return '<div style="' + cardStyle + '" onclick="setTeamCaptain(\'' + escapeQ(p.name) + '\')">' +
+          badgeHtml +
+          '<div style="width:100px;height:100px;background:#e5e7eb;border-radius:4px;overflow:hidden;display:flex;align-items:center;justify-content:center;">' +
           avatarHtml +
           '</div>' +
-          '<div style="margin-top:6px;font-size:13px;font-family:Inter,sans-serif;color:#1f2937;text-align:center;font-weight:500;">' + p.name + '</div>' +
-          '<div style="font-size:11px;color:#6b7280;font-family:Inter,sans-serif;">' + (p.role || '') + '</div>' +
+          '<div style="' + nameStyle + '">' + p.name + '</div>' +
+          '<div style="font-size:11px;color:#6b7280;font-family:Inter,sans-serif;margin-top:2px;">' + (p.role || '') + '</div>' +
           '</div>';
       }).join('');
+      // Update captain display in banner
+      let capDisplay = document.getElementById('currentCaptainDisplay');
+      if (capDisplay) {
+        capDisplay.innerText = team.captain ? '👑 Captain: ' + team.captain : '';
+      }
+    }
+
+    async function setTeamCaptain(playerName) {
+      tournaments = loadTournaments();
+      let t = tournaments[currentTeamsTournamentIdx];
+      if (!t || !t.teams[currentAddPlayerTeamIdx]) return;
+      t.teams[currentAddPlayerTeamIdx].captain = playerName;
+      t.lastModified = Date.now();
+      await saveTournamentsData(tournaments);
+      renderTeamMembersView();
     }
 
 
@@ -7421,10 +7644,9 @@
     function renderMtScheduleDropdowns() {
       tournaments = loadTournaments();
       let t = tournaments[currentTournamentId];
-      if (!t) return;
-      let sel1 = document.getElementById('mtSchedT1');
-      let sel2 = document.getElementById('mtSchedT2');
-      if (!sel1 || !sel2) return;
+      let sel1 = document.getElementById('mtSchedTeam1');
+      let sel2 = document.getElementById('mtSchedTeam2');
+      if (!sel1 || !sel2 || !t) return;
       sel1.innerHTML = ''; sel2.innerHTML = '';
       (t.teams || []).forEach(team => {
         sel1.innerHTML += `<option>${team.name}</option>`;
@@ -7437,7 +7659,7 @@
       tournaments = loadTournaments();
       let t = tournaments[currentTournamentId];
       let el = document.getElementById('mtMatchesList');
-      if (!el) return;
+      if (!el || !t) return;
       if (!t.matches || t.matches.filter(m => !m.result).length === 0) {
         el.innerHTML = '<div style="color:#4b5563;font-size:13px;padding:10px 0;">No upcoming matches scheduled.</div>';
         return;
@@ -7464,7 +7686,7 @@
       tournaments = loadTournaments();
       let t = tournaments[currentTournamentId];
       let el = document.getElementById('mtResultsList');
-      if (!el) return;
+      if (!el || !t) return;
       let finished = (t.matches || []).filter(m => m.result);
       if (finished.length === 0) {
         el.innerHTML = '<div style="color:#4b5563;text-align:center;padding:30px 0;font-size:14px;">No results yet.</div>';
@@ -7484,7 +7706,7 @@
       tournaments = loadTournaments();
       let t = tournaments[currentTournamentId];
       let ptEl = document.getElementById('mtPointsTable');
-      if (!ptEl) return;
+      if (!ptEl || !t) return;
       let finished = (t.matches || []).filter(m => m.result);
       let teamPoints = {};
       (t.teams || []).forEach(team => {
@@ -7587,7 +7809,8 @@
       tournaments = loadTournaments();
       let t = tournaments[currentTournamentId];
       let el = document.getElementById('mtTeamsList');
-      if (!t || t.teams.length === 0) {
+      if (!el) return; // Prevent crash if element is missing from current page
+      if (!t || !t.teams || t.teams.length === 0) {
         el.innerHTML = '<div style="color:#4b5563;font-size:13px;padding:10px 0;">No teams added yet.</div>';
         return;
       }
@@ -7648,19 +7871,93 @@
     }
 
 
-    function deleteTournamentTeam(teamIdx) {
-      let t = tournaments[currentTournamentId];
-      let teamName = t.teams[teamIdx].name;
-      if (!confirm('Delete team "' + teamName + '"? This will remove all players too.')) return;
+    let teamToDeleteIdx = null;
+
+    function closeTeamDeleteReasonModal() {
+      document.getElementById('teamDeleteReasonModal').style.display = 'none';
+      teamToDeleteIdx = null;
+    }
+
+    async function deleteTournamentTeam(teamIdx) {
       tournaments = loadTournaments();
-      tournaments[currentTournamentId].teams.splice(teamIdx, 1);
-      saveTournamentsData(tournaments);
+      let tIdx = (typeof currentTournamentId !== 'undefined' && currentTournamentId !== null) 
+                 ? currentTournamentId 
+                 : (typeof currentTeamsTournamentIdx !== 'undefined' ? currentTeamsTournamentIdx : null);
+      
+      if (tIdx === null || !tournaments[tIdx]) {
+        console.error("No active tournament found for deletion");
+        return;
+      }
 
-      // Sync with SSMS
-      fetch(API + "/teams/name/" + encodeURIComponent(teamName), { method: "DELETE" }).catch(() => { });
+      teamToDeleteIdx = teamIdx;
+      // Reset modal
+      document.querySelectorAll('input[name="teamDeleteReason"]').forEach(el => el.checked = false);
+      document.getElementById('teamDeleteReasonDesc').value = '';
+      document.getElementById('teamDeleteReasonModal').style.display = 'flex';
+    }
 
-      renderMtTeams();
-      renderMtSchedule();
+    async function confirmDeleteTeam() {
+      try {
+        let selected = document.querySelector('input[name="teamDeleteReason"]:checked');
+        if (!selected) {
+          alert("Please select a reason");
+          return;
+        }
+
+        if (!confirm('Are you sure you want to delete this team?')) return;
+
+        let teamIdx = teamToDeleteIdx;
+        let tIdx = (typeof currentTournamentId !== 'undefined' && currentTournamentId !== null) 
+                   ? currentTournamentId 
+                   : (typeof currentTeamsTournamentIdx !== 'undefined' ? currentTeamsTournamentIdx : null);
+
+        if (tIdx === null || teamIdx === null) {
+          alert("Error: Tournament or Team ID missing.");
+          return;
+        }
+
+        closeTeamDeleteReasonModal();
+        
+        tournaments = loadTournaments();
+        if (!tournaments[tIdx] || !tournaments[tIdx].teams || !tournaments[tIdx].teams[teamIdx]) {
+           alert("Error: Team not found in data.");
+           return;
+        }
+        
+        let teamName = tournaments[tIdx].teams[teamIdx].name;
+        
+        // Update local list
+        tournaments[tIdx].teams.splice(teamIdx, 1);
+        tournaments[tIdx].lastModified = Date.now();
+        
+        let btn = document.getElementById("confirmDeleteTeamBtn");
+        let originalText = btn ? btn.innerText : "DELETE";
+        if (btn) {
+          btn.innerText = "Deleting...";
+          btn.disabled = true;
+        }
+
+        const syncSuccess = await saveTournamentsData(tournaments);
+
+        // Sync individual deletion with server if needed
+        fetch(API + "/teams/" + encodeURIComponent(teamName), { method: "DELETE" }).catch(() => { });
+        fetch(API + "/players/" + encodeURIComponent(teamName), { method: "DELETE" }).catch(() => { });
+
+        if (btn) {
+          btn.innerText = originalText;
+          btn.disabled = false;
+        }
+
+        if (typeof renderMtTeams === 'function') renderMtTeams();
+        if (typeof renderMtSchedule === 'function') renderMtSchedule();
+        if (typeof renderTeamsList === 'function') renderTeamsList();
+        if (typeof renderTournamentList === 'function') renderTournamentList();
+        
+        showDeleteSuccessToast();
+      } catch (err) {
+        console.error("Deletion crash:", err);
+        alert("Deletion failed: " + err.message);
+      }
     }
 
     function deleteTournamentPlayer(teamIdx, playerIdx) {
@@ -9345,6 +9642,12 @@
       authTitle.innerText = isLogin ? "Welcome Back" : "Create Account";
       document.getElementById("authBtn").innerText = isLogin ? "LOGIN" : "REGISTER";
       switchText.innerText = isLogin ? "Don't have an account? Register" : "Already have an account? Login";
+      // Show security question field only during registration
+      let sqField = document.getElementById('securityQuestionField');
+      if (sqField) sqField.style.display = isLogin ? 'none' : 'flex';
+      // Show/hide forgot password link
+      let fpLink = document.querySelector('[onclick="openForgotPassword()"]');
+      if (fpLink) fpLink.parentElement.style.display = isLogin ? 'block' : 'none';
     }
 
     function authenticate() {
@@ -9478,6 +9781,13 @@
               // Registration success - save locally and switch to Login screen
               localUsers[u] = p;
               localStorage.setItem('kcp_users', JSON.stringify(localUsers));
+              // Save security answer
+              let secAns = document.getElementById('securityAnswer') ? document.getElementById('securityAnswer').value.trim() : '';
+              if (secAns) {
+                let secData = JSON.parse(localStorage.getItem('kcp_security') || '{}');
+                secData[u] = secAns.toLowerCase();
+                localStorage.setItem('kcp_security', JSON.stringify(secData));
+              }
               localStorage.setItem("isRegistered", "true");
               alert("Registration Successful! Please login.");
               // Switch to login mode
@@ -9496,6 +9806,13 @@
             // Offline fallback registration success
             localUsers[u] = p;
             localStorage.setItem('kcp_users', JSON.stringify(localUsers));
+            // Save security answer (offline fallback)
+            let secAns2 = document.getElementById('securityAnswer') ? document.getElementById('securityAnswer').value.trim() : '';
+            if (secAns2) {
+              let secData2 = JSON.parse(localStorage.getItem('kcp_security') || '{}');
+              secData2[u] = secAns2.toLowerCase();
+              localStorage.setItem('kcp_security', JSON.stringify(secData2));
+            }
             localStorage.setItem("isRegistered", "true");
             alert("Registration Successful! Please login.");
             isLogin = true;
@@ -9508,6 +9825,47 @@
             btn.disabled = false;
           });
       }
+    }
+
+    function openForgotPassword() {
+      document.getElementById('fpUsername').value = '';
+      document.getElementById('fpNewPassword').value = '';
+      document.getElementById('fpConfirmPassword').value = '';
+      document.getElementById('fpResult').style.display = 'none';
+      document.getElementById('forgotPasswordModal').style.display = 'flex';
+    }
+    function closeForgotPassword() {
+      document.getElementById('forgotPasswordModal').style.display = 'none';
+    }
+    function submitForgotPassword() {
+      let u = document.getElementById('fpUsername').value.trim();
+      let newPass = document.getElementById('fpNewPassword').value.trim();
+      let confirmPass = document.getElementById('fpConfirmPassword').value.trim();
+      let resultEl = document.getElementById('fpResult');
+      if (!u || !newPass || !confirmPass) { alert('Please fill in all fields.'); return; }
+      let localUsers = JSON.parse(localStorage.getItem('kcp_users') || '{}');
+      if (!localUsers.hasOwnProperty(u)) {
+        resultEl.style.cssText = 'display:block; background:rgba(239,68,68,0.15); border:1px solid #ef4444; border-radius:8px; padding:12px; margin-bottom:16px; color:#fca5a5; font-size:14px;';
+        resultEl.innerText = 'Username not found. Please check and try again.';
+        return;
+      }
+      if (newPass !== confirmPass) {
+        resultEl.style.cssText = 'display:block; background:rgba(239,68,68,0.15); border:1px solid #ef4444; border-radius:8px; padding:12px; margin-bottom:16px; color:#fca5a5; font-size:14px;';
+        resultEl.innerText = 'Passwords do not match. Please try again.';
+        return;
+      }
+      if (newPass.length < 4) {
+        resultEl.style.cssText = 'display:block; background:rgba(245,158,11,0.15); border:1px solid #f59e0b; border-radius:8px; padding:12px; margin-bottom:16px; color:#fde68a; font-size:14px;';
+        resultEl.innerText = 'Password must be at least 4 characters.';
+        return;
+      }
+      // Save new password
+      localUsers[u] = newPass;
+      localStorage.setItem('kcp_users', JSON.stringify(localUsers));
+      resultEl.style.cssText = 'display:block; background:rgba(16,185,129,0.15); border:1px solid #10b981; border-radius:8px; padding:12px; margin-bottom:16px; color:#6ee7b7; font-size:14px;';
+      resultEl.innerHTML = '✅ Password changed successfully! You can now login with your new password.';
+      // Auto-close after 2 seconds
+      setTimeout(() => { closeForgotPassword(); }, 2200);
     }
 
     function logout() {

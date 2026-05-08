@@ -1,10 +1,1 @@
-{
-  "teams": [
-    { "name": " KCP KINGS" },
-    { "name": "KCP LIONS" }
-  ],
-  "players": [
-    { "name": " G.Harsha ", "team": "KCP KINGS" }
-  ],
-  "matches": []
-}
+{}
