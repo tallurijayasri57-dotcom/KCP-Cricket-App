@@ -7416,7 +7416,8 @@
         // Navigate to manage tournament page and switch to schedule tab
         currentTeamsTournamentIdx = idx;
         currentTournamentId = idx;
-        let t = loadTournaments()[idx];
+        let t = tournaments[idx];
+        if (!t) return;
         document.getElementById('mtTournamentName').innerText = t.name;
         showPage('manageTournament');
         switchMtTab('schedule');
@@ -8218,22 +8219,38 @@
       if (tab === 'points') renderMtPointsTable();
     }
 
-    function renderMtScheduleDropdowns() {
-      tournaments = loadTournaments();
+    async function renderMtScheduleDropdowns() {
       let t = tournaments[currentTournamentId];
-      let sel1 = document.getElementById('mtSchedTeam1');
-      let sel2 = document.getElementById('mtSchedTeam2');
+      let sel1 = document.getElementById('mtSchedT1');
+      let sel2 = document.getElementById('mtSchedT2');
       if (!sel1 || !sel2 || !t) return;
+      
+      sel1.innerHTML = '<option>Loading...</option>';
+      sel2.innerHTML = '<option>Loading...</option>';
+
+      let teams = [];
+      if (t.id) {
+        try {
+          const r = await fetch(API + '/tournament-teams/' + t.id + '?_t=' + Date.now());
+          if (r.ok) {
+            let sqlTeams = await r.json();
+            teams = sqlTeams.map(tm => ({ name: tm.team_name, captain: tm.captain }));
+            t.teams = teams; // Cache for immediate subsequent use
+          }
+        } catch(e) { console.warn("Fetch schedule teams error:", e); }
+      } else {
+        teams = t.teams || [];
+      }
+
       sel1.innerHTML = ''; sel2.innerHTML = '';
-      (t.teams || []).forEach(team => {
-        sel1.innerHTML += `<option>${team.name}</option>`;
-        sel2.innerHTML += `<option>${team.name}</option>`;
+      teams.forEach(team => {
+        sel1.innerHTML += `<option value="${escapeQ(team.name)}">${team.name}</option>`;
+        sel2.innerHTML += `<option value="${escapeQ(team.name)}">${team.name}</option>`;
       });
-      if (t.teams.length >= 2) sel2.selectedIndex = 1;
+      if (teams.length >= 2) sel2.selectedIndex = 1;
     }
 
     function renderMtUpcomingMatches() {
-      tournaments = loadTournaments();
       let t = tournaments[currentTournamentId];
       let el = document.getElementById('mtMatchesList');
       if (!el || !t) return;
@@ -8260,7 +8277,6 @@
     }
 
     function renderMtFinishedMatches() {
-      tournaments = loadTournaments();
       let t = tournaments[currentTournamentId];
       let el = document.getElementById('mtResultsList');
       if (!el || !t) return;
@@ -8280,7 +8296,6 @@
     }
 
     function renderMtPointsTable() {
-      tournaments = loadTournaments();
       let t = tournaments[currentTournamentId];
       let ptEl = document.getElementById('mtPointsTable');
       if (!ptEl || !t) return;
@@ -8552,8 +8567,7 @@
       renderMtTeams();
     }
 
-    function addTournamentMatch() {
-      tournaments = loadTournaments();
+    async function addTournamentMatch() {
       let t = tournaments[currentTournamentId];
       let t1 = document.getElementById('mtSchedT1').value;
       let t2 = document.getElementById('mtSchedT2').value;
@@ -8566,15 +8580,46 @@
       let date = parts[0]; // MM/DD/YYYY
       let time = parts[1] + ' ' + parts[2]; // HH:MM AM/PM
 
-      t.matches.push({ team1: t1, team2: t2, date, time, result: null });
-      saveTournamentsData(tournaments);
-
-      // Sync to global upcoming matches list
-      fetch(API + "/upcoming-matches", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ team1: t1, team2: t2, match_date: date, match_time: time })
-      }).catch(err => console.error("Error syncing match:", err));
+      // Save to SQL
+      if (t.id) {
+        try {
+          const res = await fetch(API + "/tournament-matches", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+              tournament_id: t.id,
+              team1: t1, 
+              team2: t2, 
+              match_date: date, 
+              match_time: time 
+            })
+          });
+          if (!res.ok) throw new Error("Failed to save match to SQL");
+          
+          // Refresh matches list
+          const mRes = await fetch(API + '/tournament-matches/' + t.id + '?_t=' + Date.now());
+          if (mRes.ok) {
+            let matchesData = await mRes.json();
+            t.matches = matchesData.map(m => ({
+              id: m.id,
+              team1: m.team1,
+              team2: m.team2,
+              date: m.match_date ? new Date(m.match_date).toLocaleDateString('en-US') : null,
+              time: m.match_time,
+              result: m.result,
+              status: m.status
+            }));
+          }
+        } catch (err) {
+          console.error("SQL Match Save Error:", err);
+          alert("Error saving to SQL: " + err.message);
+          return;
+        }
+      } else {
+        // Fallback for non-SQL tournaments
+        t.matches.push({ team1: t1, team2: t2, date, time, result: null });
+        saveTournamentsData(tournaments);
+      }
 
       document.getElementById('mtSchedDateTime').value = '';
       renderMtScheduleDropdowns();
@@ -8597,10 +8642,23 @@
       renderMtPointsTable();
     }
 
-    function deleteTournamentMatch(matchIdx) {
+    async function deleteTournamentMatch(matchIdx) {
       if (!confirm('Delete this match?')) return;
-      tournaments = loadTournaments();
-      tournaments[currentTournamentId].matches.splice(matchIdx, 1);
+      let t = tournaments[currentTournamentId];
+      let match = t.matches[matchIdx];
+
+      if (match.id) {
+        try {
+          const res = await fetch(API + "/tournament-matches/" + match.id, { method: "DELETE" });
+          if (!res.ok) throw new Error("Failed to delete match from SQL");
+        } catch (err) {
+          console.error("SQL Delete Match Error:", err);
+          alert("Error deleting from SQL: " + err.message);
+          return;
+        }
+      }
+
+      t.matches.splice(matchIdx, 1);
       saveTournamentsData(tournaments);
       renderMtUpcomingMatches();
     }
@@ -10546,14 +10604,41 @@
     let currentViewingTournament = null;
     let currentViewingTournamentIdx = null;
 
-    function openTournamentDetails(tIdx) {
-      let allTournaments = loadTournaments();
+    async function openTournamentDetails(tIdx) {
+      let allTournaments = tournaments || [];
       let t = allTournaments[tIdx];
       if (!t) return;
       currentViewingTournament = t;
       currentViewingTournamentIdx = tIdx;
 
       showPage('tournamentDetailsPage');
+
+      // Fetch fresh teams and matches from SQL
+      if (t.id) {
+        try {
+          const [teamsRes, matchesRes] = await Promise.all([
+            fetch(API + '/tournament-teams/' + t.id + '?_t=' + Date.now()),
+            fetch(API + '/tournament-matches/' + t.id + '?_t=' + Date.now())
+          ]);
+
+          if (teamsRes.ok) {
+            let teamsData = await teamsRes.json();
+            t.teams = teamsData.map(tm => ({ name: tm.team_name, captain: tm.captain }));
+          }
+          if (matchesRes.ok) {
+            let matchesData = await matchesRes.json();
+            t.matches = matchesData.map(m => ({
+              id: m.id,
+              team1: m.team1,
+              team2: m.team2,
+              date: m.match_date ? new Date(m.match_date).toLocaleDateString('en-US') : null, // Store as MM/DD/YYYY for consistency
+              time: m.match_time,
+              result: m.result,
+              status: m.status
+            }));
+          }
+        } catch(e) { console.warn("Failed to fetch SQL data for tournament details:", e); }
+      }
 
       // Reset to Matches tab by default
       switchTdTab('matches');
@@ -10973,6 +11058,16 @@
         if (res.ok) {
           const data = await res.json();
           if (Array.isArray(data)) {
+            // Restore logos and matches from local storage since SQL doesn't store them yet
+            let localTs = loadTournaments();
+            data.forEach(sqlT => {
+              let localMatch = localTs.find(lt => lt.name === sqlT.name);
+              if (localMatch) {
+                if (localMatch.logo) sqlT.logo = localMatch.logo;
+                if (localMatch.matches) sqlT.matches = localMatch.matches;
+              }
+            });
+            
             myTourneys = data;
             // Also update global tournaments array
             tournaments = data;

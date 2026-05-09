@@ -67,69 +67,8 @@ async function startServer() {
         try {
             pool = await sql.connect(dbConfig);
             console.log("✅ SQL Connected");
-            // ✅ Auto-create tables if they don't exist
-            await pool.request().query(`
-                IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='teams' AND xtype='U')
-                CREATE TABLE teams (
-                    id INT IDENTITY(1,1) PRIMARY KEY,
-                    team_name NVARCHAR(100) NOT NULL,
-                    city NVARCHAR(100),
-                    logo NVARCHAR(MAX),
-                    created_at DATETIME DEFAULT GETDATE()
-                );
-            `);
-            await pool.request().query(`
-                IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='tournament_teams' AND xtype='U')
-                CREATE TABLE tournament_teams (
-                    id INT IDENTITY(1,1) PRIMARY KEY,
-                    tournament_id INT NOT NULL,
-                    team_name NVARCHAR(100) NOT NULL,
-                    city NVARCHAR(100),
-                    logo NVARCHAR(MAX),
-                    CONSTRAINT FK_TT_Tournament FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE
-                );
-            `);
-            await pool.request().query(`
-                IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='tournament_players' AND xtype='U')
-                CREATE TABLE tournament_players (
-                    id INT IDENTITY(1,1) PRIMARY KEY,
-                    tournament_id INT NOT NULL,
-                    team_name NVARCHAR(100),
-                    player_name NVARCHAR(150),
-                    role NVARCHAR(100),
-                    photo_url NVARCHAR(MAX),
-                    CONSTRAINT FK_TP_Tournament FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE
-                );
-            `);
-            // Add photo_url column if it doesn't exist (for existing tables)
-            try {
-                await pool.request().query(`
-                    IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('tournament_players') AND name = 'photo_url')
-                    ALTER TABLE tournament_players ADD photo_url NVARCHAR(MAX)
-                `);
-            } catch(e) { console.warn('photo_url column check skipped:', e.message); }
-            // Add captain column to tournament_teams if it doesn't exist
-            try {
-                await pool.request().query(`
-                    IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('tournament_teams') AND name = 'captain')
-                    ALTER TABLE tournament_teams ADD captain NVARCHAR(150)
-                `);
-            } catch(e) { console.warn('captain column check skipped:', e.message); }
-            await pool.request().query(`
-                IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='tournament_gallery' AND xtype='U')
-                CREATE TABLE tournament_gallery (
-                    id INT IDENTITY(1,1) PRIMARY KEY,
-                    tournament_id INT NOT NULL,
-                    photo_url NVARCHAR(MAX) NOT NULL,
-                    uploaded_by NVARCHAR(150),
-                    caption NVARCHAR(500),
-                    uploaded_at DATETIME DEFAULT GETDATE(),
-                    CONSTRAINT FK_TG_Tournament FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE
-                );
-            `);
-            console.log("✅ All tables verified/created");
         } catch (e) {
-            console.warn("⚠️ SQL Failed, using JSON mode:", e.message);
+            console.warn("⚠️ SQL Connection Failed:", e.message);
             useJSON = true;
         }
     }
@@ -1096,7 +1035,58 @@ app.delete("/tournament-gallery/:id", async (req, res) => {
         }
         res.json({ success: true });
     } catch (err) {
-        console.error('DELETE gallery error:', err);
+        console.error("DELETE gallery error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ================= TOURNAMENT MATCHES =================
+app.get("/tournament-matches/:tournament_id", async (req, res) => {
+    try {
+        const { tournament_id } = req.params;
+        if (!pool) return res.json([]);
+        const result = await pool.request()
+            .input("tid", sql.Int, tournament_id)
+            .query("SELECT * FROM tournament_matches WHERE tournament_id = @tid ORDER BY match_date ASC, created_at ASC");
+        res.json(result.recordset);
+    } catch (err) {
+        console.error("GET matches error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post("/tournament-matches", async (req, res) => {
+    try {
+        const { tournament_id, team1, team2, match_date, match_time, result } = req.body;
+        if (!pool) return res.status(500).json({ message: "No SQL Connection" });
+        await pool.request()
+            .input("tid", sql.Int, tournament_id)
+            .input("t1", sql.NVarChar, team1)
+            .input("t2", sql.NVarChar, team2)
+            .input("md", sql.Date, match_date || null)
+            .input("mt", sql.NVarChar, match_time || null)
+            .input("res", sql.NVarChar, result || null)
+            .query(`
+                INSERT INTO tournament_matches (tournament_id, team1, team2, match_date, match_time, result)
+                VALUES (@tid, @t1, @t2, @md, @mt, @res)
+            `);
+        res.json({ success: true });
+    } catch (err) {
+        console.error("POST match error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.delete("/tournament-matches/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (!pool) return res.status(500).json({ message: "No SQL Connection" });
+        await pool.request()
+            .input("id", sql.Int, id)
+            .query("DELETE FROM tournament_matches WHERE id = @id");
+        res.json({ success: true });
+    } catch (err) {
+        console.error("DELETE match error:", err);
         res.status(500).json({ error: err.message });
     }
 });
