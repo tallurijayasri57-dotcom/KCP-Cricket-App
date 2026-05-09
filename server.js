@@ -453,6 +453,37 @@ app.delete("/tournament-players/:tournament_id/:team_name/:player_name", async (
     }
 });
 
+// ================= ALL MATCH TEAMS (for scoring dropdowns) =================
+// Returns all unique teams + their players from tournament_teams & tournament_players
+app.get("/all-match-teams", async (req, res) => {
+    try {
+        if (pool) {
+            // Get all teams
+            const teamsRes = await pool.request().query(
+                "SELECT DISTINCT team_name FROM tournament_teams ORDER BY team_name"
+            );
+            // Get all players
+            const playersRes = await pool.request().query(
+                "SELECT team_name, player_name, role FROM tournament_players ORDER BY team_name, player_name"
+            );
+            const teamMap = {};
+            teamsRes.recordset.forEach(t => {
+                teamMap[t.team_name] = [];
+            });
+            playersRes.recordset.forEach(p => {
+                if (!teamMap[p.team_name]) teamMap[p.team_name] = [];
+                teamMap[p.team_name].push({ player_name: p.player_name, role: p.role });
+            });
+            res.json(teamMap);
+        } else {
+            res.json({});
+        }
+    } catch (err) {
+        console.error("GET all-match-teams error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // ================= TEAMS =================
 app.post("/reset-password", async (req, res) => {
     try {
@@ -648,22 +679,33 @@ app.delete("/match-results/:id", async (req, res) => {
 app.get("/upcoming-matches", async (req, res) => {
     try {
         if (useJSON || !pool) return res.json(MEMORY_DB.upcoming_matches);
-        const r = await pool.request().query("SELECT * FROM upcoming_matches ORDER BY match_date ASC");
-        res.json(r.recordset);
+        
+        // Fetch regular upcoming matches
+        const r1 = await pool.request().query("SELECT id, team1, team2, match_date, match_time, 'regular' as type FROM upcoming_matches");
+        
+        // Fetch tournament matches that are upcoming
+        const r2 = await pool.request().query("SELECT id, team1, team2, match_date, match_time, 'tournament' as type FROM tournament_matches WHERE status = 'upcoming'");
+        
+        // Combine and sort
+        const combined = [...r1.recordset, ...r2.recordset];
+        combined.sort((a, b) => new Date(a.match_date) - new Date(b.match_date));
+        
+        res.json(combined);
     } catch (err) {
+        console.error("GET upcoming-matches error:", err);
         res.status(500).send(err.message);
     }
 });
 
 app.post("/upcoming-matches", async (req, res) => {
     try {
-        const { team1, team2, match_date } = req.body;
+        const { team1, team2, match_date, match_time } = req.body;
         if (!team1 || !team2 || !match_date) return res.status(400).json({ error: "Missing fields" });
         if (team1 === team2) return res.status(400).json({ error: "Same teams" });
 
         if (useJSON || !pool) {
             const id = Date.now();
-            MEMORY_DB.upcoming_matches.push({ id, team1, team2, match_date });
+            MEMORY_DB.upcoming_matches.push({ id, team1, team2, match_date, match_time });
             saveDB();
             return res.json({ message: "Match scheduled", id });
         }
@@ -672,9 +714,11 @@ app.post("/upcoming-matches", async (req, res) => {
             .input("t1", sql.NVarChar, team1)
             .input("t2", sql.NVarChar, team2)
             .input("d", sql.Date, match_date)
-            .query("INSERT INTO upcoming_matches (team1, team2, match_date) OUTPUT INSERTED.id VALUES (@t1, @t2, @d)");
+            .input("tm", sql.NVarChar, match_time || null)
+            .query("INSERT INTO upcoming_matches (team1, team2, match_date, match_time) OUTPUT INSERTED.id VALUES (@t1, @t2, @d, @tm)");
         res.json({ message: "Match scheduled", id: r.recordset[0].id });
     } catch (err) {
+        console.error("POST upcoming-matches error:", err);
         res.status(500).send(err.message);
     }
 });
@@ -686,9 +730,18 @@ app.delete("/upcoming-matches/:id", async (req, res) => {
             saveDB();
             return res.json({ message: "Match deleted" });
         }
-        await pool.request().input("id", sql.Int, req.params.id).query("DELETE FROM upcoming_matches WHERE id=@id");
+        
+        // Try deleting from upcoming_matches first
+        const r1 = await pool.request().input("id", sql.Int, req.params.id).query("DELETE FROM upcoming_matches WHERE id=@id");
+        
+        // Also try marking tournament match as cancelled (or delete if that's preferred, but usually status update is safer)
+        if (r1.rowsAffected[0] === 0) {
+            await pool.request().input("id", sql.Int, req.params.id).query("UPDATE tournament_matches SET status='cancelled' WHERE id=@id");
+        }
+        
         res.json({ message: "Match deleted" });
     } catch (err) {
+        console.error("DELETE upcoming-matches error:", err);
         res.status(500).send(err.message);
     }
 });

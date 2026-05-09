@@ -8250,16 +8250,43 @@
       if (teams.length >= 2) sel2.selectedIndex = 1;
     }
 
-    function renderMtUpcomingMatches() {
+    async function renderMtUpcomingMatches() {
       let t = tournaments[currentTournamentId];
       let el = document.getElementById('mtMatchesList');
       if (!el || !t) return;
-      if (!t.matches || t.matches.filter(m => !m.result).length === 0) {
+      
+      el.innerHTML = '<div style="color:#6ee7b7;font-size:13px;padding:10px 0;">Loading matches...</div>';
+      
+      let matches = [];
+      if (t.id) {
+        try {
+          const r = await fetch(API + '/tournament-matches/' + t.id + '?_t=' + Date.now());
+          if (r.ok) {
+            let sqlMatches = await r.json();
+            matches = sqlMatches.map(m => ({
+              id: m.id,
+              team1: m.team1,
+              team2: m.team2,
+              date: m.match_date,
+              time: m.match_time,
+              result: m.result
+            }));
+            t.matches = matches; // Cache it
+          }
+        } catch (e) { console.warn("Fetch tournament matches error:", e); }
+      } else {
+        matches = t.matches || [];
+      }
+
+      let upcoming = matches.filter(m => !m.result && (m.status !== 'cancelled'));
+      if (upcoming.length === 0) {
         el.innerHTML = '<div style="color:#4b5563;font-size:13px;padding:10px 0;">No upcoming matches scheduled.</div>';
         return;
       }
-      el.innerHTML = t.matches.filter(m => !m.result).map((m, originalIdx) => {
-        let mi = t.matches.indexOf(m);
+
+      el.innerHTML = upcoming.map((m) => {
+        // Find original index in t.matches if needed, but for SQL matches we use the database ID
+        let matchId = m.id;
         let dateStr = new Date(m.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
         return `<div class="oa-match-card" style="flex-direction:column;align-items:stretch;gap:12px;">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
@@ -8268,38 +8295,87 @@
           <div class="oa-match-date">📅 ${dateStr} ${m.time ? ' • 🕒 ' + formatTimeAMPM(m.time) : ''}</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <button onclick="startTournamentMatch('${escapeQ(m.team1)}','${escapeQ(m.team2)}', ${mi})" style="background:linear-gradient(135deg,#16a34a,#15803d);border:none;color:#fff;padding:9px 20px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;">▶ START MATCH</button>
-          <button onclick="deleteTournamentMatch(${mi})" style="background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.2);color:#ef4444;padding:7px 10px;border-radius:7px;font-size:12px;cursor:pointer;">🗑️</button>
+          <button onclick="startTournamentMatch('${escapeQ(m.team1)}','${escapeQ(m.team2)}', ${matchId})" style="background:linear-gradient(135deg,#16a34a,#15803d);border:none;color:#fff;padding:9px 20px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;">▶ START MATCH</button>
+          <button onclick="deleteTournamentMatch(${matchId})" style="background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.2);color:#ef4444;padding:7px 10px;border-radius:7px;font-size:12px;cursor:pointer;">🗑️</button>
         </div>
       </div>
     </div>`;
       }).join('');
     }
 
-    function renderMtFinishedMatches() {
+    async function renderMtFinishedMatches() {
       let t = tournaments[currentTournamentId];
       let el = document.getElementById('mtResultsList');
       if (!el || !t) return;
-      let finished = (t.matches || []).filter(m => m.result);
+      
+      el.innerHTML = '<div style="color:#6ee7b7;font-size:13px;padding:10px 0;">Loading results...</div>';
+
+      let matches = [];
+      if (t.id) {
+        try {
+          const r = await fetch(API + '/tournament-matches/' + t.id + '?_t=' + Date.now());
+          if (r.ok) {
+            let sqlMatches = await r.json();
+            matches = sqlMatches.map(m => ({
+              id: m.id,
+              team1: m.team1,
+              team2: m.team2,
+              date: m.match_date,
+              time: m.match_time,
+              result: m.result
+            }));
+            t.matches = matches; // Cache it
+          }
+        } catch (e) { console.warn("Fetch tournament results error:", e); }
+      } else {
+        matches = t.matches || [];
+      }
+
+      let finished = matches.filter(m => m.result);
       if (finished.length === 0) {
         el.innerHTML = '<div style="color:#4b5563;text-align:center;padding:30px 0;font-size:14px;">No results yet.</div>';
       } else {
-        el.innerHTML = finished.map(m =>
-          `<div class="oa-match-card">
+        el.innerHTML = finished.map(m => {
+          let dateStr = new Date(m.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+          return `<div class="oa-match-card">
         <div>
           <div class="oa-match-vs" style="color:#0d9488;">🏆 ${m.result}</div>
-          <div class="oa-match-date" style="color:#374151;">${m.team1} vs ${m.team2} &nbsp;·&nbsp; 📅 ${m.date}</div>
+          <div class="oa-match-date" style="color:#374151;">${m.team1} vs ${m.team2} &nbsp;·&nbsp; 📅 ${dateStr}</div>
         </div>
-      </div>`
-        ).join('');
+      </div>`;
+        }).join('');
       }
     }
 
-    function renderMtPointsTable() {
+    async function renderMtPointsTable() {
       let t = tournaments[currentTournamentId];
       let ptEl = document.getElementById('mtPointsTable');
       if (!ptEl || !t) return;
-      let finished = (t.matches || []).filter(m => m.result);
+      
+      ptEl.innerHTML = '<div style="color:#6ee7b7;font-size:13px;padding:10px 0;">Loading points table...</div>';
+
+      let matches = [];
+      if (t.id) {
+        try {
+          const r = await fetch(API + '/tournament-matches/' + t.id + '?_t=' + Date.now());
+          if (r.ok) {
+            let sqlMatches = await r.json();
+            matches = sqlMatches.map(m => ({
+              id: m.id,
+              team1: m.team1,
+              team2: m.team2,
+              date: m.match_date,
+              time: m.match_time,
+              result: m.result
+            }));
+            t.matches = matches; // Cache it
+          }
+        } catch (e) { console.warn("Fetch tournament matches for points error:", e); }
+      } else {
+        matches = t.matches || [];
+      }
+
+      let finished = matches.filter(m => m.result);
       let teamPoints = {};
       (t.teams || []).forEach(team => {
         teamPoints[team.name] = { M: 0, W: 0, L: 0, Pts: 0 };
@@ -8642,57 +8718,84 @@
       renderMtPointsTable();
     }
 
-    async function deleteTournamentMatch(matchIdx) {
+    async function deleteTournamentMatch(matchId) {
       if (!confirm('Delete this match?')) return;
       let t = tournaments[currentTournamentId];
-      let match = t.matches[matchIdx];
+      if (!t) return;
 
-      if (match.id) {
-        try {
-          const res = await fetch(API + "/tournament-matches/" + match.id, { method: "DELETE" });
-          if (!res.ok) throw new Error("Failed to delete match from SQL");
-        } catch (err) {
-          console.error("SQL Delete Match Error:", err);
-          alert("Error deleting from SQL: " + err.message);
-          return;
-        }
+      try {
+        const res = await fetch(API + "/tournament-matches/" + matchId, { method: "DELETE" });
+        if (!res.ok) throw new Error("Failed to delete match from SQL");
+      } catch (err) {
+        console.error("SQL Delete Match Error:", err);
+        alert("Error deleting from SQL: " + err.message);
+        return;
       }
 
-      t.matches.splice(matchIdx, 1);
-      saveTournamentsData(tournaments);
+      // Refresh the list
       renderMtUpcomingMatches();
     }
 
-    function startTournamentMatch(team1, team2, matchIdx) {
-      currentTournamentMatchIdx = matchIdx;
-      localStorage.setItem("currentTournamentMatchIdx", matchIdx);
+    async function startTournamentMatch(team1, team2, matchId) {
+      currentTournamentMatchIdx = matchId;
+      localStorage.setItem("currentTournamentMatchIdx", matchId);
       document.getElementById('dotsDropdown').classList.remove('open');
-      showPage('score');
-      setTimeout(function () {
+      
+      // Ensure we have team data
+      if (!window._cachedTeamMap || Object.keys(window._cachedTeamMap).length === 0) {
+        try {
+          const res = await fetch(API + '/all-match-teams', { cache: 'no-store' });
+          window._cachedTeamMap = await res.json();
+        } catch (e) {
+          console.warn('Fetch all-match-teams failed in startTournamentMatch', e);
+        }
+      }
+
+      let teamMap = window._cachedTeamMap || {};
+      
+      // Fallback to localStorage if still empty
+      if (Object.keys(teamMap).length === 0) {
         let allTournaments = loadTournaments();
-        let teamMap = {};
         allTournaments.forEach(function (t) {
           (t.teams || []).forEach(function (team) {
             if (!teamMap[team.name]) teamMap[team.name] = [];
             (team.players || []).forEach(function (p) {
-              teamMap[team.name].push({ player_name: p.name, role: p.role });
+              teamMap[team.name].push({ player_name: p.name || p.player_name, role: p.role });
             });
           });
         });
+      }
+
+      // Important: show score page AFTER we have data
+      showPage('score');
+
+      setTimeout(function () {
         let teamNames = Object.keys(teamMap);
         let batSel = document.getElementById("batTeam"), bowlSel = document.getElementById("bowlTeam");
+        if (!batSel || !bowlSel) return;
+
         batSel.innerHTML = ""; bowlSel.innerHTML = "";
         teamNames.forEach(function (tn) {
           batSel.innerHTML += '<option value="' + tn + '">' + tn + '</option>';
           bowlSel.innerHTML += '<option value="' + tn + '">' + tn + '</option>';
         });
+
+        // Set values and trigger change
         batSel.value = team1;
         bowlSel.value = team2;
+
         batPlayers.length = 0; bowlPlayers.length = 0;
         Object.keys(batPlayerRoles).forEach(k => delete batPlayerRoles[k]);
         Object.keys(bowlPlayerRoles).forEach(k => delete bowlPlayerRoles[k]);
-        (teamMap[team1] || []).forEach(p => { batPlayers.push(p.player_name); batPlayerRoles[p.player_name] = p.role; });
-        (teamMap[team2] || []).forEach(p => { bowlPlayers.push(p.player_name); bowlPlayerRoles[p.player_name] = p.role; });
+
+        // Use trimmed names for better matching
+        let t1 = team1.trim(), t2 = team2.trim();
+        let p1 = teamMap[t1] || teamMap[team1] || [];
+        let p2 = teamMap[t2] || teamMap[team2] || [];
+
+        p1.forEach(p => { batPlayers.push(p.player_name); batPlayerRoles[p.player_name] = p.role; });
+        p2.forEach(p => { bowlPlayers.push(p.player_name); bowlPlayerRoles[p.player_name] = p.role; });
+
         setTimeout(function () { startMatch(); }, 200);
       }, 200);
     }
@@ -9486,6 +9589,13 @@
           activeBowlers = [allBowledBowlers[currIdx], ...activeBowlers].slice(0, 2);
         }
       }
+      
+      // Sort activeBowlers so the current one (m.bowler) is on top
+      activeBowlers.sort((a, b) => {
+        if (a.name === m.bowler) return -1;
+        if (b.name === m.bowler) return 1;
+        return 0;
+      });
 
       let pRuns = activeBatsmen.reduce((sum, b) => sum + parseInt(b.runs || 0), 0);
       let pBalls = activeBatsmen.reduce((sum, b) => sum + parseInt(b.balls || 0), 0);
@@ -11145,15 +11255,24 @@
       if (tab === "finished") loadFinishedMatches();
     }
 
-    function loadUpcomingTeamDropdowns() {
-      let allTournaments = loadTournaments();
+    async function loadUpcomingTeamDropdowns() {
       let teamNames = [];
-      allTournaments.forEach(function (t) {
-        (t.teams || []).forEach(function (team) {
-          if (teamNames.indexOf(team.name) === -1) teamNames.push(team.name);
+      try {
+        const res = await fetch(API + '/all-match-teams', { cache: 'no-store' });
+        const teamMap = await res.json();
+        teamNames = Object.keys(teamMap);
+        window._cachedTeamMap = teamMap;
+      } catch (e) {
+        console.warn('Falling back to localStorage for upcoming team dropdowns', e);
+        let allTournaments = loadTournaments();
+        allTournaments.forEach(function (t) {
+          (t.teams || []).forEach(function (team) {
+            if (teamNames.indexOf(team.name) === -1) teamNames.push(team.name);
+          });
         });
-      });
+      }
       let t1 = document.getElementById("upTeam1"), t2 = document.getElementById("upTeam2");
+      if (!t1 || !t2) return;
       t1.innerHTML = ""; t2.innerHTML = "";
       teamNames.forEach(function (tn) {
         t1.innerHTML += '<option value="' + tn + '">' + tn + '</option>';
@@ -11193,16 +11312,19 @@
     function startFromUpcoming(team1, team2, id) {
       deleteUpcomingMatch(id);
       switchTab("create");
-      let allTournaments = loadTournaments();
-      let teamMap = {};
-      allTournaments.forEach(function (t) {
-        (t.teams || []).forEach(function (team) {
-          if (!teamMap[team.name]) teamMap[team.name] = [];
-          (team.players || []).forEach(function (p) {
-            teamMap[team.name].push({ player_name: p.name, role: p.role });
+      // Use SQL-cached teamMap if available, else fallback to localStorage
+      let teamMap = window._cachedTeamMap || {};
+      if (!window._cachedTeamMap) {
+        let allTournaments = loadTournaments();
+        allTournaments.forEach(function (t) {
+          (t.teams || []).forEach(function (team) {
+            if (!teamMap[team.name]) teamMap[team.name] = [];
+            (team.players || []).forEach(function (p) {
+              teamMap[team.name].push({ player_name: p.name || p.player_name, role: p.role });
+            });
           });
         });
-      });
+      }
       let teamNames = Object.keys(teamMap);
       let batSel = document.getElementById("batTeam"), bowlSel = document.getElementById("bowlTeam");
       batSel.innerHTML = ""; bowlSel.innerHTML = "";
@@ -11610,17 +11732,24 @@
 
     let batPlayers = [], bowlPlayers = [];
     let batPlayerRoles = {}, bowlPlayerRoles = {};
-    function loadMatchTeamDropdowns() {
-      let allTournaments = loadTournaments();
+    async function loadMatchTeamDropdowns() {
       let teamMap = {};
-      allTournaments.forEach(function (t) {
-        (t.teams || []).forEach(function (team) {
-          if (!teamMap[team.name]) teamMap[team.name] = [];
-          (team.players || []).forEach(function (p) {
-            teamMap[team.name].push({ player_name: p.name, role: p.role });
+      try {
+        const res = await fetch(API + '/all-match-teams', { cache: 'no-store' });
+        teamMap = await res.json();
+      } catch (e) {
+        console.warn('all-match-teams fetch failed, falling back to localStorage', e);
+        // Fallback: try localStorage tournaments
+        let allTournaments = loadTournaments();
+        allTournaments.forEach(function (t) {
+          (t.teams || []).forEach(function (team) {
+            if (!teamMap[team.name]) teamMap[team.name] = [];
+            (team.players || []).forEach(function (p) {
+              teamMap[team.name].push({ player_name: p.name || p.player_name, role: p.role });
+            });
           });
         });
-      });
+      }
       let teamNames = Object.keys(teamMap);
       batTeam.innerHTML = ""; bowlTeam.innerHTML = "";
       teamNames.forEach(function (tn) {
@@ -11641,6 +11770,8 @@
       let bowlList = document.getElementById("bowlPlayersList");
       if (batList) batList.innerHTML = (teamMap[batTeamName] || []).map(p => '<li>🧑 ' + p.player_name + ' ' + roleBadge(p.role) + '</li>').join('');
       if (bowlList) bowlList.innerHTML = (teamMap[bowlTeamName] || []).map(p => '<li>🧑 ' + p.player_name + ' ' + roleBadge(p.role) + '</li>').join('');
+      // Store teamMap globally for loadPlayersForMatch to use
+      window._cachedTeamMap = teamMap;
     }
     function loadPlayersForMatch(type) {
       let tname = (type == "bat") ? batTeam.value : bowlTeam.value;
@@ -11648,17 +11779,23 @@
       let arr = (type == "bat") ? batPlayers : bowlPlayers;
       let roleMap = (type == "bat") ? batPlayerRoles : bowlPlayerRoles;
       if (!tname) return;
-      let allTournaments = loadTournaments();
+      // Use cached teamMap from SQL if available
       let players = [];
-      allTournaments.forEach(function (t) {
-        (t.teams || []).forEach(function (team) {
-          if (team.name === tname) {
-            (team.players || []).forEach(function (p) {
-              players.push({ player_name: p.name, role: p.role });
-            });
-          }
+      if (window._cachedTeamMap && window._cachedTeamMap[tname]) {
+        players = window._cachedTeamMap[tname];
+      } else {
+        // Fallback to localStorage
+        let allTournaments = loadTournaments();
+        allTournaments.forEach(function (t) {
+          (t.teams || []).forEach(function (team) {
+            if (team.name === tname) {
+              (team.players || []).forEach(function (p) {
+                players.push({ player_name: p.name || p.player_name, role: p.role });
+              });
+            }
+          });
         });
-      });
+      }
       arr.length = 0; Object.keys(roleMap).forEach(k => delete roleMap[k]);
       players.forEach(p => { arr.push(p.player_name); roleMap[p.player_name] = p.role; });
       list.innerHTML = players.map(p => '<li>🧑 ' + p.player_name + ' ' + roleBadge(p.role) + '</li>').join('');
@@ -11672,16 +11809,19 @@
       let t1 = batTeam.value, t2 = bowlTeam.value;
       if (!t1 || !t2) return alert("Select both teams");
       if (t1 === t2) return alert("Select different teams");
-      let allTournaments = loadTournaments();
-      let teamMap = {};
-      allTournaments.forEach(function (t) {
-        (t.teams || []).forEach(function (team) {
-          if (!teamMap[team.name]) teamMap[team.name] = [];
-          (team.players || []).forEach(function (p) {
-            teamMap[team.name].push({ player_name: p.name, role: p.role });
+      // Use SQL-cached teamMap if available, else fallback to localStorage
+      let teamMap = window._cachedTeamMap || {};
+      if (!window._cachedTeamMap) {
+        let allTournaments = loadTournaments();
+        allTournaments.forEach(function (t) {
+          (t.teams || []).forEach(function (team) {
+            if (!teamMap[team.name]) teamMap[team.name] = [];
+            (team.players || []).forEach(function (p) {
+              teamMap[team.name].push({ player_name: p.name || p.player_name, role: p.role });
+            });
           });
         });
-      });
+      }
       batPlayers.length = 0; bowlPlayers.length = 0;
       Object.keys(batPlayerRoles).forEach(k => delete batPlayerRoles[k]);
       Object.keys(bowlPlayerRoles).forEach(k => delete bowlPlayerRoles[k]);
@@ -11726,16 +11866,19 @@
       matchBowlTeam = finalBowlTeam;
       matchBatTeam = finalBatTeam;
       matchBowlTeam = finalBowlTeam;
-      let allTournaments = loadTournaments();
-      let teamMap = {};
-      allTournaments.forEach(function (t) {
-        (t.teams || []).forEach(function (team) {
-          if (!teamMap[team.name]) teamMap[team.name] = [];
-          (team.players || []).forEach(function (p) {
-            teamMap[team.name].push({ player_name: p.name, role: p.role });
+      // Use SQL-cached teamMap if available, else fallback to localStorage
+      let teamMap = window._cachedTeamMap || {};
+      if (!window._cachedTeamMap) {
+        let allTournaments = loadTournaments();
+        allTournaments.forEach(function (t) {
+          (t.teams || []).forEach(function (team) {
+            if (!teamMap[team.name]) teamMap[team.name] = [];
+            (team.players || []).forEach(function (p) {
+              teamMap[team.name].push({ player_name: p.name || p.player_name, role: p.role });
+            });
           });
         });
-      });
+      }
       batPlayers.length = 0; bowlPlayers.length = 0;
       Object.keys(batPlayerRoles).forEach(k => delete batPlayerRoles[k]);
       Object.keys(bowlPlayerRoles).forEach(k => delete bowlPlayerRoles[k]);
@@ -11767,16 +11910,24 @@
       updateLiveScore();
     }
     function loadScorePlayers() {
-      strike.innerHTML = ""; nonstrike.innerHTML = ""; bowler.innerHTML = "";
+      strike.innerHTML = '<option value="">Select Striker</option>';
+      nonstrike.innerHTML = '<option value="">Select Non-Striker</option>';
+      bowler.innerHTML = '<option value="">Select Bowler</option>';
       batsmanStats = {}; bowlerStats = {};
       batPlayers.forEach(p => {
         batsmanStats[p] = batsmanStats[p] || { runs: 0, balls: 0, fours: 0, sixes: 0 };
-        if (outBatsmen.indexOf(p) === -1) { strike.innerHTML += '<option>' + p + '</option>'; nonstrike.innerHTML += '<option>' + p + '</option>'; }
+        if (outBatsmen.indexOf(p) === -1) {
+          strike.innerHTML += '<option value="' + p + '">' + p + '</option>';
+          nonstrike.innerHTML += '<option value="' + p + '">' + p + '</option>';
+        }
       });
       bowlPlayers.forEach(p => {
         bowlerStats[p] = bowlerStats[p] || { runs: 0, balls: 0, wickets: 0, dots: 0, fours: 0, sixes: 0, wides: 0, noballs: 0 };
-        bowler.innerHTML += '<option>' + p + '</option>';
+        bowler.innerHTML += '<option value="' + p + '">' + p + '</option>';
       });
+      if (batPlayers.length >= 1) strike.value = batPlayers[0];
+      if (batPlayers.length >= 2) nonstrike.value = batPlayers[1];
+      if (bowlPlayers.length >= 1) bowler.value = bowlPlayers[0];
       updateTables(); updateScore();
     }
 
