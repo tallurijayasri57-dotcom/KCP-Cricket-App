@@ -4206,8 +4206,13 @@
           <div id="dotsMenuUsername"
             style="font-family:'Inter',sans-serif; font-size:16px; font-weight:500; color:#111827; margin-bottom:8px; text-transform:none; letter-spacing:normal;">
             Vamsi Krishna</div>
-          <div style="font-family:'Inter',sans-serif; font-size:15px; color:#0d9488; cursor:pointer; font-weight:500;"
-            onclick="document.getElementById('dotsDropdown').classList.remove('open'); openCurrentUserProfile()">Profile</div>
+          <div style="display:flex; gap:12px; align-items:center;">
+            <div style="font-family:'Inter',sans-serif; font-size:14px; color:#0d9488; cursor:pointer; font-weight:500;"
+              onclick="document.getElementById('dotsDropdown').classList.remove('open'); openCurrentUserProfile()">
+              Profile</div>
+            <div style="font-family:'Inter',sans-serif; font-size:14px; color:#3b82f6; cursor:pointer; font-weight:500;"
+              onclick="document.getElementById('userPhotoUploadInput').click()">Change Photo</div>
+          </div>
           <input type="file" id="userPhotoUploadInput" accept="image/*" style="display:none;"
             onchange="handleUserDropdownPhoto(event)">
         </div>
@@ -4224,6 +4229,9 @@
           <button class="dots-menu-item nav-action"
             style="color:#374151; padding:12px 20px; font-size:15px; text-transform:none; text-align:left;"
             onclick="openOrganiserAdmin()">Organiser Admin</button>
+          <button class="dots-menu-item"
+            style="color:#ef4444; padding:12px 20px; font-size:15px; text-transform:none; text-align:left;"
+            onclick="deleteAccount()">Delete Account</button>
           <button class="dots-menu-item logout-item"
             style="color:#374151; padding:12px 20px; font-size:15px; text-transform:none; text-align:left;"
             onclick="logout()">Logout</button>
@@ -5075,38 +5083,54 @@
       </div>
       <h2 id="authTitle">Welcome Back</h2>
       <div class="auth-field"><span class="field-icon">👤</span><input id="username" placeholder="Enter username"></div>
-      <div class="auth-field"><span class="field-icon">🔒</span><input id="password" type="password"
-          placeholder="Enter password"></div>
-      <button class="auth-btn" onclick="authenticate()" id="authBtn">LOGIN</button>
-      <div style="text-align:center; margin-top:4px;">
-        <span onclick="openForgotPassword()" style="font-family:'Inter',sans-serif; font-size:13px; color:#60a5fa; cursor:pointer; text-decoration:underline;">Forgot password?</span>
+      <div class="auth-field" style="margin-bottom: 8px;"><span class="field-icon">🔒</span><input id="password"
+          type="password" placeholder="Enter password"></div>
+      <div style="text-align:right; margin-bottom:16px;">
+        <span onclick="openForgotPassword()"
+          style="font-family:'Inter',sans-serif; font-size:13px; color:#60a5fa; cursor:pointer; font-weight:500;">Forgot
+          password?</span>
       </div>
+      <button class="auth-btn" onclick="authenticate()" id="authBtn">LOGIN</button>
       <div class="auth-divider"><span>or</span></div>
       <div class="auth-switch"><span id="switchText" onclick="toggleAuth()">Don't have an account? Register</span></div>
     </div>
   </div>
 
   <!-- FORGOT PASSWORD MODAL -->
-  <div id="forgotPasswordModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:99999; align-items:center; justify-content:center;">
-    <div style="background:#1e293b; border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:32px; width:90%; max-width:380px; font-family:'Inter',sans-serif; box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+  <div id="forgotPasswordModal"
+    style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:99999; align-items:center; justify-content:center;">
+    <div
+      style="background:#1e293b; border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:32px; width:90%; max-width:380px; font-family:'Inter',sans-serif; box-shadow:0 20px 60px rgba(0,0,0,0.5);">
       <h3 style="color:#ffffff; margin:0 0 6px 0; font-size:20px;">Reset Password</h3>
-      <p style="color:rgba(255,255,255,0.5); font-size:13px; margin:0 0 20px 0;">Enter your username and set a new password.</p>
+      <p style="color:rgba(255,255,255,0.5); font-size:13px; margin:0 0 20px 0;">Enter your username and set a new
+        password.</p>
       <div style="margin-bottom:14px;">
-        <label style="color:rgba(255,255,255,0.6); font-size:12px; text-transform:uppercase; letter-spacing:0.5px;">Username</label>
-        <input id="fpUsername" placeholder="Enter your username" style="width:100%; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15); border-radius:8px; padding:10px 12px; color:#fff; font-size:14px; outline:none; margin-top:6px; box-sizing:border-box;">
+        <label
+          style="color:rgba(255,255,255,0.6); font-size:12px; text-transform:uppercase; letter-spacing:0.5px;">Username</label>
+        <input id="fpUsername" placeholder="Enter your username"
+          style="width:100%; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15); border-radius:8px; padding:10px 12px; color:#fff; font-size:14px; outline:none; margin-top:6px; box-sizing:border-box;">
       </div>
       <div style="margin-bottom:14px;">
-        <label style="color:rgba(255,255,255,0.6); font-size:12px; text-transform:uppercase; letter-spacing:0.5px;">New Password</label>
-        <input id="fpNewPassword" type="password" placeholder="Enter new password" style="width:100%; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15); border-radius:8px; padding:10px 12px; color:#fff; font-size:14px; outline:none; margin-top:6px; box-sizing:border-box;">
+        <label style="color:rgba(255,255,255,0.6); font-size:12px; text-transform:uppercase; letter-spacing:0.5px;">New
+          Password</label>
+        <input id="fpNewPassword" type="password" placeholder="Enter new password"
+          style="width:100%; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15); border-radius:8px; padding:10px 12px; color:#fff; font-size:14px; outline:none; margin-top:6px; box-sizing:border-box;">
       </div>
       <div style="margin-bottom:20px;">
-        <label style="color:rgba(255,255,255,0.6); font-size:12px; text-transform:uppercase; letter-spacing:0.5px;">Confirm New Password</label>
-        <input id="fpConfirmPassword" type="password" placeholder="Confirm new password" style="width:100%; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15); border-radius:8px; padding:10px 12px; color:#fff; font-size:14px; outline:none; margin-top:6px; box-sizing:border-box;">
+        <label
+          style="color:rgba(255,255,255,0.6); font-size:12px; text-transform:uppercase; letter-spacing:0.5px;">Confirm
+          New Password</label>
+        <input id="fpConfirmPassword" type="password" placeholder="Confirm new password"
+          style="width:100%; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15); border-radius:8px; padding:10px 12px; color:#fff; font-size:14px; outline:none; margin-top:6px; box-sizing:border-box;">
       </div>
-      <div id="fpResult" style="display:none; border-radius:8px; padding:12px; margin-bottom:16px; font-size:14px;"></div>
+      <div id="fpResult" style="display:none; border-radius:8px; padding:12px; margin-bottom:16px; font-size:14px;">
+      </div>
       <div style="display:flex; gap:10px;">
-        <button onclick="closeForgotPassword()" style="flex:1; background:rgba(255,255,255,0.07); color:#fff; border:1px solid rgba(255,255,255,0.15); padding:11px; border-radius:8px; cursor:pointer; font-size:14px;">Cancel</button>
-        <button onclick="submitForgotPassword()" style="flex:1; background:#3b82f6; color:#fff; border:none; padding:11px; border-radius:8px; cursor:pointer; font-size:14px; font-weight:600;">Change Password</button>
+        <button onclick="closeForgotPassword()"
+          style="flex:1; background:rgba(255,255,255,0.07); color:#fff; border:1px solid rgba(255,255,255,0.15); padding:11px; border-radius:8px; cursor:pointer; font-size:14px;">Cancel</button>
+        <button onclick="submitForgotPassword()"
+          style="flex:1; background:#3b82f6; color:#fff; border:none; padding:11px; border-radius:8px; cursor:pointer; font-size:14px; font-weight:600;">Change
+          Password</button>
       </div>
     </div>
   </div>
@@ -5357,13 +5381,45 @@
       onclick="handleSettingsOption('teams')">Teams</div>
     <div style="padding:10px 16px; cursor:pointer; color:rgba(255,255,255,0.8);"
       onmouseover="this.style.background='rgba(255,255,255,0.07)'" onmouseout="this.style.background='transparent'"
-      onclick="handleSettingsOption('rounds')">Rounds</div>
-    <div style="padding:10px 16px; cursor:pointer; color:rgba(255,255,255,0.8);"
-      onmouseover="this.style.background='rgba(255,255,255,0.07)'" onmouseout="this.style.background='transparent'"
-      onclick="handleSettingsOption('groups')">Groups</div>
+      onclick="handleSettingsOption('gallery')">Gallery</div>
     <div style="padding:10px 16px; cursor:pointer; color:rgba(255,255,255,0.8);"
       onmouseover="this.style.background='rgba(255,255,255,0.07)'" onmouseout="this.style.background='transparent'"
       onclick="handleSettingsOption('matches')">Matches</div>
+  </div>
+
+  <!-- TOURNAMENT GALLERY PAGE -->
+  <div id="tournamentGalleryPage" class="page" style="padding:0; min-height:100vh; display:none; flex-direction:column;">
+    <div class="page-top-back"
+      style="background:rgba(2,6,23,0.85); backdrop-filter:blur(12px); border-bottom:1px solid rgba(45,212,191,0.12); padding:16px 20px; display:flex; align-items:center; justify-content:space-between;">
+      <button class="page-top-back-btn" onclick="openTournamentsTable()"
+        style="color:#fff; background:none; border:none; cursor:pointer; font-family:'Inter',sans-serif; display:inline-flex; align-items:center; gap:8px; padding:0;">
+        <span class="page-top-back-arrow" style="color:#2dd4bf;">←</span> <span style="font-size:18px;">Back</span>
+      </button>
+      <span id="galleryTournamentName" style="color:#fff; font-family:'Rajdhani',sans-serif; font-size:18px; font-weight:700; letter-spacing:1px;"></span>
+    </div>
+
+    <div style="max-width:1100px; margin:0 auto; padding:30px 20px; width:100%; box-sizing:border-box;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; flex-wrap:wrap; gap:16px;">
+        <h2 style="font-family:'Times New Roman', serif; font-size:32px; font-weight:700; color:#ffffff; margin:0;">Gallery</h2>
+        <!-- Upload button — only shown if current user is the organiser -->
+        <div id="galleryUploadSection" style="display:none;">
+          <label for="galleryPhotoInput"
+            style="display:inline-flex; align-items:center; gap:8px; background:#10b981; color:#fff; border:none; padding:10px 20px; border-radius:6px; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; cursor:pointer; text-transform:uppercase; user-select:none;">
+            📸 UPLOAD PHOTO
+          </label>
+          <input type="file" id="galleryPhotoInput" accept="image/*" style="display:none;" onchange="handleGalleryPhotoUpload(this)">
+          <div id="galleryUploadProgress" style="display:none; margin-top:8px; color:#6ee7b7; font-size:13px; font-family:'Inter',sans-serif;">Uploading...</div>
+        </div>
+      </div>
+
+      <!-- Photo Grid -->
+      <div id="galleryPhotoGrid"
+        style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:16px; min-height:200px;">
+        <div style="grid-column:1/-1; text-align:center; padding:60px 20px; color:rgba(255,255,255,0.4); font-family:'Inter',sans-serif; font-size:14px;" id="galleryEmptyMsg">
+          📸 No photos uploaded yet.
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- TOURNAMENT TEAMS PAGE -->
@@ -5426,7 +5482,7 @@
       margin: 30px 0;
       color: #ffffff;
       letter-spacing: 2px;
-      text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
     }
 
     .at-field-new {
@@ -5436,7 +5492,7 @@
 
     .at-label-new {
       font-size: 11px;
-      color: rgba(255,255,255,0.75);
+      color: rgba(255, 255, 255, 0.75);
       margin-bottom: 4px;
       font-family: 'Inter', sans-serif;
       text-transform: uppercase;
@@ -5446,7 +5502,7 @@
     .at-input-new {
       width: 100%;
       border: none;
-      border-bottom: 1px solid rgba(255,255,255,0.4);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.4);
       padding: 8px 0;
       font-size: 15px;
       color: #ffffff;
@@ -5456,7 +5512,9 @@
       font-family: 'Inter', sans-serif;
     }
 
-    .at-input-new::placeholder { color: rgba(255,255,255,0.35); }
+    .at-input-new::placeholder {
+      color: rgba(255, 255, 255, 0.35);
+    }
 
     .at-input-new:focus {
       border-bottom-color: #10b981;
@@ -5552,7 +5610,7 @@
     .select-container {
       display: flex;
       align-items: center;
-      border-bottom: 1px solid rgba(255,255,255,0.4);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.4);
       padding-bottom: 4px;
       position: relative;
       cursor: text;
@@ -5605,7 +5663,10 @@
       font-family: 'Inter', sans-serif;
       padding: 4px 0;
     }
-    .select-input::placeholder { color: rgba(255,255,255,0.35); }
+
+    .select-input::placeholder {
+      color: rgba(255, 255, 255, 0.35);
+    }
 
     .select-actions {
       display: flex;
@@ -5640,8 +5701,10 @@
     }
   </style>
 
-  <div id="addTournament" class="page" style="padding:0; background:linear-gradient(135deg,rgba(2,14,28,0.92) 0%,rgba(10,40,25,0.88) 100%), url('https://images.unsplash.com/photo-1540747913346-19212a4b423a?w=1400&q=80') center/cover no-repeat; min-height:100vh; padding-bottom:50px;">
-    <div class="page-top-back" style="background:rgba(0,0,0,0.3); border-bottom:1px solid rgba(255,255,255,0.1); padding:16px 20px; backdrop-filter:blur(6px);">
+  <div id="addTournament" class="page"
+    style="padding:0; background:linear-gradient(135deg,rgba(2,14,28,0.92) 0%,rgba(10,40,25,0.88) 100%), url('https://images.unsplash.com/photo-1540747913346-19212a4b423a?w=1400&q=80') center/cover no-repeat; min-height:100vh; padding-bottom:50px;">
+    <div class="page-top-back"
+      style="background:rgba(0,0,0,0.3); border-bottom:1px solid rgba(255,255,255,0.1); padding:16px 20px; backdrop-filter:blur(6px);">
       <button class="page-top-back-btn" onclick="globalGoBack()" style="color:#ffffff;">
         <span class="page-top-back-arrow" style="color:#ffffff;">←</span> <span style="font-size:18px;">Back</span>
       </button>
@@ -5714,7 +5777,8 @@
           </div>
           <div style="display:flex; align-items:center; gap:8px; margin-bottom:20px;">
             <input type="checkbox" id="tContactCheck" style="width:16px;height:16px;" checked>
-            <label for="tContactCheck" style="font-size:13px; color:rgba(255,255,255,0.8); font-family:'Inter',sans-serif;">Allow
+            <label for="tContactCheck"
+              style="font-size:13px; color:rgba(255,255,255,0.8); font-family:'Inter',sans-serif;">Allow
               players to contact me for Team Registration</label>
           </div>
           <div style="display:flex; gap:20px;">
@@ -5771,17 +5835,23 @@
               <div style="text-align:center;">
                 <div class="ball-opt-new" onclick="selectBallNew(this, 'Tennis')"><span
                     style="font-size:24px;">🎾</span></div>
-                <div style="font-size:12px; margin-top:4px; color:rgba(255,255,255,0.7); font-family:'Inter',sans-serif;">Tennis</div>
+                <div
+                  style="font-size:12px; margin-top:4px; color:rgba(255,255,255,0.7); font-family:'Inter',sans-serif;">
+                  Tennis</div>
               </div>
               <div style="text-align:center;">
                 <div class="ball-opt-new" onclick="selectBallNew(this, 'Other')"><span style="font-size:24px;">🔴</span>
                 </div>
-                <div style="font-size:12px; margin-top:4px; color:rgba(255,255,255,0.7); font-family:'Inter',sans-serif;">Other</div>
+                <div
+                  style="font-size:12px; margin-top:4px; color:rgba(255,255,255,0.7); font-family:'Inter',sans-serif;">
+                  Other</div>
               </div>
               <div style="text-align:center;">
                 <div class="ball-opt-new" onclick="selectBallNew(this, 'Leather')"><span
                     style="font-size:24px;">🏏</span></div>
-                <div style="font-size:12px; margin-top:4px; color:rgba(255,255,255,0.7); font-family:'Inter',sans-serif;">Leather
+                <div
+                  style="font-size:12px; margin-top:4px; color:rgba(255,255,255,0.7); font-family:'Inter',sans-serif;">
+                  Leather
                 </div>
               </div>
             </div>
@@ -5790,7 +5860,8 @@
       </div>
 
       <div style="display:flex; justify-content:center; gap:16px; margin-top:40px;">
-        <button class="btn-outline" onclick="globalGoBack()" style="background:transparent; color:#10b981; border-color:#10b981;">CANCEL</button>
+        <button class="btn-outline" onclick="globalGoBack()"
+          style="background:transparent; color:#10b981; border-color:#10b981;">CANCEL</button>
         <button class="btn-solid" onclick="saveTournamentNew()">NEXT</button>
       </div>
     </div>
@@ -5942,20 +6013,20 @@
         fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&countrycodes=in&format=json&limit=8&addressdetails=1`, {
           headers: { 'Accept-Language': 'en', 'User-Agent': 'KCP-Cricket-App' }
         })
-        .then(r => r.json())
-        .then(results => {
-          if (!results.length) {
-            box.innerHTML = '<div style="padding:10px; color:rgba(255,255,255,0.4); font-size:13px;">No results found in India</div>';
-            return;
-          }
-          box.innerHTML = results.map(r => {
-            let label = r.display_name;
-            return `<div onclick="selectLocation('${label.replace(/'/g,"\\'").replace(/"/g,'&quot;')}')" style="padding:10px 12px; font-size:13px; color:#ffffff; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.07); font-family:'Inter',sans-serif;" onmouseover="this.style.background='rgba(16,185,129,0.15)'" onmouseout="this.style.background='transparent'">${label}</div>`;
-          }).join('');
-        })
-        .catch(() => {
-          box.innerHTML = '<div style="padding:10px; color:#f87171; font-size:13px;">Search failed. Check internet.</div>';
-        });
+          .then(r => r.json())
+          .then(results => {
+            if (!results.length) {
+              box.innerHTML = '<div style="padding:10px; color:rgba(255,255,255,0.4); font-size:13px;">No results found in India</div>';
+              return;
+            }
+            box.innerHTML = results.map(r => {
+              let label = r.display_name;
+              return `<div onclick="selectLocation('${label.replace(/'/g, "\\'").replace(/"/g, '&quot;')}')" style="padding:10px 12px; font-size:13px; color:#ffffff; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.07); font-family:'Inter',sans-serif;" onmouseover="this.style.background='rgba(16,185,129,0.15)'" onmouseout="this.style.background='transparent'">${label}</div>`;
+            }).join('');
+          })
+          .catch(() => {
+            box.innerHTML = '<div style="padding:10px; color:#f87171; font-size:13px;">Search failed. Check internet.</div>';
+          });
       }, 500);
     }
 
@@ -6031,40 +6102,56 @@
       if (!window.tempTournamentData) return alert('Tournament data missing!');
 
       const user = localStorage.getItem('currentUser') || 'guest';
+      const t = window.tempTournamentData;
 
-      // 1. Update Local Storage First
-      let allTournaments = JSON.parse(localStorage.getItem('kcp_tournaments_' + user) || '[]');
-      if (Array.isArray(allTournaments)) allTournaments = allTournaments.flat(Infinity);
-      allTournaments.push(window.tempTournamentData);
-      localStorage.setItem('kcp_tournaments_' + user, JSON.stringify(allTournaments));
-
-      // 2. Sync with SSMS 19 Database via Server
       try {
-        await fetch(API + '/tournaments', {
+        // 1. Save to Local Storage as backup first
+        let localData = loadTournaments();
+        localData.push(t);
+        localStorage.setItem(getTournamentsKey(), JSON.stringify(localData));
+
+        // 2. Save to SQL Database
+        const res = await fetch(API + '/tournaments', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            user_id: user,
-            tournament_data: JSON.stringify(allTournaments)
+            name: t.name,
+            created_by: user,
+            ball_type: t.ball || null,
+            start_date: t.startDate || null,
+            end_date: t.endDate || null
           })
         });
+
+        if (!res.ok) throw new Error("Failed to save to SQL Database");
+
+        alert("Tournament Published Successfully! ✅");
+
+        // 3. Force UI Refresh
+        if (typeof refreshTournamentsFromServer === 'function') {
+          await refreshTournamentsFromServer();
+        }
+
+        window.tempTournamentData = null;
+        showPage('home');
+        if (typeof renderHomeBanner === 'function') renderHomeBanner();
+
       } catch (err) {
         console.warn("SSMS Sync Failed:", err.message);
+        alert("Saved to phone memory, but SQL Sync failed: " + err.message);
+        showPage('home');
       }
 
-      if (typeof syncArrayToFirebase === 'function') syncArrayToFirebase(allTournaments);
-
-      window.tempTournamentData = null;
-      // Reset form
-      document.getElementById('tNameNew').value = '';
-      document.getElementById('tLogoPreview').src = "data:image/svg+xml;utf8,<svg width='60' height='60' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M21 19V5C21 3.9 20.1 3 19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19ZM8.5 13.5L11 16.51L14.5 12L19 18H5L8.5 13.5Z' fill='%23D1D5DB'/></svg>";
-
-      document.getElementById('tournamentSuccessModal').style.display = 'flex';
-      let bar = document.getElementById('tournamentSuccessProgressBar');
-      if (bar) {
-        bar.style.animation = 'none';
-        void bar.offsetWidth;
-        bar.style.animation = 'shrinkProgress 3s linear forwards';
+      // Show success modal if it exists
+      const successModal = document.getElementById('tournamentSuccessModal');
+      if (successModal) {
+        successModal.style.display = 'flex';
+        let bar = document.getElementById('tournamentSuccessProgressBar');
+        if (bar) {
+          bar.style.animation = 'none';
+          void bar.offsetWidth;
+          bar.style.animation = 'shrinkProgress 3s linear forwards';
+        }
       }
     }
 
@@ -6129,9 +6216,9 @@
       <div
         style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px; flex-wrap:wrap; gap:16px;">
         <div>
-          <h2 style="font-family:'Inter',sans-serif; font-size:22px; font-weight:600; color:#111827; margin:0 0 4px 0;">
+          <h2 style="font-family:'Inter',sans-serif; font-size:22px; font-weight:600; color:#ffffff; margin:0 0 4px 0;">
             Upload logo for your tournament</h2>
-          <div style="font-family:'Inter',sans-serif; font-size:13px; font-style:italic; color:#6b7280;">(Dimension:
+          <div style="font-family:'Inter',sans-serif; font-size:13px; font-style:italic; color:#cbd5e1;">(Dimension:
             300px x 300px; Size: &lt;100kb)</div>
         </div>
         <div style="display:flex; gap:12px;">
@@ -6327,7 +6414,9 @@
           <button class="profile-close-btn"
             style="background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.8); border:1px solid rgba(255,255,255,0.15); padding:8px 14px; border-radius:6px; cursor:pointer; margin-right:20px; font-weight:600; font-size:13px; letter-spacing:0.5px;"
             onclick="globalGoBack()">❮ Back</button>
-          <div class="profile-avatar" id="profileAvatar" style="width:110px;height:110px;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,0.4);border:2px solid rgba(255,255,255,0.15);">🏏</div>
+          <div class="profile-avatar" id="profileAvatar"
+            style="width:110px;height:110px;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,0.4);border:2px solid rgba(255,255,255,0.15);">
+            🏏</div>
           <div class="profile-info-block" style="gap:6px;">
             <div id="profileRoleBadge" style="display:none;"></div>
             <h2 class="profile-name" id="profileName" style="font-size:28px;margin:2px 0;">Player Name</h2>
@@ -6335,7 +6424,8 @@
               <span id="profileLocation">Jaggayyapeta</span>
             </div>
             <div style="border-top:1px dashed rgba(255,255,255,0.15); margin:8px 0 6px;"></div>
-            <div class="profile-styles" style="font-size:13px; color:#e2e8f0; font-weight:600; display:flex; align-items:center; white-space:nowrap; flex-wrap:nowrap;">
+            <div class="profile-styles"
+              style="font-size:13px; color:#e2e8f0; font-weight:600; display:flex; align-items:center; white-space:nowrap; flex-wrap:nowrap;">
               <span id="profileBatStyle" style="color:#38bdf8;">RHB</span>
               <span style="color:rgba(255,255,255,0.3); margin:0 8px;">|</span>
               <span id="profileBowlStyle">Player</span>
@@ -6345,17 +6435,26 @@
         </div>
 
         <div class="profile-header-right" style="display:flex; gap:12px;">
-          <div style="border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.05); padding:14px 20px; border-radius:10px; text-align:center; min-width:80px; cursor:pointer;" onclick="switchProfileTab('matches', document.querySelectorAll('.profile-tab-btn')[0])">
+          <div
+            style="border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.05); padding:14px 20px; border-radius:10px; text-align:center; min-width:80px; cursor:pointer;"
+            onclick="switchProfileTab('matches', document.querySelectorAll('.profile-tab-btn')[0])">
             <div id="profileTotalMatches" style="font-size:26px; font-weight:800; color:#fff; line-height:1;">0</div>
-            <div style="color:#94a3b8; font-size:11px; text-transform:uppercase; letter-spacing:1.5px; margin-top:4px;">Matches</div>
+            <div style="color:#94a3b8; font-size:11px; text-transform:uppercase; letter-spacing:1.5px; margin-top:4px;">
+              Matches</div>
           </div>
-          <div style="border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.05); padding:14px 20px; border-radius:10px; text-align:center; min-width:80px; cursor:pointer;" onclick="switchProfileTab('stats', document.querySelectorAll('.profile-tab-btn')[1])">
+          <div
+            style="border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.05); padding:14px 20px; border-radius:10px; text-align:center; min-width:80px; cursor:pointer;"
+            onclick="switchProfileTab('stats', document.querySelectorAll('.profile-tab-btn')[1])">
             <div id="profileTotalRuns" style="font-size:26px; font-weight:800; color:#fff; line-height:1;">0</div>
-            <div style="color:#94a3b8; font-size:11px; text-transform:uppercase; letter-spacing:1.5px; margin-top:4px;">Runs</div>
+            <div style="color:#94a3b8; font-size:11px; text-transform:uppercase; letter-spacing:1.5px; margin-top:4px;">
+              Runs</div>
           </div>
-          <div style="border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.05); padding:14px 20px; border-radius:10px; text-align:center; min-width:80px; cursor:pointer;" onclick="switchProfileTab('stats', document.querySelectorAll('.profile-tab-btn')[1])">
+          <div
+            style="border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.05); padding:14px 20px; border-radius:10px; text-align:center; min-width:80px; cursor:pointer;"
+            onclick="switchProfileTab('stats', document.querySelectorAll('.profile-tab-btn')[1])">
             <div id="profileTotalWickets" style="font-size:26px; font-weight:800; color:#fff; line-height:1;">0</div>
-            <div style="color:#94a3b8; font-size:11px; text-transform:uppercase; letter-spacing:1.5px; margin-top:4px;">Wickets</div>
+            <div style="color:#94a3b8; font-size:11px; text-transform:uppercase; letter-spacing:1.5px; margin-top:4px;">
+              Wickets</div>
           </div>
         </div>
       </div>
@@ -6802,38 +6901,42 @@
       return data.filter(t => t && t.name && t.name !== 'undefined');
     }
 
-    function refreshTournamentsFromServer() {
-      const user = localStorage.getItem('currentUser') || 'guest';
-      fetch(API + '/tournaments/' + user, { cache: 'no-store' })
-        .then(res => res.json())
-        .then(data => {
-          if (data && data.length >= 0) {
-            let flatData = (Array.isArray(data) && data.length > 0 && Array.isArray(data[0])) ? data[0] : data;
-            let validData = flatData.filter(t => t && t.name && t.name !== 'undefined');
-            
-            let localData = loadTournaments();
-            
-            // Only overwrite if data is actually different
-            // and we are not in the middle of a local deletion/save
-            if (JSON.stringify(validData) !== JSON.stringify(localData)) {
-              // Sync Lock: Ignore server data if we recently saved locally (persist across refreshes)
-              const lastSaveStr = localStorage.getItem('lastLocalSaveTime') || '0';
-              const syncLockTime = parseInt(lastSaveStr);
-              const now = Date.now();
-              
-              // Extended lock to 10 seconds for deletion stability
-              if (!window.isSavingData && (now - syncLockTime > 10000)) {
-                localStorage.setItem(getTournamentsKey(), JSON.stringify(validData));
-                tournaments = validData;
-                if (typeof renderTournamentList === 'function') renderTournamentList();
-                if (typeof renderTeamsList === 'function') renderTeamsList();
-              } else {
-                console.log("Sync skipped to prevent overwriting recent local changes.");
-              }
-            }
-          }
-        })
-        .catch(err => console.log("Server sync failed, using local data.", err));
+    async function refreshTournamentsFromServer() {
+      const rawUser = localStorage.getItem('currentUser') || 'guest';
+      const user = rawUser.trim().toLowerCase(); 
+      
+      // Update the label in the Nav Bar
+      const label = document.getElementById('currentUserLabel');
+      if (label) label.innerText = "Logged in as: " + rawUser;
+
+      try {
+        console.log("App fetching tournaments for:", user);
+        const res = await fetch(API + '/tournaments/' + user + '?_t=' + Date.now());
+        const sqlData = await res.json();
+        console.log("App received SQL Data:", sqlData);
+        
+        // Update connection status to GREEN
+        const dot = document.getElementById('dbSyncStatus');
+        if (dot) { dot.style.background = '#10b981'; dot.title = "Server Online"; }
+        
+        if (Array.isArray(sqlData)) {
+          // Pure SQL Data Only. No more phone-backup interference.
+          tournaments = sqlData; 
+        } else if (sqlData && sqlData.error) {
+          console.error("SQL Data Error:", sqlData.error);
+          document.getElementById('oaPaginationText').innerText = 'API Error: ' + sqlData.error;
+        }
+
+        if (typeof renderTournamentList === 'function') renderTournamentList();
+        if (typeof renderTeamsList === 'function') renderTeamsList();
+        if (typeof renderHomeBanner === 'function') renderHomeBanner();
+      } catch (err) {
+        console.error("SQL Fetch failed:", err);
+        let pt = document.getElementById('oaPaginationText');
+        if (pt) pt.innerText = 'Sync failed: ' + err.message;
+        // Do NOT overwrite tournaments = [] if we already loaded local data
+        if (typeof renderTournamentList === 'function') renderTournamentList();
+      }
     }
     async function syncArrayToFirebase(arr) {
       if (!window.fbSetDoc) return;
@@ -6850,45 +6953,60 @@
     }
 
     async function saveTournamentsData(arr, retries = 2) {
-      window.isSavingData = true;
-      const now = Date.now();
-      localStorage.setItem('lastLocalSaveTime', now.toString());
-      
-      // Add lastModified timestamp to all tournaments
-      if (Array.isArray(arr)) {
-        arr.forEach(t => { if (t && !t.lastModified) t.lastModified = now; });
-      }
-      
-      localStorage.setItem(getTournamentsKey(), JSON.stringify(arr));
-      if (typeof syncArrayToFirebase === 'function') syncArrayToFirebase(arr);
-      
-      let u = localStorage.getItem("currentUser") || "guest";
+      // DEPRECATED: This function is no longer used for saving tournaments.
+      // Tournaments are now saved directly to the SQL database.
+      return true;
+    }
+
+    async function syncTournamentToSQL(t) {
+      const user = localStorage.getItem('currentUser') || 'guest';
       try {
-        const res = await fetch(API + "/tournaments", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ user_id: u, tournament_data: JSON.stringify(arr) })
+        // 1. Save Tournament
+        const tRes = await fetch(API + '/tournaments', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: t.name,
+            created_by: user,
+            ball_type: t.ball || t.ballType || null,
+            start_date: t.startDate || null,
+            end_date: t.endDate || null
+          })
         });
-        
-        if (res.ok) {
-          window.isSavingData = false;
-          console.log("✅ Sync Success");
-          return true;
-        } else if (retries > 0) {
-          console.warn(`Sync failed with status ${res.status}, retrying... (${retries} left)`);
-          await new Promise(r => setTimeout(r, 1000));
-          return await saveTournamentsData(arr, retries - 1);
+        const tData = await tRes.json();
+        if (!tData.success) return false;
+        const newTid = tData.id;
+
+        // 2. Save Teams & Players if they exist in the local object
+        if (t.teams && Array.isArray(t.teams)) {
+          for (let team of t.teams) {
+            await fetch(API + '/tournament-teams', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ tournament_id: newTid, team_name: team.name })
+            });
+            if (team.players && Array.isArray(team.players)) {
+              for (let p of team.players) {
+                await fetch(API + '/tournament-players', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    tournament_id: newTid,
+                    team_name: team.name,
+                    player_name: p.name || p.player_name,
+                    role: p.role || null,
+                    photo_url: p.photo_url || p.photo || null
+                  })
+                });
+              }
+            }
+          }
         }
+        return true;
       } catch (err) {
-        if (retries > 0) {
-           console.warn("Sync error, retrying...", err);
-           await new Promise(r => setTimeout(r, 1000));
-           return await saveTournamentsData(arr, retries - 1);
-        }
-        console.error("❌ Sync Error:", err);
+        console.error("Sync error:", err);
+        return false;
       }
-      window.isSavingData = false;
-      return false;
     }
 
     async function syncAllLocalToSSMS() {
@@ -6898,12 +7016,20 @@
       const btn = document.getElementById('syncAllBtn');
       if (btn) { btn.innerText = "⏳ SYNCING..."; btn.disabled = true; }
 
-      const success = await saveTournamentsData(localData);
+      let successCount = 0;
+      for (let t of localData) {
+        // Only sync if it looks like a local tournament (numeric timestamp ID or no ID)
+        if (!t.id || t.id > 1000000) {
+          const ok = await syncTournamentToSQL(t);
+          if (ok) successCount++;
+        }
+      }
 
-      if (success) {
-        alert("All your old data has been synced to SSMS successfully! ✅");
+      if (successCount > 0) {
+        alert(`${successCount} tournament(s) synced to SSMS successfully! ✅`);
+        refreshTournamentsFromServer();
       } else {
-        alert("Sync failed. Please make sure 'node server.js' is running and connected to SQL.");
+        alert("No new tournaments were synced. Make sure they are not already in SQL.");
       }
 
       if (btn) { btn.innerText = "SYNC ALL TO SSMS"; btn.disabled = false; }
@@ -6919,11 +7045,13 @@
       document.getElementById('organiserAdmin').style.display = 'flex';
     }
 
-    function openTournamentsTable() {
-      tournaments = loadTournaments();
+    async function openTournamentsTable() {
       showPage('tournamentsTablePage');
-      renderTournamentList();
-      refreshTournamentsFromServer(); // Background refresh
+      // Show loading skeleton while fetching from SQL
+      let tbody = document.getElementById('oaTournamentTableBody');
+      if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:#94a3b8;font-family:Inter,sans-serif;">⏳ Loading tournaments...</td></tr>';
+      // Fetch from SQL first, then render
+      await refreshTournamentsFromServer();
     }
 
     function renderTournamentList() {
@@ -6976,21 +7104,44 @@
 
     let currentEditTournamentIdx = -1;
     function openEditTournament(idx) {
+      const modal = document.getElementById('editTournamentModal');
+      if (modal) modal.style.display = 'flex';
+
       currentEditTournamentIdx = idx;
-      tournaments = loadTournaments();
       let t = tournaments[idx];
-      document.getElementById('etName').value = t.name || '';
-      document.getElementById('etCity').value = t.city || '';
-      document.getElementById('etGround').value = t.ground || '';
-      document.getElementById('etOrganiser').value = t.organiser || '';
-      document.getElementById('etContact').value = t.contact || '';
-      document.getElementById('etStartDate').value = t.startDate || '';
-      document.getElementById('etEndDate').value = t.endDate || '';
-      document.querySelectorAll('#etCategory .et-chip').forEach(function (c) { c.classList.remove('et-chip-sel'); if (c.innerText.trim() === (t.category || '').trim()) c.classList.add('et-chip-sel'); });
-      document.querySelectorAll('#etPitch .et-chip').forEach(function (c) { c.classList.remove('et-chip-sel'); if (c.innerText.trim() === (t.pitch || '').trim()) c.classList.add('et-chip-sel'); });
-      document.querySelectorAll('#etMatchType .et-chip').forEach(function (c) { c.classList.remove('et-chip-sel'); if (c.innerText.trim() === (t.matchType || '').trim()) c.classList.add('et-chip-sel'); });
-      document.querySelectorAll('#etBallType .et-ball').forEach(function (b) { b.classList.remove('et-ball-sel'); if (b.dataset.ball === (t.ball || '')) b.classList.add('et-ball-sel'); });
-      document.getElementById('editTournamentModal').style.display = 'flex';
+      if (!t) return;
+
+      // Fill text fields
+      const setVal = (id, val) => { let el = document.getElementById(id); if (el) el.value = val || ''; };
+      setVal('etName', t.name);
+      setVal('etCity', t.city);
+      setVal('etGround', t.ground);
+      setVal('etOrganiser', t.organiser);
+      setVal('etContact', t.contact);
+      setVal('etStartDate', t.startDate);
+      setVal('etEndDate', t.endDate);
+
+      // Safe Chip Selection Helper
+      const safeSelect = (selector, val) => {
+        document.querySelectorAll(selector).forEach(c => {
+          c.classList.remove('et-chip-sel');
+          if (val && c.innerText.trim().toUpperCase() === String(val).trim().toUpperCase()) {
+            c.classList.add('et-chip-sel');
+          }
+        });
+      };
+
+      safeSelect('#etCategory .et-chip', t.category);
+      safeSelect('#etPitch .et-chip', t.pitch);
+      safeSelect('#etMatchType .et-chip', t.matchType);
+
+      // Safe Ball Selection
+      document.querySelectorAll('#etBallType .et-ball').forEach(function (b) {
+        b.classList.remove('et-ball-sel');
+        if (t.ball && b.dataset.ball && b.dataset.ball.toUpperCase() === String(t.ball).toUpperCase()) {
+          b.classList.add('et-ball-sel');
+        }
+      });
     }
     function closeEditTournamentModal() {
       document.getElementById('editTournamentModal').style.display = 'none';
@@ -7004,30 +7155,53 @@
       el.classList.add('et-ball-sel');
       el.dataset.ball = type;
     }
-    function saveEditTournament() {
-      let name = document.getElementById('etName').value.trim();
-      if (!name) { alert('Enter tournament name'); return; }
-      tournaments = loadTournaments();
-      let t = tournaments[currentEditTournamentIdx];
-      t.name = name;
-      t.city = document.getElementById('etCity').value.trim();
-      t.ground = document.getElementById('etGround').value.trim();
-      t.organiser = document.getElementById('etOrganiser').value.trim();
-      t.contact = document.getElementById('etContact').value.trim();
-      t.startDate = document.getElementById('etStartDate').value;
-      t.endDate = document.getElementById('etEndDate').value;
-      let catEl = document.querySelector('#etCategory .et-chip-sel');
-      let pitchEl = document.querySelector('#etPitch .et-chip-sel');
-      let matchEl = document.querySelector('#etMatchType .et-chip-sel');
-      let ballEl = document.querySelector('#etBallType .et-ball-sel');
-      if (catEl) t.category = catEl.innerText.trim();
-      if (pitchEl) t.pitch = pitchEl.innerText.trim();
-      if (matchEl) t.matchType = matchEl.innerText.trim();
-      if (ballEl) t.ball = ballEl.dataset.ball;
-      saveTournamentsData(tournaments);
-      closeEditTournamentModal();
-      renderTournamentList();
-      showTournamentUpdatedToast();
+    async function saveEditTournament() {
+      const saveBtn = document.querySelector('#editTournamentModal button[onclick="saveEditTournament()"]');
+      if (saveBtn) { saveBtn.disabled = true; saveBtn.innerText = "SAVING..."; }
+
+      try {
+        let name = document.getElementById('etName').value.trim();
+        if (!name) { alert('Enter tournament name'); throw new Error("Name required"); }
+
+        // Use the current tournaments array directly
+        let t = tournaments[currentEditTournamentIdx];
+        if (!t) throw new Error("Tournament not found");
+
+        t.name = name;
+        t.city = document.getElementById('etCity').value.trim();
+        t.ground = document.getElementById('etGround').value.trim();
+        t.organiser = document.getElementById('etOrganiser').value.trim();
+        t.contact = document.getElementById('etContact').value.trim();
+        t.startDate = document.getElementById('etStartDate').value;
+        t.endDate = document.getElementById('etEndDate').value;
+
+        let catEl = document.querySelector('#etCategory .et-chip-sel');
+        let pitchEl = document.querySelector('#etPitch .et-chip-sel');
+        let matchEl = document.querySelector('#etMatchType .et-chip-sel');
+        let ballEl = document.querySelector('#etBallType .et-ball-sel');
+
+        if (catEl) t.category = catEl.innerText.trim();
+        if (pitchEl) t.pitch = pitchEl.innerText.trim();
+        if (matchEl) t.matchType = matchEl.innerText.trim();
+        if (ballEl) t.ball = ballEl.dataset.ball;
+
+        // If it's a local tournament, sync it now to SQL
+        if (!t.id || t.id > 1000000) {
+          console.log("Syncing tournament to SQL:", t.name);
+          await syncTournamentToSQL(t);
+          // We NO LONGER delete from local storage here. 
+          // We keep it as a backup for safety.
+        }
+
+        closeEditTournamentModal();
+        await refreshTournamentsFromServer();
+        showTournamentUpdatedToast();
+      } catch (err) {
+        console.error("Save error:", err);
+        alert("Error saving: " + err.message);
+      } finally {
+        if (saveBtn) { saveBtn.disabled = false; saveBtn.innerText = "SAVE"; }
+      }
     }
     function showTournamentUpdatedToast() {
       if (!document.getElementById('_shrinkKf')) {
@@ -7065,7 +7239,7 @@
       el.dataset.ball = type;
     }
 
-    function saveTournament() {
+    async function saveTournament() {
       let name = document.getElementById('tName').value.trim();
       let city = document.getElementById('tCity').value.trim();
       let ground = document.getElementById('tGround').value.trim();
@@ -7077,28 +7251,43 @@
       let matchTypeEl = document.querySelector('#tMatchType .at-chip.selected');
       let pitchEl = document.querySelector('#tPitch .at-chip.selected');
       let ballEl = document.querySelector('#tBallType .at-ball-option.selected');
+
       if (!name) return alert('Enter tournament name');
       if (!city) return alert('Enter city');
       if (!ground) return alert('Enter ground');
       if (!startDate || !endDate) return alert('Select start and end date');
-      if (!categoryEl) return alert('Select tournament category');
-      if (!matchTypeEl) return alert('Select match type');
+
       let t = {
         id: Date.now(),
         name, city, ground, organiser, contact, startDate, endDate,
-        category: categoryEl.innerText,
-        matchType: matchTypeEl.innerText,
+        category: categoryEl ? categoryEl.innerText : '',
+        matchType: matchTypeEl ? matchTypeEl.innerText : '',
         pitch: pitchEl ? pitchEl.innerText : '',
         ball: ballEl ? ballEl.querySelector('.at-ball-label').innerText : '',
         teams: [],
         matches: []
       };
-      tournaments = loadTournaments();
-      tournaments.push(t);
-      saveTournamentsData(tournaments);
-      showPage('home');
-      renderHomeBanner();
-      alert('Tournament created!');
+
+      try {
+        // Save locally as backup
+        let localData = loadTournaments();
+        localData.push(t);
+        localStorage.setItem(getTournamentsKey(), JSON.stringify(localData));
+
+        // Save to SQL
+        await syncTournamentToSQL(t);
+
+        alert('Tournament created successfully! ✅');
+        showPage('home');
+        if (typeof refreshTournamentsFromServer === 'function') {
+          await refreshTournamentsFromServer();
+        }
+        if (typeof renderHomeBanner === 'function') renderHomeBanner();
+      } catch (e) {
+        console.error("Save error:", e);
+        alert("Saved locally, but could not sync to SQL.");
+        showPage('home');
+      }
     }
 
     let tournamentToDeleteIdx = null;
@@ -7125,18 +7314,14 @@
       if (!confirm('Are you sure you want to delete Tournament? This cannot be undone.')) return;
 
       let idx = tournamentToDeleteIdx;
-      if (idx === null) return;
+      if (idx === null || !tournaments[idx]) return;
+      
+      let t = tournaments[idx];
+      let tId = t.id;
+      let tName = t.name;
 
       closeDeleteReasonModal();
 
-      tournaments = loadTournaments();
-      let tId = tournaments[idx].id || tournaments[idx].name;
-      let teamsToDelete = tournaments[idx].teams || [];
-      
-      // Update locally
-      tournaments.splice(idx, 1);
-      
-      // Force sync and WAIT
       let btn = document.getElementById("confirmDeleteTourBtn");
       let originalText = btn ? btn.innerText : "DELETE";
       if (btn) {
@@ -7144,33 +7329,37 @@
         btn.disabled = true;
       }
 
-      const syncSuccess = await saveTournamentsData(tournaments);
-      
-      // Secondary explicit delete call for redundancy
-      let user = localStorage.getItem('currentUser') || 'guest';
-      fetch(`${API}/tournaments/${user}/${encodeURIComponent(tId)}`, { method: 'DELETE' }).catch(() => {});
-
-      // Delete associated teams from the DB
-      teamsToDelete.forEach(team => {
-        if(team && team.name) {
-          fetch(API + "/teams/" + encodeURIComponent(team.name), { method: "DELETE" }).catch(() => {});
-          fetch(API + "/players/" + encodeURIComponent(team.name), { method: "DELETE" }).catch(() => {});
+      try {
+        // 1. Delete from SQL DB (Try ID first, then Name as fallback)
+        if (tId && tId < 1000000) {
+           await fetch(API + "/tournaments/" + tId, { method: "DELETE" });
         }
-      });
+        
+        // Always try to delete by Name just to be 100% sure SQL is clean
+        await fetch(API + "/tournaments/name/" + encodeURIComponent(tName), { method: "DELETE" });
 
-      if (window.fbDeleteDoc && tId) {
-        window.fbDeleteDoc(window.fbDoc(window.fbDb, "tournaments", tId.toString())).catch(e => console.error(e));
-      }
+        // 2. Delete from Local Storage (Backup wipe)
+        let localData = loadTournaments();
+        let localIdx = localData.findIndex(x => x.name === tName);
+        if (localIdx > -1) {
+          localData.splice(localIdx, 1);
+          localStorage.setItem(getTournamentsKey(), JSON.stringify(localData));
+        }
 
-      if (btn) {
-        btn.innerText = originalText;
-        btn.disabled = false;
+        // 3. Refresh UI
+        await refreshTournamentsFromServer();
+        showDeleteSuccessToast();
+
+      } catch (err) {
+        console.error("Delete tournament error:", err);
+        alert("Error deleting: " + err.message);
+      } finally {
+        if (btn) {
+          btn.innerText = originalText;
+          btn.disabled = false;
+        }
+        tournamentToDeleteIdx = null;
       }
-      
-      if (!syncSuccess) alert("Warning: Server sync failed. Tournament deleted locally, but may reappear if you refresh soon.");
-      
-      renderTournamentList();
-      showDeleteSuccessToast();
     }
 
     function showDeleteSuccessToast() {
@@ -7221,6 +7410,8 @@
 
       if (option === 'teams') {
         openTournamentTeamsPage(idx);
+      } else if (option === 'gallery') {
+        openTournamentGalleryPage(idx);
       } else if (option === 'matches') {
         // Navigate to manage tournament page and switch to schedule tab
         currentTeamsTournamentIdx = idx;
@@ -7244,12 +7435,43 @@
       renderTeamsList();
     }
 
-    function renderTeamsList() {
+    function getCurrentTournament() {
+      // Prefer global tournaments array (has SQL id) over localStorage
+      if (Array.isArray(tournaments) && tournaments.length > currentTeamsTournamentIdx && currentTeamsTournamentIdx !== null) {
+        return tournaments[currentTeamsTournamentIdx];
+      }
+      let local = loadTournaments();
+      return local[currentTeamsTournamentIdx] || null;
+    }
+
+    // Global SQL teams list — set by renderTeamsList, used by edit/delete/member functions
+    let sqlTeamsList = [];
+
+    async function renderTeamsList() {
       let tbody = document.getElementById('oaTeamsTableBody');
       if (!tbody) return;
-      tournaments = loadTournaments();
-      let t = tournaments[currentTeamsTournamentIdx];
+      let t = getCurrentTournament();
+      if (!t) { tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:40px;">No tournament selected.</td></tr>'; return; }
+      console.log('renderTeamsList: tournament=', t.name, 'id=', t.id);
+      // Load teams from SQL using tournament id
       let teams = t.teams || [];
+      if (t.id) {
+        try {
+          const r = await fetch(API + '/tournament-teams/' + t.id + '?_t=' + Date.now());
+          if (r.ok) {
+            const sqlTeams = await r.json();
+            console.log('SQL teams fetched:', sqlTeams);
+            if (Array.isArray(sqlTeams)) {
+              teams = sqlTeams.map(row => ({ name: row.team_name, city: row.city || '', logo: row.logo || '', playerCount: row.player_count || 0, players: [] }));
+            }
+          }
+        } catch(e) { console.warn('Teams SQL fetch failed, using local:', e.message); }
+      } else {
+        console.warn('Tournament has no SQL id! Teams cannot be fetched from SQL. t=', JSON.stringify(t));
+      }
+
+      // Store globally so edit/delete/player functions can access team names
+      sqlTeamsList = teams;
 
       if (teams.length === 0) {
         tbody.innerHTML = `<tr>
@@ -7268,7 +7490,7 @@
         `<tr style="border-bottom:1px solid #e5e7eb;">
           <td style="padding:16px; color:#0d9488; font-weight:500;">${team.name}</td>
           <td style="padding:16px; text-align:center;">
-            <span style="color:#0d9488; font-size:15px; font-weight:700; cursor:pointer;" onclick="openTeamMembersModal(${i})">${team.players ? team.players.length : 0}</span>
+            <span style="color:#0d9488; font-size:15px; font-weight:700; cursor:pointer;" onclick="openTeamMembersModalByName('${escapeQ(team.name)}')">${team.playerCount !== undefined ? team.playerCount : (team.players ? team.players.length : 0)}</span>
           </td>
           <td style="padding:16px; color:#6b7280; font-size:16px; background:#f9fafb;">
             <span style="cursor:pointer;margin-right:12px;opacity:0.8;display:inline-flex;vertical-align:middle;" title="Edit" onclick="openEditTeamModal(${i})">
@@ -7309,20 +7531,34 @@
       };
       reader.readAsDataURL(file);
     }
-    function confirmAddTeamFromModal() {
+    async function confirmAddTeamFromModal() {
       let teamName = document.getElementById('addTeamNameInput').value.trim();
       if (!teamName) { alert('Enter team name'); return; }
       let city = document.getElementById('addTeamCityInput').value.trim();
       let logoEl = document.getElementById('addTeamLogoPreview');
       let logo = (logoEl.style.display !== 'none' && logoEl.src) ? logoEl.src : '';
-      tournaments = loadTournaments();
-      let t = tournaments[currentTeamsTournamentIdx];
-      if (!t.teams) t.teams = [];
-      t.teams.push({ name: teamName, city: city, logo: logo, players: [] });
-      saveTournamentsData(tournaments);
-      syncTeamToSSMS(teamName); // Sync to SSMS
+      let t = getCurrentTournament();
+      if (!t) { alert('No tournament selected!'); return; }
+      console.log('Adding team to tournament:', t.name, 'SQL id:', t.id);
+      // Save to SQL using tournament_teams table
+      if (t.id) {
+        try {
+          const saveRes = await fetch(API + '/tournament-teams', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tournament_id: t.id, team_name: teamName, city: city, logo: logo })
+          });
+          const saveData = await saveRes.json();
+          console.log('Team save result:', saveData);
+        } catch(e) { console.error('Team SQL save failed:', e); alert('Team save failed: ' + e.message); return; }
+      } else {
+        // No SQL id - warn user
+        console.error('Tournament has no SQL id, cannot save team to SQL!');
+        alert('Tournament is not synced to database yet. Please recreate the tournament.');
+        return;
+      }
       closeAddTeamModal();
-      renderTeamsList();
+      await renderTeamsList();
       showTeamAddedToasts();
     }
     function showTeamAddedToasts() {
@@ -7333,22 +7569,30 @@
       setTimeout(function () { t2.style.display = 'none'; }, 4000);
     }
 
-    function deleteTournamentTeam(teamIdx) {
+    async function deleteTournamentTeam(teamIdx) {
       if (!confirm('Are you sure you want to delete this team?')) return;
-      tournaments = loadTournaments();
-      let t = tournaments[currentTeamsTournamentIdx];
-      t.teams.splice(teamIdx, 1);
-      saveTournamentsData(tournaments);
-      renderTeamsList();
+      let t = getCurrentTournament();
+      if (!t || !t.id) { alert('Tournament not found!'); return; }
+      let team = sqlTeamsList[teamIdx];
+      if (!team) { alert('Team not found!'); return; }
+      try {
+        await fetch(API + '/tournament-teams/' + t.id + '/' + encodeURIComponent(team.name), { method: 'DELETE' });
+      } catch(e) { console.error('Delete team error:', e); }
+      await renderTeamsList();
     }
+
+    // Global variable to hold the team name being edited (SQL-based, not index)
+    let currentEditTeamName = '';
 
     function openEditTeamModal(teamIdx) {
       currentEditTeamIdx = teamIdx;
-      tournaments = loadTournaments();
-      let t = tournaments[currentTeamsTournamentIdx];
-      let team = t.teams[teamIdx];
+      // Use sqlTeamsList (set by renderTeamsList from SQL) — not localStorage
+      let team = sqlTeamsList[teamIdx];
+      if (!team) { alert('Team data not available. Please refresh the page.'); return; }
+      currentEditTeamName = team.name;
       document.getElementById('editTeamNameInput').value = team.name;
-      renderEditTeamPlayersList();
+      // Load players from SQL for this team
+      renderEditTeamPlayersListFromSQL(team.name);
       document.getElementById('editTeamModal').style.display = 'flex';
     }
 
@@ -7375,44 +7619,66 @@
       }).join('');
     }
 
-    let editPlayerInTeamIdx = -1;
-    function openEditPlayerInTeam(playerIdx) {
-      editPlayerInTeamIdx = playerIdx;
-      tournaments = loadTournaments();
-      let t = tournaments[currentTeamsTournamentIdx];
-      let p = t.teams[currentEditTeamIdx].players[playerIdx];
-      document.getElementById('editPlayerNameInput').value = p.name;
-      document.getElementById('editPlayerRoleInput').value = p.role || '';
+    let currentEditPlayerOldName = '';
+
+    function openEditPlayerInTeamSQL(playerName, playerRole) {
+      currentEditPlayerOldName = playerName;
+      document.getElementById('editPlayerNameInput').value = playerName;
+      document.getElementById('editPlayerRoleInput').value = playerRole || '';
       document.getElementById('editPlayerInTeamSection').style.display = 'block';
       document.getElementById('editPlayerInTeamSection').scrollIntoView({ behavior: 'smooth' });
     }
 
     function cancelEditPlayer() {
-      editPlayerInTeamIdx = -1;
+      currentEditPlayerOldName = '';
       document.getElementById('editPlayerInTeamSection').style.display = 'none';
       document.getElementById('editPlayerNameInput').value = '';
       document.getElementById('editPlayerRoleInput').value = '';
     }
 
-    function confirmEditPlayer() {
+    async function confirmEditPlayerSQL() {
       let name = document.getElementById('editPlayerNameInput').value.trim();
       let role = document.getElementById('editPlayerRoleInput').value;
       if (!name) { alert('Enter player name'); return; }
-      tournaments = loadTournaments();
-      let t = tournaments[currentTeamsTournamentIdx];
-      t.teams[currentEditTeamIdx].players[editPlayerInTeamIdx] = { name: name, role: role };
-      saveTournamentsData(tournaments);
+      
+      let t = getCurrentTournament();
+      let tName = currentEditTeamName;
+      if (!t || !t.id || !tName || !currentEditPlayerOldName) { alert('Missing data to update player'); return; }
+
+      try {
+        const res = await fetch(API + '/tournament-players/' + t.id + '/' + encodeURIComponent(tName) + '/' + encodeURIComponent(currentEditPlayerOldName), {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ player_name: name, role: role })
+        });
+        const data = await res.json();
+        if (!data.success) { alert('Failed to update player'); return; }
+      } catch(e) { alert('Error updating player: ' + e.message); return; }
+
       cancelEditPlayer();
-      renderEditTeamPlayersList();
+      renderEditTeamPlayersListFromSQL(tName);
     }
 
-    function deletePlayerInEditModal(playerIdx) {
+    async function deletePlayerInEditModalSQL(playerName) {
       if (!confirm('Delete this player?')) return;
-      tournaments = loadTournaments();
-      let t = tournaments[currentTeamsTournamentIdx];
-      t.teams[currentEditTeamIdx].players.splice(playerIdx, 1);
-      saveTournamentsData(tournaments);
-      renderEditTeamPlayersList();
+      let t = getCurrentTournament();
+      let tName = currentEditTeamName;
+      if (!t || !t.id || !tName) { alert('Missing data to delete player'); return; }
+
+      try {
+        const res = await fetch(API + '/tournament-players/' + t.id + '/' + encodeURIComponent(tName) + '/' + encodeURIComponent(playerName), {
+          method: 'DELETE'
+        });
+        const data = await res.json();
+        if (!data.success) { alert('Failed to delete player'); return; }
+      } catch(e) { alert('Error deleting player: ' + e.message); return; }
+
+      renderEditTeamPlayersListFromSQL(tName);
+      
+      // Update the main teams list to reflect the count change
+      if (document.getElementById('tournamentTeamsPage').style.display === 'flex' || document.getElementById('tournamentTeamsPage').style.display === 'block') {
+        renderTeamsList();
+      }
     }
 
     async function addPlayerFromEditTeamModal() {
@@ -7433,44 +7699,54 @@
         } catch (e) { console.error(e); }
       }
 
-      tournaments = loadTournaments();
-      let t = tournaments[currentTeamsTournamentIdx];
-      if (!t.teams[currentEditTeamIdx].players) t.teams[currentEditTeamIdx].players = [];
-      t.teams[currentEditTeamIdx].players.push({ name: name, role: role, photo: photo });
-      saveTournamentsData(tournaments);
+      let t = getCurrentTournament();
+      let tName = currentEditTeamName;
+      if (!t || !t.id) { alert('Tournament not found!'); return; }
+      if (!tName) { alert('Team not found! Please reopen the edit modal.'); return; }
+
+      try {
+        const saveRes = await fetch(API + '/tournament-players', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tournament_id: t.id, team_name: tName, player_name: name, role: role, photo_url: photo })
+        });
+        const saveData = await saveRes.json();
+        if (!saveData.success) { alert('Failed to add player'); return; }
+      } catch(e) { alert('Error saving player: ' + e.message); return; }
+
       document.getElementById('newPlayerNameInEdit').value = '';
       document.getElementById('newPlayerRoleInEdit').value = '';
-      renderEditTeamPlayersList();
+      renderEditTeamPlayersListFromSQL(tName);
+      
+      // Refresh teams list to update player count
+      if (document.getElementById('tournamentTeamsPage').style.display === 'flex' || document.getElementById('tournamentTeamsPage').style.display === 'block') {
+        renderTeamsList();
+      }
     }
 
     function closeEditTeamModal() {
       document.getElementById('editTeamModal').style.display = 'none';
     }
 
-    function confirmUpdateTeam() {
+    async function confirmUpdateTeam() {
       let newName = document.getElementById('editTeamNameInput').value.trim();
       if (!newName) { alert('Enter team name'); return; }
-      tournaments = loadTournaments();
-      let t = tournaments[currentTeamsTournamentIdx];
-      let oldName = t.teams[currentEditTeamIdx].name;
-      t.teams[currentEditTeamIdx].name = newName;
-
-      // Update name in matches if checkbox is checked
-      if (document.getElementById('updateTeamMatchesCheck').checked) {
-        (t.matches || []).forEach(m => {
-          if (m.team1 === oldName) m.team1 = newName;
-          if (m.team2 === oldName) m.team2 = newName;
-          if (m.winner === oldName) m.winner = newName;
+      let t = getCurrentTournament();
+      if (!t || !t.id) { alert('Tournament not found!'); return; }
+      let oldName = currentEditTeamName;
+      if (!oldName) { alert('Original team name not found!'); return; }
+      try {
+        const res = await fetch(API + '/tournament-teams/' + t.id + '/' + encodeURIComponent(oldName), {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ new_name: newName })
         });
-      }
-
-      saveTournamentsData(tournaments);
+        const data = await res.json();
+        if (!data.success) { alert('Failed to rename team'); return; }
+        currentEditTeamName = newName;
+      } catch(e) { alert('Error renaming team: ' + e.message); return; }
       closeEditTeamModal();
-      if (document.getElementById('manageTournament').style.display === 'block') {
-        renderMtTeams();
-      } else {
-        renderTeamsList();
-      }
+      await renderTeamsList();
       showTeamUpdatedToast();
     }
 
@@ -7487,9 +7763,13 @@
         toast.style.display = 'none';
       }, 3000);
     }
+    // Current team name for the Add Player modal (SQL-based)
+    let currentAddPlayerTeamName = '';
+
     let currentAddPlayerTeamIdx = -1;
     function openAddTeamPlayerModal(teamIdx) {
       currentAddPlayerTeamIdx = teamIdx;
+      currentAddPlayerTeamName = sqlTeamsList[teamIdx] ? sqlTeamsList[teamIdx].name : '';
       document.getElementById('addTeamPlayerNameInput').value = '';
       document.getElementById('addTeamPlayerRoleInput').value = '';
       document.getElementById('addTeamPlayerModal').style.display = 'flex';
@@ -7504,27 +7784,42 @@
       if (!role) { alert('Select player role'); return; }
 
       let photo = localStorage.getItem("userPhoto_" + name) || "";
-      if (!photo && window.fbGetDoc) {
+      if (!photo) {
         try {
-          let userDoc = await window.fbGetDoc(window.fbDoc(window.fbDb, "users", name));
-          if (userDoc.exists()) { photo = userDoc.data().photo || ""; if (photo) localStorage.setItem("userPhoto_" + name, photo); }
+          let res = await fetch(API + "/player-photo/" + encodeURIComponent(name));
+          let data = await res.json();
+          if (data && data.photo_url) { photo = data.photo_url; localStorage.setItem("userPhoto_" + name, photo); }
         } catch (e) { }
       }
 
-      tournaments = loadTournaments();
-      let t = tournaments[currentTeamsTournamentIdx];
-      let tName = t.teams[currentAddPlayerTeamIdx].name;
-      if (!t.teams[currentAddPlayerTeamIdx].players) t.teams[currentAddPlayerTeamIdx].players = [];
-      t.teams[currentAddPlayerTeamIdx].players.push({ name: name, role: role, photo: photo });
-      saveTournamentsData(tournaments);
-      syncPlayerToSSMS(tName, name, role); // Sync to SSMS
+      let t = getCurrentTournament();
+      let tName = currentAddPlayerTeamName || (sqlTeamsList[currentAddPlayerTeamIdx] ? sqlTeamsList[currentAddPlayerTeamIdx].name : '');
+      if (!t || !t.id) { alert('Tournament not found!'); return; }
+      if (!tName) { alert('Team not found!'); return; }
+
+      try {
+        const saveRes = await fetch(API + '/tournament-players', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tournament_id: t.id, team_name: tName, player_name: name, role: role, photo_url: photo })
+        });
+        const saveData = await saveRes.json();
+        console.log('Player save result:', saveData);
+        if (!saveData.success) { alert('Failed to add player to database'); return; }
+      } catch(e) { alert('Error saving player: ' + e.message); return; }
+
       document.getElementById('addTeamPlayerNameInput').value = '';
       document.getElementById('addTeamPlayerRoleInput').value = '';
       document.getElementById('addTeamPlayerModal').style.display = 'none';
-      renderTeamsList();
-      renderTeamMembersView();
-      document.getElementById('teamMembersModal').style.display = 'flex';
       showPlayerAddedToast(tName);
+      // Refresh members modal if open
+      if (document.getElementById('teamMembersModal').style.display === 'flex') {
+        renderTeamMembersViewByName(tName);
+      }
+      // Refresh teams list to update player count
+      if (document.getElementById('tournamentTeamsPage').style.display === 'flex' || document.getElementById('tournamentTeamsPage').style.display === 'block') {
+        renderTeamsList();
+      }
     }
     function showPlayerAddedToast(teamName) {
       if (!document.getElementById('_shrinkKf')) {
@@ -7541,9 +7836,18 @@
       toast.style.display = 'flex';
       setTimeout(function () { toast.style.display = 'none'; }, 3000);
     }
+    // Open team members by team name (SQL-based)
+    function openTeamMembersModalByName(teamName) {
+      currentAddPlayerTeamName = teamName;
+      currentAddPlayerTeamIdx = sqlTeamsList.findIndex(t => t.name === teamName);
+      renderTeamMembersViewByName(teamName);
+      document.getElementById('teamMembersModal').style.display = 'flex';
+    }
+
     function openTeamMembersModal(teamIdx) {
       currentAddPlayerTeamIdx = teamIdx;
-      renderTeamMembersView();
+      currentAddPlayerTeamName = sqlTeamsList[teamIdx] ? sqlTeamsList[teamIdx].name : '';
+      renderTeamMembersViewByName(currentAddPlayerTeamName);
       document.getElementById('teamMembersModal').style.display = 'flex';
     }
 
@@ -7551,6 +7855,112 @@
       document.getElementById('teamMembersModal').style.display = 'none';
     }
 
+    // Render team members from SQL (by team name)
+    async function renderTeamMembersViewByName(teamName) {
+      let grid = document.getElementById('teamMembersGrid');
+      let el = document.getElementById('teamMembersTitle');
+      if (el) el.innerText = 'Members of ' + teamName;
+      if (!grid) return;
+      grid.innerHTML = '<div style="color:#9ca3af; font-size:14px; font-family:Inter,sans-serif; padding:8px;">Loading...</div>';
+
+      let t = getCurrentTournament();
+      let players = [];
+      let currentCaptain = '';
+
+      if (t && t.id) {
+        try {
+          // Fetch players and captain in parallel
+          const [pRes, capRes] = await Promise.all([
+            fetch(API + '/tournament-players/' + t.id + '/' + encodeURIComponent(teamName)),
+            fetch(API + '/tournament-teams/' + t.id + '/' + encodeURIComponent(teamName) + '/captain')
+          ]);
+          if (pRes.ok) players = await pRes.json();
+          if (capRes.ok) {
+            const capData = await capRes.json();
+            currentCaptain = capData.captain || '';
+          }
+        } catch(e) { console.warn('Fetch players/captain error:', e); }
+      }
+
+      // Check if current user is the organiser (can double-click to set captain)
+      let currentUser = (localStorage.getItem('currentUser') || '').toLowerCase().trim();
+      let organiser = (t && (t.created_by || t.organiser) || '').toLowerCase().trim();
+      let isOrganiser = currentUser && organiser && currentUser === organiser;
+
+      if (players.length === 0) {
+        grid.innerHTML = '<div style="color:#9ca3af; font-size:14px; font-family:Inter,sans-serif; padding:8px;">No players added yet.</div>';
+        // Update captain display
+        let capDisplay = document.getElementById('currentCaptainDisplay');
+        if (capDisplay) capDisplay.innerText = '';
+        return;
+      }
+
+      grid.innerHTML = players.map(function (p) {
+        let isCaptain = p.player_name === currentCaptain;
+        let isWK = (p.role || '').toLowerCase().includes('wicket');
+
+        let photoSrc = p.photo_url || localStorage.getItem('userPhoto_' + p.player_name) || '';
+        let avatarHtml = photoSrc
+          ? '<img src="' + photoSrc + '" style="width:100%;height:100%;object-fit:cover;">'
+          : '<svg width="48" height="48" viewBox="0 0 24 24" fill="#9ca3af"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>';
+
+        // Captain badge: teal "C" in top-right corner
+        let captainBadge = isCaptain
+          ? '<div style="position:absolute;top:-8px;right:-8px;width:24px;height:24px;border-radius:50%;background:#0d9488;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,0.25);z-index:2;font-family:Inter,sans-serif;">C</div>'
+          : '';
+
+        // Wicket-keeper badge: gloves emoji in top-left corner
+        let wkBadge = isWK
+          ? '<div style="position:absolute;top:-8px;left:-8px;width:24px;height:24px;border-radius:50%;background:#0ea5e9;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,0.25);z-index:2;" title="Wicket Keeper">🧤</div>'
+          : '';
+
+        // Card border and name color
+        let borderStyle = isCaptain ? 'border:2px solid #0d9488;' : 'border:1px solid #e5e7eb;';
+        let nameColor = isCaptain ? 'color:#0d9488;font-weight:700;' : 'color:#1f2937;font-weight:600;';
+
+        // Double-click to set captain (organiser only)
+        let dblClickAttr = isOrganiser
+          ? 'ondblclick="setSQLTeamCaptain(\'' + escapeQ(p.player_name) + '\',\'' + escapeQ(teamName) + '\')" title="Double-click to set as captain" style="cursor:pointer;"'
+          : 'title="' + p.player_name + '"';
+
+        return '<div ' + dblClickAttr + ' style="display:flex;flex-direction:column;align-items:center;width:120px;background:#ffffff;' + borderStyle + 'border-radius:8px;padding:6px;user-select:none;">' +
+          '<div style="position:relative;width:100px;height:100px;">' +
+          captainBadge + wkBadge +
+          '<div style="width:100%;height:100%;background:#e5e7eb;border-radius:4px;overflow:hidden;display:flex;align-items:center;justify-content:center;">' +
+          avatarHtml + '</div>' +
+          '</div>' +
+          '<div style="margin-top:6px;font-size:13px;font-family:Inter,sans-serif;' + nameColor + 'text-align:center;">' + p.player_name + '</div>' +
+          '<div style="font-size:11px;color:#6b7280;font-family:Inter,sans-serif;margin-top:2px;">' + (p.role || '') + '</div>' +
+          '</div>';
+      }).join('');
+
+      // Update captain display in banner
+      let capDisplay = document.getElementById('currentCaptainDisplay');
+      if (capDisplay) {
+        capDisplay.innerText = currentCaptain ? '👑 Captain: ' + currentCaptain : '';
+      }
+    }
+
+    // Set captain via SQL API (called on organiser double-click)
+    async function setSQLTeamCaptain(playerName, teamName) {
+      let t = getCurrentTournament();
+      if (!t || !t.id) return;
+      try {
+        const res = await fetch(API + '/tournament-teams/' + t.id + '/' + encodeURIComponent(teamName) + '/captain', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ captain: playerName })
+        });
+        const data = await res.json();
+        if (data.success) {
+          // Refresh the members view to show updated captain
+          await renderTeamMembersViewByName(teamName);
+        }
+      } catch(e) { console.error('Set captain error:', e); }
+    }
+
+
+    // Render team members from localStorage (legacy fallback)
     function renderTeamMembersView() {
       tournaments = loadTournaments();
       let t = tournaments[currentTeamsTournamentIdx];
@@ -7570,15 +7980,15 @@
         let avatarHtml = p.photo
           ? '<img src="' + p.photo + '" style="width:100%;height:100%;object-fit:cover;">'
           : '<svg width="48" height="48" viewBox="0 0 24 24" fill="#9ca3af"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>';
-        
-        let cardStyle = isCaptain 
-          ? 'display:flex;flex-direction:column;align-items:center;width:120px;background:#ffffff;border:2px solid #ef4444;border-radius:8px;padding:6px;cursor:pointer;position:relative;' 
+
+        let cardStyle = isCaptain
+          ? 'display:flex;flex-direction:column;align-items:center;width:120px;background:#ffffff;border:2px solid #ef4444;border-radius:8px;padding:6px;cursor:pointer;position:relative;'
           : 'display:flex;flex-direction:column;align-items:center;width:120px;background:#ffffff;border:1px solid #e5e7eb;border-radius:8px;padding:6px;cursor:pointer;position:relative;';
-        
+
         let nameStyle = isCaptain
           ? 'margin-top:6px;font-size:13px;font-family:Inter,sans-serif;color:#ef4444;text-align:center;font-weight:700;'
           : 'margin-top:6px;font-size:13px;font-family:Inter,sans-serif;color:#1f2937;text-align:center;font-weight:600;';
-          
+
         let badgeHtml = isCaptain
           ? '<div style="position:absolute; top:-8px; right:-8px; width:22px; height:22px; border-radius:50%; background:#0d9488; color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:12px; box-shadow:0 2px 4px rgba(0,0,0,0.2);">C</div>'
           : '<div style="position:absolute; top:-8px; right:-8px; width:22px; height:22px; border-radius:50%; background:#10b981; color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:12px; box-shadow:0 2px 4px rgba(0,0,0,0.2);">✔</div>';
@@ -7599,6 +8009,181 @@
       }
     }
 
+    // Render players list for Edit Team Modal — fetched from SQL
+    async function renderEditTeamPlayersListFromSQL(teamName) {
+      let container = document.getElementById('editTeamPlayersList');
+      if (!container) return;
+      container.innerHTML = '<div style="color:#9ca3af; font-size:13px; padding:8px 0;">Loading...</div>';
+      let t = getCurrentTournament();
+      let players = [];
+      if (t && t.id) {
+        try {
+          const r = await fetch(API + '/tournament-players/' + t.id + '/' + encodeURIComponent(teamName));
+          if (r.ok) players = await r.json();
+        } catch(e) { console.warn('Fetch players error:', e); }
+      }
+      if (players.length === 0) {
+        container.innerHTML = '<div style="color:#9ca3af; font-size:13px; padding:8px 0;">No players added yet.</div>';
+        return;
+      }
+      container.innerHTML = players.map(function (p, pi) {
+        let photoHtml = p.photo_url ? '<img src="' + p.photo_url + '" style="width:24px;height:24px;border-radius:50%;object-fit:cover;margin-right:8px;">' : '<span style="margin-right:8px;">🧑</span>';
+        let safeName = escapeQ(p.player_name);
+        let safeRole = escapeQ(p.role || '');
+        return '<div style="display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f3f4f6;">' +
+          '<div style="display:flex;align-items:center;font-size:14px; color:#1f2937;">' + photoHtml + p.player_name + ' <span style="font-size:11px; color:#6b7280;margin-left:4px;">(' + (p.role || '') + ')</span></div>' +
+          '<div style="display:flex; gap:8px; align-items:center;">' +
+          '<span onclick="openEditPlayerInTeamSQL(\'' + safeName + '\', \'' + safeRole + '\')" style="cursor:pointer; color:#0d9488; font-size:12px; border:1px solid #0d9488; padding:3px 8px; border-radius:4px;">Edit</span>' +
+          '<span onclick="deletePlayerInEditModalSQL(\'' + safeName + '\')" style="cursor:pointer; color:#dc2626; font-size:12px; border:1px solid #dc2626; padding:3px 8px; border-radius:4px;">Delete</span>' +
+          '</div>' +
+          '</div>';
+      }).join('');
+    }
+
+    // Fallback renderEditTeamPlayersList (localStorage-based)
+    function renderEditTeamPlayersList() {
+      tournaments = loadTournaments();
+      let t = tournaments[currentTeamsTournamentIdx];
+      let team = t && t.teams ? t.teams[currentEditTeamIdx] : null;
+      let players = team ? (team.players || []) : [];
+      let container = document.getElementById('editTeamPlayersList');
+      if (!container) return;
+      if (players.length === 0) {
+        container.innerHTML = '<div style="color:#9ca3af; font-size:13px; padding:8px 0;">No players added yet.</div>';
+        return;
+      }
+      container.innerHTML = players.map(function (p, pi) {
+        let photoHtml = p.photo ? '<img src="' + p.photo + '" style="width:24px;height:24px;border-radius:50%;object-fit:cover;margin-right:8px;">' : '<span style="margin-right:8px;">🧑</span>';
+        return '<div style="display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f3f4f6;">' +
+          '<div style="display:flex;align-items:center;font-size:14px; color:#1f2937;">' + photoHtml + p.name + ' <span style="font-size:11px; color:#6b7280;margin-left:4px;">(' + (p.role || '') + ')</span></div>' +
+          '</div>';
+      }).join('');
+    }
+
+    // =================== TOURNAMENT GALLERY ===================
+    let currentGalleryTournamentIdx = null;
+
+    async function openTournamentGalleryPage(idx) {
+      currentGalleryTournamentIdx = idx;
+      let t = getCurrentTournamentByIdx(idx);
+      if (!t) return;
+
+      // Set tournament name in header
+      let nameEl = document.getElementById('galleryTournamentName');
+      if (nameEl) nameEl.innerText = t.name || '';
+
+      // Check if current user is the organiser (created_by)
+      let currentUser = (localStorage.getItem('currentUser') || '').toLowerCase().trim();
+      let organiser = (t.created_by || t.organiser || '').toLowerCase().trim();
+      let isOrganiser = currentUser && organiser && currentUser === organiser;
+
+      let uploadSection = document.getElementById('galleryUploadSection');
+      if (uploadSection) uploadSection.style.display = isOrganiser ? 'block' : 'none';
+
+      showPage('tournamentGalleryPage');
+      await renderGalleryPhotos(t.id, isOrganiser);
+    }
+
+    function getCurrentTournamentByIdx(idx) {
+      if (Array.isArray(tournaments) && tournaments.length > idx && idx !== null) {
+        return tournaments[idx];
+      }
+      let local = loadTournaments();
+      return local[idx] || null;
+    }
+
+    async function renderGalleryPhotos(tournamentId, isOrganiser) {
+      let grid = document.getElementById('galleryPhotoGrid');
+      if (!grid) return;
+      grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:40px; color:rgba(255,255,255,0.4); font-family:Inter,sans-serif; font-size:14px;">Loading...</div>';
+
+      let photos = [];
+      if (tournamentId) {
+        try {
+          const r = await fetch(API + '/tournament-gallery/' + tournamentId + '?_t=' + Date.now());
+          if (r.ok) photos = await r.json();
+        } catch(e) { console.warn('Gallery fetch error:', e); }
+      }
+
+      let emptyMsg = document.getElementById('galleryEmptyMsg');
+
+      if (photos.length === 0) {
+        grid.innerHTML = '<div id="galleryEmptyMsg" style="grid-column:1/-1; text-align:center; padding:60px 20px; color:rgba(255,255,255,0.4); font-family:\'Inter\',sans-serif; font-size:14px;">📸 No photos uploaded yet.</div>';
+        return;
+      }
+
+      grid.innerHTML = photos.map(photo => `
+        <div style="position:relative; border-radius:10px; overflow:hidden; aspect-ratio:1; background:#1e293b; box-shadow:0 4px 16px rgba(0,0,0,0.4); cursor:pointer;" onclick="openGalleryPhoto('${escapeQ(photo.photo_url)}')">
+          <img src="${photo.photo_url}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
+          ${photo.caption ? `<div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.6);color:#fff;font-size:12px;padding:6px 10px;font-family:'Inter',sans-serif;">${photo.caption}</div>` : ''}
+          ${isOrganiser ? `<button onclick="event.stopPropagation();deleteGalleryPhoto(${photo.id})" style="position:absolute;top:6px;right:6px;background:rgba(220,38,38,0.85);color:#fff;border:none;border-radius:50%;width:26px;height:26px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">×</button>` : ''}
+        </div>
+      `).join('');
+    }
+
+    function openGalleryPhoto(url) {
+      let overlay = document.createElement('div');
+      overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:99999;display:flex;align-items:center;justify-content:center;cursor:pointer;';
+      overlay.onclick = () => document.body.removeChild(overlay);
+      overlay.innerHTML = `<img src="${url}" style="max-width:90vw;max-height:90vh;object-fit:contain;border-radius:8px;">`;
+      document.body.appendChild(overlay);
+    }
+
+    async function handleGalleryPhotoUpload(input) {
+      let file = input.files[0];
+      if (!file) return;
+      let progress = document.getElementById('galleryUploadProgress');
+      if (progress) { progress.style.display = 'block'; progress.innerText = 'Uploading...'; }
+
+      let t = getCurrentTournamentByIdx(currentGalleryTournamentIdx);
+      if (!t || !t.id) { alert('Tournament not found!'); return; }
+      let currentUser = localStorage.getItem('currentUser') || '';
+
+      let formData = new FormData();
+      formData.append('photo', file);
+      formData.append('tournament_id', t.id);
+      formData.append('uploaded_by', currentUser);
+      formData.append('caption', '');
+
+      try {
+        const res = await fetch(API + '/tournament-gallery', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (data.success) {
+          if (progress) progress.innerText = 'Uploaded! ✓';
+          setTimeout(() => { if (progress) progress.style.display = 'none'; }, 2000);
+          // Refresh gallery
+          let currentUser2 = (localStorage.getItem('currentUser') || '').toLowerCase().trim();
+          let organiser = (t.created_by || t.organiser || '').toLowerCase().trim();
+          let isOrganiser = currentUser2 && organiser && currentUser2 === organiser;
+          await renderGalleryPhotos(t.id, isOrganiser);
+        } else {
+          if (progress) { progress.innerText = 'Upload failed.'; progress.style.color = '#ef4444'; }
+        }
+      } catch(e) {
+        if (progress) { progress.innerText = 'Error: ' + e.message; progress.style.color = '#ef4444'; }
+      }
+      input.value = '';
+    }
+
+    async function deleteGalleryPhoto(photoId) {
+      if (!confirm('Delete this photo?')) return;
+      try {
+        await fetch(API + '/tournament-gallery/' + photoId, { method: 'DELETE' });
+        let t = getCurrentTournamentByIdx(currentGalleryTournamentIdx);
+        let currentUser = (localStorage.getItem('currentUser') || '').toLowerCase().trim();
+        let organiser = (t && (t.created_by || t.organiser) || '').toLowerCase().trim();
+        let isOrganiser = currentUser && organiser && currentUser === organiser;
+        if (t && t.id) await renderGalleryPhotos(t.id, isOrganiser);
+      } catch(e) { alert('Error deleting photo: ' + e.message); }
+    }
+
+    function openAddPlayerFromMembers() {
+      document.getElementById('teamMembersModal').style.display = 'none';
+      document.getElementById('addTeamPlayerNameInput').value = '';
+      document.getElementById('addTeamPlayerRoleInput').value = '';
+      document.getElementById('addTeamPlayerModal').style.display = 'flex';
+    }
+
     async function setTeamCaptain(playerName) {
       tournaments = loadTournaments();
       let t = tournaments[currentTeamsTournamentIdx];
@@ -7607,14 +8192,6 @@
       t.lastModified = Date.now();
       await saveTournamentsData(tournaments);
       renderTeamMembersView();
-    }
-
-
-    function openAddPlayerFromMembers() {
-      document.getElementById('teamMembersModal').style.display = 'none';
-      document.getElementById('addTeamPlayerNameInput').value = '';
-      document.getElementById('addTeamPlayerRoleInput').value = '';
-      document.getElementById('addTeamPlayerModal').style.display = 'flex';
     }
 
     function manageTournament(idx) {
@@ -7880,10 +8457,10 @@
 
     async function deleteTournamentTeam(teamIdx) {
       tournaments = loadTournaments();
-      let tIdx = (typeof currentTournamentId !== 'undefined' && currentTournamentId !== null) 
-                 ? currentTournamentId 
-                 : (typeof currentTeamsTournamentIdx !== 'undefined' ? currentTeamsTournamentIdx : null);
-      
+      let tIdx = (typeof currentTournamentId !== 'undefined' && currentTournamentId !== null)
+        ? currentTournamentId
+        : (typeof currentTeamsTournamentIdx !== 'undefined' ? currentTeamsTournamentIdx : null);
+
       if (tIdx === null || !tournaments[tIdx]) {
         console.error("No active tournament found for deletion");
         return;
@@ -7907,9 +8484,9 @@
         if (!confirm('Are you sure you want to delete this team?')) return;
 
         let teamIdx = teamToDeleteIdx;
-        let tIdx = (typeof currentTournamentId !== 'undefined' && currentTournamentId !== null) 
-                   ? currentTournamentId 
-                   : (typeof currentTeamsTournamentIdx !== 'undefined' ? currentTeamsTournamentIdx : null);
+        let tIdx = (typeof currentTournamentId !== 'undefined' && currentTournamentId !== null)
+          ? currentTournamentId
+          : (typeof currentTeamsTournamentIdx !== 'undefined' ? currentTeamsTournamentIdx : null);
 
         if (tIdx === null || teamIdx === null) {
           alert("Error: Tournament or Team ID missing.");
@@ -7917,19 +8494,19 @@
         }
 
         closeTeamDeleteReasonModal();
-        
+
         tournaments = loadTournaments();
         if (!tournaments[tIdx] || !tournaments[tIdx].teams || !tournaments[tIdx].teams[teamIdx]) {
-           alert("Error: Team not found in data.");
-           return;
+          alert("Error: Team not found in data.");
+          return;
         }
-        
+
         let teamName = tournaments[tIdx].teams[teamIdx].name;
-        
+
         // Update local list
         tournaments[tIdx].teams.splice(teamIdx, 1);
         tournaments[tIdx].lastModified = Date.now();
-        
+
         let btn = document.getElementById("confirmDeleteTeamBtn");
         let originalText = btn ? btn.innerText : "DELETE";
         if (btn) {
@@ -7952,7 +8529,7 @@
         if (typeof renderMtSchedule === 'function') renderMtSchedule();
         if (typeof renderTeamsList === 'function') renderTeamsList();
         if (typeof renderTournamentList === 'function') renderTournamentList();
-        
+
         showDeleteSuccessToast();
       } catch (err) {
         console.error("Deletion crash:", err);
@@ -8420,19 +8997,19 @@
               <div style="flex:1;">
                 <div style="font-size:20px; font-weight:800; color:#1e293b; text-transform:uppercase;">${m.batTeam || 'Team A'}</div>
                 <div style="font-size:18px; font-weight:500; color:#64748b; text-transform:uppercase; margin-top:4px;">${m.bowlTeam || 'Team B'}</div>
-                ${(m.innings == 2 && m.target > 0 && m.status !== 'finished' && m.status !== 'Finished' && m.runs < m.target && m.wickets < 10) ? 
-                  (() => {
-                    let rNeeded = m.target - (m.runs || 0);
-                    let oParts = (m.overs || '0.0').toString().split('.');
-                    let bBowled = (parseInt(oParts[0]) || 0) * 6 + (parseInt(oParts[1]) || 0);
-                    let maxO = m.totalOvers ? parseInt(m.totalOvers) : parseInt(m.matchType);
-                    if (isNaN(maxO) || maxO <= 0) maxO = 20;
-                    let bRem = (maxO * 6) - bBowled;
-                    if(bRem < 0) bRem = 0;
-                    let dlsText = m.dlsPar ? ' (DLS par score: ' + m.dlsPar + ')' : '';
-                    return '<div style="font-size: 15px; color: #1e293b; font-weight: 700; margin-top: 8px;">Need ' + rNeeded + ' runs in ' + bRem + ' balls' + dlsText + '</div>';
-                  })() 
-                : ''}
+                ${(m.innings == 2 && m.target > 0 && m.status !== 'finished' && m.status !== 'Finished' && m.runs < m.target && m.wickets < 10) ?
+            (() => {
+              let rNeeded = m.target - (m.runs || 0);
+              let oParts = (m.overs || '0.0').toString().split('.');
+              let bBowled = (parseInt(oParts[0]) || 0) * 6 + (parseInt(oParts[1]) || 0);
+              let maxO = m.totalOvers ? parseInt(m.totalOvers) : parseInt(m.matchType);
+              if (isNaN(maxO) || maxO <= 0) maxO = 20;
+              let bRem = (maxO * 6) - bBowled;
+              if (bRem < 0) bRem = 0;
+              let dlsText = m.dlsPar ? ' (DLS par score: ' + m.dlsPar + ')' : '';
+              return '<div style="font-size: 15px; color: #1e293b; font-weight: 700; margin-top: 8px;">Need ' + rNeeded + ' runs in ' + bRem + ' balls' + dlsText + '</div>';
+            })()
+            : ''}
                 <div style="font-size:14px; color:#ef4444; font-weight:700; margin-top:8px;">(${m.matchStatus || 'Live'})</div>
               </div>
               <div style="text-align:right;">
@@ -9505,7 +10082,7 @@
             }
           }
         }
-      } catch(e) {}
+      } catch (e) { }
       openPlayerProfile(currentUser, foundTeam, foundRole || 'Player');
     }
 
@@ -9660,47 +10237,8 @@
       btn.innerText = "Connecting...";
       btn.disabled = true;
 
-      // Get users from localStorage for validation
-      let localUsers = JSON.parse(localStorage.getItem('kcp_users') || '{}');
-
       if (isLogin) {
-        // Check localStorage first
-        if (localUsers.hasOwnProperty(u) && localUsers[u] === p) {
-          // Local cache found and matches
-          localStorage.setItem("currentUser", u);
-          localStorage.setItem("isRegistered", "true");
-
-          if (window.fbGetDocs) {
-            const q = window.fbQuery(window.fbCollection(window.fbDb, "tournaments"));
-            window.fbGetDocs(q).then(snap => {
-              let arr = [];
-              snap.forEach(doc => arr.push(doc.data()));
-              arr.sort((a, b) => a.id - b.id);
-              localStorage.setItem('kcp_tournaments_' + u, JSON.stringify(arr));
-              return window.fbGetDoc(window.fbDoc(window.fbDb, "users", u));
-            }).then(userDoc => {
-              if (userDoc && userDoc.exists() && userDoc.data().photo) {
-                localStorage.setItem("userPhoto_" + u, userDoc.data().photo);
-              }
-              btn.innerText = oldText;
-              btn.disabled = false;
-              startApp();
-            }).catch(e => {
-              console.error("Firebase load error", e);
-              btn.innerText = oldText;
-              btn.disabled = false;
-              startApp();
-            });
-          } else {
-            btn.innerText = oldText;
-            btn.disabled = false;
-            startApp();
-          }
-          fetch(API + "/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: u, password: p }) }).catch(e => console.warn(e));
-          return;
-        }
-
-        // If not in localStorage, validate against backend
+        // Validate against backend
         fetch(API + "/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -9709,38 +10247,12 @@
           .then(res => res.json())
           .then(data => {
             if (data.success) {
-              // Backend validated - save to localStorage and login
-              localUsers[u] = p;
-              localStorage.setItem('kcp_users', JSON.stringify(localUsers));
               localStorage.setItem("currentUser", u);
               localStorage.setItem("isRegistered", "true");
 
-              if (window.fbGetDocs) {
-                const q = window.fbQuery(window.fbCollection(window.fbDb, "tournaments"));
-                window.fbGetDocs(q).then(snap => {
-                  let arr = [];
-                  snap.forEach(doc => arr.push(doc.data()));
-                  arr.sort((a, b) => a.id - b.id);
-                  localStorage.setItem('kcp_tournaments_' + u, JSON.stringify(arr));
-                  return window.fbGetDoc(window.fbDoc(window.fbDb, "users", u));
-                }).then(userDoc => {
-                  if (userDoc && userDoc.exists() && userDoc.data().photo) {
-                    localStorage.setItem("userPhoto_" + u, userDoc.data().photo);
-                  }
-                  btn.innerText = oldText;
-                  btn.disabled = false;
-                  startApp();
-                }).catch(e => {
-                  console.error("Firebase load error", e);
-                  btn.innerText = oldText;
-                  btn.disabled = false;
-                  startApp();
-                });
-              } else {
-                btn.innerText = oldText;
-                btn.disabled = false;
-                startApp();
-              }
+              btn.innerText = oldText;
+              btn.disabled = false;
+              startApp();
             } else {
               alert("invalid username or password");
               btn.innerText = oldText;
@@ -9749,45 +10261,20 @@
           })
           .catch(e => {
             console.warn("Backend login error:", e);
-            alert("invalid username or password");
+            alert("Login failed. Is the server running?");
             btn.innerText = oldText;
             btn.disabled = false;
           });
       } else {
         // Registration logic
-        if (localUsers.hasOwnProperty(u)) {
-          alert("Username already exists! Please choose another or login.");
-          btn.innerText = oldText;
-          btn.disabled = false;
-          return;
-        }
-
         fetch(API + "/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: u, password: p }) })
-          .then(async res => {
-            const contentType = res.headers.get("content-type");
-            if (contentType && contentType.includes("application/json")) {
-              return res.json();
-            } else {
-              const text = await res.text();
-              throw new Error("Server returned non-JSON response (Status: " + res.status + ").\n\nResponse snippet: " + text.substring(0, 100));
-            }
-          })
+          .then(res => res.json())
           .then(data => {
             if (data.message === "Already Registered") {
               btn.innerText = oldText;
               btn.disabled = false;
               alert("Already Registered! Please login.");
             } else {
-              // Registration success - save locally and switch to Login screen
-              localUsers[u] = p;
-              localStorage.setItem('kcp_users', JSON.stringify(localUsers));
-              // Save security answer
-              let secAns = document.getElementById('securityAnswer') ? document.getElementById('securityAnswer').value.trim() : '';
-              if (secAns) {
-                let secData = JSON.parse(localStorage.getItem('kcp_security') || '{}');
-                secData[u] = secAns.toLowerCase();
-                localStorage.setItem('kcp_security', JSON.stringify(secData));
-              }
               localStorage.setItem("isRegistered", "true");
               alert("Registration Successful! Please login.");
               // Switch to login mode
@@ -9802,26 +10289,9 @@
             }
           })
           .catch(err => {
-            console.warn("Backend Registration Error, using offline fallback:", err);
-            // Offline fallback registration success
-            localUsers[u] = p;
-            localStorage.setItem('kcp_users', JSON.stringify(localUsers));
-            // Save security answer (offline fallback)
-            let secAns2 = document.getElementById('securityAnswer') ? document.getElementById('securityAnswer').value.trim() : '';
-            if (secAns2) {
-              let secData2 = JSON.parse(localStorage.getItem('kcp_security') || '{}');
-              secData2[u] = secAns2.toLowerCase();
-              localStorage.setItem('kcp_security', JSON.stringify(secData2));
-            }
-            localStorage.setItem("isRegistered", "true");
-            alert("Registration Successful! Please login.");
-            isLogin = true;
-            document.getElementById("authTitle").innerText = "Welcome Back";
-            document.getElementById("switchText").innerText = "Don't have an account? Register";
-            document.getElementById("username").value = u;
-            document.getElementById("password").value = "";
-            document.getElementById("password").focus();
-            btn.innerText = "LOGIN";
+            console.warn("Backend Registration Error:", err);
+            alert("Registration failed. Is the server running?");
+            btn.innerText = oldText;
             btn.disabled = false;
           });
       }
@@ -9843,12 +10313,6 @@
       let confirmPass = document.getElementById('fpConfirmPassword').value.trim();
       let resultEl = document.getElementById('fpResult');
       if (!u || !newPass || !confirmPass) { alert('Please fill in all fields.'); return; }
-      let localUsers = JSON.parse(localStorage.getItem('kcp_users') || '{}');
-      if (!localUsers.hasOwnProperty(u)) {
-        resultEl.style.cssText = 'display:block; background:rgba(239,68,68,0.15); border:1px solid #ef4444; border-radius:8px; padding:12px; margin-bottom:16px; color:#fca5a5; font-size:14px;';
-        resultEl.innerText = 'Username not found. Please check and try again.';
-        return;
-      }
       if (newPass !== confirmPass) {
         resultEl.style.cssText = 'display:block; background:rgba(239,68,68,0.15); border:1px solid #ef4444; border-radius:8px; padding:12px; margin-bottom:16px; color:#fca5a5; font-size:14px;';
         resultEl.innerText = 'Passwords do not match. Please try again.';
@@ -9859,13 +10323,22 @@
         resultEl.innerText = 'Password must be at least 4 characters.';
         return;
       }
-      // Save new password
-      localUsers[u] = newPass;
-      localStorage.setItem('kcp_users', JSON.stringify(localUsers));
-      resultEl.style.cssText = 'display:block; background:rgba(16,185,129,0.15); border:1px solid #10b981; border-radius:8px; padding:12px; margin-bottom:16px; color:#6ee7b7; font-size:14px;';
-      resultEl.innerHTML = '✅ Password changed successfully! You can now login with your new password.';
-      // Auto-close after 2 seconds
-      setTimeout(() => { closeForgotPassword(); }, 2200);
+
+      fetch(API + "/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: u, newPassword: newPass })
+      })
+        .then(res => res.json())
+        .then(data => {
+          resultEl.style.cssText = 'display:block; background:rgba(16,185,129,0.15); border:1px solid #10b981; border-radius:8px; padding:12px; margin-bottom:16px; color:#6ee7b7; font-size:14px;';
+          resultEl.innerHTML = '✅ Password changed in Database! You can now login.';
+          setTimeout(() => { closeForgotPassword(); }, 2200);
+        })
+        .catch(err => {
+          resultEl.style.cssText = 'display:block; background:rgba(239,68,68,0.15); border:1px solid #ef4444; border-radius:8px; padding:12px; margin-bottom:16px; color:#fca5a5; font-size:14px;';
+          resultEl.innerText = 'Server error. Could not connect to Database.';
+        });
     }
 
     function logout() {
@@ -9875,6 +10348,27 @@
       localStorage.removeItem("currentTeamsTournamentIdx");
       localStorage.removeItem("currentTournamentMatchIdx");
       location.reload();
+    }
+
+    function deleteAccount() {
+      let u = localStorage.getItem("currentUser");
+      if (!u) return;
+      if (!confirm("Are you sure you want to permanently delete your account '" + u + "'? This cannot be undone.")) return;
+
+      fetch(API + "/delete-account", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: u })
+      })
+        .then(res => res.json())
+        .then(data => {
+          alert("Account deleted successfully!");
+          logout();
+        })
+        .catch(err => {
+          console.error("Delete account error:", err);
+          alert("Server error. Could not delete account.");
+        });
     }
 
     function handleUserDropdownPhoto(event) {
@@ -9902,13 +10396,25 @@
     }
 
     function startApp() {
+      // Auto-sync existing profile photo to SQL server if it exists
+      let u = localStorage.getItem("currentUser");
+      let savedPhoto = localStorage.getItem("userPhoto_" + u);
+      if (u && savedPhoto && savedPhoto.startsWith("data:image")) {
+        fetch(API + "/update-user-photo", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: u, photo_url: savedPhoto })
+        }).catch(err => console.warn("Auto-sync photo failed:", err));
+      }
+
       document.getElementById("loginPage").style.display = "none";
       let nav = document.getElementById('nav');
       if (nav) nav.style.display = "flex";
-      let u = localStorage.getItem("currentUser") || "User";
+
+      u = u || "User";
       let userDisplay = document.getElementById("dotsMenuUsername");
       if (userDisplay) userDisplay.innerText = u;
-      let savedPhoto = localStorage.getItem("userPhoto_" + u);
+
       let navPic = document.getElementById("navProfilePic");
       if (savedPhoto && navPic) navPic.src = savedPhoto;
 
@@ -9951,6 +10457,7 @@
       if (id === "points") { loadPointsTable(); }
       if (id === "myMatchesPage") { loadMyMatches(); }
       if (id === "myTournamentsPage") { loadMyTournaments(); }
+      if (id === "tournamentsTablePage") { if (typeof refreshTournamentsFromServer === 'function') refreshTournamentsFromServer(); }
     }
 
     function getEmptyStateHtml(text) {
@@ -10447,34 +10954,53 @@
       container.innerHTML = html;
     }
 
-    function loadMyTournaments() {
+    async function loadMyTournaments() {
       let container = document.getElementById("myTournamentsContainer");
-      let allTournaments = loadTournaments();
-      let user = localStorage.getItem("currentUser");
+      if (!container) return;
 
-      if (allTournaments.length === 0) {
-        container.innerHTML = getEmptyStateHtml("No tournament found");
+      // Show loading state
+      container.innerHTML = '<div style="text-align:center;padding:60px 20px;color:rgba(255,255,255,0.5);font-family:Inter,sans-serif;font-size:14px;">⏳ Loading tournaments...</div>';
+
+      let user = (localStorage.getItem("currentUser") || '').trim();
+      if (!user) {
+        container.innerHTML = getEmptyStateHtml("Please log in to see your tournaments");
         return;
       }
 
-      let myTourneys = allTournaments.filter(t => {
-        // If user is organiser or creator
-        if (t.organiser === user || t.createdBy === user) return true;
-        // If user is a player in any team
-        return (t.teams || []).some(team =>
-          (team.players || []).some(p => p.name === user)
+      let myTourneys = [];
+      try {
+        const res = await fetch(API + '/tournaments/' + encodeURIComponent(user.toLowerCase()) + '?_t=' + Date.now());
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data)) {
+            myTourneys = data;
+            // Also update global tournaments array
+            tournaments = data;
+          }
+        }
+      } catch(e) {
+        console.warn('loadMyTournaments SQL error:', e);
+        // Fallback to global tournaments array
+        myTourneys = (tournaments || []).filter(t =>
+          t.created_by === user || t.organiser === user || t.createdBy === user
         );
-      });
+      }
 
       if (myTourneys.length === 0) {
         container.innerHTML = getEmptyStateHtml("No tournament found");
         return;
       }
 
-      container.innerHTML = myTourneys.map(t => {
-        let tIdx = allTournaments.indexOf(t);
+      container.innerHTML = myTourneys.map((t, i) => {
+        // Format dates
+        let fmtDate = (d) => {
+          if (!d) return '';
+          let dt = new Date(d);
+          if (isNaN(dt)) return d;
+          return dt.getDate().toString().padStart(2,'0') + '-' + dt.toLocaleString('en-US',{month:'short'}) + '-' + dt.getFullYear().toString().substr(-2);
+        };
         return `
-      <div class="my-card" onclick="openTournamentDetails(${tIdx})" style="cursor:pointer;">
+      <div class="my-card" onclick="openTournamentDetailsBySQL(${i})" style="cursor:pointer;">
         <div class="tourney-badge-premium">Premium</div>
         <div class="tourney-card">
           <div class="tourney-img">
@@ -10483,14 +11009,26 @@
           <div class="tourney-info">
             <div class="tourney-status-ongoing">Ongoing</div>
             <div class="tourney-name">${t.name}</div>
-            <div class="tourney-dates">${t.startDate || '22-Apr-26'} To ${t.endDate || '30-Apr-26'}</div>
-            <div class="tourney-loc">${t.city || 'Jaggayyapeta'}</div>
+            <div class="tourney-dates">${fmtDate(t.startDate)} To ${fmtDate(t.endDate)}</div>
+            <div class="tourney-loc">${t.city || ''}</div>
           </div>
         </div>
       </div>
     `;
       }).join('');
     }
+
+    // Open tournament details from the SQL-fetched myTourneys array
+    function openTournamentDetailsBySQL(idx) {
+      // Find the index in the global tournaments array
+      let t = (tournaments || [])[idx];
+      if (!t) return;
+      // Find matching index in global list
+      let globalIdx = (tournaments || []).indexOf(t);
+      if (globalIdx === -1) globalIdx = idx;
+      openTournamentDetails(globalIdx);
+    }
+
 
     function globalGoBack() {
       if (pageHistory.length > 1) {
@@ -10740,10 +11278,10 @@
         let allTours = loadTournaments();
         let searchName = (playerName || "").trim().toLowerCase();
         let searchTeam = (teamName || "").trim().toLowerCase();
-        
+
         let foundRole = "";
         let foundTeam = "";
-        
+
         // Priority 1: Find match in the EXACT team passed
         for (let t of allTours) {
           for (let team of (t.teams || [])) {
@@ -10784,7 +11322,7 @@
           role = foundRole;
           if (!teamName && foundTeam) teamName = foundTeam;
         }
-      } catch(e) {}
+      } catch (e) { }
       let profilePhoto = localStorage.getItem("userPhoto_" + playerName);
       if (profilePhoto) {
         document.getElementById("profileAvatar").innerHTML = '<img src="' + profilePhoto + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">';
@@ -12524,7 +13062,7 @@
             </div>
           </div>
           <div style="display:flex; gap:8px; margin-top:12px;">
-            <button onclick="confirmEditPlayer()"
+            <button onclick="confirmEditPlayerSQL()"
               style="background:#0d9488; color:#fff; border:none; padding:8px 18px; border-radius:4px; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; cursor:pointer; text-transform:uppercase;">SAVE</button>
             <button onclick="cancelEditPlayer()"
               style="background:#fff; color:#6b7280; border:1px solid #d1d5db; padding:8px 14px; border-radius:4px; font-family:'Inter',sans-serif; font-size:13px; cursor:pointer;">Cancel</button>

@@ -16,7 +16,8 @@ app.use((req, res, next) => {
 });
 
 app.use(cors());
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 app.use(express.static(__dirname));
 
 cloudinary.config({
@@ -66,6 +67,67 @@ async function startServer() {
         try {
             pool = await sql.connect(dbConfig);
             console.log("✅ SQL Connected");
+            // ✅ Auto-create tables if they don't exist
+            await pool.request().query(`
+                IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='teams' AND xtype='U')
+                CREATE TABLE teams (
+                    id INT IDENTITY(1,1) PRIMARY KEY,
+                    team_name NVARCHAR(100) NOT NULL,
+                    city NVARCHAR(100),
+                    logo NVARCHAR(MAX),
+                    created_at DATETIME DEFAULT GETDATE()
+                );
+            `);
+            await pool.request().query(`
+                IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='tournament_teams' AND xtype='U')
+                CREATE TABLE tournament_teams (
+                    id INT IDENTITY(1,1) PRIMARY KEY,
+                    tournament_id INT NOT NULL,
+                    team_name NVARCHAR(100) NOT NULL,
+                    city NVARCHAR(100),
+                    logo NVARCHAR(MAX),
+                    CONSTRAINT FK_TT_Tournament FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE
+                );
+            `);
+            await pool.request().query(`
+                IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='tournament_players' AND xtype='U')
+                CREATE TABLE tournament_players (
+                    id INT IDENTITY(1,1) PRIMARY KEY,
+                    tournament_id INT NOT NULL,
+                    team_name NVARCHAR(100),
+                    player_name NVARCHAR(150),
+                    role NVARCHAR(100),
+                    photo_url NVARCHAR(MAX),
+                    CONSTRAINT FK_TP_Tournament FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE
+                );
+            `);
+            // Add photo_url column if it doesn't exist (for existing tables)
+            try {
+                await pool.request().query(`
+                    IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('tournament_players') AND name = 'photo_url')
+                    ALTER TABLE tournament_players ADD photo_url NVARCHAR(MAX)
+                `);
+            } catch(e) { console.warn('photo_url column check skipped:', e.message); }
+            // Add captain column to tournament_teams if it doesn't exist
+            try {
+                await pool.request().query(`
+                    IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('tournament_teams') AND name = 'captain')
+                    ALTER TABLE tournament_teams ADD captain NVARCHAR(150)
+                `);
+            } catch(e) { console.warn('captain column check skipped:', e.message); }
+            await pool.request().query(`
+                IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='tournament_gallery' AND xtype='U')
+                CREATE TABLE tournament_gallery (
+                    id INT IDENTITY(1,1) PRIMARY KEY,
+                    tournament_id INT NOT NULL,
+                    photo_url NVARCHAR(MAX) NOT NULL,
+                    uploaded_by NVARCHAR(150),
+                    caption NVARCHAR(500),
+                    uploaded_at DATETIME DEFAULT GETDATE(),
+                    CONSTRAINT FK_TG_Tournament FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE
+                );
+            `);
+            console.log("✅ All tables verified/created");
         } catch (e) {
             console.warn("⚠️ SQL Failed, using JSON mode:", e.message);
             useJSON = true;
@@ -76,6 +138,14 @@ async function startServer() {
 startServer();
 
 // --- ROUTES ---
+app.get("/health", (req, res) => {
+    res.json({ 
+        status: "ok", 
+        connected: !!pool && !useJSON,
+        mode: useJSON ? "JSON" : "SQL"
+    });
+});
+
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
 
 // ================= USERS =================
@@ -137,7 +207,354 @@ app.post("/login", async (req, res) => {
     }
 });
 
+// ================= TOURNAMENTS =================
+app.get("/tournaments/:username", async (req, res) => {
+    try {
+        const { username } = req.params;
+        if (pool) {
+            console.log("Searching tournaments for:", username);
+            const result = await pool.request()
+                .input("u", sql.NVarChar, username.toLowerCase())
+                .query(`
+                    SELECT 
+                        id, name, created_by, status, created_at,
+                        ball_type AS ball, 
+                        start_date AS startDate, 
+                        end_date AS endDate 
+                    FROM tournaments 
+                    WHERE LOWER(created_by) = @u 
+                    ORDER BY id DESC
+                `);
+            console.log(`Found ${result.recordset.length} tournaments for ${username}`);
+            res.json(result.recordset);
+        } else {
+            res.json([]);
+        }
+    } catch (err) {
+        console.error("GET tournaments error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post("/tournaments", async (req, res) => {
+    try {
+        const { name, created_by, ball_type, start_date, end_date } = req.body;
+        if (!name || !created_by) return res.status(400).json({ message: "Name and created_by required" });
+        if (pool) {
+            const result = await pool.request()
+                .input("n", sql.NVarChar, name)
+                .input("c", sql.NVarChar, created_by)
+                .input("b", sql.NVarChar, ball_type || null)
+                .input("sd", sql.Date, start_date || null)
+                .input("ed", sql.Date, end_date || null)
+                .query(`
+                    INSERT INTO tournaments (name, created_by, ball_type, start_date, end_date) 
+                    OUTPUT INSERTED.id 
+                    VALUES (@n, @c, @b, @sd, @ed)
+                `);
+            res.json({ success: true, id: result.recordset[0].id });
+        } else {
+            res.status(500).json({ message: "Database not connected" });
+        }
+    } catch (err) {
+        console.error("POST tournament error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.delete("/tournaments/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (pool) {
+            await pool.request()
+                .input("id", sql.Int, id)
+                .query("DELETE FROM tournaments WHERE id = @id");
+        }
+        res.json({ message: "Tournament deleted successfully" });
+    } catch (err) {
+        console.error("DELETE tournament error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.delete("/tournaments/name/:name", async (req, res) => {
+    try {
+        const { name } = req.params;
+        if (pool) {
+            await pool.request()
+                .input("n", sql.NVarChar, name)
+                .query("DELETE FROM tournaments WHERE name = @n");
+        }
+        res.json({ message: "Tournament deleted by name successfully" });
+    } catch (err) {
+        console.error("DELETE tournament by name error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.get("/tournament-teams/:tournament_id", async (req, res) => {
+    try {
+        const { tournament_id } = req.params;
+        if (pool) {
+            const r = await pool.request()
+                .input("tid", sql.Int, tournament_id)
+                .query(`
+                    SELECT tt.*,
+                        (SELECT COUNT(*) FROM tournament_players tp 
+                         WHERE tp.tournament_id = tt.tournament_id AND tp.team_name = tt.team_name) AS player_count
+                    FROM tournament_teams tt
+                    WHERE tt.tournament_id = @tid
+                `);
+            res.json(r.recordset);
+        } else {
+            res.json([]);
+        }
+    } catch (err) {
+        console.error("GET tournament teams error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post("/tournament-teams", async (req, res) => {
+    try {
+        const { tournament_id, team_name, city, logo } = req.body;
+        if (pool) {
+            await pool.request()
+                .input("tid", sql.Int, tournament_id)
+                .input("tn", sql.NVarChar, team_name)
+                .input("city", sql.NVarChar, city || '')
+                .input("logo", sql.NVarChar(sql.MAX), logo || '')
+                .query("INSERT INTO tournament_teams (tournament_id, team_name, city, logo) VALUES (@tid, @tn, @city, @logo)");
+            res.json({ success: true });
+        } else {
+            res.status(500).json({ message: "Database not connected" });
+        }
+    } catch (err) {
+        console.error("POST tournament team error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
+// Rename a tournament team
+app.put("/tournament-teams/:tournament_id/:old_name", async (req, res) => {
+    try {
+        const { tournament_id, old_name } = req.params;
+        const { new_name } = req.body;
+        if (!new_name) return res.status(400).json({ message: 'new_name required' });
+        if (pool) {
+            await pool.request()
+                .input('tid', sql.Int, tournament_id)
+                .input('on', sql.NVarChar, old_name)
+                .input('nn', sql.NVarChar, new_name)
+                .query('UPDATE tournament_teams SET team_name=@nn WHERE tournament_id=@tid AND team_name=@on');
+            // Also update players table
+            await pool.request()
+                .input('tid', sql.Int, tournament_id)
+                .input('on', sql.NVarChar, old_name)
+                .input('nn', sql.NVarChar, new_name)
+                .query('UPDATE tournament_players SET team_name=@nn WHERE tournament_id=@tid AND team_name=@on');
+        }
+        res.json({ success: true });
+    } catch (err) {
+        console.error('PUT tournament team error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Delete a tournament team
+app.delete("/tournament-teams/:tournament_id/:team_name", async (req, res) => {
+    try {
+        const { tournament_id, team_name } = req.params;
+        if (pool) {
+            await pool.request()
+                .input('tid', sql.Int, tournament_id)
+                .input('tn', sql.NVarChar, team_name)
+                .query('DELETE FROM tournament_teams WHERE tournament_id=@tid AND team_name=@tn');
+        }
+        res.json({ success: true });
+    } catch (err) {
+        console.error('DELETE tournament team error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Set captain for a tournament team
+app.put("/tournament-teams/:tournament_id/:team_name/captain", async (req, res) => {
+    try {
+        const { tournament_id, team_name } = req.params;
+        const { captain } = req.body;
+        if (!captain) return res.status(400).json({ message: 'captain required' });
+        if (pool) {
+            await pool.request()
+                .input('tid', sql.Int, tournament_id)
+                .input('tn', sql.NVarChar, team_name)
+                .input('cap', sql.NVarChar, captain)
+                .query('UPDATE tournament_teams SET captain=@cap WHERE tournament_id=@tid AND team_name=@tn');
+        }
+        res.json({ success: true });
+    } catch (err) {
+        console.error('SET captain error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Get captain for a tournament team
+app.get("/tournament-teams/:tournament_id/:team_name/captain", async (req, res) => {
+    try {
+        const { tournament_id, team_name } = req.params;
+        if (pool) {
+            const r = await pool.request()
+                .input('tid', sql.Int, tournament_id)
+                .input('tn', sql.NVarChar, team_name)
+                .query('SELECT captain FROM tournament_teams WHERE tournament_id=@tid AND team_name=@tn');
+            res.json({ captain: r.recordset[0] ? r.recordset[0].captain : null });
+        } else {
+            res.json({ captain: null });
+        }
+    } catch (err) {
+        console.error('GET captain error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.get("/tournament-players/:tournament_id/:team_name", async (req, res) => {
+    try {
+        const { tournament_id, team_name } = req.params;
+        if (pool) {
+            const r = await pool.request()
+                .input('tid', sql.Int, tournament_id)
+                .input('tn', sql.NVarChar, team_name)
+                .query('SELECT * FROM tournament_players WHERE tournament_id=@tid AND team_name=@tn');
+            res.json(r.recordset);
+        } else {
+            res.json([]);
+        }
+    } catch (err) {
+        console.error('GET tournament players error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post("/tournament-players", async (req, res) => {
+    try {
+        const { tournament_id, team_name, player_name, role, photo_url } = req.body;
+        if (pool) {
+            await pool.request()
+                .input("tid", sql.Int, tournament_id)
+                .input("tn", sql.NVarChar, team_name)
+                .input("pn", sql.NVarChar, player_name)
+                .input("r", sql.NVarChar, role || null)
+                .input("p", sql.NVarChar, photo_url || null)
+                .query("INSERT INTO tournament_players (tournament_id, team_name, player_name, role, photo_url) VALUES (@tid, @tn, @pn, @r, @p)");
+            res.json({ success: true });
+        } else {
+            res.status(500).json({ message: "Database not connected" });
+        }
+    } catch (err) {
+        console.error("POST tournament player error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.put("/tournament-players/:tournament_id/:team_name/:old_player_name", async (req, res) => {
+    try {
+        const { tournament_id, team_name, old_player_name } = req.params;
+        const { player_name, role } = req.body;
+        if (!player_name) return res.status(400).json({ message: "New player name is required" });
+
+        if (pool) {
+            // 1. Update player in tournament_players
+            await pool.request()
+                .input("tid", sql.Int, tournament_id)
+                .input("tn", sql.NVarChar, team_name)
+                .input("opn", sql.NVarChar, old_player_name)
+                .input("npn", sql.NVarChar, player_name)
+                .input("r", sql.NVarChar, role || null)
+                .query("UPDATE tournament_players SET player_name = @npn, role = @r WHERE tournament_id = @tid AND team_name = @tn AND player_name = @opn");
+            
+            // 2. Check if this player was the captain, if so update the captain column in tournament_teams
+            const checkCap = await pool.request()
+                .input("tid", sql.Int, tournament_id)
+                .input("tn", sql.NVarChar, team_name)
+                .query("SELECT captain FROM tournament_teams WHERE tournament_id = @tid AND team_name = @tn");
+            if (checkCap.recordset.length > 0 && checkCap.recordset[0].captain === old_player_name) {
+                await pool.request()
+                    .input("tid", sql.Int, tournament_id)
+                    .input("tn", sql.NVarChar, team_name)
+                    .input("npn", sql.NVarChar, player_name)
+                    .query("UPDATE tournament_teams SET captain = @npn WHERE tournament_id = @tid AND team_name = @tn");
+            }
+            res.json({ success: true, message: "Player updated successfully" });
+        } else {
+            res.status(500).json({ message: "Database not connected" });
+        }
+    } catch (err) {
+        console.error("PUT tournament player error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.delete("/tournament-players/:tournament_id/:team_name/:player_name", async (req, res) => {
+    try {
+        const { tournament_id, team_name, player_name } = req.params;
+        if (pool) {
+            await pool.request()
+                .input("tid", sql.Int, tournament_id)
+                .input("tn", sql.NVarChar, team_name)
+                .input("pn", sql.NVarChar, player_name)
+                .query("DELETE FROM tournament_players WHERE tournament_id = @tid AND team_name = @tn AND player_name = @pn");
+            res.json({ success: true, message: "Player deleted successfully" });
+        } else {
+            res.status(500).json({ message: "Database not connected" });
+        }
+    } catch (err) {
+        console.error("DELETE tournament player error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // ================= TEAMS =================
+app.post("/reset-password", async (req, res) => {
+    try {
+        const { username, newPassword } = req.body;
+        if (!username || !newPassword) return res.status(400).json({ message: "Username and new password required" });
+        if (pool) {
+            const result = await pool.request()
+                .input("u", sql.NVarChar, username)
+                .input("p", sql.NVarChar, newPassword)
+                .query("UPDATE users SET password = @p WHERE username = @u");
+            if (result.rowsAffected[0] === 0) {
+                // If user doesn't exist in SQL, insert them so old localStorage users can migrate
+                await pool.request()
+                    .input("u", sql.NVarChar, username)
+                    .input("p", sql.NVarChar, newPassword)
+                    .query("INSERT INTO users (username, password) VALUES (@u, @p)");
+            }
+        }
+        res.json({ message: "Password updated successfully" });
+    } catch (err) {
+        console.error("Reset password error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post("/delete-account", async (req, res) => {
+    try {
+        const { username } = req.body;
+        if (!username) return res.status(400).json({ message: "Username required" });
+        if (pool) {
+            await pool.request()
+                .input("u", sql.NVarChar, username)
+                .query("DELETE FROM users WHERE username = @u");
+        }
+        res.json({ message: "Account deleted successfully" });
+    } catch (err) {
+        console.error("Delete account error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.get("/teams", async (req, res) => {
     try {
         if (useJSON || !pool) {
@@ -337,79 +754,7 @@ app.delete("/upcoming-matches/:id", async (req, res) => {
     }
 });
 
-// ================= TOURNAMENTS =================
-app.get("/tournaments/:user", async (req, res) => {
-    try {
-        if (useJSON || !pool) {
-            const filtered = (MEMORY_DB.tournaments || []).filter(t => t.user_id === req.params.user);
-            return res.json(filtered.map(t => JSON.parse(t.tournament_data)));
-        }
-        const r = await pool.request().input("u", sql.NVarChar, req.params.user).query("SELECT tournament_data FROM tournaments WHERE user_id=@u");
-        res.json(r.recordset.map(row => JSON.parse(row.tournament_data)));
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-app.post("/tournaments", async (req, res) => {
-    try {
-        const { user_id, tournament_data } = req.body;
-        if (!user_id) return res.status(400).send("Missing user_id");
-        // tournament_data can be "[]" (empty list)
-        if (tournament_data === undefined) return res.status(400).send("Missing tournament_data");
-
-        if (useJSON || !pool) {
-            MEMORY_DB.tournaments = MEMORY_DB.tournaments || [];
-            const idx = MEMORY_DB.tournaments.findIndex(t => t.user_id === user_id);
-            if (idx > -1) MEMORY_DB.tournaments[idx] = { user_id, tournament_data };
-            else MEMORY_DB.tournaments.push({ user_id, tournament_data });
-            saveDB();
-            return res.send("Ok");
-        }
-        
-        const transaction = new sql.Transaction(pool);
-        await transaction.begin();
-        try {
-            await transaction.request().input("u", sql.NVarChar, user_id).query("DELETE FROM tournaments WHERE user_id=@u");
-            await transaction.request()
-                .input("u", sql.NVarChar, user_id)
-                .input("d", sql.NVarChar(sql.MAX), tournament_data)
-                .query("INSERT INTO tournaments (user_id, tournament_data) VALUES (@u, @d)");
-            await transaction.commit();
-            res.send("Ok");
-        } catch (err) {
-            await transaction.rollback();
-            throw err;
-        }
-    } catch (err) {
-        console.error("Tournament save error:", err);
-        fs.appendFileSync("server_errors.txt", `${new Date().toISOString()} - Tournament POST error: ${err.message}\n`);
-        res.status(500).send(err.message);
-    }
-});
-
-app.delete("/tournaments/:user/:id", async (req, res) => {
-    try {
-        const { user, id } = req.params;
-        if (useJSON || !pool) {
-            if (MEMORY_DB.tournaments) {
-                const idx = MEMORY_DB.tournaments.findIndex(t => t.user_id === user);
-                if (idx > -1) {
-                   let data = JSON.parse(MEMORY_DB.tournaments[idx].tournament_data);
-                   data = data.filter(t => (t.id || t.name) != id);
-                   MEMORY_DB.tournaments[idx].tournament_data = JSON.stringify(data);
-                   saveDB();
-                }
-            }
-            return res.send("Deleted");
-        }
-        // REDUNDANT DELETE for safety: remove any row for this user just in case
-        // But usually POST handles it with the full array
-        res.send("Sync handled by POST");
-    } catch (err) {
-        res.status(500).send(err.message);
-    }
-});
+// Conflicting old tournament routes removed. Using modern SQL routes defined above.
 
 // ================= LIVE MATCHES =================
 app.get("/live-matches", async (req, res) => {
@@ -698,6 +1043,64 @@ app.get("/player-photo/:player_name", async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+
+// ================= TOURNAMENT GALLERY =================
+app.get("/tournament-gallery/:tournament_id", async (req, res) => {
+    try {
+        const { tournament_id } = req.params;
+        if (pool) {
+            const r = await pool.request()
+                .input('tid', sql.Int, tournament_id)
+                .query('SELECT * FROM tournament_gallery WHERE tournament_id=@tid ORDER BY uploaded_at DESC');
+            res.json(r.recordset);
+        } else {
+            res.json([]);
+        }
+    } catch (err) {
+        console.error('GET gallery error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post("/tournament-gallery", upload.single('photo'), async (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+        const { tournament_id, uploaded_by, caption } = req.body;
+        if (!tournament_id) return res.status(400).json({ error: 'tournament_id required' });
+        cloudinary.uploader.upload_stream(
+            { folder: 'kcp_gallery', resource_type: 'image' },
+            async (error, result) => {
+                if (error) return res.status(500).json({ error: error.message });
+                if (pool) {
+                    await pool.request()
+                        .input('tid', sql.Int, tournament_id)
+                        .input('url', sql.NVarChar(sql.MAX), result.secure_url)
+                        .input('by', sql.NVarChar, uploaded_by || '')
+                        .input('cap', sql.NVarChar, caption || '')
+                        .query('INSERT INTO tournament_gallery (tournament_id, photo_url, uploaded_by, caption) VALUES (@tid, @url, @by, @cap)');
+                }
+                res.json({ success: true, url: result.secure_url });
+            }
+        ).end(req.file.buffer);
+    } catch (err) {
+        console.error('POST gallery error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.delete("/tournament-gallery/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (pool) {
+            await pool.request().input('id', sql.Int, id).query('DELETE FROM tournament_gallery WHERE id=@id');
+        }
+        res.json({ success: true });
+    } catch (err) {
+        console.error('DELETE gallery error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.get("/health", (req, res) => res.json({ status: "ok", mode: useJSON ? "JSON" : "SQL", connected: !!pool }));
 
 app.get("*", (req, res) => {
