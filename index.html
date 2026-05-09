@@ -8857,6 +8857,7 @@
         ballCount: ballCount,
         overs: Math.floor(ballCount / 6) + "." + ballCount % 6,
         totalOvers: typeof totalOvers !== 'undefined' ? totalOvers : 0,
+        matchTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
         target: target,
         innings: innings,
         strike: document.getElementById('strike').value,
@@ -9155,7 +9156,7 @@
               <div>
                 <span style="color:#0d9488; font-weight:700;">${m.seriesName || 'Friendly Match'}</span><span style="color:#94a3b8;">(${m.matchType || 'Limited Overs'})</span>
                 <div style="margin-top:4px; font-weight:600; color:#1e293b;">
-                  ${m.ground || m.location || 'KCP CRICKET GROUND'}, ${m.matchDate || m.date || new Date().toLocaleDateString('en-IN')}
+                  ${m.ground || m.location || 'KCP CRICKET GROUND'}, ${m.totalOvers ? m.totalOvers + ' Ov., ' : ''}${m.matchDate || m.date || new Date().toLocaleDateString('en-IN')}${m.matchTime ? ', ' + m.matchTime : ''}
                 </div>
               </div>
               <div style="display:flex; gap:12px;">
