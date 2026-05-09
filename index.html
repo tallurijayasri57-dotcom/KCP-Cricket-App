@@ -8741,6 +8741,17 @@
       localStorage.setItem("currentTournamentMatchIdx", matchId);
       document.getElementById('dotsDropdown').classList.remove('open');
       
+      // Update status to live in SQL
+      if (matchId && !isNaN(matchId)) {
+        try {
+          await fetch(API + "/tournament-matches/" + matchId, { 
+            method: "PATCH", 
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: "live" })
+          });
+        } catch (e) { console.warn("Failed to update match status to live:", e); }
+      }
+
       // Ensure we have team data
       if (!window._cachedTeamMap || Object.keys(window._cachedTeamMap).length === 0) {
         try {
@@ -10639,72 +10650,79 @@
   `;
     }
 
-    function loadMyMatches() {
+    async function loadMyMatches() {
       let container = document.getElementById("myMatchesContainer");
       let user = localStorage.getItem("currentUser") || "User";
-      let allTournaments = loadTournaments();
+      container.innerHTML = "<div style='color:#6ee7b7;padding:10px;'>⏳ Loading matches...</div>";
+
       let userMatches = [];
+      try {
+        // Fetch matches where user is organiser from SQL
+        const res = await fetch(API + "/match-results?_t=" + Date.now());
+        const matches = await res.json();
+        // Filter by organiser (simple check for now)
+        userMatches = matches.filter(m => m.organiser === user || m.winner === user || m.loser === user);
+      } catch (e) { console.warn("Failed to fetch My Matches from SQL:", e); }
 
-      // Find all matches involving the user
-      allTournaments.forEach((t, tIdx) => {
-        let userTeams = [];
-        (t.teams || []).forEach(team => {
-          let isUserInTeam = (team.players || []).some(p => p.name === user);
-          if (isUserInTeam) userTeams.push(team.name);
-        });
-
-        (t.matches || []).forEach((m, mIdx) => {
-          if (userTeams.includes(m.team1) || userTeams.includes(m.team2)) {
-            userMatches.push({ tournament: t, match: m, tournamentIdx: tIdx, matchIdx: mIdx });
+      // Also check tournament matches from SQL
+      try {
+        const tRes = await fetch(API + "/tournaments?_t=" + Date.now());
+        const tourneys = await tRes.json();
+        for (let t of tourneys) {
+          if (t.user_id === user) {
+             const mRes = await fetch(API + "/tournament-matches/" + t.id);
+             const tm = await mRes.json();
+             tm.forEach(match => {
+               if (match.status === 'finished') {
+                 userMatches.push({
+                   id: match.id,
+                   winner: match.team1, // Temporary mapping
+                   loser: match.team2,
+                   win_type: "League",
+                   margin: match.result || "Finished",
+                   played_on: match.match_date || "TBD",
+                   tournament_name: t.tournament_data ? JSON.parse(t.tournament_data).name : "Tournament"
+                 });
+               }
+             });
           }
-        });
-      });
+        }
+      } catch (e) { }
 
       if (userMatches.length === 0) {
         container.innerHTML = getEmptyStateHtml("No match found");
         return;
       }
 
-      container.innerHTML = userMatches.map(item => {
-        let t = item.tournament;
-        let m = item.match;
-        let isLive = m.result === "LIVE"; // Simplified check for now
-        let badgeText = m.result ? (m.result === "LIVE" ? "Live" : "Finished") : "Upcoming";
-        let badgeBg = m.result === "LIVE" ? "#ef4444" : (m.result ? "#10b981" : "#f59e0b");
+      container.innerHTML = userMatches.map(m => {
+        let isLive = m.status === "live";
+        let badgeText = m.status === "live" ? "Live" : (m.status === "finished" ? "Finished" : "Upcoming");
+        let badgeBg = m.status === "live" ? "#ef4444" : (m.status === "finished" ? "#10b981" : "#f59e0b");
 
-        let dateStr = "TBD";
-        if (m.date) {
-          let d = new Date(m.date);
-          dateStr = d.toLocaleDateString("en-IN", { weekday: 'short', day: 'numeric', month: 'short' });
-          if (m.time) {
-            dateStr += ", " + formatTimeAMPM(m.time);
-          } else {
-            dateStr += ", " + d.toLocaleTimeString("en-IN", { hour: '2-digit', minute: '2-digit' });
-          }
-        }
+        let dateStr = m.played_on || m.match_date || "TBD";
+        let tournamentName = m.tournament_name || "Match Result";
 
         return `
-      <div class="my-card" onclick="openMatchScorecard(${item.tournamentIdx}, ${item.matchIdx})" style="cursor:pointer;">
+      <div class="my-card" style="margin-bottom:12px;">
         <div class="my-card-header">
-          <span>${t.name}</span>
+          <span>${tournamentName}</span>
           <span class="my-badge" style="background:${badgeBg};">${badgeText}</span>
         </div>
         <div class="my-card-meta">
-          ${t.ground || 'KCP CRICKET GROUND'}, ${t.city || 'Jaggayyapeta'}, ${m.date || ''}, ${t.overs || 20} Ov.,
+          KCP CRICKET GROUND, Jaggayyapeta, ${dateStr}
         </div>
-        <div class="my-card-bold">League Matches</div>
+        <div class="my-card-bold">${m.win_type || 'Match Result'}</div>
         <div class="my-card-teams">
           <div class="my-card-team-row">
-            <span class="my-card-team-name">${m.team1}</span>
-            ${m.score1 ? `<span class="my-card-score">${m.score1} <span class="my-card-overs">(${m.overs1})</span></span>` : ''}
+            <span class="my-card-team-name">${m.winner || m.team1}</span>
+            <span class="my-card-score">Winner</span>
           </div>
           <div class="my-card-team-row">
-            <span class="my-card-team-name">${m.team2}</span>
-            ${m.score2 ? `<span class="my-card-score">${m.score2} <span class="my-card-overs">(${m.overs2})</span></span>` : (m.result ? '' : '<span>Yet to bat</span>')}
+            <span class="my-card-team-name">${m.loser || m.team2}</span>
           </div>
         </div>
         <div class="my-card-footer">
-          ${m.result && m.result !== "LIVE" ? m.result : (m.tossInfo ? m.tossInfo : `Match scheduled at ${dateStr}`)}
+          ${m.margin || m.result || "Match finished"}
         </div>
       </div>
     `;
@@ -10796,11 +10814,11 @@
       let matches = t.matches || [];
 
       if (status === 'live') {
-        filteredMatches = matches.filter(m => m.result === "LIVE");
+        filteredMatches = matches.filter(m => m.status === "live");
       } else if (status === 'completed') {
-        filteredMatches = matches.filter(m => m.result && m.result !== "LIVE");
+        filteredMatches = matches.filter(m => m.status === "finished" || (m.result && m.result !== "LIVE"));
       } else if (status === 'upcoming') {
-        filteredMatches = matches.filter(m => !m.result);
+        filteredMatches = matches.filter(m => m.status === "upcoming" || !m.status);
       }
 
       if (filteredMatches.length === 0) {
@@ -12414,8 +12432,13 @@
 
     async function saveMatchResult(winner, loser, winType, margin) {
       let today = new Date().toLocaleDateString("en-IN");
+      let organiser = localStorage.getItem("currentUser") || "guest";
       try {
-        let res = await fetch(API + "/match-results", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ winner, loser, win_type: winType, margin, played_on: today }) });
+        let res = await fetch(API + "/match-results", { 
+          method: "POST", 
+          headers: { "Content-Type": "application/json" }, 
+          body: JSON.stringify({ winner, loser, win_type: winType, margin, played_on: today, organiser }) 
+        });
         let data = await res.json();
         currentMatchId = data.id || null;
       } catch (e) { currentMatchId = null; }
@@ -12647,7 +12670,7 @@
       content.innerHTML = html;
     }
 
-    function finishMatch() {
+    async function finishMatch() {
       if (winShown) return;
       let winner, loser, margin, inningsNum;
       if (innings == 1) {
@@ -12660,20 +12683,18 @@
         inningsNum = 2;
       }
       winShown = true;
+      let finalResult = `${winner} won by ${margin}`;
       saveMatchResult(winner, loser, "won", margin).then(() => updateAllPlayerStatsAfterMatch(inningsNum));
 
-      // Update tournament match result if it exists
-      if (currentTournamentId !== null && currentTournamentMatchIdx !== null) {
-        let allTournaments = loadTournaments();
-        let t = allTournaments[currentTournamentId];
-        if (t && t.matches && t.matches[currentTournamentMatchIdx]) {
-          let m = t.matches[currentTournamentMatchIdx];
-          // Basic check to ensure we're updating the right match
-          if ((m.team1 === matchBatTeam && m.team2 === matchBowlTeam) || (m.team1 === matchBowlTeam && m.team2 === matchBatTeam)) {
-            t.matches[currentTournamentMatchIdx].result = `${winner} won by ${margin}`;
-            saveTournamentsData(allTournaments);
-          }
-        }
+      // Update tournament match result in SQL if it exists
+      if (currentTournamentMatchIdx !== null && !isNaN(currentTournamentMatchIdx)) {
+        try {
+          await fetch(API + "/tournament-matches/" + currentTournamentMatchIdx, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: "finished", result: finalResult })
+          });
+        } catch (e) { console.warn("Failed to update tournament match to finished:", e); }
       }
 
       // Consolidated MOM Calculation

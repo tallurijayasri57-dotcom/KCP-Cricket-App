@@ -638,24 +638,22 @@ app.get("/match-results", async (req, res) => {
 
 app.post("/match-results", async (req, res) => {
     try {
-        const { winner, loser, win_type, margin, played_on } = req.body;
-        if (!winner || !loser) return res.status(400).send("Missing fields");
-
+        const { winner, loser, win_type, margin, played_on, organiser } = req.body;
         if (useJSON || !pool) {
             const id = Date.now();
-            MEMORY_DB.match_results.push({ id, winner, loser, win_type, margin, played_on });
+            MEMORY_DB.match_results.push({ id, winner, loser, win_type, margin, played_on, organiser });
             saveDB();
-            return res.json({ message: "Result saved", id });
+            return res.json({ id });
         }
-
         const r = await pool.request()
             .input("w", sql.NVarChar, winner)
             .input("l", sql.NVarChar, loser)
             .input("wt", sql.NVarChar, win_type)
             .input("m", sql.NVarChar, margin)
             .input("p", sql.NVarChar, played_on)
-            .query("INSERT INTO match_results (winner, loser, win_type, margin, played_on) OUTPUT INSERTED.id VALUES (@w,@l,@wt,@m,@p)");
-        res.json({ message: "Result saved", id: r.recordset[0].id });
+            .input("org", sql.NVarChar, organiser || null)
+            .query("INSERT INTO match_results (winner, loser, win_type, margin, played_on, organiser) OUTPUT INSERTED.id VALUES (@w, @l, @wt, @m, @p, @org)");
+        res.json({ id: r.recordset[0].id });
     } catch (err) {
         res.status(500).send(err.message);
     }
@@ -680,10 +678,10 @@ app.get("/upcoming-matches", async (req, res) => {
     try {
         if (useJSON || !pool) return res.json(MEMORY_DB.upcoming_matches);
         
-        // Fetch regular upcoming matches
+        // Fetch regular upcoming matches (assuming regular ones don't have status yet, or we default to upcoming)
         const r1 = await pool.request().query("SELECT id, team1, team2, match_date, match_time, 'regular' as type FROM upcoming_matches");
         
-        // Fetch tournament matches that are upcoming
+        // Fetch tournament matches that are ONLY upcoming
         const r2 = await pool.request().query("SELECT id, team1, team2, match_date, match_time, 'tournament' as type FROM tournament_matches WHERE status = 'upcoming'");
         
         // Combine and sort
@@ -1110,7 +1108,7 @@ app.get("/tournament-matches/:tournament_id", async (req, res) => {
 
 app.post("/tournament-matches", async (req, res) => {
     try {
-        const { tournament_id, team1, team2, match_date, match_time, result } = req.body;
+        const { tournament_id, team1, team2, match_date, match_time, result, status } = req.body;
         if (!pool) return res.status(500).json({ message: "No SQL Connection" });
         await pool.request()
             .input("tid", sql.Int, tournament_id)
@@ -1119,13 +1117,37 @@ app.post("/tournament-matches", async (req, res) => {
             .input("md", sql.Date, match_date || null)
             .input("mt", sql.NVarChar, match_time || null)
             .input("res", sql.NVarChar, result || null)
+            .input("st", sql.NVarChar, status || 'upcoming')
             .query(`
-                INSERT INTO tournament_matches (tournament_id, team1, team2, match_date, match_time, result)
-                VALUES (@tid, @t1, @t2, @md, @mt, @res)
+                INSERT INTO tournament_matches (tournament_id, team1, team2, match_date, match_time, result, status)
+                VALUES (@tid, @t1, @t2, @md, @mt, @res, @st)
             `);
         res.json({ success: true });
     } catch (err) {
         console.error("POST match error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// New endpoint to update tournament match result and status
+app.patch("/tournament-matches/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { result, status, toss_info } = req.body;
+        if (!pool) return res.status(500).json({ message: "No SQL Connection" });
+        
+        let query = "UPDATE tournament_matches SET id=id";
+        const request = pool.request().input("id", sql.Int, id);
+        
+        if (result !== undefined) { query += ", result=@res"; request.input("res", sql.NVarChar, result); }
+        if (status !== undefined) { query += ", status=@st"; request.input("st", sql.NVarChar, status); }
+        if (toss_info !== undefined) { query += ", toss_info=@toss"; request.input("toss", sql.NVarChar, toss_info); }
+        
+        query += " WHERE id=@id";
+        await request.query(query);
+        res.json({ success: true });
+    } catch (err) {
+        console.error("PATCH match error:", err);
         res.status(500).json({ error: err.message });
     }
 });
