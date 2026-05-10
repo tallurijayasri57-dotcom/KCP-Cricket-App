@@ -861,6 +861,26 @@ app.post("/player-stats", async (req, res) => {
     }
 });
 
+app.get("/player-stats", async (req, res) => {
+    try {
+        if (useJSON || !pool) {
+            return res.json(MEMORY_DB.player_stats || []);
+        }
+        const r = await pool.request().query(`
+            SELECT player_name,
+                   SUM(runs_scored) as runs,
+                   SUM(wickets_taken) as wickets,
+                   COUNT(DISTINCT match_id) as matches
+            FROM player_stats
+            GROUP BY player_name
+            ORDER BY runs DESC
+        `);
+        res.json(r.recordset);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.get("/player-stats/:playerName", async (req, res) => {
     try {
         if (useJSON || !pool) {

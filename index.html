@@ -5024,12 +5024,9 @@
         <div class="td-tab active" id="tdTab-matches" onclick="switchTdTab('matches')">Matches</div>
         <div class="td-tab" id="tdTab-leaderboard" onclick="switchTdTab('leaderboard')">Leaderboard</div>
         <div class="td-tab" id="tdTab-points" onclick="switchTdTab('points')">Points Table</div>
-        <div class="td-tab" id="tdTab-stats" onclick="switchTdTab('stats')">Stats</div>
         <div class="td-tab" id="tdTab-heroes" onclick="switchTdTab('heroes')">Heroes</div>
-        <div class="td-tab" id="tdTab-sponsors" onclick="switchTdTab('sponsors')">Sponsors</div>
         <div class="td-tab" id="tdTab-teams" onclick="switchTdTab('teams')">Teams</div>
         <div class="td-tab" id="tdTab-gallery" onclick="switchTdTab('gallery')">Gallery</div>
-        <div class="td-tab" id="tdTab-about" onclick="switchTdTab('about')">About Us</div>
       </div>
     </div>
 
@@ -5077,6 +5074,17 @@
 
         <div id="tdLeaderboardContainer"></div>
       </div>
+
+      <!-- TEAMS VIEW -->
+      <div id="tdView-teams" style="display:none;">
+        <div id="tdTeamsContainer"></div>
+      </div>
+
+      <!-- HEROES VIEW -->
+      <div id="tdView-heroes" style="display:none;">
+        <div id="tdHeroesContainer"></div>
+      </div>
+
     </div>
   </div>
 
@@ -11733,14 +11741,11 @@
       let tabEl = document.getElementById('tdTab-' + tabId);
       if (tabEl) tabEl.classList.add('active');
 
-      // Update View UI
-      let matchesView = document.getElementById('tdView-matches');
-      let pointsView = document.getElementById('tdView-points');
-      let leaderboardView = document.getElementById('tdView-leaderboard');
-
-      if (matchesView) matchesView.style.display = (tabId === 'matches') ? 'block' : 'none';
-      if (pointsView) pointsView.style.display = (tabId === 'points') ? 'block' : 'none';
-      if (leaderboardView) leaderboardView.style.display = (tabId === 'leaderboard') ? 'block' : 'none';
+      // Update View UI - show only the selected view
+      ['matches','points','leaderboard','teams','heroes'].forEach(id => {
+        let el = document.getElementById('tdView-' + id);
+        if (el) el.style.display = (id === tabId) ? 'block' : 'none';
+      });
 
       // Load data if needed
       if (tabId === 'matches') {
@@ -11758,8 +11763,153 @@
         await renderTdPointsTable();
       } else if (tabId === 'leaderboard') {
         await renderTdLeaderboard('bat');
+      } else if (tabId === 'teams') {
+        await renderTdTeams();
+      } else if (tabId === 'heroes') {
+        await renderTdHeroes();
       }
     }
+
+    async function renderTdTeams() {
+      let t = currentViewingTournament;
+      if (!t) return;
+      let container = document.getElementById('tdTeamsContainer');
+      container.innerHTML = `<div style="text-align:center;padding:40px;color:#6ee7b7;">⏳ Loading Teams...</div>`;
+
+      try {
+        // Fetch all teams for this tournament
+        const teamsRes = await fetch(API + '/tournament-teams/' + t.id + '?_t=' + Date.now());
+        const teams = await teamsRes.json();
+
+        if (!teams || teams.length === 0) {
+          container.innerHTML = `<div style="text-align:center;padding:40px;color:#94a3b8;">No teams added yet.</div>`;
+          return;
+        }
+
+        // Fetch players for each team in parallel
+        const teamData = await Promise.all(teams.map(async team => {
+          const [playersRes, captainRes] = await Promise.all([
+            fetch(API + '/tournament-players/' + t.id + '/' + encodeURIComponent(team.team_name)),
+            fetch(API + '/tournament-teams/' + t.id + '/' + encodeURIComponent(team.team_name) + '/captain')
+          ]);
+          const players = await playersRes.json();
+          const captainData = await captainRes.json();
+          return { name: team.team_name, players, captain: captainData.captain };
+        }));
+
+        let html = `<div style="display:flex;flex-direction:column;gap:20px;padding:10px 0;">`;
+        teamData.forEach(team => {
+          html += `
+            <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:20px;">
+              <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:#6ee7b7;margin-bottom:14px;display:flex;align-items:center;gap:10px;">
+                🏏 ${team.name}
+                <span style="font-size:12px;color:#94a3b8;font-weight:400;">${team.players.length} Players</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                ${team.players.length === 0 ? `<div style="color:#94a3b8;font-size:13px;">No players added yet.</div>` :
+                  team.players.map(p => {
+                    const isCaptain = team.captain && p.player_name === team.captain;
+                    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,0.04);border-radius:10px;border:1px solid rgba(255,255,255,0.06);">
+                      <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#1e3a5f,#0d9488);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0;">
+                        ${p.player_name.charAt(0).toUpperCase()}
+                      </div>
+                      <div style="flex:1;">
+                        <div style="color:#fff;font-weight:600;font-size:14px;display:flex;align-items:center;gap:6px;">
+                          ${p.player_name}
+                          ${isCaptain ? `<span style="background:#f59e0b;color:#000;font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;letter-spacing:0.5px;">C</span>` : ''}
+                        </div>
+                        <div style="color:#94a3b8;font-size:12px;">${p.role || 'Player'}</div>
+                      </div>
+                    </div>`;
+                  }).join('')
+                }
+              </div>
+            </div>`;
+        });
+        html += `</div>`;
+        container.innerHTML = html;
+      } catch (e) {
+        console.error('renderTdTeams error:', e);
+        container.innerHTML = `<div style="text-align:center;padding:40px;color:#ef4444;">Failed to load teams. Please try again.</div>`;
+      }
+    }
+
+    async function renderTdHeroes() {
+      let t = currentViewingTournament;
+      if (!t) return;
+      let container = document.getElementById('tdHeroesContainer');
+      container.innerHTML = `<div style="text-align:center;padding:40px;color:#6ee7b7;">⏳ Loading Heroes...</div>`;
+
+      try {
+        // Fetch player stats for this tournament's players
+        const teamsRes = await fetch(API + '/tournament-teams/' + t.id + '?_t=' + Date.now());
+        const teams = await teamsRes.json();
+
+        if (!teams || teams.length === 0) {
+          container.innerHTML = `<div style="text-align:center;padding:40px;color:#94a3b8;">No team data available yet.</div>`;
+          return;
+        }
+
+        // Fetch all players across all teams
+        const allPlayersArrays = await Promise.all(teams.map(async team => {
+          const playersRes = await fetch(API + '/tournament-players/' + t.id + '/' + encodeURIComponent(team.team_name));
+          const players = await playersRes.json();
+          return players.map(p => ({ ...p, teamName: team.team_name }));
+        }));
+        const allPlayers = allPlayersArrays.flat();
+
+        if (allPlayers.length === 0) {
+          container.innerHTML = `<div style="text-align:center;padding:40px;color:#94a3b8;">No players found in this tournament yet.</div>`;
+          return;
+        }
+
+        // Fetch player stats from the global player_stats table
+        const statsRes = await fetch(API + '/player-stats?_t=' + Date.now()).catch(() => ({ json: () => [] }));
+        let allStats = [];
+        try { allStats = await statsRes.json(); } catch(e) { allStats = []; }
+
+        // Map stats to players in this tournament
+        const enriched = allPlayers.map(p => {
+          const stat = allStats.find(s => s.player_name === p.player_name) || {};
+          return { ...p, runs: stat.runs || 0, wickets: stat.wickets || 0, matches: stat.matches || 0 };
+        });
+
+        // Top batsmen (by runs)
+        const topBat = [...enriched].sort((a, b) => b.runs - a.runs).slice(0, 3);
+        // Top bowlers (by wickets)
+        const topBowl = [...enriched].sort((a, b) => b.wickets - a.wickets).slice(0, 3);
+
+        const heroCard = (p, rank, type) => `
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(255,255,255,0.04);border-radius:12px;border:1px solid rgba(255,255,255,0.07);margin-bottom:10px;">
+            <div style="font-size:22px;">${rank === 0 ? '🥇' : rank === 1 ? '🥈' : '🥉'}</div>
+            <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#1e3a5f,#0d9488);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;flex-shrink:0;">
+              ${p.player_name.charAt(0).toUpperCase()}
+            </div>
+            <div style="flex:1;">
+              <div style="color:#fff;font-weight:700;font-size:15px;">${p.player_name}</div>
+              <div style="color:#94a3b8;font-size:12px;">${p.teamName}</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:800;color:#6ee7b7;">${type === 'bat' ? p.runs : p.wickets}</div>
+              <div style="color:#94a3b8;font-size:11px;">${type === 'bat' ? 'Runs' : 'Wickets'}</div>
+            </div>
+          </div>`;
+
+        container.innerHTML = `
+          <div style="padding:10px 0;">
+            <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#f59e0b;margin-bottom:12px;display:flex;align-items:center;gap:8px;">🏆 Top Batsmen</div>
+            ${topBat.map((p, i) => heroCard(p, i, 'bat')).join('')}
+            <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#f59e0b;margin:20px 0 12px;display:flex;align-items:center;gap:8px;">🎯 Top Bowlers</div>
+            ${topBowl.map((p, i) => heroCard(p, i, 'bowl')).join('')}
+          </div>`;
+
+      } catch (e) {
+        console.error('renderTdHeroes error:', e);
+        container.innerHTML = `<div style="text-align:center;padding:40px;color:#ef4444;">Failed to load heroes. Please try again.</div>`;
+      }
+    }
+
+
 
     async function renderTdPointsTable() {
       let t = currentViewingTournament;
