@@ -11883,9 +11883,14 @@
         }
 
         // Fetch player stats from the global player_stats table
-        const statsRes = await fetch(API + '/player-stats?_t=' + Date.now()).catch(() => ({ json: () => [] }));
+        const statsRes = await fetch(API + '/player-stats?_t=' + Date.now()).catch(() => null);
         let allStats = [];
-        try { allStats = await statsRes.json(); } catch(e) { allStats = []; }
+        try {
+          if (statsRes && statsRes.ok) {
+            const d = await statsRes.json();
+            allStats = Array.isArray(d) ? d : [];
+          }
+        } catch(e) { allStats = []; }
 
         // Map stats to players in this tournament
         const enriched = allPlayers.map(p => {

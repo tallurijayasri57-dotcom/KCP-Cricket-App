@@ -896,12 +896,12 @@ app.get("/player-stats", async (req, res) => {
         }
         const r = await pool.request().query(`
             SELECT player_name,
-                   SUM(runs_scored) as runs,
-                   SUM(wickets_taken) as wickets,
+                   SUM(runs) as runs,
+                   SUM(wickets) as wickets,
                    COUNT(DISTINCT match_id) as matches
             FROM player_stats
             GROUP BY player_name
-            ORDER BY runs DESC
+            ORDER BY SUM(runs) DESC
         `);
         res.json(r.recordset);
     } catch (err) {
