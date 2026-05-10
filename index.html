@@ -10046,7 +10046,21 @@
       if (team1Players.length === 0) team1Players = getFallbackPlayers(m.batTeam);
       if (team2Players.length === 0) team2Players = getFallbackPlayers(m.bowlTeam);
 
-      function renderTeamGrid(teamName, players) {
+      // Fetch captains from tournament_teams for this match's tournament
+      let captain1 = null, captain2 = null;
+      try {
+        const tid = m.tournament_id || m.tournamentId || (typeof currentViewingTournament !== 'undefined' && currentViewingTournament ? currentViewingTournament.id : null);
+        if (tid) {
+          const tTeamsRes = await fetch(API + '/tournament-teams/' + tid + '?_t=' + Date.now());
+          const tTeams = await tTeamsRes.json();
+          const t1 = (tTeams || []).find(t => t.team_name === m.batTeam);
+          const t2 = (tTeams || []).find(t => t.team_name === m.bowlTeam);
+          if (t1) captain1 = t1.captain;
+          if (t2) captain2 = t2.captain;
+        }
+      } catch(e) { console.warn('Captain fetch failed:', e); }
+
+      function renderTeamGrid(teamName, players, captainName) {
         if (!teamName) return '';
         if (!players || players.length === 0) {
           return `<div class="premium-card" style="margin-bottom:15px; padding:30px; text-align:center; color:rgba(255,255,255,0.4); background:rgba(30, 41, 59, 0.5);">No roster data found for ${teamName}</div>`;
@@ -10056,13 +10070,14 @@
         html += `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(100px, 1fr)); gap:12px; margin-bottom:20px;">`;
         players.forEach(p => {
           let pName = p.player_name || p.name;
-          let isCaptain = (p.role === 'Captain' || p.isCaptain);
+          // Check captain from tournament_teams OR fallback role field
+          let isCaptain = (captainName && pName === captainName) || (p.role === 'Captain' || p.isCaptain);
           let photoSrc = p.photo_url || p.photo || localStorage.getItem("userPhoto_" + pName) || '';
           let photoHtml = photoSrc ? `<img src="${photoSrc}" style="width:100%; height:100%; object-fit:cover;">` : `<div style="font-size:32px;">🧑</div>`;
 
           html += `
             <div class="team-player-card" style="background:rgba(30, 41, 59, 0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:12px; text-align:center; position:relative;" onclick="openPlayerProfile('${escapeQ(pName)}', '${escapeQ(teamName)}', '${escapeQ(p.role)}')">
-              ${isCaptain ? `<div style="position:absolute; top:5px; right:5px; background:#f59e0b; color:#fff; font-size:9px; font-weight:900; padding:2px 5px; border-radius:4px; z-index:2;">C</div>` : ''}
+              ${isCaptain ? `<div style="position:absolute; top:5px; right:5px; background:#f59e0b; color:#000; font-size:9px; font-weight:900; padding:2px 5px; border-radius:4px; z-index:2;">C</div>` : ''}
               <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; margin:0 auto 8px auto; border:2px solid ${isCaptain ? '#f59e0b' : 'rgba(255,255,255,0.1)'}; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.05);">
                 ${photoHtml}
               </div>
@@ -10077,11 +10092,12 @@
 
       container.innerHTML = `
         <div class="premium-card" style="padding:10px; background:transparent; border:none;">
-           ${renderTeamGrid(m.batTeam, team1Players)}
-           ${renderTeamGrid(m.bowlTeam, team2Players)}
+           ${renderTeamGrid(m.batTeam, team1Players, captain1)}
+           ${renderTeamGrid(m.bowlTeam, team2Players, captain2)}
         </div>
       `;
     }
+
 
     function renderTrueLiveTab(m, container) {
       let activeBatsmen = (m.batsmen || []).filter(b => b.name === m.strike || b.name === m.nonstrike);
@@ -11640,7 +11656,10 @@
         <div style="position:absolute; top:12px; left:16px; color:#94a3b8; font-size:14px; cursor:pointer; font-weight:500;" onclick="goBack()">← Back</div>
         <div class="td-header-left" style="margin-top:16px;">
           <div class="td-logo">
-            <img src="${t.logo || 'https://img.freepik.com/free-vector/cricket-logo-template-design_23-2150035048.jpg'}" alt="logo">
+            ${t.logo 
+              ? `<img src="${t.logo}" alt="logo" onerror="this.outerHTML='<div style=\\'font-size:36px;\\'>🏏</div>'">`
+              : `<div style="font-size:36px;">🏏</div>`
+            }
           </div>
           <div class="td-info">
             <h1>${t.name}</h1>
@@ -12295,7 +12314,10 @@
         <div class="tourney-badge-premium">Premium</div>
         <div class="tourney-card">
           <div class="tourney-img">
-            <img src="${t.logo || 'https://img.freepik.com/free-vector/cricket-logo-template-design_23-2150035048.jpg'}" alt="logo">
+            ${t.logo 
+              ? `<img src="${t.logo}" alt="logo" onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=\'font-size:32px;display:flex;align-items:center;justify-content:center;width:100%;height:100%;\'>🏆</div>'">`
+              : `<div style="font-size:32px; display:flex; align-items:center; justify-content:center; width:100%; height:100%; background:linear-gradient(135deg,#0d9488,#1e3a5f);">🏏</div>`
+            }
           </div>
           <div class="tourney-info">
             <div class="tourney-status-ongoing">Ongoing</div>

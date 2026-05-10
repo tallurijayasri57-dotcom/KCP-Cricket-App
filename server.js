@@ -67,6 +67,14 @@ async function startServer() {
         try {
             pool = await sql.connect(dbConfig);
             console.log("✅ SQL Connected");
+            // Ensure logo column exists on tournaments table
+            try {
+                await pool.request().query(`
+                    IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournaments' AND COLUMN_NAME='logo')
+                    ALTER TABLE tournaments ADD logo NVARCHAR(MAX) NULL
+                `);
+                console.log("✅ tournaments.logo column ensured");
+            } catch(e) { console.warn("logo column migration:", e.message); }
         } catch (e) {
             console.warn("⚠️ SQL Connection Failed:", e.message);
             useJSON = true;
@@ -159,7 +167,8 @@ app.get("/tournaments/:username", async (req, res) => {
                         id, name, created_by, status, created_at,
                         ball_type AS ball, 
                         start_date AS startDate, 
-                        end_date AS endDate 
+                        end_date AS endDate,
+                        logo
                     FROM tournaments 
                     WHERE LOWER(created_by) = @u 
                     ORDER BY id DESC
@@ -177,7 +186,7 @@ app.get("/tournaments/:username", async (req, res) => {
 
 app.post("/tournaments", async (req, res) => {
     try {
-        const { name, created_by, ball_type, start_date, end_date } = req.body;
+        const { name, created_by, ball_type, start_date, end_date, logo } = req.body;
         if (!name || !created_by) return res.status(400).json({ message: "Name and created_by required" });
         if (pool) {
             const result = await pool.request()
@@ -186,10 +195,11 @@ app.post("/tournaments", async (req, res) => {
                 .input("b", sql.NVarChar, ball_type || null)
                 .input("sd", sql.Date, start_date || null)
                 .input("ed", sql.Date, end_date || null)
+                .input("logo", sql.NVarChar(sql.MAX), logo || null)
                 .query(`
-                    INSERT INTO tournaments (name, created_by, ball_type, start_date, end_date) 
+                    INSERT INTO tournaments (name, created_by, ball_type, start_date, end_date, logo) 
                     OUTPUT INSERTED.id 
-                    VALUES (@n, @c, @b, @sd, @ed)
+                    VALUES (@n, @c, @b, @sd, @ed, @logo)
                 `);
             res.json({ success: true, id: result.recordset[0].id });
         } else {
@@ -197,6 +207,24 @@ app.post("/tournaments", async (req, res) => {
         }
     } catch (err) {
         console.error("POST tournament error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.patch("/tournaments/:id/logo", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { logo } = req.body;
+        if (!logo) return res.status(400).json({ message: "logo required" });
+        if (pool) {
+            await pool.request()
+                .input("id", sql.Int, id)
+                .input("logo", sql.NVarChar(sql.MAX), logo)
+                .query("UPDATE tournaments SET logo = @logo WHERE id = @id");
+        }
+        res.json({ success: true });
+    } catch (err) {
+        console.error("PATCH tournament logo error:", err);
         res.status(500).json({ error: err.message });
     }
 });
