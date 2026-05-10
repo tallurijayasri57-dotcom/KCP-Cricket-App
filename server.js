@@ -1034,6 +1034,21 @@ app.get("/player-photo/:player_name", async (req, res) => {
     }
 });
 
+app.get("/player-role/:player_name", async (req, res) => {
+    try {
+        if (!pool) return res.json({ role: 'Player' });
+        const r = await pool.request().input("pn", sql.NVarChar, req.params.player_name).query("SELECT TOP 1 role FROM tournament_players WHERE player_name=@pn");
+        if (r.recordset.length > 0) return res.json({ role: r.recordset[0].role });
+        
+        const r2 = await pool.request().input("pn", sql.NVarChar, req.params.player_name).query("SELECT TOP 1 role FROM player_profile WHERE player_name=@pn");
+        if (r2.recordset.length > 0) return res.json({ role: r2.recordset[0].role });
+
+        res.json({ role: 'Player' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // ================= TOURNAMENT GALLERY =================
 app.get("/tournament-gallery/:tournament_id", async (req, res) => {
     try {

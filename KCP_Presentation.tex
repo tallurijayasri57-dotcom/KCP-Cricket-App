@@ -1,0 +1,99 @@
+\documentclass[12pt]{beamer}
+
+% Theme selection
+\usetheme{Madrid}
+\usecolortheme{default}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{helvet} % For Calibri/Arial style sans-serif font
+
+% Font settings for content (Size 12)
+\setbeamerfont{itemize/enumerate body}{size=\fontsize{12}{14}}
+\setbeamerfont{itemize/enumerate subbody}{size=\fontsize{11}{13}}
+
+% Font settings for Headings (Size 14, Bold)
+\setbeamerfont{frametitle}{size=\fontsize{14}{17},series=\bfseries}
+
+% Title Page Information
+\title[KCP Cricket App]{KCP Cricket App: Tournament Management System}
+\subtitle{Modern Digital Solution for Cricket Tournaments}
+\author{Project Presentation}
+\date{\today}
+
+\begin{document}
+
+% Slide 1: Title Page
+\begin{frame}
+    \titlepage
+\end{frame}
+
+% Slide 2: Problem Statement
+\begin{frame}{1. Problem Statement}
+    \begin{itemize}
+        \item \textbf{Manual Scoring:} Most local tournaments still use paper and pen.
+        \item \textbf{Data Loss:} High risk of losing physical records or records being damaged.
+        \item \textbf{Inaccuracy:} Manual calculation of Points Table and NRR leads to human errors.
+        \item \textbf{Transparency:} Players and fans have no way to see real-time updates.
+    \end{itemize}
+\end{frame}
+
+% Slide 3: Our Solution
+\begin{frame}{2. Our Solution}
+    \begin{itemize}
+        \item \textbf{Web-Based Platform:} A centralized app accessible from anywhere.
+        \item \textbf{Digital Database:} Permanent storage for every match, team, and player.
+        \item \textbf{Real-Time Sync:} Instant updates from the backend to the user interface.
+        \item \textbf{Automation:} All rankings and tables are calculated by the system automatically.
+    \end{itemize}
+\end{frame}
+
+% Slide 4: Key Features
+\begin{frame}{3. Key Features}
+    \begin{itemize}
+        \item \textbf{Match Management:} Transition matches from 'Upcoming' to 'Live' and 'Finished'.
+        \item \textbf{Player Profiles:} Detailed tracking of player roles and team associations.
+        \item \textbf{Live Leaderboard:} Dynamic points table updated instantly after match results.
+        \item \textbf{Modern UI:} Premium dark-themed 'Glassmorphism' design.
+    \end{itemize}
+\end{frame}
+
+% Slide 5: Technology Stack
+\begin{frame}{4. Technology Stack}
+    \begin{itemize}
+        \item \textbf{Frontend:} HTML5, Vanilla CSS3, Modern JavaScript (ES6+).
+        \item \textbf{Backend:} Node.js with Express.js framework.
+        \item \textbf{Database:} Microsoft SQL Server (SSMS 19) for secure data storage.
+        \item \textbf{Communication:} REST APIs for seamless frontend-backend interaction.
+    \end{itemize}
+\end{frame}
+
+% Slide 6: Database Architecture
+\begin{frame}{5. Database Architecture (SQL Server)}
+    \begin{itemize}
+        \item \textbf{Structured Tables:} Normalized tables for Users, Teams, Players, and Matches.
+        \item \textbf{Relational Integrity:} Foreign keys to ensure data consistency between players and teams.
+        \item \textbf{Persistent Storage:} Unlike local storage, data remains safe even after browser refreshes.
+    \end{itemize}
+\end{frame}
+
+% Slide 7: UI/UX Design
+\begin{frame}{6. UI/UX Design}
+    \begin{itemize}
+        \item \textbf{Glassmorphism:} Using backdrop filters and subtle borders for a premium feel.
+        \item \textbf{Responsive Design:} Works perfectly across different screen sizes.
+        \item \textbf{Interactive Elements:} Smooth transitions and hover effects for better engagement.
+    \end{itemize}
+\end{frame}
+
+% Slide 8: Conclusion
+\begin{frame}{7. Conclusion \& Future Scope}
+    \begin{itemize}
+        \item \textbf{Summary:} The KCP Cricket App successfully automates the complex task of tournament management.
+        \item \textbf{Benefit:} Saves time, reduces errors, and provides a professional experience for local cricket.
+        \item \textbf{Future Scope:} Adding live ball-by-ball commentary and player performance analytics.
+    \end{itemize}
+\end{frame}
+
+\end{document}

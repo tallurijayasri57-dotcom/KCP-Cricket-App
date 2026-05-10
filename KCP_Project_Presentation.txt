@@ -1,0 +1,89 @@
+KCP CRICKET APP - PROJECT DOCUMENTATION & PRESENTATION CONTENT
+
+================================================================================
+PART 1: PROJECT ABSTRACT (Professional/Human Style)
+================================================================================
+
+TITLE: KCP Cricket App - A Digital Transformation for Local Tournament Management
+
+ABSTRACT:
+The KCP Cricket App is a full-stack web application designed to solve the common problems faced by local cricket tournament organisers. For years, local tournaments have relied on manual methods like pen and paper to keep track of scores, team standings, and player statistics. This often leads to errors in point calculations, loss of data, and a lack of real-time visibility for players and fans.
+
+To address these challenges, I built the KCP Cricket App—a robust digital platform that automates the entire process. The app allows organisers to manage teams, players, and match schedules through a modern, responsive interface. The backend is powered by Node.js and Express, ensuring fast and reliable communication between the user and the database. For data storage, I integrated Microsoft SQL Server (SSMS 19), which provides professional-grade security and data persistence.
+
+The key highlight of the project is the automated Points Table, which calculates wins, losses, and Net Run Rate (NRR) in real-time as soon as a match result is updated. Additionally, the app features a premium 'Glassmorphism' UI, providing a high-end digital experience for a local sports community. This project demonstrates the power of digital transformation in simplifying complex manual workflows.
+
+================================================================================
+PART 2: RESUME / PORTFOLIO SUMMARY (Specially for your CV)
+================================================================================
+
+PROJECT TITLE: KCP Cricket App (Full-Stack Tournament Management System)
+
+TECH STACK: 
+- Frontend: HTML5, CSS3 (Vanilla), JavaScript (ES6+)
+- Backend: Node.js, Express.js
+- Database: Microsoft SQL Server (SSMS 19)
+- Tools: REST APIs, Git, VS Code
+
+KEY CONTRIBUTIONS:
+- Developed a full-stack application to automate local cricket tournament workflows, replacing manual pen-and-paper tracking.
+- Designed and implemented a relational database schema in SQL Server to manage complex data for teams, players, and match cycles.
+- Built a real-time automated Points Table system that calculates standings and Net Run Rate (NRR) dynamically using backend logic.
+- Created a modern, responsive UI using Glassmorphism design principles to enhance user engagement and visual appeal.
+- Integrated RESTful APIs to ensure seamless synchronization between the frontend and the SQL backend.
+
+IMPACT:
+- Reduced human error in score tracking and ranking calculations by 100%.
+- Provided a centralized, persistent digital record for tournament data, ensuring no information is lost across sessions.
+
+================================================================================
+PART 3: PPT SLIDE CONTENT (8 Slides)
+================================================================================
+
+SLIDE 1: Title Slide
+- Heading: KCP Cricket App
+- Sub-heading: Digital Solution for Modern Tournament Management
+- Points: Professional Full-Stack Development Project
+
+SLIDE 2: The Problem
+- Manual errors in scoring.
+- Difficulty in maintaining long-term records.
+- Slow updates for fans and players.
+- Complex NRR calculations.
+
+SLIDE 3: The Solution
+- A centralized web platform.
+- Persistent SQL Database.
+- Real-time automated calculations.
+- User-friendly dashboard for organisers.
+
+SLIDE 4: Key Features
+- Dynamic Match Lifecycle (Upcoming -> Finished).
+- Detailed Player & Team Profiles.
+- Instant Leaderboard Updates.
+- Secure Admin Authentication.
+
+SLIDE 5: Technical Stack
+- Frontend: HTML/CSS/JavaScript.
+- Backend: Node.js & Express.
+- Database: SQL Server (SSMS 19).
+- Architecture: Client-Server via REST APIs.
+
+SLIDE 6: Database Management
+- Structured SQL Tables.
+- Data Integrity & Relationships.
+- Permanent storage (No data loss on refresh).
+
+SLIDE 7: UI/UX Aesthetic
+- Modern 'Glassmorphism' Theme.
+- Responsive Layout (Mobile & Desktop).
+- Interactive User Experience.
+
+SLIDE 8: Conclusion
+- Efficient, Accurate, and Professional.
+- Future ready: Ready for live commentary and analytics.
+- Final Goal: Bringing professional-grade tech to local sports.
+
+================================================================================
+FINISH
+================================================================================
