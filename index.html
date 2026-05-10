@@ -8886,6 +8886,8 @@
           sr: batsmanStats[name].balls > 0 ? ((batsmanStats[name].runs / batsmanStats[name].balls) * 100).toFixed(2) : "0.00",
           isStrike: name === document.getElementById('strike').value,
           isOut: outBatsmen.includes(name),
+          outDesc: batsmanStats[name].dismissal_type ? (batsmanStats[name].dismissal_type + (batsmanStats[name].dismissed_by ? ' ' + batsmanStats[name].dismissed_by : '')) : (outBatsmen.includes(name) ? 'out' : 'not out'),
+          dismissal_type: batsmanStats[name].dismissal_type || (outBatsmen.includes(name) ? 'out' : ''),
           shot_types: batsmanStats[name].shot_types || [],
           wagon_wheel: batsmanStats[name].wagon_wheel || []
         })),
@@ -9159,6 +9161,30 @@
 
     function renderPremiumMatchView(m) {
       if (!m) return;
+      
+      // Robust data normalization for live matches
+      if (!m.batsmen && m.batsmanStats) {
+          m.batsmen = Object.keys(m.batsmanStats).map(name => {
+              let s = m.batsmanStats[name];
+              return {
+                  name: name, runs: s.runs, balls: s.balls, fours: s.fours, sixes: s.sixes,
+                  sr: s.balls > 0 ? ((s.runs / s.balls) * 100).toFixed(2) : "0.00",
+                  outDesc: (m.outBatsmen || []).includes(name) ? 'out' : 'not out',
+                  isOut: (m.outBatsmen || []).includes(name)
+              };
+          });
+      }
+      if (!m.bowlers && m.bowlerStats) {
+          m.bowlers = Object.keys(m.bowlerStats).map(name => {
+              let s = m.bowlerStats[name];
+              return {
+                  name: name, overs: Math.floor(s.balls / 6) + "." + (s.balls % 6),
+                  maidens: s.maidens || 0, runs: s.runs, wickets: s.wickets,
+                  eco: s.balls > 0 ? ((s.runs / (s.balls / 6))).toFixed(2) : "0.00"
+              };
+          });
+      }
+      
       previousLiveMatchState = m;
 
       try {
@@ -9285,6 +9311,8 @@
         renderPremiumAwardsTab(m, mainContent);
       } else if (currentMatchActiveTab === 'mvp') {
         renderPremiumMvpTab(m, mainContent);
+      } else if (currentMatchActiveTab === 'scorecard') {
+        renderPremiumScorecardTab(m, mainContent);
       } else {
         mainContent.innerHTML = `<div class="premium-card" style="padding:40px; text-align:center; color:#64748b;">${currentMatchActiveTab.toUpperCase()} content coming soon</div>`;
       }
@@ -9514,324 +9542,274 @@
     }
 
     function renderPremiumAnalysisTab(m, container) {
-      const comms = m.commentary || [];
-      
-      // If no commentary data (for old matches), show a beautiful placeholder with demo data option
-      if (comms.length === 0) {
-          container.innerHTML = `
-            <div class="premium-card" style="padding:60px 20px; text-align:center; background-image: linear-gradient(rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.95)), url('cricket_bg.png'); background-size: cover; border: 1px solid rgba(255,255,255,0.1);">
-                <div style="font-size:64px; margin-bottom:24px; filter: drop-shadow(0 0 15px rgba(110, 231, 183, 0.3));">📊</div>
-                <div style="font-family:'Rajdhani',sans-serif; font-size:26px; font-weight:700; color:#f8fafc; margin-bottom:12px; letter-spacing:1px;">ADVANCED ANALYTICS</div>
-                <div style="color:rgba(255,255,255,0.6); max-width:450px; margin:0 auto 30px; font-size:15px; line-height:1.6;">
-                    Detailed over-by-over charts like <span style="color:#6ee7b7; font-weight:600;">Manhattan</span> and <span style="color:#6ee7b7; font-weight:600;">Worm</span> require ball-by-ball data. 
-                    <br><br>
-                    This match data is missing detailed commentary. Full analytics will be automatically available for all <span style="color:#6ee7b7; font-weight:700;">NEW MATCHES</span> from now on!
-                </div>
-                <div style="display:flex; gap:12px; justify-content:center;">
-                   <button onclick="switchTab('create')" style="background:#6ee7b7; color:#0f172a; border:none; padding:12px 24px; border-radius:8px; font-weight:700; cursor:pointer; font-family:'Inter', sans-serif;">Start New Match</button>
-                </div>
-            </div>
-          `;
-          return;
-      }
+      // Robust commentary extraction for live matches
+      const comms = m.commentary || m.matchCommentary || [];
 
-      // 1. Data Preparation from Commentary
-      const i1Summaries = comms.filter(c => c.type === 'over_summary' && (c.innings === 1 || !c.innings)).sort((a,b) => a.over - b.over);
-      const i2Summaries = comms.filter(c => c.type === 'over_summary' && c.innings === 2).sort((a,b) => a.over - b.over);
-
-      // Manhattan (Runs per Over)
-      const getManhattan = (summaries) => {
-        let data = [];
-        let prevRuns = 0;
-        summaries.forEach(s => {
-          data.push({ over: s.over, runs: s.runs - prevRuns, totalWkts: s.wkts });
-          prevRuns = s.runs;
-        });
-        return data;
-      };
-
-      const m1 = getManhattan(i1Summaries);
-      const m2 = getManhattan(i2Summaries);
-
-      // Worm (Cumulative Runs)
-      const w1 = i1Summaries.map(s => ({ x: s.over, y: s.runs }));
-      const w2 = i2Summaries.map(s => ({ x: s.over, y: s.runs }));
-
-      // Run Rate
-      const rr1 = i1Summaries.map(s => ({ x: s.over, y: parseFloat((s.runs / s.over).toFixed(2)) }));
-      const rr2 = i2Summaries.map(s => ({ x: s.over, y: parseFloat((s.runs / s.over).toFixed(2)) }));
-
-      // Dismissal Types Breakdown
+      // Calculate Stats-based data
+      let shotCounts = {};
+      let runBreakdown = { 'Sixes': 0, 'Fours': 0, 'Others': 0 };
       let dismissals = { 'Bowled': 0, 'Caught': 0, 'LBW': 0, 'Run Out': 0, 'Stumped': 0, 'Others': 0 };
-      const extractDismissals = (innings) => {
-          if (!innings || !innings.batsmen) return;
-          innings.batsmen.forEach(b => {
-              if (b.isOut && b.outDesc) {
-                  let d = b.outDesc.toLowerCase();
-                  if (d.includes('b ') || d.startsWith('b ')) dismissals['Bowled']++;
+      let wagonRuns = {};
+      let topBatsmen = [];
+
+      const processInnings = (inn) => {
+          if (!inn || !inn.batsmen) return;
+          inn.batsmen.forEach(p => {
+              let runs = (parseInt(p.runs) || 0);
+              let sixes = (parseInt(p.sixes) || 0);
+              let fours = (parseInt(p.fours) || 0);
+              
+              runBreakdown['Sixes'] += sixes * 6;
+              runBreakdown['Fours'] += fours * 4;
+              runBreakdown['Others'] += (runs - (sixes * 6) - (fours * 4));
+              
+              (p.shot_types || []).forEach(s => { if(s) shotCounts[s] = (shotCounts[s] || 0) + 1; });
+              (p.wagon_wheel || []).forEach(w => {
+                 if (!w) return;
+                 let zone, r;
+                 if (String(w).includes(':')) {
+                    [zone, r] = String(w).split(':');
+                 } else {
+                    zone = String(w); r = 1; // Fallback for legacy data
+                 }
+                 wagonRuns[zone] = (wagonRuns[zone] || 0) + (parseInt(r) || 0);
+              });
+
+              if (p.outDesc || p.dismissal_type) {
+                  let d = String(p.outDesc || p.dismissal_type).toLowerCase();
+                  if (d.includes('b ') || d.startsWith('b ') || d === 'bowled') dismissals['Bowled']++;
                   else if (d.includes('caught')) dismissals['Caught']++;
                   else if (d.includes('lbw')) dismissals['LBW']++;
                   else if (d.includes('run out')) dismissals['Run Out']++;
                   else if (d.includes('stumped')) dismissals['Stumped']++;
-                  else dismissals['Others']++;
+                  else if (d !== 'not out' && d !== '') dismissals['Others']++;
               }
+              topBatsmen.push({ name: p.name, runs: runs, team: inn.batTeam || 'Team' });
           });
       };
-      extractDismissals(m.innings1);
-      extractDismissals(m.innings2);
 
-      // Types of Runs (1s, 2s, 4s, 6s)
-      let runTypes = {
-          i1: { '1s': 0, '2s': 0, '3s': 0, '4s': 0, '6s': 0 },
-          i2: { '1s': 0, '2s': 0, '3s': 0, '4s': 0, '6s': 0 }
-      };
-      comms.forEach(c => {
-          if (c.ball !== undefined && !isNaN(c.ball)) {
-              let r = parseInt(c.ball);
-              let inn = (c.innings === 2) ? 'i2' : 'i1';
-              if (r === 1) runTypes[inn]['1s']++;
-              else if (r === 2) runTypes[inn]['2s']++;
-              else if (r === 3) runTypes[inn]['3s']++;
-              else if (r === 4) runTypes[inn]['4s']++;
-              else if (r === 6) runTypes[inn]['6s']++;
-          }
-      });
+      // Fix: Process innings1, innings2 AND top-level batsmen (for live matches)
+      processInnings(m.innings1);
+      processInnings(m.innings2);
+      
+      // If live and innings data not structured yet, use top-level
+      if ((!m.innings1 && !m.innings2) && m.batsmen) {
+          processInnings({ batsmen: m.batsmen, batTeam: m.batTeam });
+      }
 
-      // UI Template
+      topBatsmen.sort((a,b) => b.runs - a.runs);
+      const top5 = topBatsmen.slice(0, 5);
+
+      // Trends data prep (for NEW matches)
+      const i1Summaries = comms.filter(c => c.type === 'over_summary' && (c.innings === 1 || !c.innings)).sort((a,b) => a.over - b.over);
+      const i2Summaries = comms.filter(c => c.type === 'over_summary' && c.innings === 2).sort((a,b) => a.over - b.over);
+
+      // UI Template - Professional Long Dashboard
       container.innerHTML = `
-        <div class="analysis-dashboard" style="background: rgba(15, 23, 42, 0.8); border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px);">
-           <!-- Sub-Tabs Navigation -->
-           <div style="display: flex; background: rgba(0,0,0,0.3); padding: 6px; gap: 6px; border-bottom: 1px solid rgba(255,255,255,0.05);">
-              <button class="analysis-nav-btn active" onclick="switchAnalysisSubTab('trends', this)">📈 TRENDS</button>
-              <button class="analysis-nav-btn" onclick="switchAnalysisSubTab('scoring', this)">🎯 SCORING</button>
-              <button class="analysis-nav-btn" onclick="switchAnalysisSubTab('wickets', this)">☝️ WICKETS</button>
-           </div>
-
-           <div id="analysisSubContent" style="padding: 20px; max-height: 70vh; overflow-y: auto;">
-              <!-- Trends View -->
-              <div id="subtab-trends" class="analysis-sub-pane active">
-                 <div class="analysis-card">
-                    <div class="card-header">Manhattan (Runs per Over)</div>
-                    <div class="chart-container"><canvas id="manhattanChart"></canvas></div>
-                 </div>
-                 <div class="analysis-card">
-                    <div class="card-header">Worm (Cumulative Progression)</div>
-                    <div class="chart-container"><canvas id="wormChart"></canvas></div>
-                 </div>
-                 <div class="analysis-card">
-                    <div class="card-header">Run Rate Comparison</div>
-                    <div class="chart-container"><canvas id="runRateChart"></canvas></div>
-                 </div>
-              </div>
-
-              <!-- Scoring View -->
-              <div id="subtab-scoring" class="analysis-sub-pane" style="display:none;">
-                 <div class="analysis-card">
-                    <div class="card-header">Types of Runs</div>
-                    <div class="chart-container"><canvas id="runTypesChart"></canvas></div>
-                 </div>
-                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div class="analysis-card">
-                       <div class="card-header">Shot Distribution</div>
-                       <div class="chart-container"><canvas id="shotDistChart"></canvas></div>
-                    </div>
-                    <div class="analysis-card">
-                       <div class="card-header">Field Zoning</div>
-                       <div class="chart-container"><canvas id="fieldZoneChart"></canvas></div>
-                    </div>
-                 </div>
-              </div>
-
-              <!-- Wickets View -->
-              <div id="subtab-wickets" class="analysis-sub-pane" style="display:none;">
-                 <div class="analysis-card">
-                    <div class="card-header">Dismissal Breakdown</div>
-                    <div class="chart-container" style="height: 350px;"><canvas id="wicketsPieChart"></canvas></div>
-                 </div>
+        <div class="analysis-scroll-container" style="max-height: 80vh; overflow-y: auto; padding: 10px; background: #0f172a; border-radius:12px;">
+           
+           <!-- 1. Manhattan Chart Section -->
+           <div class="premium-card-v2">
+              <div class="card-title-v2">Manhattan (Runs per Over)</div>
+              <div class="chart-box-v2">
+                 ${comms.length === 0 ? '<div class="no-data-v2">Over-by-over data available for new matches only</div>' : '<canvas id="manhattanChart"></canvas>'}
               </div>
            </div>
+
+           <!-- 2. Worm Chart Section -->
+           <div class="premium-card-v2">
+              <div class="card-title-v2">Match Worm (Progression)</div>
+              <div class="chart-box-v2">
+                 ${comms.length === 0 ? '<div class="no-data-v2">Match progression data available for new matches only</div>' : '<canvas id="wormChart"></canvas>'}
+              </div>
+           </div>
+
+           <!-- 3. Scoring Breakdown (Grid) -->
+           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
+              <div class="premium-card-v2">
+                 <div class="card-title-v2">Run Breakdown</div>
+                 <div class="chart-box-v2"><canvas id="scoringBreakdownChart"></canvas></div>
+              </div>
+              <div class="premium-card-v2">
+                 <div class="card-title-v2">Top 5 Performers</div>
+                 <div class="chart-box-v2"><canvas id="topPerformersChart"></canvas></div>
+              </div>
+           </div>
+
+           <!-- 4. Wickets Section -->
+           <div class="premium-card-v2">
+              <div class="card-title-v2">Dismissal Analysis</div>
+              <div class="chart-box-v2" style="height: 300px;"><canvas id="wicketsPieChart"></canvas></div>
+           </div>
+
+           <!-- 5. Advanced Stats (Grid) -->
+           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
+              <div class="premium-card-v2">
+                 <div class="card-title-v2">Shot Distribution</div>
+                 <div class="chart-box-v2"><canvas id="shotDistChart"></canvas></div>
+              </div>
+              <div class="premium-card-v2">
+                 <div class="card-title-v2">Fielding Zones</div>
+                 <div class="chart-box-v2"><canvas id="fieldZoneChart"></canvas></div>
+              </div>
+           </div>
+
         </div>
 
         <style>
-           .analysis-nav-btn {
-              flex: 1; padding: 10px; background: transparent; border: none; color: rgba(255,255,255,0.5); font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; border-radius: 8px; transition: 0.3s;
+           .premium-card-v2 {
+              background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
            }
-           .analysis-nav-btn.active {
-              background: rgba(110, 231, 183, 0.15); color: #6ee7b7; border: 1px solid rgba(110, 231, 183, 0.3);
+           .card-title-v2 {
+              font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 700; color: #6ee7b7; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; border-left: 4px solid #6ee7b7; padding-left: 12px;
            }
-           .analysis-card {
-              background: rgba(255,255,255,0.03); border-radius: 12px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px;
-           }
-           .card-header {
-              font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 700; color: #f8fafc; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.5px; border-left: 3px solid #6ee7b7; padding-left: 10px;
-           }
-           .chart-container {
-              position: relative; height: 260px; width: 100%;
-           }
+           .chart-box-v2 { position: relative; height: 260px; width: 100%; }
+           .no-data-v2 { display: flex; align-items: center; justify-content: center; height: 100%; color: rgba(255,255,255,0.3); font-size: 14px; text-align: center; font-style: italic; }
+           .analysis-scroll-container::-webkit-scrollbar { width: 6px; }
+           .analysis-scroll-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
         </style>
       `;
 
-      // Define internal switch function
-      window.switchAnalysisSubTab = function(tabId, el) {
-          document.querySelectorAll('.analysis-nav-btn').forEach(b => b.classList.remove('active'));
-          document.querySelectorAll('.analysis-sub-pane').forEach(p => p.style.display = 'none');
-          el.classList.add('active');
-          document.getElementById('subtab-' + tabId).style.display = 'block';
-      };
-
       // 2. Initialize Charts
       setTimeout(() => {
-          const t1Color = '#3b82f6'; // Blue
-          const t2Color = '#f59e0b'; // Orange
-          const t1Name = m.innings1?.batTeam || 'Team 1';
-          const t2Name = m.innings2?.batTeam || 'Team 2';
-
-          // A. Manhattan Chart
-          new Chart(document.getElementById('manhattanChart'), {
-              type: 'bar',
-              data: {
-                  labels: m1.map(d => d.over),
-                  datasets: [
-                      { label: t1Name, data: m1.map(d => d.runs), backgroundColor: t1Color + 'cc', borderColor: t1Color, borderWidth: 1 },
-                      { label: t2Name, data: m2.map(d => d.runs), backgroundColor: t2Color + 'cc', borderColor: t2Color, borderWidth: 1 }
-                  ]
-              },
-              options: {
-                  responsive: true, maintainAspectRatio: false,
-                  plugins: { legend: { labels: { color: '#94a3b8' } } },
-                  scales: {
-                      x: { grid: { display: false }, ticks: { color: '#64748b' } },
-                      y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b' } }
-                  }
-              }
-          });
-
-          // B. Worm Chart
-          new Chart(document.getElementById('wormChart'), {
-              type: 'line',
-              data: {
-                  datasets: [
-                      { label: t1Name, data: w1, borderColor: t1Color, backgroundColor: t1Color + '22', fill: true, tension: 0.3, pointRadius: 2 },
-                      { label: t2Name, data: w2, borderColor: t2Color, backgroundColor: t2Color + '22', fill: true, tension: 0.3, pointRadius: 2 }
-                  ]
-              },
-              options: {
-                  responsive: true, maintainAspectRatio: false,
-                  plugins: { legend: { labels: { color: '#94a3b8' } } },
-                  scales: {
-                      x: { type: 'linear', position: 'bottom', grid: { display: false }, ticks: { color: '#64748b' } },
-                      y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b' } }
-                  }
-              }
-          });
-
-          // C. Run Rate
-          new Chart(document.getElementById('runRateChart'), {
-              type: 'line',
-              data: {
-                  datasets: [
-                      { label: t1Name, data: rr1, borderColor: t1Color, tension: 0.4, pointRadius: 0, borderWidth: 2 },
-                      { label: t2Name, data: rr2, borderColor: t2Color, tension: 0.4, pointRadius: 0, borderWidth: 2 }
-                  ]
-              },
-              options: {
-                  responsive: true, maintainAspectRatio: false,
-                  plugins: { legend: { labels: { color: '#94a3b8' } } },
-                  scales: {
-                      x: { type: 'linear', grid: { display: false }, ticks: { color: '#64748b' } },
-                      y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b' } }
-                  }
-              }
-          });
-
-          // D. Run Types Breakdown
-          new Chart(document.getElementById('runTypesChart'), {
-              type: 'bar',
-              data: {
-                  labels: ['1s', '2s', '3s', '4s', '6s'],
-                  datasets: [
-                      { label: t1Name, data: [runTypes.i1['1s'], runTypes.i1['2s'], runTypes.i1['3s'], runTypes.i1['4s'], runTypes.i1['6s']], backgroundColor: t1Color },
-                      { label: t2Name, data: [runTypes.i2['1s'], runTypes.i2['2s'], runTypes.i2['3s'], runTypes.i2['4s'], runTypes.i2['6s']], backgroundColor: t2Color }
-                  ]
-              },
-              options: {
-                  indexAxis: 'y',
-                  responsive: true, maintainAspectRatio: false,
-                  plugins: { legend: { labels: { color: '#94a3b8' } } },
-                  scales: {
-                      x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b' } },
-                      y: { ticks: { color: '#f8fafc' } }
-                  }
-              }
-          });
-
-          // E. Wickets Pie
-          new Chart(document.getElementById('wicketsPieChart'), {
-              type: 'doughnut',
-              data: {
-                  labels: Object.keys(dismissals),
-                  datasets: [{
-                      data: Object.values(dismissals),
-                      backgroundColor: ['#ef4444', '#f59e0b', '#3b82f6', '#10b981', '#8b5cf6', '#64748b'],
-                      borderWidth: 0
-                  }]
-              },
-              options: {
-                  responsive: true, maintainAspectRatio: false,
-                  plugins: {
-                      legend: { position: 'right', labels: { color: '#f8fafc', font: { size: 12 } } }
-                  },
-                  cutout: '65%'
-              }
-          });
- 
-          // F. Shot Distribution
-          let shotCounts = {};
-          [m.innings1, m.innings2].forEach(inn => {
-              if (inn && inn.batsmen) {
-                  inn.batsmen.forEach(b => {
-                      (b.shot_types || []).forEach(s => shotCounts[s] = (shotCounts[s] || 0) + 1);
+          // 1. Scoring Breakdown
+          try {
+              const sbCtx = document.getElementById('scoringBreakdownChart');
+              if (sbCtx) {
+                  new Chart(sbCtx, {
+                      type: 'doughnut',
+                      data: {
+                          labels: ['Sixes', 'Fours', 'Others'],
+                          datasets: [{
+                              data: [runBreakdown['Sixes'], runBreakdown['Fours'], runBreakdown['Others']],
+                              backgroundColor: ['#ef4444', '#f59e0b', '#3b82f6'],
+                              borderWidth: 0
+                          }]
+                      },
+                      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#f8fafc', padding: 20 } } }, cutout: '75%' }
                   });
               }
-          });
-          const shotLabels = Object.keys(shotCounts).sort((a,b) => shotCounts[b] - shotCounts[a]);
-          if (shotLabels.length > 0) {
-              new Chart(document.getElementById('shotDistChart'), {
-                  type: 'bar',
-                  data: {
-                      labels: shotLabels,
-                      datasets: [{ label: 'Shots', data: shotLabels.map(l => shotCounts[l]), backgroundColor: '#10b981' }]
-                  },
-                  options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-              });
-          }
+          } catch(e){}
 
-          // G. Field Zoning
-          let wagonRuns = {};
-          [m.innings1, m.innings2].forEach(inn => {
-              if (inn && inn.batsmen) {
-                  inn.batsmen.forEach(b => {
-                      (b.wagon_wheel || []).forEach(w => {
-                          if (!w || !w.includes(':')) return;
-                          let [zone, runs] = w.split(':');
-                          wagonRuns[zone] = (wagonRuns[zone] || 0) + parseInt(runs);
+          // 2. Top Performers
+          try {
+              const tpCtx = document.getElementById('topPerformersChart');
+              if (tpCtx && top5.length > 0) {
+                  new Chart(tpCtx, {
+                      type: 'bar',
+                      data: {
+                          labels: top5.map(p => p.name),
+                          datasets: [{ label: 'Runs', data: top5.map(p => p.runs), backgroundColor: '#6ee7b7', borderRadius: 6 }]
+                      },
+                      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#94a3b8' } }, y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } } } }
+                  });
+              }
+          } catch(e){}
+
+          // 3. Wickets Pie
+          try {
+              const wCtx = document.getElementById('wicketsPieChart');
+              if (wCtx) {
+                  new Chart(wCtx, {
+                      type: 'doughnut',
+                      data: {
+                          labels: Object.keys(dismissals),
+                          datasets: [{
+                              data: Object.values(dismissals),
+                              backgroundColor: ['#ef4444', '#f59e0b', '#3b82f6', '#10b981', '#8b5cf6', '#64748b'],
+                              borderWidth: 0
+                          }]
+                      },
+                      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#f8fafc', font: { size: 12 } } } }, cutout: '65%' }
+                  });
+              }
+          } catch(e){}
+
+          // 4. Shot Dist
+          try {
+              const sdCtx = document.getElementById('shotDistChart');
+              const shotLabelsArr = Object.keys(shotCounts);
+              if (sdCtx && shotLabelsArr.length > 0) {
+                  new Chart(sdCtx, {
+                      type: 'bar',
+                      data: {
+                          labels: shotLabelsArr,
+                          datasets: [{ data: shotLabelsArr.map(l => shotCounts[l]), backgroundColor: '#3b82f6' }]
+                      },
+                      options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#94a3b8' } }, y: { ticks: { color: '#94a3b8' } } } }
+                  });
+              }
+          } catch(e){}
+
+          // 5. Field Zoning
+          try {
+              const fzCtx = document.getElementById('fieldZoneChart');
+              let wagonLabelsArr = Object.keys(wagonRuns || {});
+              if (fzCtx && wagonLabelsArr.length > 0) {
+                 new Chart(fzCtx, {
+                    type: 'polarArea',
+                    data: {
+                        labels: wagonLabelsArr,
+                        datasets: [{ data: wagonLabelsArr.map(l => wagonRuns[l]), backgroundColor: ['#ef4444', '#f59e0b', '#3b82f6', '#10b981', '#8b5cf6'] }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { r: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { display: false } } } }
+                 });
+              }
+          } catch(e){}
+
+          // 6. Trends (Improved for Live)
+          try {
+              const manCanvas = document.getElementById('manhattanChart');
+              const wormCanvas = document.getElementById('wormChart');
+              
+              if (manCanvas || wormCanvas) {
+                  const t1Color = '#3b82f6', t2Color = '#f59e0b';
+                  let m1_labels = i1Summaries.map(s => s.over);
+                  let m1_values = [];
+                  let prevR = 0;
+                  i1Summaries.forEach(s => { m1_values.push(s.runs - prevR); prevR = s.runs; });
+
+                  // Live data injection for Trend charts
+                  if (m.innings === 1 && m.runs > 0) {
+                      let currentOverNum = Math.ceil(parseFloat(m.overs || 0));
+                      if (currentOverNum > 0 && !m1_labels.includes(currentOverNum)) {
+                          m1_labels.push(currentOverNum);
+                          m1_values.push(m.runs - prevR);
+                      }
+                  }
+
+                  if (manCanvas) {
+                      new Chart(manCanvas, {
+                          type: 'bar',
+                          data: {
+                              labels: m1_labels,
+                              datasets: [
+                                  { label: m.innings1?.batTeam || m.batTeam || 'Team A', data: m1_values, backgroundColor: t1Color, borderRadius: 4 },
+                                  { label: m.innings2?.batTeam || 'Team B', data: i2Summaries.map((s,i) => s.runs - (i2Summaries[i-1]?.runs || 0)), backgroundColor: t2Color, borderRadius: 4 }
+                              ]
+                          },
+                          options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }, x: { grid: { display: false }, ticks: { color: '#94a3b8' } } }, plugins: { legend: { labels: { color: '#f8fafc' } } } }
                       });
-                  });
-              }
-          });
-          const wagonLabels = Object.keys(wagonRuns);
-          if (wagonLabels.length > 0) {
-              new Chart(document.getElementById('fieldZoneChart'), {
-                  type: 'polarArea',
-                  data: {
-                      labels: wagonLabels,
-                      datasets: [{ data: wagonLabels.map(l => wagonRuns[l]), backgroundColor: ['#ef4444', '#f59e0b', '#3b82f6', '#10b981', '#8b5cf6'] }]
-                  },
-                  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-              });
-          }
+                  }
 
-      }, 300);
+                  if (wormCanvas) {
+                      let wormData1 = i1Summaries.map(s => ({ x: s.over, y: s.runs }));
+                      if (m.innings === 1) wormData1.push({ x: parseFloat(m.overs), y: m.runs });
+                      
+                      new Chart(wormCanvas, {
+                          type: 'line',
+                          data: {
+                              datasets: [
+                                  { label: m.innings1?.batTeam || m.batTeam || 'Team A', data: wormData1, borderColor: t1Color, backgroundColor: 'rgba(59, 130, 246, 0.1)', fill: true, tension: 0.3 },
+                                  { label: m.innings2?.batTeam || 'Team B', data: i2Summaries.map(s => ({ x: s.over, y: s.runs })), borderColor: t2Color, tension: 0.3 }
+                              ]
+                          },
+                          options: { responsive: true, maintainAspectRatio: false, scales: { x: { type: 'linear', grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }, y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } } }, plugins: { legend: { labels: { color: '#f8fafc' } } } }
+                      });
+                  }
+              }
+          } catch (e) { console.warn("Trends chart error:", e); }
+      }, 500);
     }
 
     async function renderPremiumGalleryTab(m, container) {
@@ -9880,35 +9858,46 @@
     function renderPremiumTeamsTab(m, container) {
       let allTours = loadTournaments();
       let teamMap = {};
+      
+      // Robustly build teamMap from all tournaments
       allTours.forEach(t => {
         (t.teams || []).forEach(team => {
-          if (!teamMap[team.name]) teamMap[team.name] = { players: [], captain: '' };
-          teamMap[team.name].players = team.players || [];
-          team.players.forEach(p => { if (p.role === 'Captain' || p.isCaptain) teamMap[team.name].captain = p.name; });
+          let normalizedName = team.name.trim().toLowerCase();
+          if (!teamMap[normalizedName]) {
+             teamMap[normalizedName] = { name: team.name, players: [], captain: '' };
+          }
+          teamMap[normalizedName].players = team.players || [];
+          (team.players || []).forEach(p => { 
+            if (p.role === 'Captain' || p.isCaptain) teamMap[normalizedName].captain = p.name; 
+          });
         });
       });
 
       function renderTeamGrid(teamName) {
-        let players = teamMap[teamName] ? teamMap[teamName].players : [];
+        if (!teamName) return '';
+        let normalizedName = teamName.trim().toLowerCase();
+        let teamData = teamMap[normalizedName];
+        let players = teamData ? teamData.players : [];
+        
         if (players.length === 0) {
-          return `<div class="team-grid-container" style="display:block; text-align:center; padding:30px; color:#94a3b8;">No players found for ${teamName}</div>`;
+          return `<div class="premium-card" style="margin-bottom:15px; padding:30px; text-align:center; color:#94a3b8; background:rgba(30, 41, 59, 0.5);">No players found for ${teamName}</div>`;
         }
 
-        let html = `<div class="team-grid-title"><span class="team-grid-title-badge">${teamName.substring(0, 2).toUpperCase()}</span> ${teamName}</div>`;
-        html += `<div class="team-grid-container">`;
+        let html = `<div style="font-family:'Rajdhani',sans-serif; font-size:16px; font-weight:700; color:#6ee7b7; text-transform:uppercase; margin:20px 0 10px 0; border-left:4px solid #6ee7b7; padding-left:12px;">${teamName}</div>`;
+        html += `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(100px, 1fr)); gap:12px; margin-bottom:20px;">`;
         players.forEach(p => {
           let isCaptain = (p.role === 'Captain' || p.isCaptain);
-          let badgeHtml = isCaptain ? `<div class="team-player-badge">C</div>` : `<div class="team-player-badge team-player-badge-playing">✓</div>`;
-          let photoSrc = localStorage.getItem("userPhoto_" + p.name) || '';
-          let photoHtml = photoSrc ? `<img src="${photoSrc}">` : `<div style="font-size:32px;">🧑</div>`;
+          let photoSrc = p.photo || localStorage.getItem("userPhoto_" + p.name) || '';
+          let photoHtml = photoSrc ? `<img src="${photoSrc}" style="width:100%; height:100%; object-fit:cover;">` : `<div style="font-size:32px;">🧑</div>`;
 
           html += `
-            <div class="team-player-card" onclick="openPlayerProfile('${escapeQ(p.name)}', '${escapeQ(teamName)}', '${escapeQ(p.role)}')">
-              ${badgeHtml}
-              <div class="team-player-photo">${photoHtml}</div>
-              <div class="team-player-info">
-                <div class="team-player-name">${p.name}</div>
+            <div class="team-player-card" style="background:rgba(30, 41, 59, 0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:12px; text-align:center; position:relative;" onclick="openPlayerProfile('${escapeQ(p.name)}', '${escapeQ(teamName)}', '${escapeQ(p.role)}')">
+              ${isCaptain ? `<div style="position:absolute; top:5px; right:5px; background:#f59e0b; color:#fff; font-size:9px; font-weight:900; padding:2px 5px; border-radius:4px; z-index:2;">C</div>` : ''}
+              <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; margin:0 auto 8px auto; border:2px solid ${isCaptain ? '#f59e0b' : 'rgba(255,255,255,0.1)'}; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.05);">
+                ${photoHtml}
               </div>
+              <div style="font-size:12px; font-weight:700; color:#f8fafc; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.name}</div>
+              <div style="font-size:10px; color:#94a3b8;">${p.role || 'Player'}</div>
             </div>
           `;
         });
@@ -9916,7 +9905,12 @@
         return html;
       }
 
-      container.innerHTML = renderTeamGrid(m.batTeam) + renderTeamGrid(m.bowlTeam);
+      container.innerHTML = `
+        <div class="premium-card" style="padding:10px; background:transparent; border:none;">
+           ${renderTeamGrid(m.batTeam)}
+           ${renderTeamGrid(m.bowlTeam)}
+        </div>
+      `;
     }
 
     function renderTrueLiveTab(m, container) {
@@ -10116,30 +10110,34 @@
             </div>
             <div id="innDetails_${title.replace(/\s+/g,'')}" style="display:${isOpen ? 'block' : 'none'};">
               <div style="overflow-x: auto;">
-                <table class="sc-table">
-                  <thead><tr><th>Batters</th><th></th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead>
+                <table class="sc-table" style="width:100%; border-collapse:collapse;">
+                  <thead><tr style="border-bottom:1px solid rgba(255,255,255,0.1);"><th style="text-align:left; padding:10px; color:#94a3b8;">Batters</th><th style="padding:10px;">R</th><th style="padding:10px;">B</th><th style="padding:10px;">4s</th><th style="padding:10px;">6s</th><th style="padding:10px; text-align:right;">SR</th></tr></thead>
                   <tbody>
                     ${(inn.batsmen || []).map(b => `
-                      <tr>
-                        <td class="name-cell">${b.name}</td>
-                        <td style="color:rgba(255,255,255,0.4); font-size:11px;">${b.outDesc || 'not out'}</td>
-                        <td>${b.runs}</td><td>${b.balls}</td><td>${b.fours}</td><td>${b.sixes}</td><td>${b.sr}</td>
+                      <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                        <td style="padding:10px;"><div style="color:#f8fafc; font-weight:600;">${b.name}</div><div style="font-size:11px; color:#94a3b8;">${b.outDesc || 'not out'}</div></td>
+                        <td style="text-align:center; color:#f8fafc;">${b.runs}</td>
+                        <td style="text-align:center; color:#94a3b8;">${b.balls}</td>
+                        <td style="text-align:center; color:#94a3b8;">${b.fours}</td>
+                        <td style="text-align:center; color:#94a3b8;">${b.sixes}</td>
+                        <td style="text-align:right; color:#94a3b8; padding-right:10px;">${b.sr}</td>
                       </tr>
                     `).join('')}
-                    <tr style="background:rgba(255,255,255,0.03); font-weight:700;">
-                      <td colspan="2">Extras</td><td colspan="5">${inn.extras || 0}</td>
-                    </tr>
                   </tbody>
                 </table>
               </div>
               <div style="overflow-x: auto;">
-                <table class="sc-table" style="margin-top:12px; border-top:8px solid rgba(255,255,255,0.05);">
-                  <thead><tr><th>Bowlers</th><th>O</th><th>M</th><th>R</th><th>W</th><th>Eco</th></tr></thead>
+                <table class="sc-table" style="width:100%; border-collapse:collapse; margin-top:15px;">
+                  <thead><tr style="border-bottom:1px solid rgba(255,255,255,0.1);"><th style="text-align:left; padding:10px; color:#94a3b8;">Bowlers</th><th style="padding:10px;">O</th><th style="padding:10px;">M</th><th style="padding:10px;">R</th><th style="padding:10px;">W</th><th style="padding:10px; text-align:right;">Eco</th></tr></thead>
                   <tbody>
                     ${(inn.bowlers || []).map(b => `
-                      <tr>
-                        <td class="name-cell">${b.name}</td>
-                        <td>${b.overs}</td><td>${b.maidens || 0}</td><td>${b.runs}</td><td>${b.wickets}</td><td>${b.eco}</td>
+                      <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                        <td style="padding:10px; color:#f8fafc; font-weight:600;">${b.name}</td>
+                        <td style="text-align:center; color:#f8fafc;">${b.overs}</td>
+                        <td style="text-align:center; color:#94a3b8;">${b.maidens || 0}</td>
+                        <td style="text-align:center; color:#94a3b8;">${b.runs}</td>
+                        <td style="text-align:center; color:#6ee7b7; font-weight:700;">${b.wickets}</td>
+                        <td style="text-align:right; color:#94a3b8; padding-right:10px;">${b.eco}</td>
                       </tr>
                     `).join('')}
                   </tbody>
@@ -10158,9 +10156,19 @@
         html += renderInnings(m.innings2, "Innings 2", m.innings === 2);
       }
       
-      // Fallback for live match where innings1/2 might not be in matchData but in globals
-      if (!m.innings1 && !m.innings2) {
-        html = `<div class="premium-card" style="padding:40px; text-align:center; color:#64748b;">No scorecard data available.</div>`;
+      // Fix: Handle live match scorecard where data is in top-level but not innings1/2
+      if (!m.innings1 && !m.innings2 && m.batsmen) {
+         html = renderInnings({
+            batTeam: m.batTeam,
+            runs: m.runs,
+            wickets: m.wickets,
+            overs: m.overs,
+            batsmen: m.batsmen,
+            bowlers: m.bowlers,
+            extras: m.extras || 0
+         }, "Innings " + (m.innings || 1), true);
+      } else if (!m.innings1 && !m.innings2) {
+        html = `<div class="premium-card" style="padding:40px; text-align:center; color:#94a3b8;">No scorecard data available yet.</div>`;
       }
 
       container.innerHTML = html;
@@ -10172,10 +10180,8 @@
 
     function renderPremiumCommentaryTab(m, container) {
       container.innerHTML = `
-        <div class="premium-card" style="padding:16px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-            <div style="font-weight:700; color:#1e293b;">Full Commentary</div>
-          </div>
+        <div class="premium-card" style="padding:16px; background:rgba(30, 41, 59, 0.5); border-radius:16px;">
+          <div style="font-family:'Rajdhani',sans-serif; font-size:18px; font-weight:700; color:#6ee7b7; text-transform:uppercase; margin-bottom:20px; border-left:4px solid #6ee7b7; padding-left:12px;">Full Commentary</div>
           ${getCommentaryHtml(m)}
         </div>
       `;
@@ -10183,36 +10189,30 @@
 
     function getCommentaryHtml(m, limit = null) {
       let comms = m.commentary || [];
-
       if (limit) comms = comms.slice(0, limit);
 
       return comms.map(c => {
         if (c.type === 'over_summary') {
           return `
-            <div class="over-summary">
+            <div class="over-summary" style="background:rgba(255,255,255,0.03); padding:12px; border-radius:8px; margin:15px 0;">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                <div style="font-weight:800; color:#1e293b; font-size:14px; text-transform:uppercase;">End of Over ${c.over}</div>
-                <div style="font-weight:800; color:#1e293b; font-size:18px;">${c.runs}/${c.wkts}</div>
+                <div style="font-weight:800; color:#6ee7b7; font-size:14px; text-transform:uppercase;">End of Over ${c.over}</div>
+                <div style="font-weight:800; color:#f8fafc; font-size:18px;">${c.runs}/${c.wkts}</div>
               </div>
-              <div style="font-size:12px; color:#64748b; margin-bottom:4px;">${c.runs} Runs ${c.wkts} Wkts</div>
-              <div style="display:flex; justify-content:space-between; font-size:12px; color:#1e293b;">
-                <div>
-                  ${c.batters.map(b => `<div>${b.name}* <span style="margin-left:80px; color:#64748b;">${b.runs} (${b.balls})</span></div>`).join('')}
-                </div>
-                <div style="text-align:right;">
-                  <div>${c.bowler.name} <span style="margin-left:40px; color:#64748b;">${c.bowler.stats}</span></div>
-                </div>
+              <div style="display:flex; justify-content:space-between; font-size:12px; color:#94a3b8;">
+                <div>${c.batters.map(b => `${b.name}: ${b.runs}(${b.balls})`).join(', ')}</div>
+                <div>${c.bowler.name}: ${c.bowler.stats}</div>
               </div>
             </div>
           `;
         }
         return `
-          <div class="comm-item">
-            <div class="comm-over">${c.over}</div>
-            <div class="comm-ball-icon ${c.ball == 4 ? 'comm-ball-4' : c.ball == 6 ? 'comm-ball-6' : c.ball == 'W' ? 'comm-ball-w' : 'comm-ball-0'}">${c.ball}</div>
+          <div class="comm-item" style="display:flex; gap:12px; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.05); align-items:center;">
+            <div style="font-weight:700; color:#94a3b8; font-size:12px; min-width:30px;">${c.over}</div>
+            <div style="width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:11px; background:${c.ball == 4 ? '#f59e0b' : c.ball == 6 ? '#ef4444' : c.ball == 'W' ? '#ef4444' : 'rgba(255,255,255,0.1)'};">${c.ball}</div>
             <div style="flex:1;">
-              <div style="font-weight:700; color:#1e293b; font-size:13px;">${c.text}</div>
-              ${c.subText ? `<div style="font-size:11px; color:#64748b; margin-top:2px;">${c.subText}</div>` : ''}
+              <div style="font-weight:600; color:#f8fafc; font-size:13px;">${c.text}</div>
+              ${c.subText ? `<div style="font-size:11px; color:#94a3b8; margin-top:2px;">${c.subText}</div>` : ''}
             </div>
           </div>
         `;
@@ -12439,7 +12439,7 @@
       if (!batsmanStats[s].shot_types) batsmanStats[s].shot_types = [];
       if (!batsmanStats[s].wagon_wheel) batsmanStats[s].wagon_wheel = [];
       if (shotType) batsmanStats[s].shot_types.push(shotType);
-      if (wagonZone) batsmanStats[s].wagon_wheel.push(wagonZone);
+      if (wagonZone) batsmanStats[s].wagon_wheel.push(wagonZone + ":" + r);
 
       // Commentary
       let over = Math.floor((ballCount - 1) / 6) + "." + ((ballCount - 1) % 6 + 1);
