@@ -11829,31 +11829,33 @@
           return { name: team.team_name, players: enriched, captain: captainData.captain };
         }));
 
-        // Side-by-side grid for teams
-        let html = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;padding:10px 0;">`;
+        // Professional side-by-side 2-column layout
+        let html = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;padding:12px 4px;">`;
         teamData.forEach(team => {
           html += `
-            <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:18px;">
-              <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#6ee7b7;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:8px;">
-                🏏 ${team.name}
-                <span style="margin-left:auto;font-size:11px;color:#94a3b8;font-weight:400;background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:10px;">${team.players.length} Players</span>
+            <div style="background:rgba(13,20,40,0.7);border:1px solid rgba(110,231,183,0.15);border-radius:20px;padding:24px;backdrop-filter:blur(10px);">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.07);">
+                <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:800;color:#6ee7b7;letter-spacing:0.5px;">
+                  🏏 ${team.name}
+                </div>
+                <span style="font-size:11px;color:#6ee7b7;font-weight:600;background:rgba(110,231,183,0.1);border:1px solid rgba(110,231,183,0.2);padding:3px 10px;border-radius:12px;">${team.players.length} Players</span>
               </div>
-              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:10px;">
-                ${team.players.length === 0 
-                  ? `<div style="color:#94a3b8;font-size:13px;grid-column:1/-1;text-align:center;padding:20px 0;">No players added yet.</div>`
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:16px;">
+                ${team.players.length === 0
+                  ? `<div style="color:#94a3b8;font-size:13px;grid-column:1/-1;text-align:center;padding:30px 0;">No players added yet.</div>`
                   : team.players.map(p => {
                       const isCaptain = team.captain && p.player_name === team.captain;
                       const photoHtml = p.photo
-                        ? `<img src="${p.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.outerHTML='<div style=\\'font-size:20px;font-weight:700;color:#fff;\\'>${p.player_name.charAt(0).toUpperCase()}</div>'">`
-                        : `<div style="font-size:20px;font-weight:700;color:#fff;">${p.player_name.charAt(0).toUpperCase()}</div>`;
+                        ? `<img src="${p.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.style.display='none'">`
+                        : '';
                       return `
-                        <div style="text-align:center;position:relative;cursor:pointer;" onclick="openPlayerProfile('${escapeQ(p.player_name)}','${escapeQ(team.name)}','${escapeQ(p.role)}')">
-                          ${isCaptain ? `<div style="position:absolute;top:-3px;right:6px;background:#f59e0b;color:#000;font-size:9px;font-weight:900;padding:1px 5px;border-radius:4px;z-index:2;line-height:14px;">C</div>` : ''}
-                          <div style="width:56px;height:56px;border-radius:50%;overflow:hidden;margin:0 auto 6px;border:2px solid ${isCaptain ? '#f59e0b' : 'rgba(255,255,255,0.15)'};background:linear-gradient(135deg,#1e3a5f,#0d9488);display:flex;align-items:center;justify-content:center;">
-                            ${photoHtml}
+                        <div style="text-align:center;position:relative;cursor:pointer;padding:8px 4px;border-radius:12px;transition:background 0.2s;" onclick="openPlayerProfile('${escapeQ(p.player_name)}','${escapeQ(team.name)}','${escapeQ(p.role)}')" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
+                          ${isCaptain ? `<div style="position:absolute;top:4px;right:8px;background:#f59e0b;color:#000;font-size:9px;font-weight:900;padding:1px 5px;border-radius:4px;z-index:2;letter-spacing:0.5px;">C</div>` : ''}
+                          <div style="width:64px;height:64px;border-radius:50%;overflow:hidden;margin:0 auto 8px;border:2.5px solid ${isCaptain ? '#f59e0b' : 'rgba(110,231,183,0.25)'};background:linear-gradient(135deg,#1e3a5f,#0d9488);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,0.3);">
+                            ${photoHtml}<div style="font-size:22px;font-weight:800;color:#fff;${p.photo ? 'display:none;' : ''}">${p.player_name.charAt(0).toUpperCase()}</div>
                           </div>
-                          <div style="font-size:11px;font-weight:600;color:#f8fafc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80px;margin:0 auto;">${p.player_name}</div>
-                          <div style="font-size:10px;color:#64748b;">${p.role || 'Player'}</div>
+                          <div style="font-size:12px;font-weight:700;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:78px;margin:0 auto 2px;">${p.player_name}</div>
+                          <div style="font-size:10px;color:#64748b;font-weight:500;">${p.role || 'Player'}</div>
                         </div>`;
                     }).join('')
                 }
@@ -11862,6 +11864,7 @@
         });
         html += `</div>`;
         container.innerHTML = html;
+
       } catch (e) {
         console.error('renderTdTeams error:', e);
         container.innerHTML = `<div style="text-align:center;padding:40px;color:#ef4444;">Failed to load teams. Please try again.</div>`;
