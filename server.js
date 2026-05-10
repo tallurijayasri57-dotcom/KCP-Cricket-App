@@ -1175,15 +1175,18 @@ app.patch("/tournament-matches/:id", async (req, res) => {
         const { id } = req.params;
         const { result, status, toss_info } = req.body;
         if (!pool) return res.status(500).json({ message: "No SQL Connection" });
+        if (result === undefined && status === undefined && toss_info === undefined) {
+            return res.json({ success: true, message: "Nothing to update" });
+        }
         
-        let query = "UPDATE tournament_matches SET id=id";
+        let updates = [];
         const request = pool.request().input("id", sql.Int, id);
         
-        if (result !== undefined) { query += ", result=@res"; request.input("res", sql.NVarChar, result); }
-        if (status !== undefined) { query += ", status=@st"; request.input("st", sql.NVarChar, status); }
-        if (toss_info !== undefined) { query += ", toss_info=@toss"; request.input("toss", sql.NVarChar, toss_info); }
+        if (result !== undefined) { updates.push("result=@res"); request.input("res", sql.NVarChar, result); }
+        if (status !== undefined) { updates.push("status=@st"); request.input("st", sql.NVarChar, status); }
+        if (toss_info !== undefined) { updates.push("toss_info=@toss"); request.input("toss", sql.NVarChar, toss_info); }
         
-        query += " WHERE id=@id";
+        let query = "UPDATE tournament_matches SET " + updates.join(", ") + " WHERE id=@id";
         await request.query(query);
         res.json({ success: true });
     } catch (err) {

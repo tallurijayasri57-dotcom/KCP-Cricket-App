@@ -8285,13 +8285,15 @@
           const r = await fetch(API + '/tournament-matches/' + t.id + '?_t=' + Date.now());
           if (r.ok) {
             let sqlMatches = await r.json();
+            console.log("SQL Matches Fetched:", sqlMatches);
             matches = sqlMatches.map(m => ({
               id: m.id,
               team1: m.team1,
               team2: m.team2,
               date: m.match_date,
               time: m.match_time,
-              result: m.result
+              result: m.result,
+              status: m.status
             }));
             t.matches = matches; // Cache it
           }
@@ -8300,9 +8302,11 @@
         matches = t.matches || [];
       }
 
-      let upcoming = matches.filter(m => !m.result && (m.status !== 'cancelled'));
+      console.log("Filtering upcoming from:", matches);
+      let upcoming = matches.filter(m => (!m.result || m.result === "" || m.result === "LIVE") && (m.status !== 'cancelled' && m.status !== 'finished' && m.status !== 'completed' && m.status !== 'live'));
+      console.log("Upcoming matches found:", upcoming);
       if (upcoming.length === 0) {
-        el.innerHTML = '<div style="color:#4b5563;font-size:13px;padding:10px 0;">No upcoming matches scheduled.</div>';
+        el.innerHTML = `<div style="color:#4b5563;font-size:13px;padding:10px 0;">No upcoming matches (Total fetched: ${matches.length}). Check console for details.</div>`;
         return;
       }
 
@@ -8396,7 +8400,7 @@
         teamStats[name] = { M: 0, W: 0, L: 0, Pts: 0, runsScored: 0, oversFaced: 0, runsConceded: 0, oversBowled: 0, nrr: 0 };
       });
 
-      matches.filter(m => m.status === 'finished' || m.result).forEach(m => {
+      matches.filter(m => m.status === 'finished' || m.status === 'completed' || (m.result && m.result !== 'LIVE')).forEach(m => {
         let winner = "", loser = "";
         let resStr = (m.result || "").trim();
         let winnerMatch = resStr.match(/(.+?)\s+won/i);
@@ -8427,9 +8431,9 @@
         teamStats[loserKey].M++; teamStats[loserKey].L++;
 
         // NRR Data from Joined SQL
-        let r1 = parseInt(m.t1_score) || 0; 
+        let r1 = parseInt(m.t1_score) || 0;
         let r2 = parseInt(m.t2_score) || 0;
-        let ov1 = parseFloat(m.t1_overs) || 0; 
+        let ov1 = parseFloat(m.t1_overs) || 0;
         let ov2 = parseFloat(m.t2_overs) || 0;
 
         if (mWinner === (m.team1 || "").toLowerCase().trim()) {
@@ -8729,10 +8733,15 @@
       if (!dtStr) return alert('Select date and time');
 
       let parts = dtStr.split(' ');
-      let date = parts[0]; // MM/DD/YYYY
-      let time = parts[1] + ' ' + parts[2]; // HH:MM AM/PM
+      let dateRaw = parts[0];
+      let time = parts[1] + ' ' + parts[2];
+      let dp = dateRaw.split('/');
+      let date = dateRaw;
+      if (dp.length === 3) {
+        if (parseInt(dp[0]) > 12) date = `${dp[2]}-${dp[1].padStart(2, '0')}-${dp[0].padStart(2, '0')}`;
+        else date = `${dp[2]}-${dp[0].padStart(2, '0')}-${dp[1].padStart(2, '0')}`;
+      }
 
-      // Save to SQL
       if (t.id) {
         try {
           const res = await fetch(API + "/tournament-matches", {
@@ -8746,7 +8755,10 @@
               match_time: time
             })
           });
-          if (!res.ok) throw new Error("Failed to save match to SQL");
+          if (!res.ok) {
+            const ej = await res.json().catch(() => ({}));
+            throw new Error(ej.error || "SQL Save Error");
+          }
 
           // Refresh matches list
           const mRes = await fetch(API + '/tournament-matches/' + t.id + '?_t=' + Date.now());
@@ -8761,7 +8773,10 @@
               result: m.result,
               status: m.status
             }));
+            // Switch tab to upcoming to show the user it worked
+            switchMtTab('upcoming');
           }
+          alert('Match scheduled successfully!');
         } catch (err) {
           console.error("SQL Match Save Error:", err);
           alert("Error saving to SQL: " + err.message);
@@ -8912,19 +8927,30 @@
       let ground = "";
       let matchType = "Limited Overs";
       let seriesName = "Friendly Match";
+      let actualTournamentId = null;
+
       if (currentTournamentId !== null) {
-        let tours = loadTournaments();
-        let t = tours[currentTournamentId];
+        // Prioritize global SQL-backed tournaments array
+        let t = null;
+        if (typeof tournaments !== 'undefined' && tournaments[currentTournamentId]) {
+          t = tournaments[currentTournamentId];
+        } else {
+          // Fallback to local storage if global isn't loaded yet
+          let tours = loadTournaments();
+          t = tours[currentTournamentId];
+        }
+
         if (t) {
           ground = t.ground || "";
           matchType = t.matchType || "Limited Overs";
           seriesName = t.name || "Tournament Match";
+          actualTournamentId = t.id || currentTournamentId;
         }
       }
 
       let matchState = {
         id: currentLiveMatchId,
-        tournamentId: currentTournamentId,
+        tournamentId: actualTournamentId,
         organiser: localStorage.getItem('currentUser'),
         batTeam: matchBatTeam,
         bowlTeam: matchBowlTeam,
@@ -9188,11 +9214,29 @@
             <div style="padding:40px 20px; text-align:center;">
               <div style="font-size:48px; margin-bottom:16px;">&#9888;&#65039;</div>
               <div style="font-family:'Rajdhani',sans-serif; font-size:20px; font-weight:700; color:#ef4444; margin-bottom:8px;">Match Not Found</div>
-              <div style="color:#94a3b8; font-size:14px; margin-bottom:20px;">Match data not available. Please check the match link.</div>
-              <button onclick="showPage('home')" style="background:#6ee7b7; color:#0f172a; border:none; padding:10px 24px; border-radius:8px; font-weight:700; cursor:pointer;">Go Home</button>
+              <div style="color:#94a3b8; font-size:14px; margin-bottom:20px;">Match data not available. This match may have been closed unexpectedly or the live data was removed.</div>
+              <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
+                <button onclick="showPage('home')" style="background:#6ee7b7; color:#0f172a; border:none; padding:10px 24px; border-radius:8px; font-weight:700; cursor:pointer;">Go Home</button>
+                <button onclick="resetStuckLiveMatch('${matchId}')" style="background:#ef4444; color:#fff; border:none; padding:10px 24px; border-radius:8px; font-weight:700; cursor:pointer;">Reset Match to Upcoming</button>
+              </div>
             </div>`;
         }
-      }, 90000);
+      }, 5000);
+
+    window.resetStuckLiveMatch = async function(matchId) {
+      try {
+        await fetch(API + "/tournament-matches/" + matchId, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "upcoming" })
+        });
+        alert("Match has been reset to upcoming status successfully!");
+        showPage('home');
+      } catch (e) {
+        console.error("Error resetting match:", e);
+        alert("Failed to reset match. Please try again.");
+      }
+    };
 
       liveViewUnsubscribe = window.fbOnSnapshot(window.fbDoc(window.fbDb, "live_matches", matchId.toString().trim()), (doc) => {
         if (!doc.exists()) {
@@ -9709,18 +9753,18 @@
            </div>
 
            <!-- 4. Wickets Section -->
-           <div class="premium-card-v2">
+           <div class="premium-card-v2" id="dismissalAnalysisCard" style="display:none;">
               <div class="card-title-v2">Dismissal Analysis</div>
               <div class="chart-box-v2" style="height: 300px;"><canvas id="wicketsPieChart"></canvas></div>
            </div>
 
            <!-- 5. Advanced Stats (Grid) -->
-           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
-              <div class="premium-card-v2">
+           <div style="display: grid; grid-template-columns: 1fr; gap: 15px;">
+              <div class="premium-card-v2" style="display:none;" id="shotDistCard">
                  <div class="card-title-v2">Shot Distribution</div>
                  <div class="chart-box-v2"><canvas id="shotDistChart"></canvas></div>
               </div>
-              <div class="premium-card-v2">
+              <div class="premium-card-v2" style="display:none;" id="fieldZoneCard">
                  <div class="card-title-v2">Fielding Zones</div>
                  <div class="chart-box-v2"><canvas id="fieldZoneChart"></canvas></div>
               </div>
@@ -9739,16 +9783,25 @@
            .no-data-v2 { display: flex; align-items: center; justify-content: center; height: 100%; color: rgba(255,255,255,0.3); font-size: 14px; text-align: center; font-style: italic; }
            .analysis-scroll-container::-webkit-scrollbar { width: 6px; }
            .analysis-scroll-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+           
+           @media (min-width: 768px) {
+             div[style*="grid-template-columns: 1fr"] {
+               grid-template-columns: 1fr 1fr !important;
+             }
+           }
         </style>
       `;
 
       // 2. Initialize Charts
       setTimeout(() => {
+        if (!window._liveCharts) window._liveCharts = {};
+
         // 1. Scoring Breakdown
         try {
           const sbCtx = document.getElementById('scoringBreakdownChart');
           if (sbCtx) {
-            new Chart(sbCtx, {
+            if (window._liveCharts['sb']) window._liveCharts['sb'].destroy();
+            window._liveCharts['sb'] = new Chart(sbCtx, {
               type: 'doughnut',
               data: {
                 labels: ['Sixes', 'Fours', 'Others'],
@@ -9767,7 +9820,8 @@
         try {
           const tpCtx = document.getElementById('topPerformersChart');
           if (tpCtx && top5.length > 0) {
-            new Chart(tpCtx, {
+            if (window._liveCharts['tp']) window._liveCharts['tp'].destroy();
+            window._liveCharts['tp'] = new Chart(tpCtx, {
               type: 'bar',
               data: {
                 labels: top5.map(p => p.name),
@@ -9781,19 +9835,24 @@
         // 3. Wickets Pie
         try {
           const wCtx = document.getElementById('wicketsPieChart');
-          if (wCtx) {
-            new Chart(wCtx, {
-              type: 'doughnut',
-              data: {
-                labels: Object.keys(dismissals),
-                datasets: [{
-                  data: Object.values(dismissals),
-                  backgroundColor: ['#ef4444', '#f59e0b', '#3b82f6', '#10b981', '#8b5cf6', '#64748b'],
-                  borderWidth: 0
-                }]
-              },
-              options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#f8fafc', font: { size: 12 } } } }, cutout: '65%' }
-            });
+          let totalWickets = Object.values(dismissals).reduce((a, b) => a + b, 0);
+          if (totalWickets > 0) {
+            document.getElementById('dismissalAnalysisCard').style.display = 'block';
+            if (wCtx) {
+              if (window._liveCharts['wp']) window._liveCharts['wp'].destroy();
+              window._liveCharts['wp'] = new Chart(wCtx, {
+                type: 'doughnut',
+                data: {
+                  labels: Object.keys(dismissals),
+                  datasets: [{
+                    data: Object.values(dismissals),
+                    backgroundColor: ['#ef4444', '#f59e0b', '#3b82f6', '#10b981', '#8b5cf6', '#64748b'],
+                    borderWidth: 0
+                  }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#f8fafc', font: { size: 12 } } } }, cutout: '65%' }
+              });
+            }
           }
         } catch (e) { }
 
@@ -9801,15 +9860,19 @@
         try {
           const sdCtx = document.getElementById('shotDistChart');
           const shotLabelsArr = Object.keys(shotCounts);
-          if (sdCtx && shotLabelsArr.length > 0) {
-            new Chart(sdCtx, {
-              type: 'bar',
-              data: {
-                labels: shotLabelsArr,
-                datasets: [{ data: shotLabelsArr.map(l => shotCounts[l]), backgroundColor: '#3b82f6' }]
-              },
-              options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#94a3b8' } }, y: { ticks: { color: '#94a3b8' } } } }
-            });
+          if (shotLabelsArr.length > 0) {
+            document.getElementById('shotDistCard').style.display = 'block';
+            if (sdCtx) {
+              if (window._liveCharts['sd']) window._liveCharts['sd'].destroy();
+              window._liveCharts['sd'] = new Chart(sdCtx, {
+                type: 'bar',
+                data: {
+                  labels: shotLabelsArr,
+                  datasets: [{ data: shotLabelsArr.map(l => shotCounts[l]), backgroundColor: '#3b82f6' }]
+                },
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#94a3b8' } }, y: { ticks: { color: '#94a3b8' } } } }
+              });
+            }
           }
         } catch (e) { }
 
@@ -9817,15 +9880,19 @@
         try {
           const fzCtx = document.getElementById('fieldZoneChart');
           let wagonLabelsArr = Object.keys(wagonRuns || {});
-          if (fzCtx && wagonLabelsArr.length > 0) {
-            new Chart(fzCtx, {
-              type: 'polarArea',
-              data: {
-                labels: wagonLabelsArr,
-                datasets: [{ data: wagonLabelsArr.map(l => wagonRuns[l]), backgroundColor: ['#ef4444', '#f59e0b', '#3b82f6', '#10b981', '#8b5cf6'] }]
-              },
-              options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { r: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { display: false } } } }
-            });
+          if (wagonLabelsArr.length > 0) {
+            document.getElementById('fieldZoneCard').style.display = 'block';
+            if (fzCtx) {
+              if (window._liveCharts['fz']) window._liveCharts['fz'].destroy();
+              window._liveCharts['fz'] = new Chart(fzCtx, {
+                type: 'polarArea',
+                data: {
+                  labels: wagonLabelsArr,
+                  datasets: [{ data: wagonLabelsArr.map(l => wagonRuns[l]), backgroundColor: ['#ef4444', '#f59e0b', '#3b82f6', '#10b981', '#8b5cf6'] }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { r: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { display: false } } } }
+              });
+            }
           }
         } catch (e) { }
 
@@ -10314,7 +10381,161 @@
       }).join('');
     }
 
+    async function openTournamentMatchScorecard(tournamentId, matchId, status) {
+      showPage('matchDetailsPage');
+      if (liveViewUnsubscribe) liveViewUnsubscribe();
+      previousLiveMatchState = null;
+
+      if (status === 'live' || status === 'Live') {
+        viewLiveMatch(matchId);
+        return;
+      }
+
+      let hdr = document.getElementById('matchHeaderContainer');
+      if (hdr) hdr.innerHTML = `<div style="padding:40px 20px;text-align:center;"><div style="font-size:48px;margin-bottom:16px;">⏳</div><div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:#6ee7b7;margin-bottom:8px;">Match Loading...</div></div>`;
+
+      try {
+        // Step 1: Fetch the specific tournament's matches directly
+        const mRes = await fetch(API + "/tournament-matches/" + tournamentId);
+        const mTxt = await mRes.text();
+        const tMatches = (mTxt && mTxt.trim().startsWith('[')) ? JSON.parse(mTxt) : [];
+        const found = tMatches.find(m => m.id == matchId);
+
+        // Step 2: Try to find this match in match_results
+        let matchResult = null;
+        let allResults = [];
+        try {
+          const rRes = await fetch(API + "/match-results");
+          const rTxt = await rRes.text();
+          allResults = (rTxt && rTxt.trim().startsWith('[')) ? JSON.parse(rTxt) : [];
+          // Primary: match via match_id foreign key or own id
+          matchResult = allResults.find(r => r.match_id == matchId || r.id == matchId);
+          // Fallback: match by team names (winner/loser matches team1/team2)
+          if (!matchResult && found) {
+            const t1 = (found.team1 || '').toLowerCase().trim();
+            const t2 = (found.team2 || '').toLowerCase().trim();
+            matchResult = allResults.find(r => {
+              const w = (r.winner || '').toLowerCase().trim();
+              const l = (r.loser || '').toLowerCase().trim();
+              return (w === t1 && l === t2) || (w === t2 && l === t1);
+            });
+          }
+        } catch (re) { }
+
+        // Step 3: If we have a full live state stored, use it
+        let fullState = null;
+        try {
+          const liveRes = await fetch(API + "/live-matches/" + matchId);
+          if (liveRes.ok) {
+            const liveData = await liveRes.json();
+            if (liveData && liveData.match_state) {
+              fullState = typeof liveData.match_state === 'string' ? JSON.parse(liveData.match_state) : liveData.match_state;
+              if (fullState) { fullState.tournamentId = tournamentId; }
+            }
+          }
+        } catch (le) { }
+
+        if (fullState) {
+          renderPremiumMatchView(fullState);
+          return;
+        }
+
+        // Step 4: Fetch player stats — try tournament matchId first, then match_results id
+        let stats = [];
+        const tryFetchStats = async (id) => {
+          try {
+            const sRes = await fetch(API + "/player-stats-by-match?match_id=" + id);
+            const sTxt = await sRes.text();
+            if (sTxt && sTxt.trim().startsWith('[')) return JSON.parse(sTxt);
+          } catch (se) { }
+          return [];
+        };
+        stats = await tryFetchStats(matchId);
+        if (stats.length === 0 && matchResult && matchResult.id && matchResult.id != matchId) {
+          stats = await tryFetchStats(matchResult.id);
+        }
+
+        // Step 5: Build innings from player stats
+        const calcInnings = (bat, bowl) => {
+          if (bat.length === 0) return null;
+          return {
+            batTeam: bat[0].team_name,
+            runs: bat.reduce((s, p) => s + (p.runs || 0), 0),
+            wickets: bat.filter(p => p.dismissal_type && p.dismissal_type !== 'not out').length,
+            overs: bowl.reduce((mx, b) => Math.max(mx, parseFloat(b.overs_bowled || 0)), 0).toFixed(1),
+            batsmen: bat.map(p => ({
+              name: p.player_name, runs: p.runs, balls: p.balls_faced,
+              fours: p.fours, sixes: p.sixes, sr: p.strike_rate,
+              outDesc: p.dismissal_type ? (p.dismissal_type === 'Bowled' ? 'b ' + p.dismissed_by : p.dismissal_type) : 'not out',
+              isOut: !!(p.dismissal_type && p.dismissal_type !== 'not out')
+            })),
+            bowlers: bowl.map(p => ({
+              name: p.player_name, overs: p.overs_bowled, maidens: p.maidens || 0,
+              runs: p.runs_conceded, wickets: p.wickets,
+              eco: p.overs_bowled > 0 ? (p.runs_conceded / parseFloat(p.overs_bowled)).toFixed(2) : '0.00'
+            }))
+          };
+        };
+
+        const innings1Data = calcInnings(
+          stats.filter(s => s.innings == 1 && s.match_type === 'bat'),
+          stats.filter(s => s.innings == 1 && s.match_type === 'bowl')
+        );
+        const innings2Data = calcInnings(
+          stats.filter(s => s.innings == 2 && s.match_type === 'bat'),
+          stats.filter(s => s.innings == 2 && s.match_type === 'bowl')
+        );
+
+        // Step 6: Determine best available winner/loser/margin info
+        const winner = matchResult ? matchResult.winner : (found ? found.team1 : 'Unknown');
+        const loser = matchResult ? matchResult.loser : (found ? found.team2 : 'Unknown');
+        const margin = matchResult ? matchResult.margin : (found ? found.result || 'Match Completed' : 'Match Completed');
+        const seriesName = matchResult ? (matchResult.win_type || 'Tournament') : 'Tournament';
+
+        // Step 7: Build innings fallback from match_results score columns or found data
+        const inn1Fallback = innings1Data || (matchResult && matchResult.t1_score != null ? {
+          batTeam: winner, runs: matchResult.t1_score, wickets: 0,
+          overs: matchResult.t1_overs || '0.0', batsmen: [], bowlers: []
+        } : (found && found.score1 ? {
+          batTeam: found.team1, runs: parseInt(found.score1) || 0, wickets: 0,
+          overs: found.overs1 || '0.0', batsmen: [], bowlers: []
+        } : null));
+
+        const inn2Fallback = innings2Data || (matchResult && matchResult.t2_score != null ? {
+          batTeam: loser, runs: matchResult.t2_score, wickets: 0,
+          overs: matchResult.t2_overs || '0.0', batsmen: [], bowlers: []
+        } : (found && found.score2 ? {
+          batTeam: found.team2, runs: parseInt(found.score2) || 0, wickets: 0,
+          overs: found.overs2 || '0.0', batsmen: [], bowlers: []
+        } : null));
+
+        const matchData = {
+          id: matchId, tournamentId,
+          batTeam: winner, bowlTeam: loser,
+          status: 'finished',
+          seriesName,
+          matchDate: matchResult ? matchResult.played_on : (found ? found.match_date : ''),
+          ground: 'KCP CRICKET GROUND',
+          matchStatus: (margin && String(margin).includes('won')) ? margin : (winner + ' won by ' + margin),
+          winner, loser, margin,
+          innings: inn2Fallback ? 2 : 1,
+          runs: inn2Fallback ? inn2Fallback.runs : (inn1Fallback ? inn1Fallback.runs : 0),
+          wickets: inn2Fallback ? inn2Fallback.wickets : (inn1Fallback ? inn1Fallback.wickets : 0),
+          overs: inn2Fallback ? inn2Fallback.overs : (inn1Fallback ? inn1Fallback.overs : '0.0'),
+          innings1: inn1Fallback, innings2: inn2Fallback,
+          commentary: (() => { try { return matchResult && matchResult.commentary ? JSON.parse(matchResult.commentary) : []; } catch (e) { return []; } })()
+        };
+
+        renderPremiumMatchView(matchData);
+
+      } catch (e) {
+        console.error("Tournament match open error:", e);
+        if (hdr) hdr.innerHTML = `<div style="padding:40px 20px;text-align:center;"><div style="font-size:48px;">⚠️</div><div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:#ef4444;margin-bottom:8px;">Match Data Missing</div><div style="color:#94a3b8;font-size:14px;margin-bottom:20px;">Error: ${e.message}</div><button onclick="showPage('home')" style="background:#6ee7b7;color:#0f172a;border:none;padding:10px 24px;border-radius:8px;font-weight:700;cursor:pointer;">Go Home</button></div>`;
+      }
+    }
+
     async function openMatchScorecardByMatchId(matchId, status) {
+
       showPage('matchDetailsPage');
 
       // Clear previous state
@@ -10337,37 +10558,53 @@
 
       try {
         // 1. Fetch match results summary
-        const res = await fetch(API + "/match-results");
-        const matches = await res.json();
-        const mSummary = matches.find(m => m.id == matchId);
+        let matches = [];
+        try {
+          const res = await fetch(API + "/match-results");
+          const txt = await res.text();
+          if (txt && txt.trim().startsWith('[')) matches = JSON.parse(txt);
+        } catch (fe) { console.warn("match-results fetch failed:", fe); }
+
+        let mSummary = matches.find(m => m.match_id == matchId || m.id == matchId);
 
         if (!mSummary) {
-          // If not in match results, maybe it's still in tournament_matches
-          const tRes = await fetch(API + "/tournaments");
-          const tourneys = await tRes.json();
-          for (let t of tourneys) {
-            const mRes = await fetch(API + "/tournament-matches/" + t.id);
-            const tm = await mRes.json();
-            const found = tm.find(m => m.id == matchId);
-            if (found) {
-              // Found it in tournament matches, but we need full data.
-              // Try to reconstruct basic info
-              renderPremiumMatchView({
-                id: found.id,
-                batTeam: found.team1,
-                bowlTeam: found.team2,
-                status: found.status,
-                seriesName: t.name,
-                matchDate: found.match_date,
-                ground: found.location,
-                innings: 1,
-                runs: 0, wickets: 0, overs: '0.0'
-              });
-              return;
+          // If not in match results, try looking up in tournament_matches
+          try {
+            const tRes = await fetch(API + "/tournaments");
+            const tTxt = await tRes.text();
+            const tourneys = (tTxt && tTxt.trim().startsWith('[')) ? JSON.parse(tTxt) : [];
+            for (let t of tourneys) {
+              try {
+                const mRes = await fetch(API + "/tournament-matches/" + t.id);
+                const mTxt = await mRes.text();
+                const tm = (mTxt && mTxt.trim().startsWith('[')) ? JSON.parse(mTxt) : [];
+                const found = tm.find(m => m.id == matchId);
+                if (found) {
+                  let fakeSummary = {
+                    match_id: found.id,
+                    tournament_id: t.id,
+                    winner: found.team1,
+                    loser: found.team2,
+                    win_type: t.name,
+                    played_on: found.match_date,
+                    margin: found.result || 'Match Completed',
+                    t1_score: found.score1 || null,
+                    t2_score: found.score2 || null,
+                    t1_overs: found.overs1 || null,
+                    t2_overs: found.overs2 || null
+                  };
+                  matches.push(fakeSummary);
+                  break;
+                }
+              } catch (me) { /* skip this tournament */ }
             }
-          }
-          throw new Error("Match not found");
+          } catch (te) { console.warn("Tournaments fetch failed:", te); }
+
+          const foundAgain = matches.find(m => m.match_id == matchId || m.id == matchId);
+          if (!foundAgain) throw new Error("Match not found in database");
         }
+
+        const finalSummary = matches.find(m => m.match_id == matchId || m.id == matchId);
 
         // 2. Fetch the full live state (JSON) if it exists in SQL for this match ID
         let fullState = null;
@@ -10382,8 +10619,14 @@
         } catch (e) { console.warn("Live state fetch error:", e); }
 
         // 3. Fetch player stats for the match (as fallback or supplement)
-        const statsRes = await fetch(API + "/player-stats-by-match?match_id=" + matchId);
-        const stats = await statsRes.json();
+        let stats = [];
+        try {
+          const statsRes = await fetch(API + "/player-stats-by-match?match_id=" + matchId);
+          const statsText = await statsRes.text();
+          if (statsText && statsText.trim().startsWith('[')) {
+            stats = JSON.parse(statsText);
+          }
+        } catch (se) { console.warn("Stats fetch failed:", se); }
 
         // 4. Reconstruct or Use Full State
         if (fullState) {
@@ -10392,14 +10635,18 @@
             // Find tournament ID for gallery
             try {
               const tRes = await fetch(API + "/tournaments");
-              const tourneys = await tRes.json();
+              const tTxt = await tRes.text();
+              const tourneys = (tTxt && tTxt.trim().startsWith('[')) ? JSON.parse(tTxt) : [];
               for (let t of tourneys) {
-                const mRes = await fetch(API + "/tournament-matches/" + t.id);
-                const tm = await mRes.json();
-                if (tm.some(m => m.id == matchId)) {
-                  fullState.tournamentId = t.id;
-                  break;
-                }
+                try {
+                  const mRes = await fetch(API + "/tournament-matches/" + t.id);
+                  const mTxt = await mRes.text();
+                  const tm = (mTxt && mTxt.trim().startsWith('[')) ? JSON.parse(mTxt) : [];
+                  if (tm.some(m => m.id == matchId)) {
+                    fullState.tournamentId = t.id;
+                    break;
+                  }
+                } catch (ie) { }
               }
             } catch (e) { }
           }
@@ -10417,14 +10664,18 @@
         let tId = null;
         try {
           const tRes = await fetch(API + "/tournaments");
-          const tourneys = await tRes.json();
-          for (let t of tourneys) {
-            const mRes = await fetch(API + "/tournament-matches/" + t.id);
-            const tm = await mRes.json();
-            if (tm.some(m => m.id == matchId)) {
-              tId = t.id;
-              break;
-            }
+          const tTxt2 = await tRes.text();
+          const tourneys2 = (tTxt2 && tTxt2.trim().startsWith('[')) ? JSON.parse(tTxt2) : [];
+          for (let t of tourneys2) {
+            try {
+              const mRes = await fetch(API + "/tournament-matches/" + t.id);
+              const mTxt2 = await mRes.text();
+              const tm2 = (mTxt2 && mTxt2.trim().startsWith('[')) ? JSON.parse(mTxt2) : [];
+              if (tm2.some(m => m.id == matchId)) {
+                tId = t.id;
+                break;
+              }
+            } catch (ie) { }
           }
         } catch (e) { }
 
@@ -10466,24 +10717,40 @@
         let matchData = {
           id: matchId,
           tournamentId: tId,
-          batTeam: mSummary.winner,
-          bowlTeam: mSummary.loser,
+          batTeam: finalSummary.winner,
+          bowlTeam: finalSummary.loser,
           status: 'finished',
-          seriesName: mSummary.win_type || 'Tournament',
-          matchDate: mSummary.played_on,
+          seriesName: finalSummary.win_type || 'Tournament',
+          matchDate: finalSummary.played_on,
           ground: 'KCP CRICKET GROUND',
-          matchStatus: mSummary.winner + ' won by ' + mSummary.margin,
-          winner: mSummary.winner,
-          loser: mSummary.loser,
-          winType: mSummary.win_type,
-          margin: mSummary.margin,
-          innings: innings2Data ? 2 : 1,
-          runs: innings2Data ? innings2Data.runs : (innings1Data ? innings1Data.runs : 0),
+          matchStatus: (finalSummary.margin && String(finalSummary.margin).includes('won')) ? finalSummary.margin : (finalSummary.winner + ' won by ' + finalSummary.margin),
+          winner: finalSummary.winner,
+          loser: finalSummary.loser,
+          winType: finalSummary.win_type,
+          margin: finalSummary.margin,
+          // Use player_stats innings if available, else fall back to t1_score/t2_score summary columns
+          innings1: innings1Data || (finalSummary.t1_score != null ? {
+            batTeam: finalSummary.winner,
+            runs: finalSummary.t1_score,
+            wickets: 0,
+            overs: finalSummary.t1_overs || '0.0',
+            batsmen: [], bowlers: []
+          } : null),
+          innings2: innings2Data || (finalSummary.t2_score != null ? {
+            batTeam: finalSummary.loser,
+            runs: finalSummary.t2_score,
+            wickets: 0,
+            overs: finalSummary.t2_overs || '0.0',
+            batsmen: [], bowlers: []
+          } : null),
+          innings: innings2Data ? 2 : (innings1Data ? 1 : (finalSummary.t2_score != null ? 2 : 1)),
+          runs: innings2Data ? innings2Data.runs : (innings1Data ? innings1Data.runs : (finalSummary.t2_score || finalSummary.t1_score || 0)),
           wickets: innings2Data ? innings2Data.wickets : (innings1Data ? innings1Data.wickets : 0),
-          overs: innings2Data ? innings2Data.overs : (innings1Data ? innings1Data.overs : '0.0'),
-          innings1: innings1Data,
-          innings2: innings2Data,
-          commentary: mSummary.commentary ? JSON.parse(mSummary.commentary) : []
+          overs: innings2Data ? innings2Data.overs : (innings1Data ? innings1Data.overs : (finalSummary.t2_overs || finalSummary.t1_overs || '0.0')),
+          commentary: (() => {
+            try { return finalSummary.commentary ? JSON.parse(finalSummary.commentary) : []; }
+            catch (err) { return []; }
+          })()
         };
 
         renderPremiumMatchView(matchData);
@@ -10494,16 +10761,19 @@
           <div style="padding:40px 20px; text-align:center;">
             <div style="font-size:48px; margin-bottom:16px;">⚠️</div>
             <div style="font-family:'Rajdhani',sans-serif; font-size:20px; font-weight:700; color:#ef4444; margin-bottom:8px;">Match Data Missing</div>
-            <div style="color:#94a3b8; font-size:14px; margin-bottom:20px;">Could not load stats for this match.</div>
+            <div style="color:#94a3b8; font-size:14px; margin-bottom:20px;">Could not load stats for this match. Error: ${e.message}</div>
             <button onclick="showPage('home')" style="background:#6ee7b7; color:#0f172a; border:none; padding:10px 24px; border-radius:8px; font-weight:700; cursor:pointer;">Go Home</button>
           </div>`;
       }
     }
 
     async function openMatchScorecard(tIdx, mIdx) {
-      let tours = loadTournaments();
+      // Prioritize global SQL array over local storage
+      let tours = (typeof tournaments !== 'undefined' && tournaments.length > 0) ? tournaments : loadTournaments();
       let t = tours[tIdx];
-      let m = t.matches[mIdx];
+      let m = t.matches ? t.matches[mIdx] : null;
+
+      if (!m) return alert("Match details not found.");
 
       if (m.liveMatchId) {
         viewLiveMatch(m.liveMatchId);
@@ -10515,12 +10785,14 @@
         return;
       }
 
-      // Fallback search
+      // Fallback search in Firebase for live match
       if (!window.fbGetDocs) return alert("Scorecard ID not found");
+
+      let searchTourneyId = t.id ? t.id : tIdx;
 
       const q = window.fbQuery(
         window.fbCollection(window.fbDb, "live_matches"),
-        window.fbWhere("tournamentId", "==", tIdx),
+        window.fbWhere("tournamentId", "==", searchTourneyId),
         window.fbWhere("batTeam", "in", [m.team1, m.team2])
       );
 
@@ -11252,7 +11524,7 @@
             const mRes = await fetch(API + "/tournament-matches/" + t.id);
             const tm = await mRes.json();
             tm.forEach(match => {
-              if (match.status === 'finished') {
+              if (match.status === 'finished' || match.status === 'completed' || (match.result && match.result !== "LIVE")) {
                 userMatches.push({
                   id: match.id,
                   winner: match.team1, // Temporary mapping
@@ -11396,9 +11668,9 @@
       if (status === 'live') {
         filteredMatches = matches.filter(m => m.status === "live");
       } else if (status === 'completed') {
-        filteredMatches = matches.filter(m => m.status === "finished" || (m.result && m.result !== "LIVE"));
+        filteredMatches = matches.filter(m => m.status === "finished" || m.status === "completed" || (m.result && m.result !== "LIVE"));
       } else if (status === 'upcoming') {
-        filteredMatches = matches.filter(m => m.status === "upcoming" || !m.status);
+        filteredMatches = matches.filter(m => m.status === "upcoming" || !m.status || m.status === "scheduled");
       }
 
       if (filteredMatches.length === 0) {
@@ -11426,7 +11698,7 @@
         let resText = m.result ? m.result : (m.tossInfo ? m.tossInfo : 'Upcoming match scheduled');
 
         html += `
-          <div class="my-card" onclick="openMatchScorecard(${currentViewingTournamentIdx}, ${matches.indexOf(m)})" style="cursor:pointer; margin:0;">
+          <div class="my-card" onclick="openTournamentMatchScorecard('${t.id}', '${m.id}', '${m.status}')" style="cursor:pointer; margin:0;">
             <div class="my-card-header">
               <span>${t.name}</span>
               <span class="${badgeClass}">${badgeText}</span>
@@ -11473,12 +11745,15 @@
       // Load data if needed
       if (tabId === 'matches') {
         let t = currentViewingTournament;
-        let completedCount = (t.matches || []).filter(m => m.result && m.result !== "LIVE").length;
-        if (completedCount > 0) {
-          renderTournamentMatches('completed');
-        } else {
-          renderTournamentMatches('upcoming');
-        }
+        let completedCount = (t.matches || []).filter(m => m.status === "finished" || m.status === "completed" || (m.result && m.result !== "LIVE")).length;
+        let statusToRender = completedCount > 0 ? 'completed' : 'upcoming';
+        
+        // Update the filter chips visually
+        document.querySelectorAll('.td-matches-filter .et-chip').forEach(c => c.classList.remove('selected'));
+        let targetChip = Array.from(document.querySelectorAll('.td-matches-filter .et-chip')).find(c => c.textContent.trim().toLowerCase() === statusToRender.toLowerCase());
+        if (targetChip) targetChip.classList.add('selected');
+        
+        renderTournamentMatches(statusToRender);
       } else if (tabId === 'points') {
         await renderTdPointsTable();
       } else if (tabId === 'leaderboard') {
@@ -13091,7 +13366,7 @@
     async function saveMatchResult(winner, loser, winType, margin, tournamentMatchId) {
       let today = new Date().toLocaleDateString("en-IN");
       let organiser = localStorage.getItem("currentUser") || "guest";
-      
+
       // Calculate scores for both innings
       let t1_score = innings == 2 ? innings1Runs : totalRuns;
       let t2_score = innings == 2 ? totalRuns : 0;
@@ -13260,7 +13535,7 @@
         teamStats[team.name] = { M: 0, W: 0, L: 0, Pts: 0, runsScored: 0, oversFaced: 0, runsConceded: 0, oversBowled: 0, nrr: 0 };
       });
 
-      tournamentMatches.filter(m => m.status === 'finished' || m.result).forEach(m => {
+      tournamentMatches.filter(m => m.status === 'finished' || m.status === 'completed' || (m.result && m.result !== 'LIVE')).forEach(m => {
         let winner = "", loser = "";
         let winnerMatch = (m.result || "").match(/^(.+?) won/);
         if (winnerMatch) {
@@ -13286,9 +13561,9 @@
         teamStats[loserKey].M++; teamStats[loserKey].L++;
 
         // NRR Data from Joined SQL
-        let r1 = parseInt(m.t1_score) || 0; 
+        let r1 = parseInt(m.t1_score) || 0;
         let r2 = parseInt(m.t2_score) || 0;
-        let ov1 = parseFloat(m.t1_overs) || 0; 
+        let ov1 = parseFloat(m.t1_overs) || 0;
         let ov2 = parseFloat(m.t2_overs) || 0;
 
         if (mWinner === (m.team1 || "").toLowerCase().trim()) {

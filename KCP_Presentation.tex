@@ -7,19 +7,19 @@
 % Packages
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
-\usepackage{helvet} % For Calibri/Arial style sans-serif font
+\usepackage{helvet} % For Arial style sans-serif font
 
-% Font settings for content (Size 12)
+% Font settings for content
 \setbeamerfont{itemize/enumerate body}{size=\fontsize{12}{14}}
 \setbeamerfont{itemize/enumerate subbody}{size=\fontsize{11}{13}}
 
-% Font settings for Headings (Size 14, Bold)
+% Font settings for Headings
 \setbeamerfont{frametitle}{size=\fontsize{14}{17},series=\bfseries}
 
 % Title Page Information
-\title[KCP Cricket App]{KCP Cricket App: Tournament Management System}
-\subtitle{Modern Digital Solution for Cricket Tournaments}
-\author{Project Presentation}
+\title[KCP Cricket App]{KCP Cricket App}
+\subtitle{A Comprehensive Tournament Management System}
+\author{B.Tech Project Presentation}
 \date{\today}
 
 \begin{document}
@@ -29,70 +29,71 @@
     \titlepage
 \end{frame}
 
-% Slide 2: Problem Statement
-\begin{frame}{1. Problem Statement}
+% Slide 2: Existing System & Problem Statement
+\begin{frame}{1. Existing System \& Problem Statement}
     \begin{itemize}
-        \item \textbf{Manual Scoring:} Most local tournaments still use paper and pen.
-        \item \textbf{Data Loss:} High risk of losing physical records or records being damaged.
-        \item \textbf{Inaccuracy:} Manual calculation of Points Table and NRR leads to human errors.
-        \item \textbf{Transparency:} Players and fans have no way to see real-time updates.
+        \item \textbf{Manual Process:} Currently, local cricket tournaments are managed using pen and paper registers.
+        \item \textbf{Data Inaccuracy:} Calculating Net Run Rate (NRR) and updating points tables manually often leads to calculation errors.
+        \item \textbf{Data Loss:} Physical records can be easily misplaced or damaged, leading to permanent data loss.
+        \item \textbf{Lack of Transparency:} Players and audience have no centralized way to view live scores, upcoming fixtures, or team standings.
     \end{itemize}
 \end{frame}
 
-% Slide 3: Our Solution
-\begin{frame}{2. Our Solution}
+% Slide 3: Proposed System
+\begin{frame}{2. Proposed System}
     \begin{itemize}
-        \item \textbf{Web-Based Platform:} A centralized app accessible from anywhere.
-        \item \textbf{Digital Database:} Permanent storage for every match, team, and player.
-        \item \textbf{Real-Time Sync:} Instant updates from the backend to the user interface.
-        \item \textbf{Automation:} All rankings and tables are calculated by the system automatically.
+        \item \textbf{Automation:} We proposed a full-stack web application to completely digitize the tournament workflow.
+        \item \textbf{Centralized Database:} All data is stored securely in a relational database, ensuring data persistence and easy retrieval.
+        \item \textbf{Dynamic Computation:} The system automatically computes match results, updates the points table, and calculates NRR dynamically.
+        \item \textbf{Accessibility:} A responsive web interface allows organizers and players to access real-time tournament statistics from any device.
     \end{itemize}
 \end{frame}
 
-% Slide 4: Key Features
-\begin{frame}{3. Key Features}
+% Slide 4: System Architecture \& Tech Stack
+\begin{frame}{3. Software Requirements \& Tech Stack}
     \begin{itemize}
-        \item \textbf{Match Management:} Transition matches from 'Upcoming' to 'Live' and 'Finished'.
-        \item \textbf{Player Profiles:} Detailed tracking of player roles and team associations.
-        \item \textbf{Live Leaderboard:} Dynamic points table updated instantly after match results.
-        \item \textbf{Modern UI:} Premium dark-themed 'Glassmorphism' design.
+        \item \textbf{Frontend Technology:} HTML5, CSS3, and JavaScript (ES6) for a dynamic and interactive user interface.
+        \item \textbf{Backend Technology:} Node.js and Express.js framework for handling server-side logic and API routing.
+        \item \textbf{Database Management:} Microsoft SQL Server (SSMS 19) for robust and relational data storage.
+        \item \textbf{Architecture Type:} Client-Server Architecture using RESTful APIs for communication.
     \end{itemize}
 \end{frame}
 
-% Slide 5: Technology Stack
-\begin{frame}{4. Technology Stack}
+% Slide 5: Project Modules
+\begin{frame}{4. Project Modules}
     \begin{itemize}
-        \item \textbf{Frontend:} HTML5, Vanilla CSS3, Modern JavaScript (ES6+).
-        \item \textbf{Backend:} Node.js with Express.js framework.
-        \item \textbf{Database:} Microsoft SQL Server (SSMS 19) for secure data storage.
-        \item \textbf{Communication:} REST APIs for seamless frontend-backend interaction.
+        \item \textbf{Admin/Organizer Module:} Create tournaments, manage teams, add players, and schedule fixtures.
+        \item \textbf{Match Scoring Module:} Start live matches, record ball-by-ball actions, and declare match results.
+        \item \textbf{Leaderboard Module:} Automatically generated Points Table ranking teams based on Wins, Losses, and NRR.
+        \item \textbf{Viewer Module:} Read-only dashboard for fans to track live match scores and past statistics.
     \end{itemize}
 \end{frame}
 
-% Slide 6: Database Architecture
-\begin{frame}{5. Database Architecture (SQL Server)}
+% Slide 6: Frontend Implementation
+\begin{frame}{5. Frontend Implementation \& UI Design}
     \begin{itemize}
-        \item \textbf{Structured Tables:} Normalized tables for Users, Teams, Players, and Matches.
-        \item \textbf{Relational Integrity:} Foreign keys to ensure data consistency between players and teams.
-        \item \textbf{Persistent Storage:} Unlike local storage, data remains safe even after browser refreshes.
+        \item \textbf{Glassmorphism Concept:} Implemented modern UI design using translucent backgrounds and CSS backdrop-filters.
+        \item \textbf{Responsive Layout:} Used CSS Grid and Flexbox to ensure the app works seamlessly on both mobile phones and laptops.
+        \item \textbf{DOM Manipulation:} Handled dynamic rendering of match cards and scoreboards using asynchronous JavaScript (\texttt{async/await}).
     \end{itemize}
 \end{frame}
 
-% Slide 7: UI/UX Design
-\begin{frame}{6. UI/UX Design}
+% Slide 7: Database Design
+\begin{frame}{6. Database Design \& Integration}
     \begin{itemize}
-        \item \textbf{Glassmorphism:} Using backdrop filters and subtle borders for a premium feel.
-        \item \textbf{Responsive Design:} Works perfectly across different screen sizes.
-        \item \textbf{Interactive Elements:} Smooth transitions and hover effects for better engagement.
+        \item \textbf{Entity-Relationship Model:} Designed normalized tables for \texttt{tournaments}, \texttt{teams}, \texttt{players}, and \texttt{match\_results}.
+        \item \textbf{Foreign Key Constraints:} Maintained data integrity between parent (tournaments) and child (matches/teams) records.
+        \item \textbf{CRUD Operations:} Implemented Create, Read, Update, and Delete functionalities via SQL queries integrated into Node.js routes.
     \end{itemize}
 \end{frame}
 
-% Slide 8: Conclusion
-\begin{frame}{7. Conclusion \& Future Scope}
+% Slide 8: Conclusion & Future Enhancements
+\begin{frame}{7. Conclusion \& Future Enhancements}
     \begin{itemize}
-        \item \textbf{Summary:} The KCP Cricket App successfully automates the complex task of tournament management.
-        \item \textbf{Benefit:} Saves time, reduces errors, and provides a professional experience for local cricket.
-        \item \textbf{Future Scope:} Adding live ball-by-ball commentary and player performance analytics.
+        \item \textbf{Conclusion:} The project successfully replaces the traditional paper-based cricket scoring system with an efficient, error-free, and real-time digital platform.
+        \item \textbf{Future Enhancement 1:} Integration of WebSockets (Socket.io) for instant live-score broadcasting without page refreshes.
+        \item \textbf{Future Enhancement 2:} Implementing User Authentication (JWT) for multiple organizer accounts.
+        \item \textbf{Future Enhancement 3:} Adding graphical charts for player performance analysis.
     \end{itemize}
 \end{frame}
 
