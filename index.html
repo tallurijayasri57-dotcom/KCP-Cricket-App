@@ -11805,7 +11805,7 @@
           return;
         }
 
-        // Fetch players for each team in parallel
+        // Fetch players + captain for each team in parallel
         const teamData = await Promise.all(teams.map(async team => {
           const [playersRes, captainRes] = await Promise.all([
             fetch(API + '/tournament-players/' + t.id + '/' + encodeURIComponent(team.team_name)),
@@ -11813,34 +11813,49 @@
           ]);
           const players = await playersRes.json();
           const captainData = await captainRes.json();
-          return { name: team.team_name, players, captain: captainData.captain };
+
+          // Enrich each player with their photo
+          const enriched = await Promise.all(players.map(async p => {
+            let photo = p.photo_url || localStorage.getItem('userPhoto_' + p.player_name) || '';
+            if (!photo) {
+              try {
+                const pr = await fetch(API + '/player-photo/' + encodeURIComponent(p.player_name));
+                if (pr.ok) { const pd = await pr.json(); photo = pd.photo_url || ''; }
+              } catch(e) {}
+            }
+            return { ...p, photo };
+          }));
+
+          return { name: team.team_name, players: enriched, captain: captainData.captain };
         }));
 
-        let html = `<div style="display:flex;flex-direction:column;gap:20px;padding:10px 0;">`;
+        // Side-by-side grid for teams
+        let html = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;padding:10px 0;">`;
         teamData.forEach(team => {
           html += `
-            <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:20px;">
-              <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:#6ee7b7;margin-bottom:14px;display:flex;align-items:center;gap:10px;">
+            <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:18px;">
+              <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#6ee7b7;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:8px;">
                 🏏 ${team.name}
-                <span style="font-size:12px;color:#94a3b8;font-weight:400;">${team.players.length} Players</span>
+                <span style="margin-left:auto;font-size:11px;color:#94a3b8;font-weight:400;background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:10px;">${team.players.length} Players</span>
               </div>
-              <div style="display:flex;flex-direction:column;gap:8px;">
-                ${team.players.length === 0 ? `<div style="color:#94a3b8;font-size:13px;">No players added yet.</div>` :
-                  team.players.map(p => {
-                    const isCaptain = team.captain && p.player_name === team.captain;
-                    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,0.04);border-radius:10px;border:1px solid rgba(255,255,255,0.06);">
-                      <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#1e3a5f,#0d9488);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0;">
-                        ${p.player_name.charAt(0).toUpperCase()}
-                      </div>
-                      <div style="flex:1;">
-                        <div style="color:#fff;font-weight:600;font-size:14px;display:flex;align-items:center;gap:6px;">
-                          ${p.player_name}
-                          ${isCaptain ? `<span style="background:#f59e0b;color:#000;font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;letter-spacing:0.5px;">C</span>` : ''}
-                        </div>
-                        <div style="color:#94a3b8;font-size:12px;">${p.role || 'Player'}</div>
-                      </div>
-                    </div>`;
-                  }).join('')
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:10px;">
+                ${team.players.length === 0 
+                  ? `<div style="color:#94a3b8;font-size:13px;grid-column:1/-1;text-align:center;padding:20px 0;">No players added yet.</div>`
+                  : team.players.map(p => {
+                      const isCaptain = team.captain && p.player_name === team.captain;
+                      const photoHtml = p.photo
+                        ? `<img src="${p.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.outerHTML='<div style=\\'font-size:20px;font-weight:700;color:#fff;\\'>${p.player_name.charAt(0).toUpperCase()}</div>'">`
+                        : `<div style="font-size:20px;font-weight:700;color:#fff;">${p.player_name.charAt(0).toUpperCase()}</div>`;
+                      return `
+                        <div style="text-align:center;position:relative;cursor:pointer;" onclick="openPlayerProfile('${escapeQ(p.player_name)}','${escapeQ(team.name)}','${escapeQ(p.role)}')">
+                          ${isCaptain ? `<div style="position:absolute;top:-3px;right:6px;background:#f59e0b;color:#000;font-size:9px;font-weight:900;padding:1px 5px;border-radius:4px;z-index:2;line-height:14px;">C</div>` : ''}
+                          <div style="width:56px;height:56px;border-radius:50%;overflow:hidden;margin:0 auto 6px;border:2px solid ${isCaptain ? '#f59e0b' : 'rgba(255,255,255,0.15)'};background:linear-gradient(135deg,#1e3a5f,#0d9488);display:flex;align-items:center;justify-content:center;">
+                            ${photoHtml}
+                          </div>
+                          <div style="font-size:11px;font-weight:600;color:#f8fafc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80px;margin:0 auto;">${p.player_name}</div>
+                          <div style="font-size:10px;color:#64748b;">${p.role || 'Player'}</div>
+                        </div>`;
+                    }).join('')
                 }
               </div>
             </div>`;
@@ -11852,6 +11867,7 @@
         container.innerHTML = `<div style="text-align:center;padding:40px;color:#ef4444;">Failed to load teams. Please try again.</div>`;
       }
     }
+
 
     async function renderTdHeroes() {
       let t = currentViewingTournament;
