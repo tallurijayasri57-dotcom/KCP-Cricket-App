@@ -638,10 +638,17 @@ app.get("/match-results", async (req, res) => {
 
 app.post("/match-results", async (req, res) => {
     try {
-        const { winner, loser, win_type, margin, played_on, organiser, commentary } = req.body;
+        const { 
+            winner, loser, win_type, margin, played_on, organiser, commentary,
+            match_id, t1_score, t2_score, t1_overs, t2_overs
+        } = req.body;
+
         if (useJSON || !pool) {
             const id = Date.now();
-            MEMORY_DB.match_results.push({ id, winner, loser, win_type, margin, played_on, organiser, commentary });
+            MEMORY_DB.match_results.push({ 
+                id, winner, loser, win_type, margin, played_on, organiser, commentary,
+                match_id, t1_score, t2_score, t1_overs, t2_overs
+            });
             saveDB();
             return res.json({ id });
         }
@@ -653,9 +660,17 @@ app.post("/match-results", async (req, res) => {
             .input("p", sql.NVarChar, played_on)
             .input("org", sql.NVarChar, organiser || null)
             .input("comm", sql.NVarChar, commentary || null)
-            .query("INSERT INTO match_results (winner, loser, win_type, margin, played_on, organiser, commentary) OUTPUT INSERTED.id VALUES (@w, @l, @wt, @m, @p, @org, @comm)");
+            .input("mid", sql.NVarChar, match_id ? match_id.toString() : null)
+            .input("s1", sql.Int, t1_score || 0)
+            .input("s2", sql.Int, t2_score || 0)
+            .input("o1", sql.Decimal(4,1), t1_overs || 0)
+            .input("o2", sql.Decimal(4,1), t2_overs || 0)
+            .query(`INSERT INTO match_results (winner, loser, win_type, margin, played_on, organiser, commentary, match_id, t1_score, t2_score, t1_overs, t2_overs) 
+                    OUTPUT INSERTED.id 
+                    VALUES (@w, @l, @wt, @m, @p, @org, @comm, @mid, @s1, @s2, @o1, @o2)`);
         res.json({ id: r.recordset[0].id });
     } catch (err) {
+        console.error("POST match-results error:", err);
         res.status(500).send(err.message);
     }
 });
@@ -1114,7 +1129,16 @@ app.get("/tournament-matches/:tournament_id", async (req, res) => {
         if (!pool) return res.json([]);
         const result = await pool.request()
             .input("tid", sql.Int, tournament_id)
-            .query("SELECT * FROM tournament_matches WHERE tournament_id = @tid ORDER BY match_date ASC, created_at ASC");
+            .query(`
+                SELECT 
+                    tm.*, 
+                    mr.t1_score, mr.t2_score, mr.t1_overs, mr.t2_overs,
+                    mr.winner as result_winner
+                FROM tournament_matches tm
+                LEFT JOIN match_results mr ON CAST(tm.id AS NVARCHAR(100)) = mr.match_id
+                WHERE tm.tournament_id = @tid 
+                ORDER BY tm.match_date ASC, tm.created_at ASC
+            `);
         res.json(result.recordset);
     } catch (err) {
         console.error("GET matches error:", err);
