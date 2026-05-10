@@ -638,10 +638,10 @@ app.get("/match-results", async (req, res) => {
 
 app.post("/match-results", async (req, res) => {
     try {
-        const { winner, loser, win_type, margin, played_on, organiser } = req.body;
+        const { winner, loser, win_type, margin, played_on, organiser, commentary } = req.body;
         if (useJSON || !pool) {
             const id = Date.now();
-            MEMORY_DB.match_results.push({ id, winner, loser, win_type, margin, played_on, organiser });
+            MEMORY_DB.match_results.push({ id, winner, loser, win_type, margin, played_on, organiser, commentary });
             saveDB();
             return res.json({ id });
         }
@@ -652,7 +652,8 @@ app.post("/match-results", async (req, res) => {
             .input("m", sql.NVarChar, margin)
             .input("p", sql.NVarChar, played_on)
             .input("org", sql.NVarChar, organiser || null)
-            .query("INSERT INTO match_results (winner, loser, win_type, margin, played_on, organiser) OUTPUT INSERTED.id VALUES (@w, @l, @wt, @m, @p, @org)");
+            .input("comm", sql.NVarChar, commentary || null)
+            .query("INSERT INTO match_results (winner, loser, win_type, margin, played_on, organiser, commentary) OUTPUT INSERTED.id VALUES (@w, @l, @wt, @m, @p, @org, @comm)");
         res.json({ id: r.recordset[0].id });
     } catch (err) {
         res.status(500).send(err.message);

@@ -33,7 +33,7 @@ async function init() {
             `CREATE TABLE users (id INT PRIMARY KEY IDENTITY(1,1), username NVARCHAR(100) NOT NULL UNIQUE, password NVARCHAR(255) NOT NULL, photo_url NVARCHAR(MAX))`,
             `CREATE TABLE teams (id INT PRIMARY KEY IDENTITY(1,1), team_name NVARCHAR(100) NOT NULL)`,
             `CREATE TABLE players (id INT PRIMARY KEY IDENTITY(1,1), team_name NVARCHAR(100), player_name NVARCHAR(100), role NVARCHAR(50), photo_url NVARCHAR(MAX))`,
-            `CREATE TABLE match_results (id INT PRIMARY KEY IDENTITY(1,1), winner NVARCHAR(100), loser NVARCHAR(100), win_type NVARCHAR(50), margin NVARCHAR(100), played_on NVARCHAR(50))`,
+            `CREATE TABLE match_results (id INT PRIMARY KEY IDENTITY(1,1), winner NVARCHAR(100), loser NVARCHAR(100), win_type NVARCHAR(50), margin NVARCHAR(100), played_on NVARCHAR(50), commentary NVARCHAR(MAX))`,
             `CREATE TABLE upcoming_matches (id INT PRIMARY KEY IDENTITY(1,1), team1 NVARCHAR(100), team2 NVARCHAR(100), match_date DATE)`,
             `CREATE TABLE tournaments (id INT PRIMARY KEY IDENTITY(1,1), user_id NVARCHAR(100), tournament_data NVARCHAR(MAX))`,
             `CREATE TABLE live_matches (match_id NVARCHAR(100) PRIMARY KEY, match_state NVARCHAR(MAX), updated_at DATETIME DEFAULT GETDATE())`,
