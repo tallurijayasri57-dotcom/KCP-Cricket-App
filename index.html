@@ -12557,41 +12557,37 @@
 
       let html = "";
       toLoad.forEach(r => {
-        let d = new Date(r.match_date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "2-digit" });
+        let d = new Date(r.match_date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
         let isBat = r.match_type === "bat";
-
         let team1Str = (r.team_name || "Team").toUpperCase();
         let team2Str = (r.opponent_team || "Opponent").toUpperCase();
-
-        let scoreStr = isBat ? `${r.runs} runs (${r.balls_faced})` : `${r.wickets}W / ${r.overs_bowled} ov`;
-        let dismissal = isBat && r.dismissal_type ? ` - ${r.dismissal_type}` : "";
-        let resultStr = isBat ? `Batting${dismissal}` : `Bowling - Eco: ${(r.runs_conceded / (parseFloat(r.overs_bowled) || 1)).toFixed(1)}`;
+        
+        let scoreStr = isBat ? `${r.runs} (${r.balls_faced})` : `${r.wickets} Wkts`;
+        let subStats = isBat ? `4s: ${r.fours} | 6s: ${r.sixes}` : `${r.overs_bowled} Ov | ${r.runs_conceded} Runs`;
+        let resultLabel = isBat ? "Batting" : "Bowling";
 
         html += `
-          <div class="my-card" style="margin:0; border:1px solid rgba(255,255,255,0.15);">
+          <div class="my-card" style="margin:0; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.02);">
             <div class="my-card-header">
-              <span style="color:#6ee7b7; font-weight:700; font-size:12px;">${r.tournament_name || "MATCH"}</span>
-              <span class="my-badge my-badge-past" style="background:#475569;">PAST</span>
+              <span style="color:#94a3b8; font-size:12px;">${r.tournament_name || "LEAGUE MATCH"}</span>
+              <span class="my-badge my-badge-past">PAST</span>
             </div>
-            <div class="my-card-meta" style="color:#94a3b8; font-size:11px; margin-top:4px;">
-              KCP CRICKET GROUND, Jaggayyapeta, ${d}
+            <div class="my-card-meta">
+              KCP CRICKET GROUND, ${d}
             </div>
-            
-            <div class="my-card-teams" style="margin-top:12px; gap:8px;">
+            <div class="my-card-bold">${resultLabel} Performance</div>
+            <div class="my-card-teams">
               <div class="my-card-team-row">
-                <span class="my-card-team-name" style="color:#f8fafc; font-size:14px;">${team1Str}</span>
-                <span class="my-card-score" style="color:#6ee7b7;">${isBat ? r.runs : (r.wickets + 'W')}</span>
+                <span class="my-card-team-name">${team1Str}</span>
+                <span class="my-card-score">${scoreStr}</span>
               </div>
               <div class="my-card-team-row">
-                <span class="my-card-team-name" style="color:#94a3b8; font-size:13px;">${team2Str}</span>
-                <span class="my-card-score" style="color:#94a3b8; font-weight:400;">${isBat ? '-' : (r.runs_conceded + 'R')}</span>
+                <span class="my-card-team-name" style="color:#64748b; font-weight:400;">VS ${team2Str}</span>
               </div>
             </div>
-            
-            <div class="my-card-footer" style="border-top:1px solid rgba(255,255,255,0.1); margin-top:10px; padding-top:8px; color:#6ee7b7; font-weight:700; font-size:13px;">
-               ${isBat ? ('Batting: ' + scoreStr) : ('Bowling: ' + scoreStr)}
+            <div class="my-card-footer" style="border-top:1px solid rgba(255,255,255,0.05); padding-top:10px; margin-top:10px; color:#6ee7b7; font-size:12px;">
+              ${subStats}
             </div>
-            <div style="font-size:11px; color:#94a3b8; margin-top:4px;">${dismissal || (r.overs_bowled + ' Overs')}</div>
           </div>
         `;
       });
@@ -12609,6 +12605,56 @@
         loadBtn.style.display = "none";
       }
     }
+
+    window.registeredProfileTeams = [];
+
+    function renderProfileTeamsList() {
+      let container = document.getElementById("ptab-teams");
+      if (!container) return;
+      
+      // Extract unique teams from currentProfileMatches (History)
+      let teamsMap = {};
+      currentProfileMatches.forEach(m => {
+        if (m.team_name && !teamsMap[m.team_name]) {
+          teamsMap[m.team_name] = { name: m.team_name, matches: 0, isRegistered: false };
+        }
+        if (m.team_name) teamsMap[m.team_name].matches++;
+      });
+
+      // Merge with registeredProfileTeams
+      window.registeredProfileTeams.forEach(t => {
+        if (!teamsMap[t.team_name]) {
+          teamsMap[t.team_name] = { name: t.team_name, matches: 0, isRegistered: true };
+        } else {
+          teamsMap[t.team_name].isRegistered = true;
+        }
+      });
+      
+      let teams = Object.values(teamsMap);
+      
+      if (teams.length === 0) {
+        container.innerHTML = "<div style='text-align:center; padding:40px; color:#64748b;'>No team history found for this player.</div>";
+        return;
+      }
+      
+      let html = `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:16px; padding:10px;">`;
+      teams.forEach(t => {
+        let statusTag = t.isRegistered ? `<span style="background:rgba(16,185,129,0.1); color:#10b981; font-size:10px; padding:2px 8px; border-radius:10px; font-weight:600; margin-top:4px;">REGISTERED</span>` : "";
+        html += `
+          <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:20px; display:flex; align-items:center; gap:16px; transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='rgba(255,255,255,0.03)'">
+            <div style="width:54px; height:54px; border-radius:14px; background:linear-gradient(135deg, #0d9488, #1e40af); display:flex; align-items:center; justify-content:center; font-size:24px; box-shadow:0 4px 12px rgba(0,0,0,0.2);">🏏</div>
+            <div style="display:flex; flex-direction:column;">
+              <div style="font-family:'Rajdhani',sans-serif; font-size:19px; font-weight:700; color:#f8fafc; line-height:1.2;">${t.name}</div>
+              <div style="font-size:12px; color:#94a3b8; margin-top:2px;">${t.matches} Matches played</div>
+              ${statusTag}
+            </div>
+          </div>
+        `;
+      });
+      html += `</div>`;
+      container.innerHTML = html;
+    }
+
 
     function loadMoreProfileMatches() {
       renderProfileMatchCards();
@@ -12725,6 +12771,12 @@
 
       document.getElementById("profileMatchHistory").innerHTML = "<div style='grid-column:1/-1; text-align:center; padding:30px; color:#94a3b8;'>⏳ Loading...</div>";
       document.getElementById("profileMatchLoadMore").style.display = "none";
+      window.registeredProfileTeams = [];
+
+      try {
+        const teamsRes = await fetch(API + "/player-teams/" + encodeURIComponent(playerName));
+        window.registeredProfileTeams = await teamsRes.json();
+      } catch (e) { console.warn("Failed to fetch player teams", e); }
 
       try {
         await fetch(API + "/player-profile", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ player_name: playerName, team_name: teamName, role: role, runs: 0 }) });
@@ -12764,6 +12816,7 @@
         currentProfileMatches = rows;
         profileMatchesLoaded = 0;
         renderProfileMatchCards();
+        renderProfileTeamsList();
 
       } catch (err) {
         ["pRuns", "pBalls", "pSR", "pFours", "pSixes", "pHS", "pWickets", "pOvers", "pEco", "profileTotalMatches", "profileTotalRuns", "profileTotalWickets"].forEach(id => {

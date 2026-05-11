@@ -1172,60 +1172,25 @@ app.delete("/points-table/:teamName", async (req, res) => {
     }
 });
 
-// ================= PHOTO UPLOAD =================
-app.post("/upload-photo", upload.single("photo"), async (req, res) => {
+// ================= PLAYER TEAMS =================
+app.get("/player-teams/:player_name", async (req, res) => {
     try {
-        if (!req.file) return res.status(400).json({ error: "No file uploaded" });
-        const player_name = req.body.player_name;
-        
-        cloudinary.uploader.upload_stream(
-            { folder: "kcp_players", public_id: player_name.replace(/\s+/g, "_") },
-            async (error, result) => {
-                if (error) return res.status(500).json({ error: error.message });
-                
-                if (useJSON || !pool) {
-                    const p = MEMORY_DB.players.find(p => p.player_name === player_name);
-                    if (p) p.photo_url = result.secure_url;
-                    saveDB();
-                } else {
-                    await pool.request().input("u", sql.NVarChar, result.secure_url).input("pn", sql.NVarChar, player_name).query("UPDATE players SET photo_url=@u WHERE player_name=@pn");
-                }
-                res.json({ success: true, url: result.secure_url });
-            }
-        ).end(req.file.buffer);
+        const { player_name } = req.params;
+        if (!pool) return res.json([]);
+        const r = await pool.request()
+            .input("pn", sql.NVarChar, player_name)
+            .query("SELECT DISTINCT team_name FROM tournament_players WHERE player_name = @pn");
+        res.json(r.recordset);
     } catch (err) {
+        console.error("GET player-teams error:", err);
         res.status(500).json({ error: err.message });
     }
 });
 
-app.get("/player-photo/:player_name", async (req, res) => {
-    try {
-        if (useJSON || !pool) {
-            const p = MEMORY_DB.players.find(p => p.player_name === req.params.player_name);
-            return res.json({ photo_url: p ? p.photo_url : null });
-        }
-        const r = await pool.request().input("pn", sql.NVarChar, req.params.player_name).query("SELECT photo_url FROM players WHERE player_name=@pn");
-        if (r.recordset.length === 0) return res.json({ photo_url: null });
-        res.json({ photo_url: r.recordset[0].photo_url });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
 
-app.get("/player-role/:player_name", async (req, res) => {
-    try {
-        if (!pool) return res.json({ role: 'Player' });
-        const r = await pool.request().input("pn", sql.NVarChar, req.params.player_name).query("SELECT TOP 1 role FROM tournament_players WHERE player_name=@pn");
-        if (r.recordset.length > 0) return res.json({ role: r.recordset[0].role });
-        
-        const r2 = await pool.request().input("pn", sql.NVarChar, req.params.player_name).query("SELECT TOP 1 role FROM player_profile WHERE player_name=@pn");
-        if (r2.recordset.length > 0) return res.json({ role: r2.recordset[0].role });
 
-        res.json({ role: 'Player' });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
+
+
 
 // ================= TOURNAMENT GALLERY =================
 app.get("/tournament-gallery/:tournament_id", async (req, res) => {
