@@ -147,7 +147,7 @@
       color: #6ee7b7;
     }
 
-    /* Mobile lo navigation links hide avvadaniki (only logo & hamburger) */
+    /* Hide navigation links on mobile (only logo & hamburger) */
     @media (max-width: 768px) {
       .nav-links {
         display: none;
@@ -13462,7 +13462,7 @@
         ball: ballStr,
         text: `${bowler.value} to ${strike.value}, Wide${runs > 0 ? ' plus ' + runs + ' runs' : ''}`
       });
-      // Wide lo odd runs vasthy striker change avvali
+      // If odd runs are scored on Wide, striker should change
       if (runs % 2 === 1) changeStrike();
       updateScore();
       updateExtras();
@@ -14616,7 +14616,7 @@
   <div class="extra-popup-overlay" id="byePopupOverlay">
     <div class="extra-popup-box">
       <div class="extra-popup-title" style="color:#0d9488;">Bye Runs</div>
-      <div class="extra-popup-subtitle">Select Bye Runs (extras only — batsman run count lo add avvadu)</div>
+      <div class="extra-popup-subtitle">Select Bye Runs (extras only - won't be added to batsman's run count)</div>
       <div class="extra-btns-grid">
         <button class="extra-opt-btn" style="background:rgba(13,148,136,0.25);border-color:#0d9488;"
           onclick="processBye(1)">B+1</button>
@@ -14636,7 +14636,7 @@
   <div class="extra-popup-overlay" id="wicketRunsOverlay">
     <div class="extra-popup-box">
       <div class="extra-popup-title" style="color:#ef4444;">🎯 Wicket!</div>
-      <div class="extra-popup-subtitle">Wicket ki mundu ela runs vashayi?</div>
+      <div class="extra-popup-subtitle">How many runs were scored before the wicket?</div>
       <div class="extra-btns-grid">
         <button class="extra-opt-btn" style="background:rgba(220,38,38,0.25);border-color:#ef4444;"
           onclick="openWicketWithRuns(0)">Wk +0</button>
