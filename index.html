@@ -13498,7 +13498,7 @@
       if (innings == 2 && target > 0 && totalRuns >= target && !winShown) {
         winShown = true;
         let winner = matchBatTeam, loser = matchBowlTeam, margin = "won by " + (10 - totalWickets) + " wickets";
-        saveMatchResult(winner, loser, "won", margin).then(() => updateAllPlayerStatsAfterMatch(2));
+        saveMatchResult(winner, loser, "won", margin, null, null).then(() => updateAllPlayerStatsAfterMatch(2));
         showWinPopup(winner, margin);
         finishLiveMatch();
       }
@@ -13559,8 +13559,9 @@
 
     let currentMatchId = null;
 
-    async function saveMatchResult(winner, loser, winType, margin, tournamentMatchId) {
-      let today = new Date().toLocaleDateString("en-IN");
+    async function saveMatchResult(winner, loser, winType, margin, tournamentMatchId, tournamentId) {
+      let now = new Date();
+      let today = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
       let organiser = localStorage.getItem("currentUser") || "guest";
 
       // Calculate scores for both innings
@@ -13577,6 +13578,7 @@
             winner, loser, win_type: winType, margin, played_on: today, organiser,
             commentary: JSON.stringify(matchCommentary),
             match_id: tournamentMatchId || null,
+            tournament_id: tournamentId || (currentViewingTournament ? currentViewingTournament.id : null),
             t1_score, t2_score, t1_overs, t2_overs
           })
         });
@@ -13884,8 +13886,8 @@
         inningsNum = 2;
       }
       winShown = true;
-      let finalResult = `${winner} won by ${margin}`;
-      saveMatchResult(winner, loser, "won", margin, currentTournamentMatchIdx).then(() => updateAllPlayerStatsAfterMatch(inningsNum));
+      let tId = (currentViewingTournament ? currentViewingTournament.id : null);
+      saveMatchResult(winner, loser, "won", margin, currentTournamentMatchIdx, tId).then(() => updateAllPlayerStatsAfterMatch(inningsNum));
 
       // Update tournament match result in SQL if it exists
       if (currentTournamentMatchIdx !== null && !isNaN(currentTournamentMatchIdx)) {

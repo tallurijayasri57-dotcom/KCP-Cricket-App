@@ -67,14 +67,17 @@ async function startServer() {
         try {
             pool = await sql.connect(dbConfig);
             console.log("✅ SQL Connected");
-            // Ensure logo column exists on tournaments table
-            try {
-                await pool.request().query(`
-                    IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournaments' AND COLUMN_NAME='logo')
-                    ALTER TABLE tournaments ADD logo NVARCHAR(MAX) NULL
-                `);
-                console.log("✅ tournaments.logo column ensured");
-            } catch(e) { console.warn("logo column migration:", e.message); }
+            // Ensure extra columns exist (safe migrations)
+            const migrations = [
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournaments'       AND COLUMN_NAME='logo')    ALTER TABLE tournaments       ADD logo     NVARCHAR(MAX) NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_teams'  AND COLUMN_NAME='captain')  ALTER TABLE tournament_teams  ADD captain  NVARCHAR(100) NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_teams'  AND COLUMN_NAME='city')     ALTER TABLE tournament_teams  ADD city     NVARCHAR(100) NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_teams'  AND COLUMN_NAME='logo')     ALTER TABLE tournament_teams  ADD logo     NVARCHAR(MAX) NULL`,
+            ];
+            for (const mig of migrations) {
+                try { await pool.request().query(mig); } catch(e) { console.warn("Migration warning:", e.message); }
+            }
+            console.log("✅ Schema migrations applied");
         } catch (e) {
             console.warn("⚠️ SQL Connection Failed:", e.message);
             useJSON = true;
@@ -286,13 +289,23 @@ app.post("/tournament-teams", async (req, res) => {
     try {
         const { tournament_id, team_name, city, logo } = req.body;
         if (pool) {
-            await pool.request()
+            // Base insert with required columns only
+            const r = await pool.request()
                 .input("tid", sql.Int, tournament_id)
                 .input("tn", sql.NVarChar, team_name)
-                .input("city", sql.NVarChar, city || '')
-                .input("logo", sql.NVarChar(sql.MAX), logo || '')
-                .query("INSERT INTO tournament_teams (tournament_id, team_name, city, logo) VALUES (@tid, @tn, @city, @logo)");
-            res.json({ success: true });
+                .query("INSERT INTO tournament_teams (tournament_id, team_name) OUTPUT INSERTED.id VALUES (@tid, @tn)");
+            const newId = r.recordset[0].id;
+            // Optionally update city/logo if columns exist (added by migration)
+            if (city || logo) {
+                try {
+                    await pool.request()
+                        .input("id", sql.Int, newId)
+                        .input("city", sql.NVarChar, city || '')
+                        .input("logo", sql.NVarChar(sql.MAX), logo || '')
+                        .query("UPDATE tournament_teams SET city=@city, logo=@logo WHERE id=@id");
+                } catch(e) { /* city/logo columns may not exist yet, ignore */ }
+            }
+            res.json({ success: true, id: newId });
         } else {
             res.status(500).json({ message: "Database not connected" });
         }
@@ -407,6 +420,7 @@ app.post("/tournament-players", async (req, res) => {
     try {
         const { tournament_id, team_name, player_name, role, photo_url } = req.body;
         if (pool) {
+            // 1. Save to Tournament Players
             await pool.request()
                 .input("tid", sql.Int, tournament_id)
                 .input("tn", sql.NVarChar, team_name)
@@ -414,6 +428,20 @@ app.post("/tournament-players", async (req, res) => {
                 .input("r", sql.NVarChar, role || null)
                 .input("p", sql.NVarChar, photo_url || null)
                 .query("INSERT INTO tournament_players (tournament_id, team_name, player_name, role, photo_url) VALUES (@tid, @tn, @pn, @r, @p)");
+
+            // 2. Auto-Sync to Player Profiles (Master Table)
+            await pool.request()
+                .input("pn", sql.NVarChar, player_name)
+                .input("tn", sql.NVarChar, team_name)
+                .input("r", sql.NVarChar, role || null)
+                .input("p", sql.NVarChar, photo_url || null)
+                .query(`
+                    IF EXISTS (SELECT 1 FROM player_profiles WHERE player_name = @pn)
+                        UPDATE player_profiles SET team_name = @tn, role = @r, photo_url = COALESCE(@p, photo_url), updated_at = GETDATE() WHERE player_name = @pn
+                    ELSE
+                        INSERT INTO player_profiles (player_name, team_name, role, photo_url) VALUES (@pn, @tn, @r, @p)
+                `);
+
             res.json({ success: true });
         } else {
             res.status(500).json({ message: "Database not connected" });
@@ -628,9 +656,91 @@ app.post("/players", async (req, res) => {
             .input("p", sql.NVarChar, player_name)
             .input("r", sql.NVarChar, role)
             .query("INSERT INTO players (team_name, player_name, role) VALUES (@t, @p, @r)");
+            
+        // Sync to profiles
+        await pool.request()
+            .input("pn", sql.NVarChar, player_name)
+            .input("tn", sql.NVarChar, team_name)
+            .input("r", sql.NVarChar, role || null)
+            .query(`
+                IF EXISTS (SELECT 1 FROM player_profiles WHERE player_name = @pn)
+                    UPDATE player_profiles SET team_name = @tn, role = @r, updated_at = GETDATE() WHERE player_name = @pn
+                ELSE
+                    INSERT INTO player_profiles (player_name, team_name, role) VALUES (@pn, @tn, @r)
+            `);
+            
         res.send("Player Added");
     } catch (err) {
         res.status(500).send(err.message);
+    }
+});
+
+// --- PLAYER PROFILE MASTER ROUTES ---
+app.get("/player-photo/:name", async (req, res) => {
+    try {
+        if (!pool) return res.json({ photo_url: null });
+        const r = await pool.request()
+            .input("n", sql.NVarChar, req.params.name)
+            .query("SELECT photo_url FROM player_profiles WHERE player_name = @n");
+        res.json({ photo_url: r.recordset[0] ? r.recordset[0].photo_url : null });
+    } catch (e) { res.json({ photo_url: null }); }
+});
+
+app.get("/player-role/:name", async (req, res) => {
+    try {
+        if (!pool) return res.json({ role: null });
+        const r = await pool.request()
+            .input("n", sql.NVarChar, req.params.name)
+            .query("SELECT role FROM player_profiles WHERE player_name = @n");
+        res.json({ role: r.recordset[0] ? r.recordset[0].role : null });
+    } catch (e) { res.json({ role: null }); }
+});
+
+app.post("/player-profile", async (req, res) => {
+    try {
+        const { player_name, team_name, role, photo_url } = req.body;
+        if (!pool) return res.status(500).json({ message: "No SQL connection" });
+        
+        await pool.request()
+            .input("pn", sql.NVarChar, player_name)
+            .input("tn", sql.NVarChar, team_name || null)
+            .input("r", sql.NVarChar, role || null)
+            .input("p", sql.NVarChar, photo_url || null)
+            .query(`
+                IF EXISTS (SELECT 1 FROM player_profiles WHERE player_name = @pn)
+                    UPDATE player_profiles SET team_name = COALESCE(@tn, team_name), role = COALESCE(@r, role), photo_url = COALESCE(@p, photo_url), updated_at = GETDATE() WHERE player_name = @pn
+                ELSE
+                    INSERT INTO player_profiles (player_name, team_name, role, photo_url) VALUES (@pn, @tn, @r, @p)
+            `);
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post("/upload-photo", upload.single("photo"), async (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ success: false, message: "No file" });
+        const b64 = req.file.buffer.toString("base64");
+        const dataUri = "data:" + req.file.mimetype + ";base64," + b64;
+        const uploadRes = await cloudinary.uploader.upload(dataUri, { folder: "player_photos" });
+        
+        const playerName = req.body.player_name;
+        if (playerName && pool) {
+            await pool.request()
+                .input("pn", sql.NVarChar, playerName)
+                .input("url", sql.NVarChar(sql.MAX), uploadRes.secure_url)
+                .query(`
+                    IF EXISTS (SELECT 1 FROM player_profiles WHERE player_name = @pn)
+                        UPDATE player_profiles SET photo_url = @url, updated_at = GETDATE() WHERE player_name = @pn
+                    ELSE
+                        INSERT INTO player_profiles (player_name, photo_url) VALUES (@pn, @url)
+                `);
+        }
+        res.json({ success: true, url: uploadRes.secure_url });
+    } catch (err) {
+        console.error("Upload error:", err);
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 
@@ -681,21 +791,25 @@ app.post("/match-results", async (req, res) => {
             return res.json({ id });
         }
         const r = await pool.request()
-            .input("w", sql.NVarChar, winner)
-            .input("l", sql.NVarChar, loser)
-            .input("wt", sql.NVarChar, win_type)
-            .input("m", sql.NVarChar, margin)
-            .input("p", sql.NVarChar, played_on)
+            .input("w", sql.NVarChar, winner || null)
+            .input("l", sql.NVarChar, loser || null)
+            .input("wt", sql.NVarChar, win_type || null)
+            .input("m", sql.NVarChar, margin !== undefined && margin !== null ? margin.toString() : null)
+            .input("p", sql.Date, played_on || null)
+            .input("mid", sql.NVarChar, match_id !== undefined && match_id !== null ? match_id.toString() : null)
+            .input("tid", sql.NVarChar, req.body.tournament_id !== undefined && req.body.tournament_id !== null ? req.body.tournament_id.toString() : null)
+            .input("sn", sql.NVarChar, req.body.series_name || null)
+            .input("t1n", sql.NVarChar, req.body.t1_name || null)
+            .input("s1", sql.NVarChar, t1_score !== undefined && t1_score !== null ? t1_score.toString() : null)
+            .input("o1", sql.NVarChar, t1_overs !== undefined && t1_overs !== null ? t1_overs.toString() : null)
+            .input("t2n", sql.NVarChar, req.body.t2_name || null)
+            .input("s2", sql.NVarChar, t2_score !== undefined && t2_score !== null ? t2_score.toString() : null)
+            .input("o2", sql.NVarChar, t2_overs !== undefined && t2_overs !== null ? t2_overs.toString() : null)
             .input("org", sql.NVarChar, organiser || null)
-            .input("comm", sql.NVarChar, commentary || null)
-            .input("mid", sql.NVarChar, match_id ? match_id.toString() : null)
-            .input("s1", sql.Int, t1_score || 0)
-            .input("s2", sql.Int, t2_score || 0)
-            .input("o1", sql.Decimal(4,1), t1_overs || 0)
-            .input("o2", sql.Decimal(4,1), t2_overs || 0)
-            .query(`INSERT INTO match_results (winner, loser, win_type, margin, played_on, organiser, commentary, match_id, t1_score, t2_score, t1_overs, t2_overs) 
+            .input("com", sql.NVarChar(sql.MAX), commentary || null)
+            .query(`INSERT INTO match_results (match_id, tournament_id, series_name, winner, loser, win_type, margin, played_on, t1_name, t1_score, t1_overs, t2_name, t2_score, t2_overs, organiser, commentary) 
                     OUTPUT INSERTED.id 
-                    VALUES (@w, @l, @wt, @m, @p, @org, @comm, @mid, @s1, @s2, @o1, @o2)`);
+                    VALUES (@mid, @tid, @sn, @w, @l, @wt, @m, @p, @t1n, @s1, @o1, @t2n, @s2, @o2, @org, @com)`);
         res.json({ id: r.recordset[0].id });
     } catch (err) {
         console.error("POST match-results error:", err);
@@ -876,12 +990,12 @@ app.post("/player-stats", async (req, res) => {
             .input("c", sql.Int, catches || 0)
             .input("ro", sql.Int, run_outs || 0)
             .input("s", sql.Int, stumpings || 0)
-            .input("mid", sql.Int, match_id || null)
+            .input("mid", sql.NVarChar, match_id ? match_id.toString() : null)
             .input("inn", sql.Int, innings || 1)
-            .input("st", sql.NVarChar, shot_types || null)
-            .input("ww", sql.NVarChar, wagon_wheel || null)
-            .query(`INSERT INTO player_stats (player_name, team_name, match_date, match_type, runs, balls_faced, fours, sixes, wickets, overs_bowled, runs_conceded, strike_rate, dismissal_type, dismissed_by, catches, run_outs, stumpings, match_id, innings, shot_types, wagon_wheel) 
-                    OUTPUT INSERTED.id VALUES (@pn, @tn, @md, @mt, @r, @bf, @f4, @s6, @w, @ob, @rc, @sr, @dt, @db, @c, @ro, @s, @mid, @inn, @st, @ww)`);
+            .input("st", sql.NVarChar, shot_types ? (typeof shot_types === 'string' ? shot_types : JSON.stringify(shot_types)) : null)
+            .input("ww", sql.NVarChar, wagon_wheel ? (typeof wagon_wheel === 'string' ? wagon_wheel : JSON.stringify(wagon_wheel)) : null)
+            .query(`INSERT INTO player_stats (player_name, team_name, match_date, match_type, runs, balls_faced, fours, sixes, wickets, overs_bowled, runs_conceded, dismissal_type, dismissed_by, catches, run_outs, stumpings, match_id, innings, shot_types, wagon_wheel) 
+                    OUTPUT INSERTED.id VALUES (@pn, @tn, @md, @mt, @r, @bf, @f4, @s6, @w, @ob, @rc, @dt, @db, @c, @ro, @s, @mid, @inn, @st, @ww)`);
         
         res.json({ success: true, id: r.recordset[0].id });
     } catch (err) {
