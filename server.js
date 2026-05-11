@@ -1206,6 +1206,93 @@ app.get("/player-teams/:player_name", async (req, res) => {
 
 
 
+// ================= MY TOURNAMENTS (Player-based) =================
+// Returns all tournaments where the logged-in user is a player (added to a team)
+app.get("/my-tournaments/:username", async (req, res) => {
+    try {
+        const { username } = req.params;
+        if (!pool) return res.json([]);
+
+        const result = await pool.request()
+            .input("pn", sql.NVarChar, username)
+            .query(`
+                SELECT DISTINCT t.id, t.name, t.created_by, t.status, t.created_at,
+                       t.ball_type AS ball,
+                       t.start_date AS startDate,
+                       t.end_date AS endDate,
+                       t.logo
+                FROM tournament_players tp
+                JOIN tournaments t ON tp.tournament_id = t.id
+                WHERE LOWER(tp.player_name) = LOWER(@pn)
+                ORDER BY t.id DESC
+            `);
+
+        res.json(result.recordset);
+    } catch (err) {
+        console.error("GET my-tournaments error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ================= MY MATCHES (Player-based) =================
+// Returns all matches where the logged-in player's team played
+app.get("/my-matches/:username", async (req, res) => {
+    try {
+        const { username } = req.params;
+        if (!pool) return res.json([]);
+
+        // Step 1: Find all teams + tournaments the player belongs to
+        const teamsResult = await pool.request()
+            .input("pn", sql.NVarChar, username)
+            .query(`
+                SELECT DISTINCT tp.team_name, tp.tournament_id, tp.role,
+                       t.name AS tournament_name
+                FROM tournament_players tp
+                LEFT JOIN tournaments t ON tp.tournament_id = t.id
+                WHERE LOWER(tp.player_name) = LOWER(@pn)
+            `);
+
+        if (teamsResult.recordset.length === 0) return res.json([]);
+
+        // Step 2: For each team, fetch matches that team played in
+        let allMatches = [];
+        for (const teamRow of teamsResult.recordset) {
+            const matchesResult = await pool.request()
+                .input("tid", sql.Int, teamRow.tournament_id)
+                .input("tn", sql.NVarChar, teamRow.team_name)
+                .query(`
+                    SELECT tm.*,
+                           mr.t1_score, mr.t2_score, mr.t1_overs, mr.t2_overs,
+                           mr.winner AS result_winner
+                    FROM tournament_matches tm
+                    LEFT JOIN match_results mr ON CAST(tm.id AS NVARCHAR(100)) = mr.match_id
+                    WHERE tm.tournament_id = @tid
+                    AND (LOWER(tm.team1) = LOWER(@tn) OR LOWER(tm.team2) = LOWER(@tn))
+                    ORDER BY tm.match_date ASC
+                `);
+            matchesResult.recordset.forEach(m => {
+                allMatches.push({
+                    ...m,
+                    tournament_name: teamRow.tournament_name || 'Tournament'
+                });
+            });
+        }
+
+        // Remove duplicates (same match id)
+        const seen = new Set();
+        allMatches = allMatches.filter(m => {
+            if (seen.has(m.id)) return false;
+            seen.add(m.id);
+            return true;
+        });
+
+        res.json(allMatches);
+    } catch (err) {
+        console.error("GET my-matches error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // ================= TOURNAMENT GALLERY =================
 app.get("/tournament-gallery/:tournament_id", async (req, res) => {
     try {

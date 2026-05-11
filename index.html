@@ -9688,58 +9688,58 @@
       let awards = calculateMatchAwards(m);
 
       let html = `
-        <div class="premium-card" style="padding:20px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e5e7eb; padding-bottom:16px; margin-bottom:16px;">
-            <div style="font-size:18px; color:#4b5563; display:flex; align-items:center; gap:8px;">
+        <div class="premium-card" style="padding:20px; background:rgba(30,41,59,0.5); border:1px solid rgba(255,255,255,0.1);">
+          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:16px; margin-bottom:16px;">
+            <div style="font-size:18px; color:#f8fafc; display:flex; align-items:center; gap:8px;">
               MVP (Most Valuable Player)
-              <span style="background:#e5e7eb; border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:12px; color:#6b7280; font-weight:bold;">?</span>
+              <span style="background:rgba(255,255,255,0.1); border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:12px; color:#94a3b8; font-weight:bold;">?</span>
             </div>
-            <div style="color:#0d9488; font-weight:600; font-size:14px; cursor:pointer;">Export Leaderboard</div>
+            <div style="color:#2dd4bf; font-weight:600; font-size:14px; cursor:pointer;">Export Leaderboard</div>
           </div>
       `;
 
       awards.allPlayersList.forEach((p, index) => {
         let photoSrc = localStorage.getItem("userPhoto_" + p.name);
-        let photoHtml = photoSrc ? `<img src="${photoSrc}" style="width:100%; height:100%; object-fit:cover; border-radius:4px;">` : `<div style="width:100%; height:100%; background:#f3f4f6; border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:24px;">👤</div>`;
+        let photoHtml = photoSrc ? `<img src="${photoSrc}" style="width:100%; height:100%; object-fit:cover; border-radius:4px;">` : `<div style="width:100%; height:100%; background:rgba(255,255,255,0.05); border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:24px;">👤</div>`;
 
         let batPts = p.batData ? p.batData.battingPoints : 0;
         let bowlPts = p.bowlData ? p.bowlData.bowlingPoints : 0;
         let fieldPts = 0; // Fielding points not currently tracked, but matching layout
 
         html += `
-          <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid #f3f4f6;">
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
             <div style="display:flex; align-items:center; gap:16px;">
               <div style="width:60px; height:60px; flex-shrink:0;">
                 ${photoHtml}
               </div>
               <div>
-                <div style="font-size:16px; font-weight:700; color:#1e293b; margin-bottom:4px;">
-                  ${p.name} <span style="font-weight:400; color:#6b7280; font-size:13px;">(${p.team})</span>
+                <div style="font-size:16px; font-weight:700; color:#ffffff; margin-bottom:4px;">
+                  ${p.name} <span style="font-weight:400; color:#94a3b8; font-size:13px;">(${p.team})</span>
                 </div>
-                <div style="display:flex; gap:12px; font-size:12px; color:#6b7280; align-items:center;">
+                <div style="display:flex; gap:12px; font-size:12px; color:#94a3b8; align-items:center;">
                   <div>
-                    <div style="color:#4b5563; margin-bottom:2px;">Batting</div>
-                    <div style="font-weight:600; color:#1e293b;">${batPts.toFixed(3)}</div>
+                    <div style="color:#94a3b8; margin-bottom:2px;">Batting</div>
+                    <div style="font-weight:600; color:#f8fafc;">${batPts.toFixed(3)}</div>
                   </div>
-                  <div style="font-weight:600; color:#9ca3af;">+</div>
+                  <div style="font-weight:600; color:#475569;">+</div>
                   <div>
-                    <div style="color:#4b5563; margin-bottom:2px;">Bowling</div>
-                    <div style="font-weight:600; color:#1e293b;">${bowlPts.toFixed(3)}</div>
+                    <div style="color:#94a3b8; margin-bottom:2px;">Bowling</div>
+                    <div style="font-weight:600; color:#f8fafc;">${bowlPts.toFixed(3)}</div>
                   </div>
-                  <div style="font-weight:600; color:#9ca3af;">+</div>
+                  <div style="font-weight:600; color:#475569;">+</div>
                   <div>
-                    <div style="color:#4b5563; margin-bottom:2px;">Fielding</div>
-                    <div style="font-weight:600; color:#1e293b;">${fieldPts.toFixed(3)}</div>
+                    <div style="color:#94a3b8; margin-bottom:2px;">Fielding</div>
+                    <div style="font-weight:600; color:#f8fafc;">${fieldPts.toFixed(3)}</div>
                   </div>
-                  <div style="font-weight:600; color:#9ca3af;">=</div>
+                  <div style="font-weight:600; color:#475569;">=</div>
                   <div>
-                    <div style="color:#4b5563; margin-bottom:2px;">Total</div>
-                    <div style="font-weight:700; color:#1e293b;">${p.pts.toFixed(3)}</div>
+                    <div style="color:#94a3b8; margin-bottom:2px;">Total</div>
+                    <div style="font-weight:700; color:#38bdf8;">${p.pts.toFixed(3)}</div>
                   </div>
                 </div>
               </div>
             </div>
-            <div style="width:32px; height:32px; border-radius:50%; border:1.5px solid #fbbf24; display:flex; align-items:center; justify-content:center; color:#d97706; font-weight:700; font-size:14px; background:#fffbeb;">
+            <div style="width:32px; height:32px; border-radius:50%; border:1.5px solid #fbbf24; display:flex; align-items:center; justify-content:center; color:#fbbf24; font-weight:700; font-size:14px; background:rgba(251,191,36,0.1);">
               ${index + 1}
             </div>
           </div>
@@ -10540,6 +10540,10 @@
     }
 
     async function openTournamentMatchScorecard(tournamentId, matchId, status) {
+      currentTournamentMatchIdx = matchId;
+      localStorage.setItem("currentTournamentMatchIdx", matchId);
+      currentTournamentId = tournamentId; // Ensure tournament ID is also tracked
+      
       showPage('matchDetailsPage');
       if (liveViewUnsubscribe) liveViewUnsubscribe();
       previousLiveMatchState = null;
@@ -11252,25 +11256,47 @@
       return "🏏";
     }
 
-    function openCurrentUserProfile() {
+    async function openCurrentUserProfile() {
       let currentUser = localStorage.getItem('currentUser') || 'User';
       let foundRole = '';
       let foundTeam = '';
-      // Search all tournaments for current user's player entry
+
+      // ✅ Step 1: Fetch role from SQL player_profiles (auto-synced when organizer adds player to team)
       try {
-        let allTournaments = loadTournaments();
-        outerLoop: for (let t of allTournaments) {
-          for (let team of (t.teams || [])) {
-            for (let p of (team.players || [])) {
-              if (p.name && p.name.toLowerCase() === currentUser.toLowerCase()) {
-                foundRole = p.role || '';
-                foundTeam = team.name || '';
-                break outerLoop;
+        const roleRes = await fetch(API + '/player-role/' + encodeURIComponent(currentUser));
+        if (roleRes.ok) {
+          const roleData = await roleRes.json();
+          if (roleData.role) foundRole = roleData.role;
+        }
+      } catch (e) { console.warn('SQL role fetch failed:', e); }
+
+      // ✅ Step 2: Fetch team from SQL tournament_players
+      try {
+        const teamsRes = await fetch(API + '/player-teams/' + encodeURIComponent(currentUser));
+        if (teamsRes.ok) {
+          const teams = await teamsRes.json();
+          if (teams.length > 0) foundTeam = teams[0].team_name;
+        }
+      } catch (e) { console.warn('SQL team fetch failed:', e); }
+
+      // ✅ Step 3: Fallback to localStorage if SQL has no data
+      if (!foundRole || !foundTeam) {
+        try {
+          let allTournaments = loadTournaments();
+          outerLoop: for (let t of allTournaments) {
+            for (let team of (t.teams || [])) {
+              for (let p of (team.players || [])) {
+                if (p.name && p.name.toLowerCase() === currentUser.toLowerCase()) {
+                  if (!foundRole) foundRole = p.role || '';
+                  if (!foundTeam) foundTeam = team.name || '';
+                  break outerLoop;
+                }
               }
             }
           }
-        }
-      } catch (e) { }
+        } catch (e) { }
+      }
+
       openPlayerProfile(currentUser, foundTeam, foundRole || 'Player');
     }
 
@@ -11662,77 +11688,54 @@
     async function loadMyMatches() {
       let container = document.getElementById("myMatchesContainer");
       let user = localStorage.getItem("currentUser") || "User";
-      container.innerHTML = "<div style='color:#6ee7b7;padding:10px;'>⏳ Loading matches...</div>";
+      container.innerHTML = "<div style='color:#6ee7b7;padding:20px;text-align:center;'>⏳ Loading your matches...</div>";
 
       let userMatches = [];
       try {
-        // Fetch matches where user is organiser from SQL
-        const res = await fetch(API + "/match-results?_t=" + Date.now());
-        const matches = await res.json();
-        // Filter by organiser (simple check for now) and mark as finished
-        userMatches = matches.filter(m => m.organiser === user || m.winner === user || m.loser === user).map(m => ({ ...m, status: 'finished' }));
-      } catch (e) { console.warn("Failed to fetch My Matches from SQL:", e); }
-
-      // Also check tournament matches from SQL
-      try {
-        const tRes = await fetch(API + "/tournaments?_t=" + Date.now());
-        const tourneys = await tRes.json();
-        for (let t of tourneys) {
-          if (t.user_id === user) {
-            const mRes = await fetch(API + "/tournament-matches/" + t.id);
-            const tm = await mRes.json();
-            tm.forEach(match => {
-              if (match.status === 'finished' || match.status === 'completed' || (match.result && match.result !== "LIVE")) {
-                userMatches.push({
-                  id: match.id,
-                  winner: match.team1, // Temporary mapping
-                  loser: match.team2,
-                  win_type: "League",
-                  margin: match.result || "Finished",
-                  played_on: match.match_date || "TBD",
-                  status: 'finished',
-                  tournament_name: t.tournament_data ? JSON.parse(t.tournament_data).name : "Tournament"
-                });
-              }
-            });
-          }
+        // ✅ Fetch matches where this player's TEAM played (not just organiser)
+        // Uses /my-matches/:username — finds teams via tournament_players, then fetches those teams' matches
+        const res = await fetch(API + "/my-matches/" + encodeURIComponent(user) + "?_t=" + Date.now());
+        if (res.ok) {
+          userMatches = await res.json();
         }
-      } catch (e) { }
+      } catch (e) { console.warn("Failed to fetch My Matches:", e); }
 
       if (userMatches.length === 0) {
-        container.innerHTML = getEmptyStateHtml("No match found");
+        container.innerHTML = getEmptyStateHtml("No matches found. Once an organiser adds you to a team and schedules a match, it will appear here.");
         return;
       }
 
       container.innerHTML = userMatches.map(m => {
-        let isLive = m.status === "live";
-        let badgeText = m.status === "live" ? "Live" : (m.status === "finished" ? "Finished" : "Upcoming");
-        let badgeBg = m.status === "live" ? "#ef4444" : (m.status === "finished" ? "#10b981" : "#f59e0b");
-
-        let dateStr = m.played_on || m.match_date || "TBD";
-        let tournamentName = m.tournament_name || "Match Result";
+        let status = m.status || 'upcoming';
+        let badgeText = status === 'live' ? 'Live' : (status === 'finished' || status === 'completed') ? 'Finished' : 'Upcoming';
+        let badgeBg = status === 'live' ? '#ef4444' : (status === 'finished' || status === 'completed') ? '#10b981' : '#f59e0b';
+        let dateStr = m.match_date ? new Date(m.match_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'TBD';
+        let tournamentName = m.tournament_name || 'Tournament Match';
+        let resText = m.result || (status === 'upcoming' ? 'Match Scheduled' : 'Result Pending');
+        let isWon = resText.toLowerCase().includes('won');
 
         return `
-      <div class="my-card" onclick="openMatchScorecardByMatchId('${m.id}', '${m.status}')" style="cursor:pointer;">
+      <div class="my-card" onclick="openTournamentMatchScorecard('${m.tournament_id}', '${m.id}', '${status}')" style="cursor:pointer;">
         <div class="my-card-header">
           <span>${tournamentName}</span>
           <span class="my-badge" style="background:${badgeBg};">${badgeText}</span>
         </div>
         <div class="my-card-meta">
-          KCP CRICKET GROUND, Jaggayyapeta, ${dateStr}
+          ${dateStr}${m.match_time ? ' &bull; ' + m.match_time : ''}
         </div>
-        <div class="my-card-bold">${m.win_type || 'Match Result'}</div>
+        <div class="my-card-bold">League Match</div>
         <div class="my-card-teams">
           <div class="my-card-team-row">
-            <span class="my-card-team-name">${m.winner || m.team1}</span>
-            <span class="my-card-score">Winner</span>
+            <span class="my-card-team-name">${m.team1}</span>
+            ${m.t1_score ? `<span class="my-card-score">${m.t1_score} <span class="my-card-overs">(${m.t1_overs || ''})</span></span>` : ''}
           </div>
           <div class="my-card-team-row">
-            <span class="my-card-team-name">${m.loser || m.team2}</span>
+            <span class="my-card-team-name">${m.team2}</span>
+            ${m.t2_score ? `<span class="my-card-score">${m.t2_score} <span class="my-card-overs">(${m.t2_overs || ''})</span></span>` : ''}
           </div>
         </div>
-        <div class="my-card-footer">
-          ${m.margin || m.result || "Match finished"}
+        <div class="my-card-footer" style="color:${isWon ? '#6ee7b7' : '#94a3b8'}">
+          ${resText}
         </div>
       </div>
     `;
@@ -11827,11 +11830,14 @@
       let matches = t.matches || [];
 
       if (status === 'live') {
-        filteredMatches = matches.filter(m => m.status === "live");
+        // Truly live: has live status AND (has a "LIVE" result OR has toss info) AND no final result
+        filteredMatches = matches.filter(m => (m.status === "live" || m.status === "Live") && (m.result === "LIVE" || (m.tossInfo && !m.result)));
       } else if (status === 'completed') {
-        filteredMatches = matches.filter(m => m.status === "finished" || m.status === "completed" || (m.result && m.result !== "LIVE"));
+        // Completed: has finished status OR has a non-LIVE result
+        filteredMatches = matches.filter(m => m.status === "finished" || m.status === "completed" || (m.result && m.result !== "LIVE" && m.result.trim() !== ""));
       } else if (status === 'upcoming') {
-        filteredMatches = matches.filter(m => m.status === "upcoming" || !m.status || m.status === "scheduled");
+        // Upcoming: strictly matches the Organizer's view (excludes 'live' status entirely)
+        filteredMatches = matches.filter(m => (m.status === "upcoming" || !m.status || m.status === "scheduled") && (!m.result || m.result.trim() === ""));
       }
 
       if (filteredMatches.length === 0) {
@@ -12409,11 +12415,10 @@
                 </div>
               </div>
             </div>
-            <div style="font-family:'Rajdhani',sans-serif; font-size:26px; font-weight:700; color:rgba(110,231,183,0.4); letter-spacing:1px; margin-left:10px;">
-              ${rank}
+            <div style="font-family:'Rajdhani',sans-serif; font-size:24px; font-weight:800; color:rgba(255,255,255,0.1); margin-left:16px;">
+              #${rank}
             </div>
-          </div>
-        `;
+          </div>`;
       });
       container.innerHTML = html;
     }
@@ -12422,7 +12427,6 @@
       let container = document.getElementById("myTournamentsContainer");
       if (!container) return;
 
-      // Show loading state
       container.innerHTML = '<div style="text-align:center;padding:60px 20px;color:rgba(255,255,255,0.5);font-family:Inter,sans-serif;font-size:14px;">⏳ Loading tournaments...</div>';
 
       let user = (localStorage.getItem("currentUser") || '').trim();
@@ -12433,40 +12437,51 @@
 
       let myTourneys = [];
       try {
-        const res = await fetch(API + '/tournaments/' + encodeURIComponent(user.toLowerCase()) + '?_t=' + Date.now());
-        if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data)) {
-            // Restore logos and matches from local storage since SQL doesn't store them yet
-            let localTs = loadTournaments();
-            data.forEach(sqlT => {
-              let localMatch = localTs.find(lt => lt.name === sqlT.name);
-              if (localMatch) {
-                if (localMatch.logo) sqlT.logo = localMatch.logo;
-                if (localMatch.matches) sqlT.matches = localMatch.matches;
-              }
-            });
-
-            myTourneys = data;
-            // Also update global tournaments array
-            tournaments = data;
-          }
+        // ✅ Fetch 1: Tournaments the user ORGANISED
+        const orgRes = await fetch(API + '/tournaments/' + encodeURIComponent(user.toLowerCase()) + '?_t=' + Date.now());
+        let orgTourneys = [];
+        if (orgRes.ok) {
+          const data = await orgRes.json();
+          if (Array.isArray(data)) orgTourneys = data;
         }
+
+        // ✅ Fetch 2: Tournaments the user is a PLAYER in
+        const playerRes = await fetch(API + '/my-tournaments/' + encodeURIComponent(user) + '?_t=' + Date.now());
+        let playerTourneys = [];
+        if (playerRes.ok) {
+          const data = await playerRes.json();
+          if (Array.isArray(data)) playerTourneys = data;
+        }
+
+        // Merge both, deduplicate by id
+        const seen = new Set();
+        [...orgTourneys, ...playerTourneys].forEach(t => {
+          if (!seen.has(t.id)) { seen.add(t.id); myTourneys.push(t); }
+        });
+
+        // Restore logos from localStorage if SQL doesn't have them
+        let localTs = loadTournaments();
+        myTourneys.forEach(sqlT => {
+          let localMatch = localTs.find(lt => lt.name === sqlT.name);
+          if (localMatch && localMatch.logo && !sqlT.logo) sqlT.logo = localMatch.logo;
+        });
+
+        // Update global tournaments array
+        tournaments = myTourneys;
+
       } catch (e) {
-        console.warn('loadMyTournaments SQL error:', e);
-        // Fallback to global tournaments array
+        console.warn('loadMyTournaments error:', e);
         myTourneys = (tournaments || []).filter(t =>
           t.created_by === user || t.organiser === user || t.createdBy === user
         );
       }
 
       if (myTourneys.length === 0) {
-        container.innerHTML = getEmptyStateHtml("No tournament found");
+        container.innerHTML = getEmptyStateHtml("No tournament found. You will see tournaments here once an organiser adds you to a team.");
         return;
       }
 
       container.innerHTML = myTourneys.map((t, i) => {
-        // Format dates
         let fmtDate = (d) => {
           if (!d) return '';
           let dt = new Date(d);
@@ -12478,8 +12493,8 @@
         <div class="tourney-badge-premium">Premium</div>
         <div class="tourney-card">
           <div class="tourney-img">
-            ${t.logo 
-              ? `<img src="${t.logo}" alt="logo" onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=\'font-size:32px;display:flex;align-items:center;justify-content:center;width:100%;height:100%;\'>🏆</div>'">`
+            ${t.logo
+              ? `<img src="${t.logo}" alt="logo" onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=\\'font-size:32px;display:flex;align-items:center;justify-content:center;width:100%;height:100%;\\'>🏆</div>'">` 
               : `<div style="font-size:32px; display:flex; align-items:center; justify-content:center; width:100%; height:100%; background:linear-gradient(135deg,#0d9488,#1e3a5f);">🏏</div>`
             }
           </div>
