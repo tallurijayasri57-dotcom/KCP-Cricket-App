@@ -73,6 +73,18 @@ async function startServer() {
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_teams'  AND COLUMN_NAME='captain')  ALTER TABLE tournament_teams  ADD captain  NVARCHAR(100) NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_teams'  AND COLUMN_NAME='city')     ALTER TABLE tournament_teams  ADD city     NVARCHAR(100) NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_teams'  AND COLUMN_NAME='logo')     ALTER TABLE tournament_teams  ADD logo     NVARCHAR(MAX) NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='match_results'     AND COLUMN_NAME='match_id')  ALTER TABLE match_results     ADD match_id NVARCHAR(100) NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='match_results'     AND COLUMN_NAME='tournament_id') ALTER TABLE match_results ADD tournament_id NVARCHAR(100) NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='match_results'     AND COLUMN_NAME='series_name') ALTER TABLE match_results   ADD series_name NVARCHAR(200) NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='match_results'     AND COLUMN_NAME='t1_name')    ALTER TABLE match_results     ADD t1_name NVARCHAR(100) NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='match_results'     AND COLUMN_NAME='t1_score')   ALTER TABLE match_results     ADD t1_score NVARCHAR(50) NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='match_results'     AND COLUMN_NAME='t1_overs')   ALTER TABLE match_results     ADD t1_overs NVARCHAR(50) NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='match_results'     AND COLUMN_NAME='t2_name')    ALTER TABLE match_results     ADD t2_name NVARCHAR(100) NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='match_results'     AND COLUMN_NAME='t2_score')   ALTER TABLE match_results     ADD t2_score NVARCHAR(50) NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='match_results'     AND COLUMN_NAME='t2_overs')   ALTER TABLE match_results     ADD t2_overs NVARCHAR(50) NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='player_stats'      AND COLUMN_NAME='opponent_team') ALTER TABLE player_stats  ADD opponent_team NVARCHAR(100) NULL`,
+
+
             ];
             for (const mig of migrations) {
                 try { await pool.request().query(mig); } catch(e) { console.warn("Migration warning:", e.message); }
@@ -992,10 +1004,12 @@ app.post("/player-stats", async (req, res) => {
             .input("s", sql.Int, stumpings || 0)
             .input("mid", sql.NVarChar, match_id ? match_id.toString() : null)
             .input("inn", sql.Int, innings || 1)
+            .input("ot", sql.NVarChar, req.body.opponent_team || null)
             .input("st", sql.NVarChar, shot_types ? (typeof shot_types === 'string' ? shot_types : JSON.stringify(shot_types)) : null)
             .input("ww", sql.NVarChar, wagon_wheel ? (typeof wagon_wheel === 'string' ? wagon_wheel : JSON.stringify(wagon_wheel)) : null)
-            .query(`INSERT INTO player_stats (player_name, team_name, match_date, match_type, runs, balls_faced, fours, sixes, wickets, overs_bowled, runs_conceded, dismissal_type, dismissed_by, catches, run_outs, stumpings, match_id, innings, shot_types, wagon_wheel) 
-                    OUTPUT INSERTED.id VALUES (@pn, @tn, @md, @mt, @r, @bf, @f4, @s6, @w, @ob, @rc, @dt, @db, @c, @ro, @s, @mid, @inn, @st, @ww)`);
+            .query(`INSERT INTO player_stats (player_name, team_name, match_date, match_type, runs, balls_faced, fours, sixes, wickets, overs_bowled, runs_conceded, dismissal_type, dismissed_by, catches, run_outs, stumpings, match_id, innings, opponent_team, shot_types, wagon_wheel) 
+                    OUTPUT INSERTED.id VALUES (@pn, @tn, @md, @mt, @r, @bf, @f4, @s6, @w, @ob, @rc, @dt, @db, @c, @ro, @s, @mid, @inn, @ot, @st, @ww)`);
+
         
         res.json({ success: true, id: r.recordset[0].id });
     } catch (err) {

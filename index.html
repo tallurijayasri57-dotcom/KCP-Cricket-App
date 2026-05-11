@@ -3546,36 +3546,48 @@
     }
 
     .finished-match-card {
-      background: linear-gradient(145deg, #111827, #0f172a);
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 14px;
-      margin-bottom: 16px;
+      border-radius: 16px;
+      margin-bottom: 20px;
       overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .finished-match-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+      border-color: rgba(110, 231, 183, 0.2);
     }
 
     .finished-match-header {
-      padding: 14px 16px;
-      background: rgba(255, 255, 255, 0.04);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      padding: 20px;
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
+      align-items: flex-start;
+      gap: 16px;
     }
 
     .finished-match-winner {
       font-family: 'Rajdhani', sans-serif;
-      font-size: 16px;
+      font-size: 20px;
       font-weight: 700;
       color: #6ee7b7;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .finished-match-detail {
       font-family: 'Inter', sans-serif;
-      font-size: 12px;
-      color: #6b7280;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 0.5px;
     }
+
 
     .finished-match-toggle {
       background: rgba(37, 99, 235, 0.2);
@@ -3598,13 +3610,51 @@
 
     .finished-team-title {
       font-family: 'Rajdhani', sans-serif;
-      font-size: 14px;
+      font-size: 16px;
       font-weight: 700;
-      color: #a7f3d0;
-      margin: 10px 0 6px;
-      letter-spacing: 1px;
+      color: #94a3b8;
+      margin: 25px 0 12px 0;
       text-transform: uppercase;
+      letter-spacing: 1.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
+
+    .finished-team-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(110, 231, 183, 0.2), transparent);
+    }
+
+    .scorecard-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .scorecard-table th {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 11px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+
+    .scorecard-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      font-size: 13px;
+      color: #e2e8f0;
+    }
+
 
     html,
     body {
@@ -4322,7 +4372,7 @@
     #myTournamentsContainer {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-      gap: 0;
+      gap: 16px;
       padding: 0;
     }
 
@@ -4335,20 +4385,93 @@
     }
 
     .my-card {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 16px;
-      margin: 10px 0;
-      padding: 16px;
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      margin: 0;
+      padding: 20px;
       font-family: 'Inter', sans-serif;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
       position: relative;
-      backdrop-filter: blur(10px);
-      transition: box-shadow 0.2s;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
 
     .my-card:hover {
-      box-shadow: 0 6px 28px rgba(0, 212, 255, 0.12), 0 4px 20px rgba(0, 0, 0, 0.4);
+      transform: translateY(-4px);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(110, 231, 183, 0.2);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+
+    .my-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .my-card-meta {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.4);
+      margin-bottom: 12px;
+      letter-spacing: 0.3px;
+    }
+
+    .my-card-bold {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      color: #6ee7b7;
+      margin-bottom: 10px;
+      letter-spacing: 0.5px;
+    }
+
+    .my-card-teams {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.02);
+      padding: 12px;
+      border-radius: 12px;
+    }
+
+    .my-card-team-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .my-card-team-name {
+      font-weight: 600;
+      font-size: 14px;
+      color: #f8fafc;
+    }
+
+    .my-card-score {
+      font-weight: 800;
+      font-size: 16px;
+      color: #6ee7b7;
+      font-family: 'Rajdhani', sans-serif;
+    }
+
+    .my-card-overs {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.5);
+      font-weight: 500;
+      margin-left: 4px;
+    }
+
+    .my-card-footer {
+      font-size: 12px;
+      color: #94a3b8;
+      font-weight: 500;
+      margin-top: 4px;
+      line-height: 1.4;
     }
 
     .tourney-card {
@@ -4360,6 +4483,8 @@
     .tourney-img {
       width: 70px;
       height: 70px;
+      min-width: 70px;
+      flex-shrink: 0;
       border-radius: 8px;
       background: #f3f4f6;
       display: flex;
@@ -4684,7 +4809,7 @@
     .tourney-dates,
     .tourney-loc {
       font-size: 11px;
-      color: #6b7280;
+      color: rgba(255, 255, 255, 0.5);
       font-weight: 500;
     }
 
@@ -5089,7 +5214,22 @@
   </div>
 
 
+  <!-- GLOBAL SCORECARD PAGE -->
+  <div id="globalScorecardPage" class="page"
+    style="display:none; background:linear-gradient(135deg,#0d1117 0%,#0f1a2e 40%,#091221 70%,#0d1117 100%); min-height:100vh; position:relative; overflow-y:auto; padding-bottom:100px;">
+    <div class="page-top-back"
+      style="background:rgba(0,0,0,0.3); border-bottom:1px solid rgba(255,255,255,0.1); padding:16px 20px; backdrop-filter:blur(6px); position:sticky; top:0; z-index:100;">
+      <button class="page-top-back-btn" onclick="globalGoBack()" style="color:#ffffff;">
+        <span class="page-top-back-arrow" style="color:#ffffff;">←</span> <span style="font-size:18px;">Match Details</span>
+      </button>
+    </div>
+    <div id="globalScorecardContainer" style="max-width:900px; margin:0 auto; padding:20px;">
+      <!-- Scorecard injected here -->
+    </div>
+  </div>
+
   <!-- LOGIN PAGE -->
+
   <div id="loginPage" class="page">
     <div class="auth-card">
       <div class="auth-logo">
@@ -9130,8 +9270,12 @@
           m.id = item.id;
           if (m.updatedAt && Date.now() - m.updatedAt > 24 * 60 * 60 * 1000) return;
           if (m.target > 0 && (m.runs >= m.target || m.wickets >= 10)) return;
+          
+          // Strict live check: Only show if play has actually started or toss is done
+          if (!m.tossInfo && m.runs === 0 && m.wickets === 0 && m.overs === "0.0") return;
 
           matchCount++;
+
 
           html += `
           <div class="live-match-card" onclick="viewLiveMatch('${m.id}')" style="background:linear-gradient(135deg, #1e293b, #0f172a); border:1px solid rgba(110, 231, 183, 0.4); border-radius:12px; padding:16px; position:relative; overflow:hidden; cursor:pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
@@ -11569,7 +11713,7 @@
         let tournamentName = m.tournament_name || "Match Result";
 
         return `
-      <div class="my-card" onclick="openMatchScorecardByMatchId('${m.id}', '${m.status}')" style="margin-bottom:12px; cursor:pointer;">
+      <div class="my-card" onclick="openMatchScorecardByMatchId('${m.id}', '${m.status}')" style="cursor:pointer;">
         <div class="my-card-header">
           <span>${tournamentName}</span>
           <span class="my-badge" style="background:${badgeBg};">${badgeText}</span>
@@ -11709,10 +11853,15 @@
 
       let html = '<div class="td-matches-grid">';
       filteredMatches.forEach(m => {
-        let badgeBg = status === 'live' ? '#ef4444' : (status === 'completed' ? '#374151' : '#0d9488');
-        let badgeText = status === 'live' ? 'LIVE' : (status === 'completed' ? 'PAST' : 'SOON');
         let badgeClass = status === 'live' ? 'my-badge my-badge-live' : (status === 'completed' ? 'my-badge my-badge-past' : 'my-badge my-badge-soon');
+        let badgeText = status === 'live' ? 'LIVE' : (status === 'completed' ? 'PAST' : 'SOON');
         let resText = m.result ? m.result : (m.tossInfo ? m.tossInfo : 'Upcoming match scheduled');
+
+        // Extract score if available
+        let s1 = m.score1 || m.t1_score || "";
+        let s2 = m.score2 || m.t2_score || "";
+        let ov1 = m.overs1 || m.t1_overs || "";
+        let ov2 = m.overs2 || m.t2_overs || "";
 
         html += `
           <div class="my-card" onclick="openTournamentMatchScorecard('${t.id}', '${m.id}', '${m.status}')" style="cursor:pointer; margin:0;">
@@ -11721,25 +11870,26 @@
               <span class="${badgeClass}">${badgeText}</span>
             </div>
             <div class="my-card-meta">
-              ${t.ground || 'KCP CRICKET GROUND'}, ${t.city || 'Jaggayyapeta'}, ${m.date || ''}, ${t.overs || 20} Ov.
+              ${t.ground || 'KCP CRICKET GROUND'}, ${t.city || 'Jaggayyapeta'}, ${m.date ? new Date(m.date).toLocaleDateString('en-GB') : ''}, ${t.overs || 20} Ov.
             </div>
-            <div class="my-card-bold">League Matches</div>
+            <div class="my-card-bold">League Match</div>
             <div class="my-card-teams">
               <div class="my-card-team-row">
                 <span class="my-card-team-name">${m.team1}</span>
-                ${m.score1 ? `<span class="my-card-score">${m.score1} <span class="my-card-overs">(${m.overs1})</span></span>` : ''}
+                ${s1 ? `<span class="my-card-score">${s1} <span class="my-card-overs">(${ov1})</span></span>` : ''}
               </div>
               <div class="my-card-team-row">
                 <span class="my-card-team-name">${m.team2}</span>
-                ${m.score2 ? `<span class="my-card-score">${m.score2} <span class="my-card-overs">(${m.overs2})</span></span>` : (m.result ? '' : '<span style="font-size:13px; color:#6b7280; font-weight:500;">Yet to bat</span>')}
+                ${s2 ? `<span class="my-card-score">${s2} <span class="my-card-overs">(${ov2})</span></span>` : (m.result ? '' : '<span style="font-size:13px; color:#6b7280; font-weight:500;">Yet to bat</span>')}
               </div>
             </div>
-            <div class="my-card-footer">
+            <div class="my-card-footer" style="color: ${m.result && m.result.includes('won') ? '#6ee7b7' : '#94a3b8'}">
               ${resText}
             </div>
           </div>
         `;
       });
+
       html += '</div>';
       container.innerHTML = html;
     }
@@ -12501,10 +12651,10 @@
     function closeLeagueModal() { document.getElementById("leagueModal").classList.remove("open"); }
     function escapeQ(str) { return (str || "").replace(/'/g, "\\'").replace(/"/g, '\\"'); }
 
-    let innings1BatStats = {};
-    let innings1BowlStats = {};
-    let innings1BatTeam = "";
-    let innings1BowlTeam = "";
+    let innings1BatStats = {}, innings1BowlStats = {};
+    let innings1BatTeam = "", innings1BowlTeam = "";
+    let innings1Runs = 0, innings1Balls = 0;
+
 
     async function updateAllPlayerStatsAfterMatch(inningsNum) {
       const today = new Date().toISOString().split("T")[0];
@@ -12512,21 +12662,22 @@
       if (inningsNum === 2 && Object.keys(innings1BatStats).length > 0) {
         for (let p in innings1BatStats) {
           let s = innings1BatStats[p];
-          saves.push(fetch(API + "/player-stats", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ player_name: p, team_name: innings1BatTeam, match_date: today, match_type: "bat", runs: s.runs, balls_faced: s.balls, fours: s.fours, sixes: s.sixes, dismissal_type: s.dismissal_type || null, dismissed_by: s.dismissal_type === "Bowled" ? s.dismissed_by : (s.dismissed_by && s.dismissed_by_bowler ? s.dismissed_by + " b " + s.dismissed_by_bowler : s.dismissed_by) || null, match_id: currentMatchId, innings: 1 }) }).catch(e => console.error(e)));
+          saves.push(fetch(API + "/player-stats", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ player_name: p, team_name: innings1BatTeam, opponent_team: innings1BowlTeam, match_date: today, match_type: "bat", runs: s.runs, balls_faced: s.balls, fours: s.fours, sixes: s.sixes, dismissal_type: s.dismissal_type || null, dismissed_by: (s.dismissed_by && s.dismissed_by_bowler ? s.dismissed_by + " b " + s.dismissed_by_bowler : s.dismissed_by) || null, match_id: currentMatchId, innings: 1 }) }).catch(e => console.error(e)));
         }
         for (let p in innings1BowlStats) {
           let s = innings1BowlStats[p];
-          saves.push(fetch(API + "/player-stats", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ player_name: p, team_name: innings1BowlTeam, match_date: today, match_type: "bowl", wickets: s.wickets, overs_bowled: Math.floor(s.balls / 6) + "." + (s.balls % 6), runs_conceded: s.runs, catches: s.catches || 0, run_outs: s.run_outs || 0, stumpings: s.stumpings || 0, match_id: currentMatchId, innings: 1 }) }).catch(e => console.error(e)));
+          saves.push(fetch(API + "/player-stats", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ player_name: p, team_name: innings1BowlTeam, opponent_team: innings1BatTeam, match_date: today, match_type: "bowl", wickets: s.wickets, overs_bowled: Math.floor(s.balls / 6) + "." + (s.balls % 6), runs_conceded: s.runs, catches: s.catches || 0, run_outs: s.run_outs || 0, stumpings: s.stumpings || 0, match_id: currentMatchId, innings: 1 }) }).catch(e => console.error(e)));
         }
       }
       for (let p in batsmanStats) {
         let s = batsmanStats[p];
-        saves.push(fetch(API + "/player-stats", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ player_name: p, team_name: matchBatTeam, match_date: today, match_type: "bat", runs: s.runs, balls_faced: s.balls, fours: s.fours, sixes: s.sixes, dismissal_type: s.dismissal_type || null, dismissed_by: s.dismissal_type === "Bowled" ? s.dismissed_by : (s.dismissed_by && s.dismissed_by_bowler ? s.dismissed_by + " b " + s.dismissed_by_bowler : s.dismissed_by) || null, match_id: currentMatchId, innings: inningsNum, shot_types: s.shot_types ? s.shot_types.join(",") : null, wagon_wheel: s.wagon_wheel ? s.wagon_wheel.join(",") : null }) }).catch(e => console.error(e)));
+        saves.push(fetch(API + "/player-stats", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ player_name: p, team_name: matchBatTeam, opponent_team: matchBowlTeam, match_date: today, match_type: "bat", runs: s.runs, balls_faced: s.balls, fours: s.fours, sixes: s.sixes, dismissal_type: s.dismissal_type || null, dismissed_by: (s.dismissed_by && s.dismissed_by_bowler ? s.dismissed_by + " b " + s.dismissed_by_bowler : s.dismissed_by) || null, match_id: currentMatchId, innings: inningsNum, shot_types: s.shot_types ? s.shot_types.join(",") : null, wagon_wheel: s.wagon_wheel ? s.wagon_wheel.join(",") : null }) }).catch(e => console.error(e)));
       }
       for (let p in bowlerStats) {
         let s = bowlerStats[p];
-        saves.push(fetch(API + "/player-stats", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ player_name: p, team_name: matchBowlTeam, match_date: today, match_type: "bowl", wickets: s.wickets, overs_bowled: Math.floor(s.balls / 6) + "." + (s.balls % 6), runs_conceded: s.runs, catches: s.catches || 0, run_outs: s.run_outs || 0, stumpings: s.stumpings || 0, match_id: currentMatchId, innings: inningsNum }) }).catch(e => console.error(e)));
+        saves.push(fetch(API + "/player-stats", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ player_name: p, team_name: matchBowlTeam, opponent_team: matchBatTeam, match_date: today, match_type: "bowl", wickets: s.wickets, overs_bowled: Math.floor(s.balls / 6) + "." + (s.balls % 6), runs_conceded: s.runs, catches: s.catches || 0, run_outs: s.run_outs || 0, stumpings: s.stumpings || 0, match_id: currentMatchId, innings: inningsNum }) }).catch(e => console.error(e)));
       }
+
       await Promise.all(saves);
     }
 
@@ -12555,9 +12706,12 @@
         let scoreStr = isBat ? `${r.runs} (${r.balls_faced})` : `${r.wickets} Wkts`;
         let subStats = isBat ? `4s: ${r.fours} | 6s: ${r.sixes}` : `${r.overs_bowled} Ov | ${r.runs_conceded} Runs`;
         let resultLabel = isBat ? "Batting" : "Bowling";
+        
+        let mId = r.match_id || null;
+        let onClickAction = mId ? `onclick="openGlobalScorecard(${mId})"` : "";
 
         html += `
-          <div class="my-card" style="margin:0; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.02);">
+          <div class="my-card" ${onClickAction} style="margin:0; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.02); cursor:${mId ? 'pointer' : 'default'};">
             <div class="my-card-header">
               <span style="color:#94a3b8; font-size:12px;">${r.tournament_name || "LEAGUE MATCH"}</span>
               <span class="my-badge my-badge-past">PAST</span>
@@ -12581,6 +12735,7 @@
           </div>
         `;
       });
+
 
       if (profileMatchesLoaded === 0) {
         histEl.innerHTML = html || "<div style='grid-column:1/-1; text-align:center; padding:30px; color:#94a3b8;'>No match history found.</div>";
@@ -13576,10 +13731,23 @@
       if (innings == 2 && target > 0 && totalRuns >= target && !winShown) {
         winShown = true;
         let winner = matchBatTeam, loser = matchBowlTeam, margin = "won by " + (10 - totalWickets) + " wickets";
-        saveMatchResult(winner, loser, "won", margin, null, null).then(() => updateAllPlayerStatsAfterMatch(2));
+        let tId = (currentViewingTournament ? currentViewingTournament.id : null);
+        saveMatchResult(winner, loser, "won", margin, currentTournamentMatchIdx, tId).then(() => {
+          updateAllPlayerStatsAfterMatch(2);
+          finishLiveMatch();
+        });
         showWinPopup(winner, margin);
-        finishLiveMatch();
+        
+        // Update tournament match result in SQL if it exists
+        if (currentTournamentMatchIdx !== null && !isNaN(currentTournamentMatchIdx)) {
+          fetch(API + "/tournament-matches/" + currentTournamentMatchIdx, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: "finished", result: winner + " won by " + margin })
+          }).catch(e => console.warn("Failed to update tournament match:", e));
+        }
       }
+
     }
     function updateTables() {
       batTable.innerHTML = ""; bowlTable.innerHTML = "";
@@ -13620,9 +13788,12 @@
       if (innings == 1) {
         innings1BatStats = JSON.parse(JSON.stringify(batsmanStats));
         innings1BowlStats = JSON.parse(JSON.stringify(bowlerStats));
+        innings1Runs = totalRuns;
+        innings1Balls = ballCount;
         innings1BatTeam = matchBatTeam;
         innings1BowlTeam = matchBowlTeam;
-        target = totalRuns + 1; targetBox.innerText = "Target: " + target;
+        target = totalRuns + 1;
+ targetBox.innerText = "Target: " + target;
         totalRuns = 0; totalWickets = 0; ballCount = 0; balls.innerHTML = "";
         winShown = false; outBatsmen = []; extrasByes = 0; ballSnapshots = [];
         let tmp = matchBatTeam; matchBatTeam = matchBowlTeam; matchBowlTeam = tmp;
@@ -13659,7 +13830,10 @@
             commentary: JSON.stringify(matchCommentary),
             match_id: tournamentMatchId || null,
             tournament_id: tournamentId || (currentViewingTournament ? currentViewingTournament.id : null),
+            t1_name: (innings == 2 ? innings1BatTeam : matchBatTeam),
+            t2_name: (innings == 2 ? innings1BowlTeam : matchBowlTeam),
             t1_score, t2_score, t1_overs, t2_overs
+
           })
         });
         let data = await res.json();
@@ -13965,9 +14139,15 @@
         margin = (target - 1 - totalRuns) + " runs";
         inningsNum = 2;
       }
+      let finalResult = `${winner} won by ${margin}`;
       winShown = true;
+
       let tId = (currentViewingTournament ? currentViewingTournament.id : null);
-      saveMatchResult(winner, loser, "won", margin, currentTournamentMatchIdx, tId).then(() => updateAllPlayerStatsAfterMatch(inningsNum));
+      saveMatchResult(winner, loser, "won", margin, currentTournamentMatchIdx, tId).then(() => {
+        updateAllPlayerStatsAfterMatch(inningsNum);
+        finishLiveMatch();
+      });
+
 
       // Update tournament match result in SQL if it exists
       if (currentTournamentMatchIdx !== null && !isNaN(currentTournamentMatchIdx)) {
@@ -14018,7 +14198,8 @@
       });
 
       showWinPopup(winner, margin);
-      finishLiveMatch();
+      // finishLiveMatch() moved to .then of saveMatchResult to avoid race condition with stats
+
     }
 
     // --- Custom Date Time Picker JS ---
@@ -14302,8 +14483,89 @@
         }
       }
 
-      // Normal flow: Redirect to login if not logged in
-      let splash = document.getElementById('splashScreen');
+    async function openGlobalScorecard(matchId) {
+      if (!matchId) return;
+      showPage('globalScorecardPage');
+      const container = document.getElementById('globalScorecardContainer');
+      if (!container) return;
+      container.innerHTML = '<div style="color:#6ee7b7; text-align:center; padding:40px;">Loading Scorecard...</div>';
+      
+      try {
+        const res = await fetch(API + '/match-results/' + matchId);
+        if (!res.ok) throw new Error("Failed to fetch match details");
+        const match = await res.json();
+        
+        const statsRes = await fetch(API + '/player-stats-by-match?match_id=' + matchId);
+        const stats = await statsRes.json();
+        
+        renderGlobalScorecard(match, stats);
+      } catch (e) {
+        container.innerHTML = '<div style="color:#ef4444; text-align:center; padding:40px;">Error loading scorecard: ' + e.message + '</div>';
+      }
+    }
+
+    function renderGlobalScorecard(m, stats) {
+      const container = document.getElementById('globalScorecardContainer');
+      let bat1 = stats.filter(s => s.match_type === 'bat' && s.innings === 1);
+      let bowl1 = stats.filter(s => s.match_type === 'bowl' && s.innings === 1);
+      let bat2 = stats.filter(s => s.match_type === 'bat' && s.innings === 2);
+      let bowl2 = stats.filter(s => s.match_type === 'bowl' && s.innings === 2);
+
+      let html = `
+        <div class="finished-match-card" style="display:block; margin-bottom:0;">
+          <div class="finished-match-header" style="background:rgba(255,255,255,0.02); flex-direction:column; align-items:stretch;">
+             <div style="display:flex; justify-content:space-between; align-items:center;">
+               <div class="finished-match-winner">🏆 ${m.winner} won by ${m.margin}</div>
+               <div style="font-size:11px; color:#94a3b8;">${new Date(m.match_date).toLocaleDateString()}</div>
+             </div>
+             <div style="margin-top:10px; display:flex; justify-content:space-between; font-family:'Rajdhani',sans-serif;">
+               <div style="font-size:18px; font-weight:700;">${m.team1} <span style="color:#6ee7b7;">${m.score1 || '0'}/${m.wickets1 || '0'}</span> <span style="font-size:13px; color:#94a3b8;">(${m.overs1 || '0.0'})</span></div>
+               <div style="font-size:18px; font-weight:700; text-align:right;">${m.team2} <span style="color:#6ee7b7;">${m.score2 || '0'}/${m.wickets2 || '0'}</span> <span style="font-size:13px; color:#94a3b8;">(${m.overs2 || '0.0'})</span></div>
+             </div>
+          </div>
+          
+          <div class="finished-scorecard open" style="max-height: 70vh; overflow-y: auto; padding:20px;">
+            <div class="finished-team-title">1st Innings — ${m.team1}</div>
+            <table class="scorecard-table">
+              <thead><tr><th>Batsman</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead>
+              <tbody>
+                ${bat1.map(p => `<tr><td>${p.player_name}<div style="font-size:10px;color:#94a3b8;">${p.dismissal_type ? p.dismissal_type : 'not out'}</div></td><td>${p.runs}</td><td>${p.balls_faced}</td><td>${p.fours}</td><td>${p.sixes}</td><td>${((p.runs / (p.balls_faced || 1)) * 100).toFixed(1)}</td></tr>`).join('')}
+              </tbody>
+            </table>
+            
+            <div class="finished-team-title" style="margin-top:20px;">Bowling</div>
+            <table class="scorecard-table">
+              <thead><tr><th>Bowler</th><th>O</th><th>M</th><th>R</th><th>W</th><th>Eco</th></tr></thead>
+              <tbody>
+                ${bowl1.map(p => `<tr><td>${p.player_name}</td><td>${p.overs_bowled}</td><td>${p.maidens || 0}</td><td>${p.runs_conceded}</td><td>${p.wickets}</td><td>${((p.runs_conceded / (parseFloat(p.overs_bowled) || 1))).toFixed(2)}</td></tr>`).join('')}
+              </tbody>
+            </table>
+
+            <div style="height:2px; background:rgba(255,255,255,0.05); margin:30px 0;"></div>
+
+            <div class="finished-team-title">2nd Innings — ${m.team2}</div>
+            <table class="scorecard-table">
+              <thead><tr><th>Batsman</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead>
+              <tbody>
+                ${bat2.map(p => `<tr><td>${p.player_name}<div style="font-size:10px;color:#94a3b8;">${p.dismissal_type ? p.dismissal_type : 'not out'}</div></td><td>${p.runs}</td><td>${p.balls_faced}</td><td>${p.fours}</td><td>${p.sixes}</td><td>${((p.runs / (p.balls_faced || 1)) * 100).toFixed(1)}</td></tr>`).join('')}
+              </tbody>
+            </table>
+            
+            <div class="finished-team-title" style="margin-top:20px;">Bowling</div>
+            <table class="scorecard-table">
+              <thead><tr><th>Bowler</th><th>O</th><th>M</th><th>R</th><th>W</th><th>Eco</th></tr></thead>
+              <tbody>
+                ${bowl2.map(p => `<tr><td>${p.player_name}</td><td>${p.overs_bowled}</td><td>${p.maidens || 0}</td><td>${p.runs_conceded}</td><td>${p.wickets}</td><td>${((p.runs_conceded / (parseFloat(p.overs_bowled) || 1))).toFixed(2)}</td></tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+      container.innerHTML = html;
+    }
+
+    let splash = document.getElementById('splashScreen');
+
       if (splash) {
         setTimeout(() => {
           splash.style.display = 'none';
