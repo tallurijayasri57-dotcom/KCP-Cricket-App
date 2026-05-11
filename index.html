@@ -6487,17 +6487,14 @@
         </div>
       </div>
 
-      <!-- Tabs Navigation -->
       <div class="profile-tabs-nav">
         <button class="profile-tab-btn active" onclick="switchProfileTab('matches', this)">Matches</button>
         <button class="profile-tab-btn" onclick="switchProfileTab('stats', this)">Stats</button>
-        <button class="profile-tab-btn" onclick="switchProfileTab('awards', this)">Awards</button>
-        <button class="profile-tab-btn" onclick="switchProfileTab('badges', this)">Badges</button>
         <button class="profile-tab-btn" onclick="switchProfileTab('teams', this)">Teams</button>
         <button class="profile-tab-btn" onclick="switchProfileTab('photos', this)">Photos</button>
-        <button class="profile-tab-btn" onclick="switchProfileTab('connections', this)">Connections</button>
         <button class="profile-tab-btn" onclick="switchProfileTab('profile', this)">Profile</button>
       </div>
+
 
       <!-- Tab Content Area -->
       <div class="profile-tab-content-area">
@@ -6599,21 +6596,14 @@
         </div>
 
         <!-- Placeholder Tabs -->
-        <div id="ptab-awards" class="profile-tab-pane">
-          <div style="text-align:center; padding:40px; color:#94a3b8;">🏆 Awards content coming soon</div>
-        </div>
-        <div id="ptab-badges" class="profile-tab-pane">
-          <div style="text-align:center; padding:40px; color:#94a3b8;">🎖️ Badges content coming soon</div>
-        </div>
+
         <div id="ptab-teams" class="profile-tab-pane">
           <div style="text-align:center; padding:40px; color:#94a3b8;">👕 Teams content coming soon</div>
         </div>
         <div id="ptab-photos" class="profile-tab-pane">
           <div style="text-align:center; padding:40px; color:#94a3b8;">📸 Photos content coming soon</div>
         </div>
-        <div id="ptab-connections" class="profile-tab-pane">
-          <div style="text-align:center; padding:40px; color:#94a3b8;">🤝 Connections content coming soon</div>
-        </div>
+
 
       </div>
     </div>
@@ -12784,11 +12774,36 @@
         const rows = await res.json();
 
         // Top Banner Stats
-        let totalMatchesCount = new Set(rows.map(r => r.match_id)).size;
+        let matchIds = new Set();
+        let fallbackMatches = 0;
+        rows.forEach(r => {
+          if (r.match_id) {
+            matchIds.add(r.match_id);
+          } else {
+            // Fallback for older matches without match_id: count unique dates
+            fallbackMatches++;
+          }
+        });
+        let totalMatchesCount = matchIds.size + (fallbackMatches > 0 ? 1 : 0); // Simplified fallback
+        // Better fallback: if no match_id, count unique date+opponent
+        let uniqueLegacy = new Set();
+        rows.filter(r => !r.match_id).forEach(r => {
+          uniqueLegacy.add((r.match_date || '') + (r.opponent_team || ''));
+        });
+        totalMatchesCount = matchIds.size + uniqueLegacy.size;
+
         document.getElementById("profileTotalMatches").innerText = totalMatchesCount || 0;
 
         let totalRn = 0, totalBl = 0, totalFr = 0, totalSx = 0, hs = 0;
-        rows.filter(r => r.match_type === "bat").forEach(r => { totalRn += r.runs || 0; totalBl += r.balls_faced || 0; totalFr += r.fours || 0; totalSx += r.sixes || 0; if ((r.runs || 0) > hs) hs = r.runs; });
+        rows.filter(r => r.match_type === "bat").forEach(r => { 
+          let runs = parseInt(r.runs) || 0;
+          let balls = parseInt(r.balls_faced) || 0;
+          totalRn += runs; 
+          totalBl += balls; 
+          totalFr += (parseInt(r.fours) || 0); 
+          totalSx += (parseInt(r.sixes) || 0); 
+          if (runs > hs) hs = runs; 
+        });
 
         document.getElementById("profileTotalRuns").innerText = totalRn;
         document.getElementById("pRuns").innerText = totalRn;
@@ -12799,7 +12814,12 @@
         document.getElementById("pHS").innerText = hs;
 
         let totalWk = 0, totalBallsBwl = 0, totalRunsCon = 0;
-        rows.filter(r => r.match_type === "bowl").forEach(r => { totalWk += r.wickets || 0; let pts = (r.overs_bowled || "0.0").split("."); totalBallsBwl += parseInt(pts[0]) * 6 + parseInt(pts[1] || 0); totalRunsCon += r.runs_conceded || 0; });
+        rows.filter(r => r.match_type === "bowl").forEach(r => { 
+          totalWk += (parseInt(r.wickets) || 0); 
+          let pts = (r.overs_bowled || "0.0").toString().split("."); 
+          totalBallsBwl += parseInt(pts[0]) * 6 + parseInt(pts[1] || 0); 
+          totalRunsCon += (parseInt(r.runs_conceded) || 0); 
+        });
 
         document.getElementById("profileTotalWickets").innerText = totalWk;
         document.getElementById("pWickets").innerText = totalWk;
@@ -12807,10 +12827,15 @@
         document.getElementById("pEco").innerText = totalBallsBwl > 0 ? ((totalRunsCon / totalBallsBwl) * 6).toFixed(2) : "0.00";
 
         let totalCatches = 0, totalRunOuts = 0, totalStumpings = 0;
-        rows.forEach(r => { totalCatches += r.catches || 0; totalRunOuts += r.run_outs || 0; totalStumpings += r.stumpings || 0; });
+        rows.forEach(r => { 
+          totalCatches += (parseInt(r.catches) || 0); 
+          totalRunOuts += (parseInt(r.run_outs) || 0); 
+          totalStumpings += (parseInt(r.stumpings) || 0); 
+        });
         document.getElementById("pCatches").innerText = totalCatches;
         document.getElementById("pRunOuts").innerText = totalRunOuts;
         document.getElementById("pStumpings").innerText = totalStumpings;
+
 
         // Setup Match History Cards
         currentProfileMatches = rows;
@@ -13613,6 +13638,8 @@
     let currentMatchId = null;
 
     async function saveMatchResult(winner, loser, winType, margin, tournamentMatchId, tournamentId) {
+      currentMatchId = null; // Important: Clear previous match ID before saving new one
+
       let now = new Date();
       let today = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
       let organiser = localStorage.getItem("currentUser") || "guest";
