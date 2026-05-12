@@ -9434,8 +9434,76 @@
       if (previousLiveMatchState) renderPremiumMatchView(previousLiveMatchState);
     }
 
+    let celebrationOldState = null;
+
+    function showEventPopup(type, data = {}) {
+      const modal = document.getElementById('eventPopupModal');
+      const content = document.getElementById('eventPopupContent');
+      if (!modal || !content) return;
+
+      let html = '';
+      if (type === 'FOUR') {
+        html = `<div class="event-animation-container"><div class="emoji-row">🎊 🥳 🎊</div><h1 class="event-title four-text">FOUR</h1><h3 class="event-subtitle">4 RUNS!</h3></div>`;
+      } else if (type === 'SIX') {
+        html = `<div class="event-animation-container"><div class="emoji-row">🎊 🥳 🎊</div><h1 class="event-title six-text">SIX</h1><h3 class="event-subtitle">6 RUNS!</h3></div>`;
+      } else if (type === 'WICKET') {
+        html = `<div class="event-animation-container"><div class="emoji-row">☝️ 🏏 ☝️</div><h1 class="event-title wicket-text">WICKET!</h1><h3 class="event-subtitle">OUT!</h3></div>`;
+      } else if (type === 'TARGET') {
+        html = `<div class="target-popup-container"><div class="target-header">🎯 TARGET SET</div><div class="target-runs">${data.target} Runs</div><div class="target-desc">${data.team} needs ${data.target} to win in ${data.overs} overs.</div></div>`;
+      } else if (type === 'WINNER') {
+        html = `
+          <div class="winner-popup-container">
+            <div class="trophy-icon">🏆</div>
+            <div class="emoji-row">🎊 🥳 🎊</div>
+            <div class="match-winner-label">MATCH WINNER</div>
+            <div class="winner-team-name">${data.winner}</div>
+            <div class="winner-desc">won the match</div>
+            <div class="winner-margin">${data.margin}</div>
+            <div class="mom-card">
+              <div class="mom-label">⭐ MAN OF THE MATCH</div>
+              <div class="mom-name">${data.momName || 'TBA'}</div>
+              <div class="mom-stats">${data.momStats || ''}</div>
+            </div>
+            <button class="done-btn" onclick="closeEventPopup()">DONE</button>
+          </div>`;
+      }
+
+      content.innerHTML = html;
+      modal.style.display = 'flex';
+      if (type !== 'WINNER') setTimeout(closeEventPopup, 3500);
+    }
+
+    function closeEventPopup() {
+      const modal = document.getElementById('eventPopupModal');
+      if (modal) modal.style.display = 'none';
+    }
+
     function renderPremiumMatchView(m) {
       if (!m) return;
+
+      // Detection for premium popups
+      if (celebrationOldState && celebrationOldState.id === m.id) {
+        let old = celebrationOldState;
+        let runsDiff = (parseInt(m.runs) || 0) - (parseInt(old.runs) || 0);
+        let wicketDiff = (parseInt(m.wickets) || 0) - (parseInt(old.wickets) || 0);
+        let overChanged = m.overs !== old.overs;
+
+        if (overChanged && runsDiff === 4 && wicketDiff === 0) showEventPopup('FOUR');
+        else if (overChanged && runsDiff === 6 && wicketDiff === 0) showEventPopup('SIX');
+        else if (wicketDiff > 0) showEventPopup('WICKET');
+        else if (m.innings === 2 && old.innings === 1) {
+          showEventPopup('TARGET', { target: m.target, team: m.batTeam, overs: m.totalOvers || 20 });
+        } else if ((m.status === 'finished' || m.status === 'Finished') && (old.status !== 'finished' && old.status !== 'Finished')) {
+          let awards = calculateMatchAwards(m);
+          showEventPopup('WINNER', {
+            winner: m.winner || m.batTeam,
+            margin: m.matchStatus || m.margin,
+            momName: awards.mvp ? awards.mvp.name : 'N/A',
+            momStats: awards.mvp ? (awards.mvp.batData ? awards.mvp.batData.runs + '(' + awards.mvp.batData.balls + ')' : '') + (awards.mvp.bowlData ? ' • ' + awards.mvp.bowlData.wickets + ' wkts' : '') : ''
+          });
+        }
+      }
+      celebrationOldState = JSON.parse(JSON.stringify(m));
 
       // Robust data normalization for live matches
       if (!m.batsmen && m.batsmanStats) {
