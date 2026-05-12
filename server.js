@@ -82,9 +82,9 @@ async function startServer() {
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='match_results'     AND COLUMN_NAME='t2_name')    ALTER TABLE match_results     ADD t2_name NVARCHAR(100) NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='match_results'     AND COLUMN_NAME='t2_score')   ALTER TABLE match_results     ADD t2_score NVARCHAR(50) NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='match_results'     AND COLUMN_NAME='t2_overs')   ALTER TABLE match_results     ADD t2_overs NVARCHAR(50) NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='match_results'     AND COLUMN_NAME='t1_wickets') ALTER TABLE match_results     ADD t1_wickets INT NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='match_results'     AND COLUMN_NAME='t2_wickets') ALTER TABLE match_results     ADD t2_wickets INT NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='player_stats'      AND COLUMN_NAME='opponent_team') ALTER TABLE player_stats  ADD opponent_team NVARCHAR(100) NULL`,
-
-
             ];
             for (const mig of migrations) {
                 try { await pool.request().query(mig); } catch(e) { console.warn("Migration warning:", e.message); }
@@ -786,18 +786,31 @@ app.get("/match-results", async (req, res) => {
     }
 });
 
+app.get("/match-results/:id", async (req, res) => {
+    try {
+        if (useJSON || !pool) {
+            const match = MEMORY_DB.match_results.find(m => m.id == req.params.id);
+            return res.json(match || null);
+        }
+        const r = await pool.request().input("id", sql.Int, req.params.id).query("SELECT * FROM match_results WHERE id=@id");
+        res.json(r.recordset[0] || null);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.post("/match-results", async (req, res) => {
     try {
         const { 
             winner, loser, win_type, margin, played_on, organiser, commentary,
-            match_id, t1_score, t2_score, t1_overs, t2_overs
+            match_id, t1_score, t2_score, t1_overs, t2_overs, t1_wickets, t2_wickets
         } = req.body;
 
         if (useJSON || !pool) {
             const id = Date.now();
             MEMORY_DB.match_results.push({ 
                 id, winner, loser, win_type, margin, played_on, organiser, commentary,
-                match_id, t1_score, t2_score, t1_overs, t2_overs
+                match_id, t1_score, t2_score, t1_overs, t2_overs, t1_wickets, t2_wickets
             });
             saveDB();
             return res.json({ id });
@@ -814,14 +827,16 @@ app.post("/match-results", async (req, res) => {
             .input("t1n", sql.NVarChar, req.body.t1_name || null)
             .input("s1", sql.NVarChar, t1_score !== undefined && t1_score !== null ? t1_score.toString() : null)
             .input("o1", sql.NVarChar, t1_overs !== undefined && t1_overs !== null ? t1_overs.toString() : null)
+            .input("w1", sql.Int, t1_wickets !== undefined ? t1_wickets : null)
             .input("t2n", sql.NVarChar, req.body.t2_name || null)
             .input("s2", sql.NVarChar, t2_score !== undefined && t2_score !== null ? t2_score.toString() : null)
             .input("o2", sql.NVarChar, t2_overs !== undefined && t2_overs !== null ? t2_overs.toString() : null)
+            .input("w2", sql.Int, t2_wickets !== undefined ? t2_wickets : null)
             .input("org", sql.NVarChar, organiser || null)
             .input("com", sql.NVarChar(sql.MAX), commentary || null)
-            .query(`INSERT INTO match_results (match_id, tournament_id, series_name, winner, loser, win_type, margin, played_on, t1_name, t1_score, t1_overs, t2_name, t2_score, t2_overs, organiser, commentary) 
+            .query(`INSERT INTO match_results (match_id, tournament_id, series_name, winner, loser, win_type, margin, played_on, t1_name, t1_score, t1_overs, t1_wickets, t2_name, t2_score, t2_overs, t2_wickets, organiser, commentary) 
                     OUTPUT INSERTED.id 
-                    VALUES (@mid, @tid, @sn, @w, @l, @wt, @m, @p, @t1n, @s1, @o1, @t2n, @s2, @o2, @org, @com)`);
+                    VALUES (@mid, @tid, @sn, @w, @l, @wt, @m, @p, @t1n, @s1, @o1, @w1, @t2n, @s2, @o2, @w2, @org, @com)`);
         res.json({ id: r.recordset[0].id });
     } catch (err) {
         console.error("POST match-results error:", err);
@@ -1046,6 +1061,74 @@ app.get("/player-stats/:playerName", async (req, res) => {
         const r = await pool.request().input("pn", sql.NVarChar, req.params.playerName).query("SELECT * FROM player_stats WHERE player_name = @pn ORDER BY match_date DESC, id DESC");
         res.json(r.recordset);
     } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.get("/player-match-history/:playerName", async (req, res) => {
+    try {
+        const { playerName } = req.params;
+        if (!pool) return res.json([]);
+
+        const result = await pool.request()
+            .input("pn", sql.NVarChar, playerName)
+            .query(`
+                SELECT 
+                    mr.*, mr.id as real_match_id,
+                    ps.player_name, ps.match_type, ps.runs, ps.balls_faced, ps.fours, ps.sixes,
+                    ps.wickets, ps.overs_bowled, ps.runs_conceded, ps.innings as player_innings,
+                    ps.team_name as player_team,
+                    t.name as tournament_name
+                FROM player_stats ps
+                LEFT JOIN match_results mr ON ps.match_id = mr.id
+                LEFT JOIN tournaments t ON mr.tournament_id = CAST(t.id AS NVARCHAR(100))
+                WHERE ps.player_name = @pn
+                ORDER BY ps.match_date DESC, ps.id DESC
+            `);
+        
+        // Group by match_id to consolidate bat/bowl stats
+        const grouped = {};
+        result.recordset.forEach(row => {
+            const mid = row.real_match_id || ('legacy_' + row.played_on + row.t1_name);
+            if (!grouped[mid]) {
+                grouped[mid] = {
+                    match_id: row.real_match_id,
+                    tournament_id: row.tournament_id,
+                    tournament_match_id: row.match_id,
+                    tournament_name: row.tournament_name || row.series_name || "LEAGUE MATCH",
+                    match_date: row.played_on,
+                    winner: row.winner,
+                    loser: row.loser,
+                    margin: row.margin,
+                    win_type: row.win_type,
+                    t1_name: row.t1_name,
+                    t1_score: row.t1_score,
+                    t1_overs: row.t1_overs,
+                    t1_wickets: row.t1_wickets,
+                    t2_name: row.t2_name,
+                    t2_score: row.t2_score,
+                    t2_overs: row.t2_overs,
+                    t2_wickets: row.t2_wickets,
+                    player_stats: []
+                };
+            }
+            grouped[mid].player_stats.push({
+                match_type: row.match_type,
+                runs: row.runs,
+                balls_faced: row.balls_faced,
+                fours: row.fours,
+                sixes: row.sixes,
+                wickets: row.wickets,
+                overs_bowled: row.overs_bowled,
+                runs_conceded: row.runs_conceded,
+                innings: row.player_innings,
+                team_name: row.player_team
+            });
+        });
+
+        res.json(Object.values(grouped));
+    } catch (err) {
+        console.error("GET player-match-history error:", err);
         res.status(500).json({ error: err.message });
     }
 });

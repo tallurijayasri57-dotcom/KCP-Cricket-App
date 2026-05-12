@@ -1056,6 +1056,7 @@
       letter-spacing: 2px;
       background: linear-gradient(135deg, #ffffff 0%, #6ee7b7 100%);
       -webkit-background-clip: text;
+      background-clip: text;
       -webkit-text-fill-color: transparent;
       margin: 0;
       text-transform: uppercase;
@@ -5224,7 +5225,8 @@
     <div class="page-top-back"
       style="background:rgba(0,0,0,0.3); border-bottom:1px solid rgba(255,255,255,0.1); padding:16px 20px; backdrop-filter:blur(6px); position:sticky; top:0; z-index:100;">
       <button class="page-top-back-btn" onclick="globalGoBack()" style="color:#ffffff;">
-        <span class="page-top-back-arrow" style="color:#ffffff;">←</span> <span style="font-size:18px;">Match Details</span>
+        <span class="page-top-back-arrow" style="color:#ffffff;">←</span> <span style="font-size:18px;">Match
+          Details</span>
       </button>
     </div>
     <div id="globalScorecardContainer" style="max-width:900px; margin:0 auto; padding:20px;">
@@ -6589,18 +6591,18 @@
           <div class="profile-avatar" id="profileAvatar"
             style="width:110px;height:110px;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,0.4);border:2px solid rgba(255,255,255,0.15);">
             🏏</div>
-          <div class="profile-info-block" style="gap:6px;">
+          <div class="profile-info-block" style="gap:4px; display:flex; flex-direction:column; align-items:flex-start;">
             <div id="profileRoleBadge" style="display:none;"></div>
-            <h2 class="profile-name" id="profileName" style="font-size:28px;margin:2px 0;">Player Name</h2>
-            <div class="profile-sub-info" style="font-size:13px; color:#94a3b8; margin:0;">
+            <h2 class="profile-name" id="profileName" style="font-size:28px;margin:2px 0; text-align:left;">Player Name</h2>
+            <div class="profile-sub-info" style="font-size:13px; color:#94a3b8; margin:0; text-align:left;">
               <span id="profileLocation">Jaggayyapeta</span>
             </div>
-            <div style="border-top:1px dashed rgba(255,255,255,0.15); margin:8px 0 6px;"></div>
+            <div style="border-top:1px dashed rgba(255,255,255,0.15); width:100%; margin:8px 0 6px;"></div>
             <div class="profile-styles"
-              style="font-size:13px; color:#e2e8f0; font-weight:600; display:flex; align-items:center; white-space:nowrap; flex-wrap:nowrap;">
+              style="font-size:13px; color:#e2e8f0; font-weight:600; display:flex; align-items:center; white-space:nowrap; flex-wrap:nowrap; justify-content:flex-start; width:100%;">
               <span id="profileBatStyle" style="color:#38bdf8;">RHB</span>
               <span style="color:rgba(255,255,255,0.3); margin:0 8px;">|</span>
-              <span id="profileBowlStyle">Player</span>
+              <span id="profileBowlStyle" style="color:#6ee7b7;">Player</span>
             </div>
             <div class="profile-team" id="profileTeam" style="display:none;"></div>
           </div>
@@ -7818,6 +7820,15 @@
         });
         const data = await res.json();
         if (!data.success) { alert('Failed to update player'); return; }
+
+        // Sync with global player profile
+        try {
+          await fetch(API + "/player-profile", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ player_name: name, role: role })
+          });
+        } catch (e) { console.warn("Failed to sync player profile role", e); }
       } catch (e) { alert('Error updating player: ' + e.message); return; }
 
       cancelEditPlayer();
@@ -7971,6 +7982,15 @@
         const saveData = await saveRes.json();
         console.log('Player save result:', saveData);
         if (!saveData.success) { alert('Failed to add player to database'); return; }
+
+        // Sync with global player profile
+        try {
+          await fetch(API + "/player-profile", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ player_name: name, team_name: tName, role: role })
+          });
+        } catch (e) { console.warn("Failed to sync player profile role", e); }
       } catch (e) { alert('Error saving player: ' + e.message); return; }
 
       document.getElementById('addTeamPlayerNameInput').value = '';
@@ -8095,7 +8115,7 @@
           avatarHtml + '</div>' +
           '</div>' +
           '<div style="margin-top:6px;font-size:13px;font-family:Inter,sans-serif;' + nameColor + 'text-align:center;">' + p.player_name + '</div>' +
-          '<div style="font-size:11px;color:#6b7280;font-family:Inter,sans-serif;margin-top:2px;">' + (p.role || '') + '</div>' +
+          '<div style="font-size:11px;color:#6b7280;font-family:Inter,sans-serif;margin-top:2px;text-align:center;">' + (p.role || '') + '</div>' +
           '</div>';
       }).join('');
 
@@ -8408,8 +8428,9 @@
 
       sel1.innerHTML = ''; sel2.innerHTML = '';
       teams.forEach(team => {
-        sel1.innerHTML += `<option value="${escapeQ(team.name)}">${team.name}</option>`;
-        sel2.innerHTML += `<option value="${escapeQ(team.name)}">${team.name}</option>`;
+        let val = team.name.replace(/"/g, '&quot;');
+        sel1.innerHTML += `<option value="${val}">${team.name}</option>`;
+        sel2.innerHTML += `<option value="${val}">${team.name}</option>`;
       });
       if (teams.length >= 2) sel2.selectedIndex = 1;
     }
@@ -8455,15 +8476,17 @@
       el.innerHTML = upcoming.map((m) => {
         // Find original index in t.matches if needed, but for SQL matches we use the database ID
         let matchId = m.id;
+        let cleanTeam1 = (m.team1 || '').replace(/\\'/g, "'");
+        let cleanTeam2 = (m.team2 || '').replace(/\\'/g, "'");
         let dateStr = new Date(m.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
         return `<div class="oa-match-card" style="flex-direction:column;align-items:stretch;gap:12px;">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
         <div>
-          <div class="oa-match-vs" style="font-size:18px;color:#111827;">${m.team1} <span style="color:#6b7280;font-size:14px;font-weight:400;">vs</span> ${m.team2}</div>
+          <div class="oa-match-vs" style="font-size:18px;color:#111827;">${cleanTeam1} <span style="color:#6b7280;font-size:14px;font-weight:400;">vs</span> ${cleanTeam2}</div>
           <div class="oa-match-date">📅 ${dateStr} ${m.time ? ' • 🕒 ' + formatTimeAMPM(m.time) : ''}</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <button onclick="startTournamentMatch('${escapeQ(m.team1)}','${escapeQ(m.team2)}', ${matchId})" style="background:linear-gradient(135deg,#16a34a,#15803d);border:none;color:#fff;padding:9px 20px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;">▶ START MATCH</button>
+          <button onclick="startTournamentMatch('${escapeQ(cleanTeam1)}','${escapeQ(cleanTeam2)}', ${matchId})" style="background:linear-gradient(135deg,#16a34a,#15803d);border:none;color:#fff;padding:9px 20px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;">▶ START MATCH</button>
           <button onclick="deleteTournamentMatch(${matchId})" style="background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.2);color:#ef4444;padding:7px 10px;border-radius:7px;font-size:12px;cursor:pointer;">🗑️</button>
         </div>
       </div>
@@ -9274,7 +9297,7 @@
           m.id = item.id;
           if (m.updatedAt && Date.now() - m.updatedAt > 24 * 60 * 60 * 1000) return;
           if (m.target > 0 && (m.runs >= m.target || m.wickets >= 10)) return;
-          
+
           // Strict live check: Only show if play has actually started or toss is done
           if (!m.tossInfo && m.runs === 0 && m.wickets === 0 && m.overs === "0.0") return;
 
@@ -9369,20 +9392,20 @@
         }
       }, 5000);
 
-    window.resetStuckLiveMatch = async function(matchId) {
-      try {
-        await fetch(API + "/tournament-matches/" + matchId, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: "upcoming" })
-        });
-        alert("Match has been reset to upcoming status successfully!");
-        showPage('home');
-      } catch (e) {
-        console.error("Error resetting match:", e);
-        alert("Failed to reset match. Please try again.");
-      }
-    };
+      window.resetStuckLiveMatch = async function (matchId) {
+        try {
+          await fetch(API + "/tournament-matches/" + matchId, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: "upcoming" })
+          });
+          alert("Match has been reset to upcoming status successfully!");
+          showPage('home');
+        } catch (e) {
+          console.error("Error resetting match:", e);
+          alert("Failed to reset match. Please try again.");
+        }
+      };
 
       liveViewUnsubscribe = window.fbOnSnapshot(window.fbDoc(window.fbDb, "live_matches", matchId.toString().trim()), (doc) => {
         if (!doc.exists()) {
@@ -10196,7 +10219,7 @@
           if (t1) captain1 = t1.captain;
           if (t2) captain2 = t2.captain;
         }
-      } catch(e) { console.warn('Captain fetch failed:', e); }
+      } catch (e) { console.warn('Captain fetch failed:', e); }
 
       function renderTeamGrid(teamName, players, captainName) {
         if (!teamName) return '';
@@ -10211,16 +10234,16 @@
           // Check captain from tournament_teams OR fallback role field
           let isCaptain = (captainName && pName === captainName) || (p.role === 'Captain' || p.isCaptain);
           let photoSrc = p.photo_url || p.photo || localStorage.getItem("userPhoto_" + pName) || '';
-          let photoHtml = photoSrc ? `<img src="${photoSrc}" style="width:100%; height:100%; object-fit:cover;">` : `<div style="font-size:32px;">🧑</div>`;
+          let photoHtml = photoSrc ? `<img src="${photoSrc}" style="width:100%; height:100%; object-fit:cover;">` : '';
 
           html += `
-            <div class="team-player-card" style="background:rgba(30, 41, 59, 0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:12px; text-align:center; position:relative;" onclick="openPlayerProfile('${escapeQ(pName)}', '${escapeQ(teamName)}', '${escapeQ(p.role)}')">
-              ${isCaptain ? `<div style="position:absolute; top:5px; right:5px; background:#f59e0b; color:#000; font-size:9px; font-weight:900; padding:2px 5px; border-radius:4px; z-index:2;">C</div>` : ''}
-              <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; margin:0 auto 8px auto; border:2px solid ${isCaptain ? '#f59e0b' : 'rgba(255,255,255,0.1)'}; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.05);">
-                ${photoHtml}
+            <div class="team-player-card" style="background:rgba(30, 41, 59, 0.4); border:1px solid rgba(255,255,255,0.05); border-radius:12px; padding:12px; text-align:center; position:relative; transition:all 0.3s ease; cursor:pointer;" onclick="openPlayerProfile('${escapeQ(pName)}', '${escapeQ(teamName)}', '${escapeQ(p.role)}')" onmouseover="this.style.background='rgba(30, 41, 59, 0.8)';this.style.transform='translateY(-2px)'" onmouseout="this.style.background='rgba(30, 41, 59, 0.4)';this.style.transform='translateY(0)'">
+              ${isCaptain ? `<div style="position:absolute; top:-2px; right:-2px; background:linear-gradient(135deg, #f59e0b, #d97706); color:#000; font-size:10px; font-weight:900; width:18px; height:18px; display:flex; align-items:center; justify-content:center; border-radius:50%; z-index:2; box-shadow:0 2px 4px rgba(0,0,0,0.3); border:1.5px solid #111827;">C</div>` : ''}
+              <div style="width:54px; height:54px; border-radius:50%; overflow:hidden; margin:0 auto 10px auto; border:2px solid ${isCaptain ? '#f59e0b' : 'rgba(110,231,183,0.2)'}; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#1e3a5f,#0d9488); box-shadow:0 4px 12px rgba(0,0,0,0.3);">
+                ${photoHtml || `<div style="font-size:20px; font-weight:800; color:#fff;">${pName.charAt(0).toUpperCase()}</div>`}
               </div>
               <div style="font-size:12px; font-weight:700; color:#f8fafc; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${pName}</div>
-              <div style="font-size:10px; color:#94a3b8;">${p.role || 'Player'}</div>
+              <div style="font-size:10px; color:#94a3b8; font-weight:600; text-transform:uppercase; letter-spacing:0.3px;">${p.role || 'Player'}</div>
             </div>
           `;
         });
@@ -10547,7 +10570,7 @@
       currentTournamentMatchIdx = matchId;
       localStorage.setItem("currentTournamentMatchIdx", matchId);
       currentTournamentId = tournamentId; // Ensure tournament ID is also tracked
-      
+
       showPage('matchDetailsPage');
       if (liveViewUnsubscribe) liveViewUnsubscribe();
       previousLiveMatchState = null;
@@ -11797,10 +11820,10 @@
         <div style="position:absolute; top:12px; left:16px; color:#94a3b8; font-size:14px; cursor:pointer; font-weight:500;" onclick="goBack()">← Back</div>
         <div class="td-header-left" style="margin-top:16px;">
           <div class="td-logo">
-            ${t.logo 
-              ? `<img src="${t.logo}" alt="logo" onerror="this.outerHTML='<div style=\\'font-size:36px;\\'>🏏</div>'">`
-              : `<div style="font-size:36px;">🏏</div>`
-            }
+            ${t.logo
+          ? `<img src="${t.logo}" alt="logo" onerror="this.outerHTML='<div style=\\'font-size:36px;\\'>🏏</div>'">`
+          : `<div style="font-size:36px;">🏏</div>`
+        }
           </div>
           <div class="td-info">
             <h1>${t.name}</h1>
@@ -11911,7 +11934,7 @@
       if (tabEl) tabEl.classList.add('active');
 
       // Update View UI - show only the selected view
-      ['matches','points','leaderboard','teams','heroes'].forEach(id => {
+      ['matches', 'points', 'leaderboard', 'teams', 'heroes'].forEach(id => {
         let el = document.getElementById('tdView-' + id);
         if (el) el.style.display = (id === tabId) ? 'block' : 'none';
       });
@@ -11921,12 +11944,12 @@
         let t = currentViewingTournament;
         let completedCount = (t.matches || []).filter(m => m.status === "finished" || m.status === "completed" || (m.result && m.result !== "LIVE")).length;
         let statusToRender = completedCount > 0 ? 'completed' : 'upcoming';
-        
+
         // Update the filter chips visually
         document.querySelectorAll('.td-matches-filter .et-chip').forEach(c => c.classList.remove('selected'));
         let targetChip = Array.from(document.querySelectorAll('.td-matches-filter .et-chip')).find(c => c.textContent.trim().toLowerCase() === statusToRender.toLowerCase());
         if (targetChip) targetChip.classList.add('selected');
-        
+
         renderTournamentMatches(statusToRender);
       } else if (tabId === 'points') {
         await renderTdPointsTable();
@@ -11971,7 +11994,7 @@
               try {
                 const pr = await fetch(API + '/player-photo/' + encodeURIComponent(p.player_name));
                 if (pr.ok) { const pd = await pr.json(); photo = pd.photo_url || ''; }
-              } catch(e) {}
+              } catch (e) { }
             }
             return { ...p, photo };
           }));
@@ -11992,23 +12015,24 @@
               </div>
               <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:16px;">
                 ${team.players.length === 0
-                  ? `<div style="color:#94a3b8;font-size:13px;grid-column:1/-1;text-align:center;padding:30px 0;">No players added yet.</div>`
-                  : team.players.map(p => {
-                      const isCaptain = team.captain && p.player_name === team.captain;
-                      const photoHtml = p.photo
-                        ? `<img src="${p.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.style.display='none'">`
-                        : '';
-                      return `
-                        <div style="text-align:center;position:relative;cursor:pointer;padding:8px 4px;border-radius:12px;transition:background 0.2s;" onclick="openPlayerProfile('${escapeQ(p.player_name)}','${escapeQ(team.name)}','${escapeQ(p.role)}')" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
-                          ${isCaptain ? `<div style="position:absolute;top:4px;right:8px;background:#f59e0b;color:#000;font-size:9px;font-weight:900;padding:1px 5px;border-radius:4px;z-index:2;letter-spacing:0.5px;">C</div>` : ''}
-                          <div style="width:64px;height:64px;border-radius:50%;overflow:hidden;margin:0 auto 8px;border:2.5px solid ${isCaptain ? '#f59e0b' : 'rgba(110,231,183,0.25)'};background:linear-gradient(135deg,#1e3a5f,#0d9488);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,0.3);">
-                            ${photoHtml}<div style="font-size:22px;font-weight:800;color:#fff;${p.photo ? 'display:none;' : ''}">${p.player_name.charAt(0).toUpperCase()}</div>
+              ? `<div style="color:#94a3b8;font-size:13px;grid-column:1/-1;text-align:center;padding:30px 0;">No players added yet.</div>`
+              : team.players.map(p => {
+                const isCaptain = team.captain && p.player_name === team.captain;
+                const photoSrc = p.photo || localStorage.getItem("userPhoto_" + p.player_name) || '';
+                const photoHtml = photoSrc
+                  ? `<img src="${photoSrc}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+                  : '';
+                return `
+                        <div style="text-align:center;position:relative;cursor:pointer;padding:8px 4px;border-radius:12px;transition:all 0.3s ease;" onclick="openPlayerProfile('${escapeQ(p.player_name)}','${escapeQ(team.name)}','${escapeQ(p.role)}')" onmouseover="this.style.background='rgba(255,255,255,0.05)';this.style.transform='translateY(-2px)'" onmouseout="this.style.background='transparent';this.style.transform='translateY(0)'">
+                          ${isCaptain ? `<div style="position:absolute;top:-2px;right:6px;background:linear-gradient(135deg, #f59e0b, #d97706);color:#000;font-size:10px;font-weight:900;width:18px;height:18px;display:flex;align-items:center;justify-content:center;border-radius:50%;z-index:2;box-shadow:0 2px 4px rgba(0,0,0,0.3);border:1.5px solid #0d1428;">C</div>` : ''}
+                          <div style="width:68px;height:68px;border-radius:50%;overflow:hidden;margin:0 auto 10px;border:2.5px solid ${isCaptain ? '#f59e0b' : 'rgba(110,231,183,0.25)'};background:linear-gradient(135deg,#1e3a5f,#0d9488);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,0.3);">
+                            ${photoHtml || `<div style="font-size:24px;font-weight:800;color:#fff;">${p.player_name.charAt(0).toUpperCase()}</div>`}
                           </div>
-                          <div style="font-size:12px;font-weight:700;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:78px;margin:0 auto 2px;">${p.player_name}</div>
-                          <div style="font-size:10px;color:#64748b;font-weight:500;">${p.role || 'Player'}</div>
+                          <div style="font-size:12.5px;font-weight:700;color:#f8fafc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:85px;margin:0 auto 2px;">${p.player_name}</div>
+                          <div style="font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;">${p.role || 'Player'}</div>
                         </div>`;
-                    }).join('')
-                }
+              }).join('')
+            }
               </div>
             </div>`;
         });
@@ -12059,7 +12083,7 @@
             const d = await statsRes.json();
             allStats = Array.isArray(d) ? d : [];
           }
-        } catch(e) { allStats = []; }
+        } catch (e) { allStats = []; }
 
         // Map stats to players in this tournament
         const enriched = allPlayers.map(p => {
@@ -12498,9 +12522,9 @@
         <div class="tourney-card">
           <div class="tourney-img">
             ${t.logo
-              ? `<img src="${t.logo}" alt="logo" onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=\\'font-size:32px;display:flex;align-items:center;justify-content:center;width:100%;height:100%;\\'>🏆</div>'">` 
-              : `<div style="font-size:32px; display:flex; align-items:center; justify-content:center; width:100%; height:100%; background:linear-gradient(135deg,#0d9488,#1e3a5f);">🏏</div>`
-            }
+            ? `<img src="${t.logo}" alt="logo" onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=\\'font-size:32px;display:flex;align-items:center;justify-content:center;width:100%;height:100%;\\'>🏆</div>'">`
+            : `<div style="font-size:32px; display:flex; align-items:center; justify-content:center; width:100%; height:100%; background:linear-gradient(135deg,#0d9488,#1e3a5f);">🏏</div>`
+          }
           </div>
           <div class="tourney-info">
             <div class="tourney-status-ongoing">Ongoing</div>
@@ -12640,16 +12664,33 @@
         content.innerHTML = "<p style='color:#6ee7b7'>Loading...</p>";
         document.getElementById("allPlayersModal").classList.add("open");
         let fetches = teams.map(t => fetch(API + "/players/" + t.team_name, { cache: "no-store" }).then(r => r.json()).then(players => ({ team: t.team_name, players })).catch(() => ({ team: t.team_name, players: [] })));
-        Promise.all(fetches).then(results => {
-          let html = "";
-          results.forEach(r => {
-            html += '<div class="modal-team-block"><h4>🏏 ' + r.team + '</h4>';
-            if (r.players.length === 0) { html += '<div class="modal-player-row" style="color:#4b5563;">No players added</div>'; }
-            else { r.players.forEach(p => { html += '<div class="modal-player-row"><span>🧑 ' + p.player_name + ' ' + roleBadge(p.role) + '</span><button class="btn-profile" onclick="openPlayerProfile(\'' + escapeQ(p.player_name) + '\',\'' + escapeQ(r.team) + '\',\'' + escapeQ(p.role) + '\')">👤 Profile</button></div>'; }); }
-            html += '</div>';
-          });
-          content.innerHTML = html;
+      Promise.all(fetches).then(results => {
+        let html = "";
+        results.forEach(r => {
+          html += `<div class="modal-team-block">
+            <h4 style="font-family:'Rajdhani',sans-serif; color:#6ee7b7; border-bottom:1px solid rgba(110,231,183,0.2); padding-bottom:8px; margin-bottom:16px;">🏏 ${r.team}</h4>`;
+          if (r.players.length === 0) {
+            html += '<div style="color:#4b5563; padding:10px 0;">No players added</div>';
+          } else {
+            html += `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(100px, 1fr)); gap:16px; margin-bottom:24px;">`;
+            r.players.forEach(p => {
+              const photoSrc = p.photo || localStorage.getItem("userPhoto_" + p.player_name) || '';
+              const photoHtml = photoSrc ? `<img src="${photoSrc}" style="width:100%; height:100%; object-fit:cover;">` : '';
+              html += `
+                <div style="text-align:center; position:relative; cursor:pointer;" onclick="openPlayerProfile('${escapeQ(p.player_name)}', '${escapeQ(r.team)}', '${escapeQ(p.role)}')">
+                  <div style="width:58px; height:58px; border-radius:50%; overflow:hidden; margin:0 auto 8px; border:2px solid rgba(110,231,183,0.2); background:linear-gradient(135deg,#1e3a5f,#0d9488); display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(0,0,0,0.3);">
+                    ${photoHtml || `<div style="font-size:20px; font-weight:800; color:#fff;">${p.player_name.charAt(0).toUpperCase()}</div>`}
+                  </div>
+                  <div style="font-size:12px; font-weight:700; color:#f8fafc; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.player_name}</div>
+                  <div style="font-size:9px; color:#94a3b8; font-weight:600; text-transform:uppercase;">${p.role || 'Player'}</div>
+                </div>`;
+            });
+            html += `</div>`;
+          }
+          html += '</div>';
         });
+        content.innerHTML = html;
+      });
       }).catch(() => { });
     }
 
@@ -12668,11 +12709,11 @@
     }
 
     function closeLeagueModal() { document.getElementById("leagueModal").classList.remove("open"); }
-    function escapeQ(str) { return (str || "").replace(/'/g, "\\'").replace(/"/g, '\\"'); }
+    function escapeQ(str) { return (str || "").replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, '\\"'); }
 
     let innings1BatStats = {}, innings1BowlStats = {};
     let innings1BatTeam = "", innings1BowlTeam = "";
-    let innings1Runs = 0, innings1Balls = 0;
+    let innings1Runs = 0, innings1Balls = 0, innings1Wickets = 0;
 
 
     async function updateAllPlayerStatsAfterMatch(inningsNum) {
@@ -12716,40 +12757,56 @@
       let toLoad = currentProfileMatches.slice(profileMatchesLoaded, profileMatchesLoaded + 6);
 
       let html = "";
-      toLoad.forEach(r => {
-        let d = new Date(r.match_date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
-        let isBat = r.match_type === "bat";
-        let team1Str = (r.team_name || "Team").toUpperCase();
-        let team2Str = (r.opponent_team || "Opponent").toUpperCase();
-        
-        let scoreStr = isBat ? `${r.runs} (${r.balls_faced})` : `${r.wickets} Wkts`;
-        let subStats = isBat ? `4s: ${r.fours} | 6s: ${r.sixes}` : `${r.overs_bowled} Ov | ${r.runs_conceded} Runs`;
-        let resultLabel = isBat ? "Batting" : "Bowling";
-        
-        let mId = r.match_id || null;
-        let onClickAction = mId ? `onclick="openGlobalScorecard(${mId})"` : "";
+      toLoad.forEach(m => {
+        let d = m.match_date ? new Date(m.match_date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "N/A";
+
+        let mId = m.match_id || null;
+        let tId = m.tournament_id;
+        let tmId = m.tournament_match_id;
+
+        let onClickAction = "";
+        if (tId && tId !== 'null' && tmId) {
+          onClickAction = `onclick="openTournamentMatchScorecard('${tId}', '${tmId}', 'finished')"`;
+        } else if (mId) {
+          onClickAction = `onclick="openMatchScorecardByMatchId('${mId}', 'finished')"`;
+        }
+
+        // Summarize player's own contribution
+        let batStats = m.player_stats.find(ps => ps.match_type === 'bat');
+        let bowlStats = m.player_stats.find(ps => ps.match_type === 'bowl');
+        let myPerf = [];
+        if (batStats) myPerf.push(`Bat: ${batStats.runs}(${batStats.balls_faced})`);
+        if (bowlStats) myPerf.push(`Bowl: ${bowlStats.wickets}/${bowlStats.runs_conceded}`);
+        let myPerfStr = myPerf.length > 0 ? myPerf.join(" | ") : "Played";
 
         html += `
-          <div class="my-card" ${onClickAction} style="margin:0; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.02); cursor:${mId ? 'pointer' : 'default'};">
-            <div class="my-card-header">
-              <span style="color:#94a3b8; font-size:12px;">${r.tournament_name || "LEAGUE MATCH"}</span>
-              <span class="my-badge my-badge-past">PAST</span>
+          <div class="my-card" ${onClickAction} style="margin:0; border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.01); cursor:${mId ? 'pointer' : 'default'}; overflow:hidden; display:flex; flex-direction:column;">
+            <div class="my-card-header" style="background:rgba(255,255,255,0.02); padding:10px 16px; display:flex; justify-content:space-between; align-items:center;">
+              <span style="color:#6ee7b7; font-family:'Rajdhani', sans-serif; font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">${m.tournament_name}</span>
+              <span class="my-badge my-badge-past" style="background:rgba(148,163,184,0.1); color:#94a3b8; font-size:10px;">PAST</span>
             </div>
-            <div class="my-card-meta">
-              KCP CRICKET GROUND, ${d}
-            </div>
-            <div class="my-card-bold">${resultLabel} Performance</div>
-            <div class="my-card-teams">
-              <div class="my-card-team-row">
-                <span class="my-card-team-name">${team1Str}</span>
-                <span class="my-card-score">${scoreStr}</span>
+            
+            <div style="padding:16px;">
+              <div style="color:rgba(255,255,255,0.4); font-size:11px; margin-bottom:12px;">KCP CRICKET GROUND, ${d}</div>
+              
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span style="font-family:'Rajdhani', sans-serif; font-size:16px; font-weight:700; color:#f8fafc;">${m.t1_name || 'Team 1'}</span>
+                  <span style="font-family:'Rajdhani', sans-serif; font-size:16px; font-weight:800; color:#6ee7b7;">${m.t1_score || '0'}/${m.t1_wickets || '0'} <span style="font-size:11px; color:#94a3b8; font-weight:500;">(${m.t1_overs || '0.0'})</span></span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span style="font-family:'Rajdhani', sans-serif; font-size:16px; font-weight:700; color:#f8fafc;">${m.t2_name || 'Team 2'}</span>
+                  <span style="font-family:'Rajdhani', sans-serif; font-size:16px; font-weight:800; color:#6ee7b7;">${m.t2_score || '0'}/${m.t2_wickets || '0'} <span style="font-size:11px; color:#94a3b8; font-weight:500;">(${m.t2_overs || '0.0'})</span></span>
+                </div>
               </div>
-              <div class="my-card-team-row">
-                <span class="my-card-team-name" style="color:#64748b; font-weight:400;">VS ${team2Str}</span>
+
+              <div style="margin-top:14px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.05); color:#94a3b8; font-size:12px; font-weight:600; font-style:italic;">
+                ${m.winner ? (m.winner + ' won by ' + (m.margin || '')) : 'Match Finished'}
               </div>
             </div>
-            <div class="my-card-footer" style="border-top:1px solid rgba(255,255,255,0.05); padding-top:10px; margin-top:10px; color:#6ee7b7; font-size:12px;">
-              ${subStats}
+
+            <div style="background:rgba(110,231,183,0.05); padding:8px 16px; border-top:1px solid rgba(110,231,183,0.1); color:#6ee7b7; font-size:11px; font-weight:700; letter-spacing:0.5px;">
+              MY PERFORMANCE: ${myPerfStr}
             </div>
           </div>
         `;
@@ -12775,7 +12832,7 @@
     function renderProfileTeamsList() {
       let container = document.getElementById("ptab-teams");
       if (!container) return;
-      
+
       // Extract unique teams from currentProfileMatches (History)
       let teamsMap = {};
       currentProfileMatches.forEach(m => {
@@ -12793,14 +12850,14 @@
           teamsMap[t.team_name].isRegistered = true;
         }
       });
-      
+
       let teams = Object.values(teamsMap);
-      
+
       if (teams.length === 0) {
         container.innerHTML = "<div style='text-align:center; padding:40px; color:#64748b;'>No team history found for this player.</div>";
         return;
       }
-      
+
       let html = `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:16px; padding:10px;">`;
       teams.forEach(t => {
         let statusTag = t.isRegistered ? `<span style="background:rgba(16,185,129,0.1); color:#10b981; font-size:10px; padding:2px 8px; border-radius:10px; font-weight:600; margin-top:4px;">REGISTERED</span>` : "";
@@ -12836,58 +12893,9 @@
       document.getElementById("photoUploadStatus").innerText = "";
       document.getElementById("photoUploadInput").value = "";
 
-      // Robust role lookup: source of truth is tournament data
+      // Robust role lookup: Prioritize passed role, then fetch from DB
       try {
-        let allTours = loadTournaments();
-        let searchName = (playerName || "").trim().toLowerCase();
-        let searchTeam = (teamName || "").trim().toLowerCase();
-
-        let foundRole = "";
-        let foundTeam = "";
-
-        // Priority 1: Find match in the EXACT team passed
-        for (let t of allTours) {
-          for (let team of (t.teams || [])) {
-            let tName = (team.name || "").trim().toLowerCase();
-            if (searchTeam && tName === searchTeam) {
-              for (let p of (team.players || [])) {
-                if ((p.name || "").trim().toLowerCase() === searchName) {
-                  if (p.role && p.role.toLowerCase() !== "player") {
-                    foundRole = p.role;
-                    break;
-                  }
-                }
-              }
-            }
-            if (foundRole) break;
-          }
-          if (foundRole) break;
-        }
-
-        // Priority 2: If not found in exact team, find in ANY team
-        if (!foundRole) {
-          outer: for (let t of allTours) {
-            for (let team of (t.teams || [])) {
-              for (let p of (team.players || [])) {
-                if ((p.name || "").trim().toLowerCase() === searchName) {
-                  if (p.role && p.role.toLowerCase() !== "player") {
-                    foundRole = p.role;
-                    foundTeam = team.name;
-                    break outer;
-                  }
-                }
-              }
-            }
-          }
-        }
-
-        if (foundRole) {
-          role = foundRole;
-          if (!teamName && foundTeam) teamName = foundTeam;
-        }
-
-        // Priority 3: Final check from SQL if still 'Player' or empty
-        if (!role || role.toLowerCase() === 'player') {
+        if (!role || role.toLowerCase() === 'player' || role === 'undefined') {
           try {
             const rRes = await fetch(API + "/player-role/" + encodeURIComponent(playerName));
             const rData = await rRes.json();
@@ -12944,39 +12952,35 @@
 
       try {
         await fetch(API + "/player-profile", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ player_name: playerName, team_name: teamName, role: role, runs: 0 }) });
-        const res = await fetch(API + "/player-stats/" + encodeURIComponent(playerName), { cache: "no-store" });
+        const res = await fetch(API + "/player-match-history/" + encodeURIComponent(playerName), { cache: "no-store" });
         const rows = await res.json();
 
-        // Top Banner Stats
+        // Top Banner Stats (Calculated from aggregated performance data)
+        // Note: For banner stats, we need individual performance rows.
+        // I will fetch them separately or calculate from rows.
+        // Actually, rows now has match result data + player stats array.
+        let performanceRows = [];
+        rows.forEach(m => {
+          m.player_stats.forEach(ps => {
+            performanceRows.push({ ...ps, match_id: m.match_id, match_date: m.match_date });
+          });
+        });
+
         let matchIds = new Set();
-        let fallbackMatches = 0;
-        rows.forEach(r => {
-          if (r.match_id) {
-            matchIds.add(r.match_id);
-          } else {
-            // Fallback for older matches without match_id: count unique dates
-            fallbackMatches++;
-          }
-        });
-        let totalMatchesCount = matchIds.size + (fallbackMatches > 0 ? 1 : 0); // Simplified fallback
-        // Better fallback: if no match_id, count unique date+opponent
-        let uniqueLegacy = new Set();
-        rows.filter(r => !r.match_id).forEach(r => {
-          uniqueLegacy.add((r.match_date || '') + (r.opponent_team || ''));
-        });
-        totalMatchesCount = matchIds.size + uniqueLegacy.size;
+        rows.forEach(m => { if (m.match_id) matchIds.add(m.match_id); });
+        let totalMatchesCount = matchIds.size;
 
         document.getElementById("profileTotalMatches").innerText = totalMatchesCount || 0;
 
         let totalRn = 0, totalBl = 0, totalFr = 0, totalSx = 0, hs = 0;
-        rows.filter(r => r.match_type === "bat").forEach(r => { 
+        performanceRows.filter(r => r.match_type === "bat").forEach(r => {
           let runs = parseInt(r.runs) || 0;
           let balls = parseInt(r.balls_faced) || 0;
-          totalRn += runs; 
-          totalBl += balls; 
-          totalFr += (parseInt(r.fours) || 0); 
-          totalSx += (parseInt(r.sixes) || 0); 
-          if (runs > hs) hs = runs; 
+          totalRn += runs;
+          totalBl += balls;
+          totalFr += (parseInt(r.fours) || 0);
+          totalSx += (parseInt(r.sixes) || 0);
+          if (runs > hs) hs = runs;
         });
 
         document.getElementById("profileTotalRuns").innerText = totalRn;
@@ -12988,11 +12992,11 @@
         document.getElementById("pHS").innerText = hs;
 
         let totalWk = 0, totalBallsBwl = 0, totalRunsCon = 0;
-        rows.filter(r => r.match_type === "bowl").forEach(r => { 
-          totalWk += (parseInt(r.wickets) || 0); 
-          let pts = (r.overs_bowled || "0.0").toString().split("."); 
-          totalBallsBwl += parseInt(pts[0]) * 6 + parseInt(pts[1] || 0); 
-          totalRunsCon += (parseInt(r.runs_conceded) || 0); 
+        performanceRows.filter(r => r.match_type === "bowl").forEach(r => {
+          totalWk += (parseInt(r.wickets) || 0);
+          let pts = (r.overs_bowled || "0.0").toString().split(".");
+          totalBallsBwl += parseInt(pts[0]) * 6 + parseInt(pts[1] || 0);
+          totalRunsCon += (parseInt(r.runs_conceded) || 0);
         });
 
         document.getElementById("profileTotalWickets").innerText = totalWk;
@@ -13001,10 +13005,10 @@
         document.getElementById("pEco").innerText = totalBallsBwl > 0 ? ((totalRunsCon / totalBallsBwl) * 6).toFixed(2) : "0.00";
 
         let totalCatches = 0, totalRunOuts = 0, totalStumpings = 0;
-        rows.forEach(r => { 
-          totalCatches += (parseInt(r.catches) || 0); 
-          totalRunOuts += (parseInt(r.run_outs) || 0); 
-          totalStumpings += (parseInt(r.stumpings) || 0); 
+        performanceRows.forEach(r => {
+          totalCatches += (parseInt(r.catches) || 0);
+          totalRunOuts += (parseInt(r.run_outs) || 0);
+          totalStumpings += (parseInt(r.stumpings) || 0);
         });
         document.getElementById("pCatches").innerText = totalCatches;
         document.getElementById("pRunOuts").innerText = totalRunOuts;
@@ -13205,7 +13209,7 @@
     let outBatsmen = [];
 
     function startMatch() {
-      let t1 = batTeam.value, t2 = bowlTeam.value;
+      let t1 = (batTeam.value || "").replace(/\\'/g, "'"), t2 = (bowlTeam.value || "").replace(/\\'/g, "'");
       if (!t1 || !t2) return alert("Select both teams");
       if (t1 === t2) return alert("Select different teams");
       // Use SQL-cached teamMap if available, else fallback to localStorage
@@ -13756,7 +13760,7 @@
           finishLiveMatch();
         });
         showWinPopup(winner, margin);
-        
+
         // Update tournament match result in SQL if it exists
         if (currentTournamentMatchIdx !== null && !isNaN(currentTournamentMatchIdx)) {
           fetch(API + "/tournament-matches/" + currentTournamentMatchIdx, {
@@ -13809,10 +13813,11 @@
         innings1BowlStats = JSON.parse(JSON.stringify(bowlerStats));
         innings1Runs = totalRuns;
         innings1Balls = ballCount;
+        innings1Wickets = totalWickets;
         innings1BatTeam = matchBatTeam;
         innings1BowlTeam = matchBowlTeam;
         target = totalRuns + 1;
- targetBox.innerText = "Target: " + target;
+        targetBox.innerText = "Target: " + target;
         totalRuns = 0; totalWickets = 0; ballCount = 0; balls.innerHTML = "";
         winShown = false; outBatsmen = []; extrasByes = 0; ballSnapshots = [];
         let tmp = matchBatTeam; matchBatTeam = matchBowlTeam; matchBowlTeam = tmp;
@@ -13834,9 +13839,11 @@
       let today = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
       let organiser = localStorage.getItem("currentUser") || "guest";
 
-      // Calculate scores for both innings
+      // Calculate scores and wickets for both innings
       let t1_score = innings == 2 ? innings1Runs : totalRuns;
       let t2_score = innings == 2 ? totalRuns : 0;
+      let t1_wickets = innings == 2 ? innings1Wickets : totalWickets;
+      let t2_wickets = innings == 2 ? totalWickets : 0;
       let t1_overs = innings == 2 ? parseFloat(Math.floor(innings1Balls / 6) + "." + (innings1Balls % 6)) : parseFloat(Math.floor(ballCount / 6) + "." + (ballCount % 6));
       let t2_overs = innings == 2 ? parseFloat(Math.floor(ballCount / 6) + "." + (ballCount % 6)) : 0;
 
@@ -13851,8 +13858,7 @@
             tournament_id: tournamentId || (currentViewingTournament ? currentViewingTournament.id : null),
             t1_name: (innings == 2 ? innings1BatTeam : matchBatTeam),
             t2_name: (innings == 2 ? innings1BowlTeam : matchBowlTeam),
-            t1_score, t2_score, t1_overs, t2_overs
-
+            t1_score, t2_score, t1_overs, t2_overs, t1_wickets, t2_wickets
           })
         });
         let data = await res.json();
@@ -14135,11 +14141,24 @@
       allTournaments.forEach(function (t) {
         (t.teams || []).forEach(function (team) {
           if (!team.players || team.players.length === 0) return;
-          html += '<div class="modal-team-block"><h4>🏏 ' + team.name + ' <span style="color:#4b5563;font-size:12px;">(' + t.name + ')</span></h4>';
+          html += `<div class="modal-team-block">
+            <h4 style="font-family:'Rajdhani',sans-serif; color:#6ee7b7; border-bottom:1px solid rgba(110,231,183,0.2); padding-bottom:8px; margin-bottom:16px;">🏏 ${team.name} <span style="color:#4b5563; font-size:12px; font-weight:400;">(${t.name})</span></h4>
+            <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(100px, 1fr)); gap:16px; margin-bottom:24px;">`;
+          
           team.players.forEach(function (p) {
-            html += '<div class="modal-player-row"><span>🧑 ' + p.name + ' ' + roleBadge(p.role) + '</span></div>';
+            const pName = p.name || p.player_name;
+            const photoSrc = p.photo || localStorage.getItem("userPhoto_" + pName) || '';
+            const photoHtml = photoSrc ? `<img src="${photoSrc}" style="width:100%; height:100%; object-fit:cover;">` : '';
+            html += `
+              <div style="text-align:center; position:relative; cursor:pointer;" onclick="openPlayerProfile('${escapeQ(pName)}', '${escapeQ(team.name)}', '${escapeQ(p.role)}')">
+                <div style="width:58px; height:58px; border-radius:50%; overflow:hidden; margin:0 auto 8px; border:2px solid rgba(110,231,183,0.2); background:linear-gradient(135deg,#1e3a5f,#0d9488); display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(0,0,0,0.3);">
+                  ${photoHtml || `<div style="font-size:20px; font-weight:800; color:#fff;">${pName.charAt(0).toUpperCase()}</div>`}
+                </div>
+                <div style="font-size:12px; font-weight:700; color:#f8fafc; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${pName}</div>
+                <div style="font-size:9px; color:#94a3b8; font-weight:600; text-transform:uppercase;">${p.role || 'Player'}</div>
+              </div>`;
           });
-          html += '</div>';
+          html += `</div></div>`;
         });
       });
       if (!html) html = "<div class='no-results'>No players added yet.</div>";
@@ -14502,35 +14521,35 @@
         }
       }
 
-    async function openGlobalScorecard(matchId) {
-      if (!matchId) return;
-      showPage('globalScorecardPage');
-      const container = document.getElementById('globalScorecardContainer');
-      if (!container) return;
-      container.innerHTML = '<div style="color:#6ee7b7; text-align:center; padding:40px;">Loading Scorecard...</div>';
-      
-      try {
-        const res = await fetch(API + '/match-results/' + matchId);
-        if (!res.ok) throw new Error("Failed to fetch match details");
-        const match = await res.json();
-        
-        const statsRes = await fetch(API + '/player-stats-by-match?match_id=' + matchId);
-        const stats = await statsRes.json();
-        
-        renderGlobalScorecard(match, stats);
-      } catch (e) {
-        container.innerHTML = '<div style="color:#ef4444; text-align:center; padding:40px;">Error loading scorecard: ' + e.message + '</div>';
+      async function openGlobalScorecard(matchId) {
+        if (!matchId) return;
+        showPage('globalScorecardPage');
+        const container = document.getElementById('globalScorecardContainer');
+        if (!container) return;
+        container.innerHTML = '<div style="color:#6ee7b7; text-align:center; padding:40px;">Loading Scorecard...</div>';
+
+        try {
+          const res = await fetch(API + '/match-results/' + matchId);
+          if (!res.ok) throw new Error("Failed to fetch match details");
+          const match = await res.json();
+
+          const statsRes = await fetch(API + '/player-stats-by-match?match_id=' + matchId);
+          const stats = await statsRes.json();
+
+          renderGlobalScorecard(match, stats);
+        } catch (e) {
+          container.innerHTML = '<div style="color:#ef4444; text-align:center; padding:40px;">Error loading scorecard: ' + e.message + '</div>';
+        }
       }
-    }
 
-    function renderGlobalScorecard(m, stats) {
-      const container = document.getElementById('globalScorecardContainer');
-      let bat1 = stats.filter(s => s.match_type === 'bat' && s.innings === 1);
-      let bowl1 = stats.filter(s => s.match_type === 'bowl' && s.innings === 1);
-      let bat2 = stats.filter(s => s.match_type === 'bat' && s.innings === 2);
-      let bowl2 = stats.filter(s => s.match_type === 'bowl' && s.innings === 2);
+      function renderGlobalScorecard(m, stats) {
+        const container = document.getElementById('globalScorecardContainer');
+        let bat1 = stats.filter(s => s.match_type === 'bat' && s.innings === 1);
+        let bowl1 = stats.filter(s => s.match_type === 'bowl' && s.innings === 1);
+        let bat2 = stats.filter(s => s.match_type === 'bat' && s.innings === 2);
+        let bowl2 = stats.filter(s => s.match_type === 'bowl' && s.innings === 2);
 
-      let html = `
+        let html = `
         <div class="finished-match-card" style="display:block; margin-bottom:0;">
           <div class="finished-match-header" style="background:rgba(255,255,255,0.02); flex-direction:column; align-items:stretch;">
              <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -14580,10 +14599,10 @@
           </div>
         </div>
       `;
-      container.innerHTML = html;
-    }
+        container.innerHTML = html;
+      }
 
-    let splash = document.getElementById('splashScreen');
+      let splash = document.getElementById('splashScreen');
 
       if (splash) {
         setTimeout(() => {
@@ -14746,7 +14765,8 @@
                   fill="#d1d5db" />
               </svg>
             </div>
-            <img id="addTeamLogoPreview" src="" alt=""
+            <img id="addTeamLogoPreview"
+              src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt=""
               style="display:none; width:100%; height:100%; object-fit:cover; position:absolute; inset:0;">
           </div>
           <input type="file" id="addTeamLogoFileInput" accept="image/*" style="display:none;"
@@ -14901,7 +14921,6 @@
         </div>
       </div>
     </div>
-  </div>
   </div>
   <div id="teamAddedToast2"
     style="display:none; position:fixed; top:78px; left:50%; transform:translateX(-50%); background:#fff; border:1px solid #e5e7eb; border-radius:8px; padding:12px 20px; align-items:center; gap:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); z-index:10003; min-width:280px;">
