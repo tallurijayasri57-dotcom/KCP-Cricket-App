@@ -4028,44 +4028,63 @@
       }
     }
 
-    /* Premium Event Popups Styles */
+    /* Premium Event Popups - Toast Banner style */
     .event-popup-overlay {
       display: none;
       position: fixed;
-      inset: 0;
-      background: rgba(11, 15, 26, 0.95);
+      top: 0;
+      left: 0;
+      right: 0;
       z-index: 11000;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
-      font-family: 'Inter', sans-serif;
-      backdrop-filter: blur(10px);
+      padding-top: 0;
+      pointer-events: none;
     }
 
     .event-popup-overlay.open {
       display: flex;
     }
 
+    /* Winner popup needs full overlay */
+    .event-popup-overlay.winner-mode {
+      inset: 0;
+      background: rgba(5, 30, 20, 0.97);
+      backdrop-filter: blur(10px);
+      align-items: center;
+      pointer-events: all;
+    }
+
     .event-popup-box {
-      width: 90%;
-      max-width: 450px;
+      width: 92%;
+      max-width: 420px;
       max-height: 90vh;
       overflow-y: auto;
       text-align: center;
       color: #fff;
-      animation: popupZoom 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      animation: popupSlideDown 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
       padding: 10px 0;
+      pointer-events: all;
     }
 
-    @keyframes popupZoom {
-      from {
-        transform: scale(0.5);
-        opacity: 0;
-      }
+    /* Toast banner for FOUR/SIX/WICKET/TARGET */
+    .event-toast-banner {
+      width: 100%;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      border-bottom: 3px solid #6ee7b7;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      animation: popupSlideDown 0.3s ease;
+      pointer-events: all;
+    }
 
-      to {
-        transform: scale(1);
-        opacity: 1;
-      }
+    @keyframes popupSlideDown {
+      from { transform: translateY(-100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
     }
 
     .event-title {
@@ -6597,7 +6616,8 @@
             🏏</div>
           <div class="profile-info-block" style="gap:4px; display:flex; flex-direction:column; align-items:flex-start;">
             <div id="profileRoleBadge" style="display:none;"></div>
-            <h2 class="profile-name" id="profileName" style="font-size:28px;margin:2px 0; text-align:left;">Player Name</h2>
+            <h2 class="profile-name" id="profileName" style="font-size:28px;margin:2px 0; text-align:left;">Player Name
+            </h2>
             <div class="profile-sub-info" style="font-size:13px; color:#94a3b8; margin:0; text-align:left;">
               <span id="profileLocation">Jaggayyapeta</span>
             </div>
@@ -9448,56 +9468,67 @@
 
       let html = '';
       if (type === 'FOUR') {
-        html = `
-          <div class="event-confetti">🎊 🎊 🎊</div>
-          <div class="event-title"><span>🏏</span> BOUNDARY!</div>
-          <div class="boundary-animation" style="color:#3b82f6; text-shadow:0 0 30px rgba(59,130,246,0.9);">FOUR</div>
-          <div class="event-main-text" style="color:#fff; margin-top:10px;">4 RUNS</div>
-          <div class="event-sub-text">Ball raced to the boundary!</div>
-        `;
-      } else if (type === 'SIX') {
-        html = `
-          <div class="event-confetti">🎊 🎉 🎊</div>
-          <div class="event-title"><span>🏏</span> MAXIMUM!</div>
-          <div class="boundary-animation" style="color:#ef4444; text-shadow:0 0 30px rgba(239,68,68,0.9);">SIX!</div>
-          <div class="event-main-text" style="color:#fff; margin-top:10px;">6 RUNS</div>
-          <div class="event-sub-text">Ball went out of the stadium!</div>
-        `;
-      } else if (type === 'WICKET') {
-        html = `
-          <div class="event-confetti">☝️ ☝️ ☝️</div>
-          <div class="event-title"><span>🎯</span> WICKET!</div>
-          <div class="boundary-animation" style="color:#ef4444; font-size:64px; text-shadow:0 0 30px rgba(239,68,68,0.7);">OUT!</div>
-          <div class="event-main-text" style="color:#ef4444; margin-top:10px;">WICKET FALLS!</div>
-          <div class="event-sub-text">That's a huge breakthrough!</div>
-        `;
-      } else if (type === 'TARGET') {
-        html = `
-          <div class="event-confetti">🎯</div>
-          <div class="event-title">TARGET SET</div>
-          <div class="event-main-text" style="font-size:48px; color:#fbbf24;">${data.target}</div>
-          <div class="event-highlight-text">Runs to win</div>
-          <div class="event-sub-text">${data.team} needs ${data.target} runs in ${data.overs} overs</div>
-        `;
-      } else if (type === 'WINNER') {
-        html = `
-          <div class="event-confetti" style="font-size:60px;">🏆</div>
-          <div class="event-confetti">🎊 🥳 🎊</div>
-          <div class="event-title">MATCH WINNER</div>
-          <div class="event-main-text" style="font-size:32px; color:#6ee7b7;">${data.winner}</div>
-          <div class="event-highlight-text">${data.margin || 'Won the match!'}</div>
-          <div class="event-mom-card">
-            <div class="event-title" style="color:#fbbf24; margin-bottom:8px;">⭐ MAN OF THE MATCH</div>
-            <div style="font-size:22px; font-weight:800; color:#fff; margin-bottom:4px;">${data.momName || 'TBA'}</div>
-            <div style="font-size:14px; color:#94a3b8;">${data.momStats || ''}</div>
+        modal.classList.remove('winner-mode');
+        html = `<div class="event-toast-banner">
+          <span style="font-size:32px;">🏏</span>
+          <div>
+            <div style="font-family:'Rajdhani',sans-serif; font-size:28px; font-weight:900; color:#3b82f6; letter-spacing:2px;">FOUR!</div>
+            <div style="font-size:12px; color:#94a3b8;">Ball raced to the boundary</div>
           </div>
-          <button class="event-done-btn" onclick="closeEventPopup()">DONE ✓</button>
-        `;
+          <span style="font-size:28px;">🎊</span>
+        </div>`;
+      } else if (type === 'SIX') {
+        modal.classList.remove('winner-mode');
+        html = `<div class="event-toast-banner" style="border-bottom-color:#ef4444;">
+          <span style="font-size:32px;">🏏</span>
+          <div>
+            <div style="font-family:'Rajdhani',sans-serif; font-size:28px; font-weight:900; color:#ef4444; letter-spacing:2px;">SIX!</div>
+            <div style="font-size:12px; color:#94a3b8;">Ball went out of the stadium!</div>
+          </div>
+          <span style="font-size:28px;">🎉</span>
+        </div>`;
+      } else if (type === 'WICKET') {
+        modal.classList.remove('winner-mode');
+        html = `<div class="event-toast-banner" style="border-bottom-color:#ef4444;">
+          <span style="font-size:32px;">☝️</span>
+          <div>
+            <div style="font-family:'Rajdhani',sans-serif; font-size:28px; font-weight:900; color:#ef4444; letter-spacing:2px;">WICKET!</div>
+            <div style="font-size:12px; color:#94a3b8;">That's a huge breakthrough!</div>
+          </div>
+          <span style="font-size:32px;">🎯</span>
+        </div>`;
+      } else if (type === 'TARGET') {
+        modal.classList.remove('winner-mode');
+        html = `<div class="event-toast-banner" style="border-bottom-color:#f59e0b;">
+          <span style="font-size:32px;">🎯</span>
+          <div>
+            <div style="font-family:'Rajdhani',sans-serif; font-size:22px; font-weight:900; color:#f59e0b;">TARGET: ${data.target} RUNS</div>
+            <div style="font-size:12px; color:#94a3b8;">${data.team} needs ${data.target} in ${data.overs} overs</div>
+          </div>
+        </div>`;
+      } else if (type === 'WINNER') {
+        modal.classList.add('winner-mode');
+        html = `
+          <div class="event-popup-box" style="padding:30px 20px;">
+            <div style="font-size:60px;">🏆</div>
+            <div style="font-size:14px; font-weight:900; color:#6ee7b7; letter-spacing:3px; margin:10px 0;">MATCH WINNER</div>
+            <div style="font-family:'Rajdhani',sans-serif; font-size:32px; font-weight:900; color:#fff;">${data.winner}</div>
+            <div style="font-size:20px; font-weight:700; color:#fbbf24; margin:8px 0;">${data.margin || 'Won the match!'}</div>
+            <div style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:16px; margin:16px 0;">
+              <div style="font-size:11px; color:#fbbf24; font-weight:800; letter-spacing:2px; margin-bottom:6px;">⭐ MAN OF THE MATCH</div>
+              <div style="font-size:20px; font-weight:800; color:#fff;">${data.momName || 'TBA'}</div>
+              <div style="font-size:13px; color:#94a3b8;">${data.momStats || ''}</div>
+            </div>
+            <button class="event-done-btn" onclick="closeEventPopup()">DONE ✓</button>
+          </div>`;
+        content.innerHTML = html;
+        modal.classList.add('open');
+        return;
       }
 
       content.innerHTML = html;
       modal.classList.add('open');
-      if (type !== 'WINNER') setTimeout(closeEventPopup, 3500);
+      if (type !== 'WINNER') setTimeout(closeEventPopup, 2000);
     }
 
     function closeEventPopup() {
@@ -12759,19 +12790,19 @@
         content.innerHTML = "<p style='color:#6ee7b7'>Loading...</p>";
         document.getElementById("allPlayersModal").classList.add("open");
         let fetches = teams.map(t => fetch(API + "/players/" + t.team_name, { cache: "no-store" }).then(r => r.json()).then(players => ({ team: t.team_name, players })).catch(() => ({ team: t.team_name, players: [] })));
-      Promise.all(fetches).then(results => {
-        let html = "";
-        results.forEach(r => {
-          html += `<div class="modal-team-block">
+        Promise.all(fetches).then(results => {
+          let html = "";
+          results.forEach(r => {
+            html += `<div class="modal-team-block">
             <h4 style="font-family:'Rajdhani',sans-serif; color:#6ee7b7; border-bottom:1px solid rgba(110,231,183,0.2); padding-bottom:8px; margin-bottom:16px;">🏏 ${r.team}</h4>`;
-          if (r.players.length === 0) {
-            html += '<div style="color:#4b5563; padding:10px 0;">No players added</div>';
-          } else {
-            html += `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(100px, 1fr)); gap:16px; margin-bottom:24px;">`;
-            r.players.forEach(p => {
-              const photoSrc = p.photo || localStorage.getItem("userPhoto_" + p.player_name) || '';
-              const photoHtml = photoSrc ? `<img src="${photoSrc}" style="width:100%; height:100%; object-fit:cover;">` : '';
-              html += `
+            if (r.players.length === 0) {
+              html += '<div style="color:#4b5563; padding:10px 0;">No players added</div>';
+            } else {
+              html += `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(100px, 1fr)); gap:16px; margin-bottom:24px;">`;
+              r.players.forEach(p => {
+                const photoSrc = p.photo || localStorage.getItem("userPhoto_" + p.player_name) || '';
+                const photoHtml = photoSrc ? `<img src="${photoSrc}" style="width:100%; height:100%; object-fit:cover;">` : '';
+                html += `
                 <div style="text-align:center; position:relative; cursor:pointer;" onclick="openPlayerProfile('${escapeQ(p.player_name)}', '${escapeQ(r.team)}', '${escapeQ(p.role)}')">
                   <div style="width:58px; height:58px; border-radius:50%; overflow:hidden; margin:0 auto 8px; border:2px solid rgba(110,231,183,0.2); background:linear-gradient(135deg,#1e3a5f,#0d9488); display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(0,0,0,0.3);">
                     ${photoHtml || `<div style="font-size:20px; font-weight:800; color:#fff;">${p.player_name.charAt(0).toUpperCase()}</div>`}
@@ -12779,13 +12810,13 @@
                   <div style="font-size:12px; font-weight:700; color:#f8fafc; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.player_name}</div>
                   <div style="font-size:9px; color:#94a3b8; font-weight:600; text-transform:uppercase;">${p.role || 'Player'}</div>
                 </div>`;
-            });
-            html += `</div>`;
-          }
-          html += '</div>';
+              });
+              html += `</div>`;
+            }
+            html += '</div>';
+          });
+          content.innerHTML = html;
         });
-        content.innerHTML = html;
-      });
       }).catch(() => { });
     }
 
@@ -14239,7 +14270,7 @@
           html += `<div class="modal-team-block">
             <h4 style="font-family:'Rajdhani',sans-serif; color:#6ee7b7; border-bottom:1px solid rgba(110,231,183,0.2); padding-bottom:8px; margin-bottom:16px;">🏏 ${team.name} <span style="color:#4b5563; font-size:12px; font-weight:400;">(${t.name})</span></h4>
             <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(100px, 1fr)); gap:16px; margin-bottom:24px;">`;
-          
+
           team.players.forEach(function (p) {
             const pName = p.name || p.player_name;
             const photoSrc = p.photo || localStorage.getItem("userPhoto_" + pName) || '';
