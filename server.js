@@ -85,6 +85,8 @@ async function startServer() {
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='match_results'     AND COLUMN_NAME='t1_wickets') ALTER TABLE match_results     ADD t1_wickets INT NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='match_results'     AND COLUMN_NAME='t2_wickets') ALTER TABLE match_results     ADD t2_wickets INT NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='player_stats'      AND COLUMN_NAME='opponent_team') ALTER TABLE player_stats  ADD opponent_team NVARCHAR(100) NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='match_results'     AND COLUMN_NAME='toss_info')  ALTER TABLE match_results     ADD toss_info NVARCHAR(MAX) NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_matches' AND COLUMN_NAME='toss_info') ALTER TABLE tournament_matches ADD toss_info NVARCHAR(MAX) NULL`,
             ];
             for (const mig of migrations) {
                 try { await pool.request().query(mig); } catch(e) { console.warn("Migration warning:", e.message); }
@@ -810,7 +812,8 @@ app.post("/match-results", async (req, res) => {
             const id = Date.now();
             MEMORY_DB.match_results.push({ 
                 id, winner, loser, win_type, margin, played_on, organiser, commentary,
-                match_id, t1_score, t2_score, t1_overs, t2_overs, t1_wickets, t2_wickets
+                match_id, t1_score, t2_score, t1_overs, t2_overs, t1_wickets, t2_wickets,
+                toss_info: req.body.toss_info
             });
             saveDB();
             return res.json({ id });
@@ -834,9 +837,10 @@ app.post("/match-results", async (req, res) => {
             .input("w2", sql.Int, t2_wickets !== undefined ? t2_wickets : null)
             .input("org", sql.NVarChar, organiser || null)
             .input("com", sql.NVarChar(sql.MAX), commentary || null)
-            .query(`INSERT INTO match_results (match_id, tournament_id, series_name, winner, loser, win_type, margin, played_on, t1_name, t1_score, t1_overs, t1_wickets, t2_name, t2_score, t2_overs, t2_wickets, organiser, commentary) 
+            .input("toss", sql.NVarChar, req.body.toss_info || null)
+            .query(`INSERT INTO match_results (match_id, tournament_id, series_name, winner, loser, win_type, margin, played_on, t1_name, t1_score, t1_overs, t1_wickets, t2_name, t2_score, t2_overs, t2_wickets, organiser, commentary, toss_info) 
                     OUTPUT INSERTED.id 
-                    VALUES (@mid, @tid, @sn, @w, @l, @wt, @m, @p, @t1n, @s1, @o1, @w1, @t2n, @s2, @o2, @w2, @org, @com)`);
+                    VALUES (@mid, @tid, @sn, @w, @l, @wt, @m, @p, @t1n, @s1, @o1, @w1, @t2n, @s2, @o2, @w2, @org, @com, @toss)`);
         res.json({ id: r.recordset[0].id });
     } catch (err) {
         console.error("POST match-results error:", err);
@@ -1469,9 +1473,10 @@ app.post("/tournament-matches", async (req, res) => {
             .input("mt", sql.NVarChar, match_time || null)
             .input("res", sql.NVarChar, result || null)
             .input("st", sql.NVarChar, status || 'upcoming')
+            .input("toss", sql.NVarChar, req.body.toss_info || null)
             .query(`
-                INSERT INTO tournament_matches (tournament_id, team1, team2, match_date, match_time, result, status)
-                VALUES (@tid, @t1, @t2, @md, @mt, @res, @st)
+                INSERT INTO tournament_matches (tournament_id, team1, team2, match_date, match_time, result, status, toss_info)
+                VALUES (@tid, @t1, @t2, @md, @mt, @res, @st, @toss)
             `);
         res.json({ success: true });
     } catch (err) {

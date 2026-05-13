@@ -9348,6 +9348,9 @@
                 ${m.target > 0 ? `<div style="font-size:11px; color:#f59e0b; margin-top:8px; font-weight:600;">Target: ${m.target}</div>` : ''}
               </div>
             </div>
+            <div style="margin-top:10px; border-top:1px solid rgba(255,255,255,0.05); padding-top:8px; font-size:11px; color:#94a3b8; font-weight:500;">
+              ${m.tossInfo || 'Toss info not available'}
+            </div>
           </div>`;
         });
 
@@ -10860,7 +10863,8 @@
           wickets: inn2Fallback ? inn2Fallback.wickets : (inn1Fallback ? inn1Fallback.wickets : 0),
           overs: inn2Fallback ? inn2Fallback.overs : (inn1Fallback ? inn1Fallback.overs : '0.0'),
           innings1: inn1Fallback, innings2: inn2Fallback,
-          commentary: (() => { try { return matchResult && matchResult.commentary ? JSON.parse(matchResult.commentary) : []; } catch (e) { return []; } })()
+          commentary: (() => { try { return matchResult && matchResult.commentary ? JSON.parse(matchResult.commentary) : []; } catch (e) { return []; } })(),
+          tossInfo: matchResult ? matchResult.toss_info : (found ? found.toss_info : '')
         };
 
         renderPremiumMatchView(matchData);
@@ -11087,7 +11091,8 @@
           commentary: (() => {
             try { return finalSummary.commentary ? JSON.parse(finalSummary.commentary) : []; }
             catch (err) { return []; }
-          })()
+          })(),
+          tossInfo: finalSummary.toss_info || ''
         };
 
         renderPremiumMatchView(matchData);
@@ -11910,6 +11915,7 @@
           </div>
         </div>
         <div class="my-card-footer" style="color:${isWon ? '#6ee7b7' : '#94a3b8'}">
+          ${m.toss_info ? `<div style="font-size:11px; color:#94a3b8; margin-bottom:4px; font-weight:600;">${m.toss_info}</div>` : ''}
           ${resText}
         </div>
       </div>
@@ -12065,6 +12071,7 @@
               </div>
             </div>
             <div class="my-card-footer" style="color: ${m.result && m.result.includes('won') ? '#6ee7b7' : '#94a3b8'}">
+              ${m.toss_info ? `<div style="font-size:11px; color:#94a3b8; margin-bottom:4px; font-weight:600;">${m.toss_info}</div>` : ''}
               ${resText}
             </div>
           </div>
@@ -12949,6 +12956,7 @@
               </div>
 
               <div style="margin-top:14px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.05); color:#94a3b8; font-size:12px; font-weight:600; font-style:italic;">
+                ${m.toss_info ? `<div style="margin-bottom:6px; color:rgba(255,255,255,0.5); font-style:normal; font-size:11px;">${m.toss_info}</div>` : ''}
                 ${m.winner ? (m.winner + ' won by ' + (m.margin || '')) : 'Match Finished'}
               </div>
             </div>
@@ -13903,7 +13911,7 @@
         winShown = true;
         let winner = matchBatTeam, loser = matchBowlTeam, margin = "won by " + (10 - totalWickets) + " wickets";
         let tId = (currentViewingTournament ? currentViewingTournament.id : null);
-        saveMatchResult(winner, loser, "won", margin, currentTournamentMatchIdx, tId).then(() => {
+        saveMatchResult(winner, loser, "won", margin, currentTournamentMatchIdx, tId, matchTossText).then(() => {
           updateAllPlayerStatsAfterMatch(2);
           finishLiveMatch();
         });
@@ -13914,7 +13922,7 @@
           fetch(API + "/tournament-matches/" + currentTournamentMatchIdx, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ status: "finished", result: winner + " won by " + margin })
+            body: JSON.stringify({ status: "finished", result: winner + " won by " + margin, toss_info: matchTossText })
           }).catch(e => console.warn("Failed to update tournament match:", e));
         }
       }
@@ -13980,7 +13988,7 @@
 
     let currentMatchId = null;
 
-    async function saveMatchResult(winner, loser, winType, margin, tournamentMatchId, tournamentId) {
+    async function saveMatchResult(winner, loser, winType, margin, tournamentMatchId, tournamentId, tossInfo) {
       currentMatchId = null; // Important: Clear previous match ID before saving new one
 
       let now = new Date();
@@ -14006,7 +14014,8 @@
             tournament_id: tournamentId || (currentViewingTournament ? currentViewingTournament.id : null),
             t1_name: (innings == 2 ? innings1BatTeam : matchBatTeam),
             t2_name: (innings == 2 ? innings1BowlTeam : matchBowlTeam),
-            t1_score, t2_score, t1_overs, t2_overs, t1_wickets, t2_wickets
+            t1_score, t2_score, t1_overs, t2_overs, t1_wickets, t2_wickets,
+            toss_info: tossInfo || ""
           })
         });
         let data = await res.json();
@@ -14032,7 +14041,10 @@
         <div class="finished-match-header">
           <div>
             <div class="finished-match-winner">🏆 ${m.winner} won</div>
-            <div class="finished-match-detail">vs ${m.loser} &nbsp;·&nbsp; ${m.win_type} by ${m.margin} &nbsp;·&nbsp; ${m.played_on}</div>
+            <div class="finished-match-detail">
+              ${m.toss_info ? `<div style="color:#6ee7b7; font-size:11px; margin-bottom:4px;">${m.toss_info}</div>` : ''}
+              vs ${m.loser} &nbsp;·&nbsp; ${m.win_type} by ${m.margin} &nbsp;·&nbsp; ${m.played_on}
+            </div>
           </div>
           <div style="display:flex; gap:8px; align-items:center;">
             <button class="finished-match-toggle" onclick="toggleScorecard(${i}, '${escapeQ(m.winner)}', '${escapeQ(m.loser)}', ${m.id})">View Scorecard</button>
@@ -14329,7 +14341,7 @@
       winShown = true;
 
       let tId = (currentViewingTournament ? currentViewingTournament.id : null);
-      saveMatchResult(winner, loser, "won", margin, currentTournamentMatchIdx, tId).then(() => {
+      saveMatchResult(winner, loser, "won", margin, currentTournamentMatchIdx, tId, matchTossText).then(() => {
         updateAllPlayerStatsAfterMatch(inningsNum);
         finishLiveMatch();
       });
@@ -14341,7 +14353,7 @@
           await fetch(API + "/tournament-matches/" + currentTournamentMatchIdx, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ status: "finished", result: finalResult })
+            body: JSON.stringify({ status: "finished", result: finalResult, toss_info: matchTossText })
           });
         } catch (e) { console.warn("Failed to update tournament match to finished:", e); }
       }
