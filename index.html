@@ -10391,6 +10391,14 @@
       if (activeBatsmen.length === 0) {
         activeBatsmen = (m.batsmen || []).filter(b => !b.isOut).slice(0, 2);
       }
+
+      // Sort activeBatsmen so the striker (m.strike) is on top
+      activeBatsmen.sort((a, b) => {
+        if (a.name === m.strike) return -1;
+        if (b.name === m.strike) return 1;
+        return 0;
+      });
+
       // Only bowlers who have bowled at least 1 ball — show current bowler + previous bowler
       let allBowledBowlers = (m.bowlers || []).filter(b => {
         let oversStr = String(b.overs || '0.0');
