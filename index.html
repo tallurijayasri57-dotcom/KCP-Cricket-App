@@ -4032,17 +4032,13 @@
     .event-popup-overlay {
       display: none;
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(15, 23, 42, 0.98); /* Solid dark background to prevent mobile blur crashes */
+      inset: 0;
+      background: rgba(11, 15, 26, 0.95);
       z-index: 11000;
       align-items: center;
       justify-content: center;
       font-family: 'Inter', sans-serif;
+      backdrop-filter: blur(10px);
     }
 
     .event-popup-overlay.open {
@@ -4052,30 +4048,21 @@
     .event-popup-box {
       width: 90%;
       max-width: 450px;
+      max-height: 90vh;
+      overflow-y: auto;
       text-align: center;
       color: #fff;
-      -webkit-animation: popupZoom 0.4s ease-out forwards;
-      animation: popupZoom 0.4s ease-out forwards;
-      transform-origin: center;
-    }
-
-    @-webkit-keyframes popupZoom {
-      0% {
-        -webkit-transform: scale(0.5);
-        opacity: 0;
-      }
-      100% {
-        -webkit-transform: scale(1);
-        opacity: 1;
-      }
+      animation: popupZoom 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      padding: 10px 0;
     }
 
     @keyframes popupZoom {
-      0% {
+      from {
         transform: scale(0.5);
         opacity: 0;
       }
-      100% {
+
+      to {
         transform: scale(1);
         opacity: 1;
       }
@@ -4156,128 +4143,14 @@
       margin-bottom: 20px;
     }
 
-    /* Missing popup classes for mobile */
-    .event-animation-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .emoji-row {
-      font-size: 40px;
-      margin-bottom: 10px;
-    }
-
-    .four-text {
-      color: #fff;
-      text-shadow: 0 0 15px rgba(59, 130, 246, 0.9);
-      font-style: italic;
-      font-size: 80px;
-      margin: 0;
-      line-height: 1;
-      font-family: 'Rajdhani', sans-serif;
-    }
-
-    .six-text {
-      color: #fff;
-      text-shadow: 0 0 15px rgba(239, 68, 68, 0.9);
-      font-style: italic;
-      font-size: 80px;
-      margin: 0;
-      line-height: 1;
-      font-family: 'Rajdhani', sans-serif;
-    }
-
-    .wicket-text {
-      color: #ef4444;
-      text-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
-      font-style: italic;
-      font-size: 70px;
-      margin: 0;
-      line-height: 1;
-      font-family: 'Rajdhani', sans-serif;
-    }
-
-    .target-popup-container {
-      background: #0f172a;
-      border: 1px solid rgba(110, 231, 183, 0.2);
-      border-radius: 20px;
-      padding: 40px 20px;
-    }
-
-    .target-header {
-      font-size: 14px;
-      font-weight: 700;
-      color: #94a3b8;
-      letter-spacing: 2px;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .target-runs {
-      font-size: 64px;
-      font-weight: 900;
-      color: #fff;
-      margin-bottom: 10px;
-    }
-
-    .target-desc {
-      font-size: 18px;
-      color: #94a3b8;
-    }
-
-    .winner-popup-container {
-      background: #064e3b;
-      border: 2px solid #10b981;
-      border-radius: 24px;
-      padding: 30px 20px;
-      position: relative;
-    }
-
-    .trophy-icon {
-      font-size: 80px;
-      margin-bottom: 10px;
-    }
-
-    .match-winner-label {
-      font-size: 12px;
-      font-weight: 800;
-      color: #6ee7b7;
-      letter-spacing: 2px;
-      margin-bottom: 10px;
-    }
-
-    .winner-team-name {
-      font-size: 32px;
-      font-weight: 900;
-      color: #fff;
-      margin-bottom: 5px;
-    }
-
-    .winner-desc {
-      font-size: 16px;
-      color: #6ee7b7;
-      margin-bottom: 5px;
-    }
-
-    .winner-margin {
-      font-size: 20px;
-      font-weight: 700;
-      color: #fbbf24;
-      margin-bottom: 25px;
-    }
-
     .boundary-animation {
-      font-size: 80px;
+      font-size: clamp(60px, 20vw, 100px);
       font-weight: 900;
       font-style: italic;
       color: #fff;
       text-shadow: 0 0 20px rgba(37, 99, 235, 0.8);
       animation: boundaryBounce 0.6s infinite alternate;
+      line-height: 1;
     }
 
     @keyframes boundaryBounce {
@@ -9575,39 +9448,61 @@
 
       let html = '';
       if (type === 'FOUR') {
-        html = `<div class="event-animation-container"><div class="emoji-row">🎊 🥳 🎊</div><h1 class="event-title four-text">FOUR</h1><h3 class="event-sub-text">4 RUNS!</h3></div>`;
+        html = `
+          <div class="event-confetti">🎊 🎊 🎊</div>
+          <div class="event-title"><span>🏏</span> BOUNDARY!</div>
+          <div class="boundary-animation" style="color:#3b82f6; text-shadow:0 0 30px rgba(59,130,246,0.9);">FOUR</div>
+          <div class="event-main-text" style="color:#fff; margin-top:10px;">4 RUNS</div>
+          <div class="event-sub-text">Ball raced to the boundary!</div>
+        `;
       } else if (type === 'SIX') {
-        html = `<div class="event-animation-container"><div class="emoji-row">🎊 🥳 🎊</div><h1 class="event-title six-text">SIX</h1><h3 class="event-sub-text">6 RUNS!</h3></div>`;
+        html = `
+          <div class="event-confetti">🎊 🎉 🎊</div>
+          <div class="event-title"><span>🏏</span> MAXIMUM!</div>
+          <div class="boundary-animation" style="color:#ef4444; text-shadow:0 0 30px rgba(239,68,68,0.9);">SIX!</div>
+          <div class="event-main-text" style="color:#fff; margin-top:10px;">6 RUNS</div>
+          <div class="event-sub-text">Ball went out of the stadium!</div>
+        `;
       } else if (type === 'WICKET') {
-        html = `<div class="event-animation-container"><div class="emoji-row">☝️ 🏏 ☝️</div><h1 class="event-title wicket-text">WICKET!</h1><h3 class="event-sub-text">OUT!</h3></div>`;
+        html = `
+          <div class="event-confetti">☝️ ☝️ ☝️</div>
+          <div class="event-title"><span>🎯</span> WICKET!</div>
+          <div class="boundary-animation" style="color:#ef4444; font-size:64px; text-shadow:0 0 30px rgba(239,68,68,0.7);">OUT!</div>
+          <div class="event-main-text" style="color:#ef4444; margin-top:10px;">WICKET FALLS!</div>
+          <div class="event-sub-text">That's a huge breakthrough!</div>
+        `;
       } else if (type === 'TARGET') {
-        html = `<div class="target-popup-container"><div class="target-header">🎯 TARGET SET</div><div class="target-runs">${data.target} Runs</div><div class="target-desc">${data.team} needs ${data.target} to win in ${data.overs} overs.</div></div>`;
+        html = `
+          <div class="event-confetti">🎯</div>
+          <div class="event-title">TARGET SET</div>
+          <div class="event-main-text" style="font-size:48px; color:#fbbf24;">${data.target}</div>
+          <div class="event-highlight-text">Runs to win</div>
+          <div class="event-sub-text">${data.team} needs ${data.target} runs in ${data.overs} overs</div>
+        `;
       } else if (type === 'WINNER') {
         html = `
-          <div class="winner-popup-container">
-            <div class="trophy-icon">🏆</div>
-            <div class="emoji-row">🎊 🥳 🎊</div>
-            <div class="match-winner-label">MATCH WINNER</div>
-            <div class="winner-team-name">${data.winner}</div>
-            <div class="winner-desc">won the match</div>
-            <div class="winner-margin">${data.margin}</div>
-            <div class="event-mom-card">
-              <div style="font-size:12px;font-weight:800;color:#94a3b8;letter-spacing:2px;margin-bottom:10px;">⭐ MAN OF THE MATCH</div>
-              <div style="font-size:24px;font-weight:800;color:#fff;margin-bottom:5px;">${data.momName || 'TBA'}</div>
-              <div style="font-size:14px;color:#fbbf24;font-weight:600;">${data.momStats || ''}</div>
-            </div>
-            <button class="event-done-btn" onclick="closeEventPopup()">DONE</button>
-          </div>`;
+          <div class="event-confetti" style="font-size:60px;">🏆</div>
+          <div class="event-confetti">🎊 🥳 🎊</div>
+          <div class="event-title">MATCH WINNER</div>
+          <div class="event-main-text" style="font-size:32px; color:#6ee7b7;">${data.winner}</div>
+          <div class="event-highlight-text">${data.margin || 'Won the match!'}</div>
+          <div class="event-mom-card">
+            <div class="event-title" style="color:#fbbf24; margin-bottom:8px;">⭐ MAN OF THE MATCH</div>
+            <div style="font-size:22px; font-weight:800; color:#fff; margin-bottom:4px;">${data.momName || 'TBA'}</div>
+            <div style="font-size:14px; color:#94a3b8;">${data.momStats || ''}</div>
+          </div>
+          <button class="event-done-btn" onclick="closeEventPopup()">DONE ✓</button>
+        `;
       }
 
       content.innerHTML = html;
-      modal.style.display = 'flex';
+      modal.classList.add('open');
       if (type !== 'WINNER') setTimeout(closeEventPopup, 3500);
     }
 
     function closeEventPopup() {
       const modal = document.getElementById('eventPopupModal');
-      if (modal) modal.style.display = 'none';
+      if (modal) modal.classList.remove('open');
     }
 
     function renderPremiumMatchView(m) {
