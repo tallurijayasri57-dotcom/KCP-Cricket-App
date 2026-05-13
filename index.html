@@ -4033,12 +4033,11 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(11, 15, 26, 0.95);
+      background: rgba(15, 23, 42, 0.98); /* Solid dark background to prevent mobile blur crashes */
       z-index: 11000;
       align-items: center;
       justify-content: center;
       font-family: 'Inter', sans-serif;
-      backdrop-filter: blur(10px);
     }
 
     .event-popup-overlay.open {
@@ -4138,6 +4137,121 @@
     .event-confetti {
       font-size: 40px;
       margin-bottom: 20px;
+    }
+
+    /* Missing popup classes for mobile */
+    .event-animation-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .emoji-row {
+      font-size: 40px;
+      margin-bottom: 10px;
+    }
+
+    .four-text {
+      color: #fff;
+      text-shadow: 0 0 15px rgba(59, 130, 246, 0.9);
+      font-style: italic;
+      font-size: 80px;
+      margin: 0;
+      line-height: 1;
+      font-family: 'Rajdhani', sans-serif;
+    }
+
+    .six-text {
+      color: #fff;
+      text-shadow: 0 0 15px rgba(239, 68, 68, 0.9);
+      font-style: italic;
+      font-size: 80px;
+      margin: 0;
+      line-height: 1;
+      font-family: 'Rajdhani', sans-serif;
+    }
+
+    .wicket-text {
+      color: #ef4444;
+      text-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+      font-style: italic;
+      font-size: 70px;
+      margin: 0;
+      line-height: 1;
+      font-family: 'Rajdhani', sans-serif;
+    }
+
+    .target-popup-container {
+      background: #0f172a;
+      border: 1px solid rgba(110, 231, 183, 0.2);
+      border-radius: 20px;
+      padding: 40px 20px;
+    }
+
+    .target-header {
+      font-size: 14px;
+      font-weight: 700;
+      color: #94a3b8;
+      letter-spacing: 2px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .target-runs {
+      font-size: 64px;
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+
+    .target-desc {
+      font-size: 18px;
+      color: #94a3b8;
+    }
+
+    .winner-popup-container {
+      background: #064e3b;
+      border: 2px solid #10b981;
+      border-radius: 24px;
+      padding: 30px 20px;
+      position: relative;
+    }
+
+    .trophy-icon {
+      font-size: 80px;
+      margin-bottom: 10px;
+    }
+
+    .match-winner-label {
+      font-size: 12px;
+      font-weight: 800;
+      color: #6ee7b7;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+    }
+
+    .winner-team-name {
+      font-size: 32px;
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 5px;
+    }
+
+    .winner-desc {
+      font-size: 16px;
+      color: #6ee7b7;
+      margin-bottom: 5px;
+    }
+
+    .winner-margin {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fbbf24;
+      margin-bottom: 25px;
     }
 
     .boundary-animation {
@@ -9359,6 +9473,7 @@
       showPage('matchDetailsPage');
       if (liveViewUnsubscribe) liveViewUnsubscribe();
       previousLiveMatchState = null;
+      celebrationOldState = null;
 
       // If we already have the data from the home screen cache, render immediately
       if (window._liveMatchCache && window._liveMatchCache[matchId]) {
@@ -9443,11 +9558,11 @@
 
       let html = '';
       if (type === 'FOUR') {
-        html = `<div class="event-animation-container"><div class="emoji-row">🎊 🥳 🎊</div><h1 class="event-title four-text">FOUR</h1><h3 class="event-subtitle">4 RUNS!</h3></div>`;
+        html = `<div class="event-animation-container"><div class="emoji-row">🎊 🥳 🎊</div><h1 class="event-title four-text">FOUR</h1><h3 class="event-sub-text">4 RUNS!</h3></div>`;
       } else if (type === 'SIX') {
-        html = `<div class="event-animation-container"><div class="emoji-row">🎊 🥳 🎊</div><h1 class="event-title six-text">SIX</h1><h3 class="event-subtitle">6 RUNS!</h3></div>`;
+        html = `<div class="event-animation-container"><div class="emoji-row">🎊 🥳 🎊</div><h1 class="event-title six-text">SIX</h1><h3 class="event-sub-text">6 RUNS!</h3></div>`;
       } else if (type === 'WICKET') {
-        html = `<div class="event-animation-container"><div class="emoji-row">☝️ 🏏 ☝️</div><h1 class="event-title wicket-text">WICKET!</h1><h3 class="event-subtitle">OUT!</h3></div>`;
+        html = `<div class="event-animation-container"><div class="emoji-row">☝️ 🏏 ☝️</div><h1 class="event-title wicket-text">WICKET!</h1><h3 class="event-sub-text">OUT!</h3></div>`;
       } else if (type === 'TARGET') {
         html = `<div class="target-popup-container"><div class="target-header">🎯 TARGET SET</div><div class="target-runs">${data.target} Runs</div><div class="target-desc">${data.team} needs ${data.target} to win in ${data.overs} overs.</div></div>`;
       } else if (type === 'WINNER') {
@@ -9459,12 +9574,12 @@
             <div class="winner-team-name">${data.winner}</div>
             <div class="winner-desc">won the match</div>
             <div class="winner-margin">${data.margin}</div>
-            <div class="mom-card">
-              <div class="mom-label">⭐ MAN OF THE MATCH</div>
-              <div class="mom-name">${data.momName || 'TBA'}</div>
-              <div class="mom-stats">${data.momStats || ''}</div>
+            <div class="event-mom-card">
+              <div style="font-size:12px;font-weight:800;color:#94a3b8;letter-spacing:2px;margin-bottom:10px;">⭐ MAN OF THE MATCH</div>
+              <div style="font-size:24px;font-weight:800;color:#fff;margin-bottom:5px;">${data.momName || 'TBA'}</div>
+              <div style="font-size:14px;color:#fbbf24;font-weight:600;">${data.momStats || ''}</div>
             </div>
-            <button class="done-btn" onclick="closeEventPopup()">DONE</button>
+            <button class="event-done-btn" onclick="closeEventPopup()">DONE</button>
           </div>`;
       }
 
