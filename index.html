@@ -10633,12 +10633,24 @@
       if (m.innings1) {
         html += renderInnings(m.innings1, "Innings 1", m.innings === 1);
       }
-      if (m.innings2) {
+      
+      // Fix: Handle live match scorecard for both innings
+      if (m.innings == 2 && !m.innings2 && m.batsmen) {
+        // Show current data as Innings 2 while Innings 1 is already shown above
+        html += renderInnings({
+          batTeam: m.batTeam,
+          runs: m.runs,
+          wickets: m.wickets,
+          overs: m.overs,
+          batsmen: m.batsmen,
+          bowlers: m.bowlers,
+          extras: m.extras || 0
+        }, "Innings 2", true);
+      } else if (m.innings2) {
         html += renderInnings(m.innings2, "Innings 2", m.innings === 2);
       }
 
-      // Fix: Handle live match scorecard where data is in top-level but not innings1/2
-      if (!m.innings1 && !m.innings2 && m.batsmen) {
+      if (html === '' && m.batsmen) {
         html = renderInnings({
           batTeam: m.batTeam,
           runs: m.runs,
@@ -10648,7 +10660,9 @@
           bowlers: m.bowlers,
           extras: m.extras || 0
         }, "Innings " + (m.innings || 1), true);
-      } else if (!m.innings1 && !m.innings2) {
+      }
+
+      if (html === '') {
         html = `<div class="premium-card" style="padding:40px; text-align:center; color:#94a3b8;">No scorecard data available yet.</div>`;
       }
 
