@@ -26,7 +26,6 @@
             color: white;
         }
 
-        /* Premium Mesh Gradient Background */
         .mesh-bg {
             position: absolute;
             width: 100%;
@@ -49,7 +48,6 @@
             align-items: center;
         }
 
-        /* The Action Stage */
         .stage {
             position: relative;
             width: 400px;
@@ -60,7 +58,6 @@
             perspective: 1000px;
         }
 
-        /* Realistic Bat with Motion Blur Effect */
         .bat-box {
             position: absolute;
             width: 80px;
@@ -70,51 +67,39 @@
             transform-origin: 50% 10%;
             transform: rotate(-115deg) translateZ(50px);
             z-index: 20;
-            filter: drop-shadow(0 20px 30px rgba(0,0,0,0.8));
             animation: eliteSwing 3.5s infinite cubic-bezier(0.45, 0, 0.05, 1);
         }
 
-        .bat-box img {
+        canvas {
             width: 100%;
             height: 100%;
             object-fit: contain;
-            mix-blend-mode: screen;
         }
 
         @keyframes eliteSwing {
-            0%, 35% { transform: rotate(-115deg) translateZ(50px); opacity: 1; filter: blur(0); }
-            45% { transform: rotate(20deg) translateZ(80px); filter: blur(2px); } /* High speed swing */
-            55% { transform: rotate(35deg) translateZ(100px); filter: blur(0); }
+            0%, 35% { transform: rotate(-115deg) translateZ(50px); opacity: 1; }
+            45% { transform: rotate(20deg) translateZ(80px); }
+            55% { transform: rotate(35deg) translateZ(100px); }
             80%, 100% { transform: rotate(35deg) translateZ(100px); opacity: 0; }
         }
 
-        /* Realistic Ball with Trail */
         .ball-box {
             position: absolute;
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             z-index: 25;
             opacity: 0;
             animation: eliteBall 3.5s infinite cubic-bezier(0.45, 0, 0.05, 1);
         }
 
-        .ball-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            mix-blend-mode: screen;
-            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));
-        }
-
         @keyframes eliteBall {
             0% { transform: translate(500px, 150px) scale(0.3); opacity: 0; }
             10% { opacity: 1; }
-            45% { transform: translate(0, 0) scale(1); opacity: 1; } /* Hit point */
-            55% { transform: translate(-400px, -600px) scale(8); opacity: 0; } /* Zoom to camera */
+            45% { transform: translate(0, 0) scale(1); opacity: 1; }
+            55% { transform: translate(-400px, -600px) scale(8); opacity: 0; }
             100% { opacity: 0; }
         }
 
-        /* Impact Shockwave */
         .shockwave {
             position: absolute;
             width: 2px;
@@ -133,7 +118,6 @@
             100% { opacity: 0; }
         }
 
-        /* Premium Branding Reveal */
         .branding {
             text-align: center;
             opacity: 0;
@@ -143,7 +127,6 @@
         }
 
         .brand-sub {
-            font-family: 'Inter', sans-serif;
             font-size: 14px;
             letter-spacing: 10px;
             color: var(--primary);
@@ -160,62 +143,12 @@
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
         }
 
         @keyframes brandingElite {
             0%, 55% { opacity: 0; transform: translateY(30px) scale(0.9); }
             65%, 90% { opacity: 1; transform: translateY(0) scale(1); }
             100% { opacity: 0; transform: scale(1.1); }
-        }
-
-        /* Floating Light Particles */
-        .particle {
-            position: absolute;
-            background: rgba(110, 231, 183, 0.4);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 5;
-            animation: float 10s infinite linear;
-        }
-
-        @keyframes float {
-            0% { transform: translateY(100vh) scale(0); opacity: 0; }
-            50% { opacity: 0.5; }
-            100% { transform: translateY(-100vh) scale(1); opacity: 0; }
-        }
-
-        /* Progress Line */
-        .progress-line {
-            position: absolute;
-            bottom: 60px;
-            width: 200px;
-            height: 2px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 2px;
-            overflow: hidden;
-            opacity: 0;
-            animation: lineFade 3.5s infinite;
-        }
-
-        .progress-fill {
-            width: 0%;
-            height: 100%;
-            background: var(--primary);
-            box-shadow: 0 0 10px var(--primary);
-            animation: fill 3.5s infinite;
-        }
-
-        @keyframes lineFade {
-            0%, 65% { opacity: 0; }
-            75%, 90% { opacity: 1; }
-            100% { opacity: 0; }
-        }
-
-        @keyframes fill {
-            0%, 70% { width: 0%; }
-            90% { width: 100%; }
-            100% { width: 100%; }
         }
 
     </style>
@@ -229,11 +162,11 @@
             <div class="shockwave"></div>
             
             <div class="bat-box">
-                <img src="bat_clean.png" alt="Bat">
+                <canvas id="batCanvas"></canvas>
             </div>
 
             <div class="ball-box">
-                <img src="ball_clean.png" alt="Ball">
+                <canvas id="ballCanvas"></canvas>
             </div>
         </div>
 
@@ -241,24 +174,39 @@
             <div class="brand-sub">PREMIUM CRICKET EXPERIENCE</div>
             <div class="brand-main">KCP CREX HUB</div>
         </div>
-
-        <div class="progress-line">
-            <div class="progress-fill"></div>
-        </div>
     </div>
 
     <script>
-        // Generate elegant particles
-        for(let i=0; i<20; i++) {
-            const p = document.createElement('div');
-            p.className = 'particle';
-            p.style.left = Math.random() * 100 + 'vw';
-            p.style.width = (Math.random() * 4 + 2) + 'px';
-            p.style.height = p.style.width;
-            p.style.animationDelay = Math.random() * 10 + 's';
-            p.style.opacity = Math.random() * 0.3;
-            document.body.appendChild(p);
+        function removeBackground(imgSrc, canvasId) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            img.src = imgSrc;
+            img.onload = () => {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imgData.data;
+                
+                // Color to remove (Black/White depending on asset)
+                for (let i = 0; i < data.length; i += 4) {
+                    const r = data[i];
+                    const g = data[i + 1];
+                    const b = data[i + 2];
+                    
+                    // Remove very dark colors (the black background)
+                    if (r < 40 && g < 40 && b < 40) {
+                        data[i + 3] = 0; // Set alpha to 0
+                    }
+                }
+                ctx.putImageData(imgData, 0, 0);
+            };
         }
+
+        // Apply background removal to our new clean assets
+        removeBackground('bat_clean.png', 'batCanvas');
+        removeBackground('ball_clean.png', 'ballCanvas');
     </script>
 
 </body>
