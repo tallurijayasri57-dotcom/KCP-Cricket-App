@@ -39,7 +39,7 @@
     href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@300;400;500&display=swap"
     rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+
   <style>
     *,
     *::before,
@@ -4171,11 +4171,7 @@
 </head>
 
 <body>
-  <!-- Lottie Animation Splash (1.5s) -->
-  <div id="lottieSplash" style="display:flex; align-items:center; justify-content:center; width:100vw; height:100vh; position:fixed; top:0; left:0; background:#0b0f1a; z-index:100000;">
-    <!-- Note: Using a placeholder Lottie URL here. Replace src with your specific JSON URL if you have it exported from LottieFiles. -->
-    <lottie-player src="https://lottie.host/81a96de4-4d8b-4a57-89be-0e2ff175e110/i4d8cXZL1V.json" background="transparent" speed="1" style="width: 300px; height: 300px;" autoplay></lottie-player>
-  </div>
+
 
   <div id="splashScreen">
     <img src="/founder_splash.png?v=2" class="splash-photo" alt="KCP Founder">
@@ -14788,29 +14784,11 @@
       }
 
       let splash = document.getElementById('splashScreen');
-      let lottieSplash = document.getElementById('lottieSplash');
-
-      if (splash && lottieSplash) {
-        // Hide original splash initially so only Lottie is visible
-        splash.style.display = 'none';
-        
-        // Step 1: Hide Lottie after 1.5 seconds and show Founder Splash
-        setTimeout(() => {
-          lottieSplash.style.display = 'none';
-          splash.style.display = 'flex'; // Restore original splash screen
-          
-          // Step 2: Hide Founder Splash after a brief moment and show Login
-          setTimeout(() => {
-            splash.style.display = 'none';
-            // Force login page to appear for demo purposes as requested
-            showPage('loginPage');
-          }, 2500); // 2.5s for founder pic (Total: 4s like before)
-        }, 1500); // 1.5s for Lottie Animation
-      } else if (splash) {
+      if (splash) {
         setTimeout(() => {
           splash.style.display = 'none';
           showPage('loginPage');
-        }, 4000);
+        }, 3000); // Show founder splash for 3 seconds
       }
     });
 

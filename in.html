@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>KCP Cricket Splash</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+
+      /* WHITE + CARBON BLUE BACKGROUND */
+
+      background:
+        linear-gradient(to bottom,
+          #ffffff 0%,
+          #eef2f7 48%,
+          #0f172a 49%,
+          #081120 100%);
+    }
+
+    .scene {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* GLOW */
+
+    .glow {
+      position: absolute;
+
+      width: 180px;
+      height: 180px;
+
+      border-radius: 50%;
+
+      background: rgba(59, 130, 246, 0.18);
+
+      filter: blur(50px);
+
+      left: 38%;
+      top: 34%;
+    }
+
+    /* BAT */
+
+    .bat {
+      position: absolute;
+
+      width: 42px;
+      height: 220px;
+
+      background:
+        linear-gradient(to right,
+          #c98b4a,
+          #f6c48d);
+
+      border-radius: 25px;
+
+      left: 42%;
+      top: 36%;
+
+      transform-origin: bottom center;
+
+      animation: helicopterShot 2.3s infinite ease-in-out;
+
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .bat::before {
+      content: "";
+
+      position: absolute;
+
+      bottom: -50px;
+      left: 8px;
+
+      width: 24px;
+      height: 52px;
+
+      background: #111827;
+
+      border-radius: 12px;
+    }
+
+    /* BALL */
+
+    .ball {
+      position: absolute;
+
+      width: 46px;
+      height: 46px;
+
+      border-radius: 50%;
+
+      background: white;
+
+      top: 43%;
+      right: 13%;
+
+      animation: sixShot 2.3s infinite linear;
+
+      box-shadow: 0 0 24px rgba(255, 255, 255, 0.9);
+    }
+
+    .ball::before,
+    .ball::after {
+      content: "";
+
+      position: absolute;
+
+      width: 3px;
+      height: 46px;
+
+      background: #d90429;
+
+      border-radius: 10px;
+    }
+
+    .ball::before {
+      left: 16px;
+    }
+
+    .ball::after {
+      left: 24px;
+    }
+
+    /* TRAIL */
+
+    .trail {
+      position: absolute;
+
+      width: 220px;
+      height: 10px;
+
+      top: 45%;
+      right: 14%;
+
+      background:
+        linear-gradient(to left,
+          rgba(255, 255, 255, 0.8),
+          transparent);
+
+      filter: blur(4px);
+
+      border-radius: 10px;
+
+      animation: trailMove 2.3s infinite linear;
+    }
+
+    /* LOGO */
+
+    .logo {
+      position: absolute;
+
+      width: 100%;
+
+      bottom: 65px;
+
+      text-align: center;
+
+      opacity: 0;
+
+      animation: logoFade 2.3s infinite;
+    }
+
+    .logo h1 {
+      font-size: 60px;
+      color: white;
+      font-weight: bold;
+    }
+
+    .logo span {
+      color: #38bdf8;
+    }
+
+    .logo p {
+      margin-top: 10px;
+
+      color: #dbeafe;
+
+      font-size: 18px;
+
+      letter-spacing: 4px;
+    }
+
+    /* BAT HELICOPTER SHOT */
+
+    @keyframes helicopterShot {
+
+      0% {
+        transform: rotate(-30deg);
+      }
+
+      25% {
+        transform: rotate(10deg);
+      }
+
+      45% {
+        transform: rotate(120deg);
+      }
+
+      70% {
+        transform: rotate(240deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* BALL TOUCH + SIX */
+
+    @keyframes sixShot {
+
+      0% {
+        transform: translate(0px, 0px) scale(1);
+        opacity: 1;
+      }
+
+      /* BALL BAT KI DAGGARA */
+
+      35% {
+        transform: translate(-250px, 0px) scale(1);
+        opacity: 1;
+      }
+
+      /* EXACT TOUCH */
+
+      42% {
+        transform: translate(-320px, 10px) scale(1.35);
+        opacity: 1;
+      }
+
+      /* SIX */
+
+      55% {
+        transform: translate(-420px, -180px) scale(1.15);
+        opacity: 1;
+      }
+
+      75% {
+        transform: translate(-520px, -420px) scale(0.95);
+        opacity: 1;
+      }
+
+      100% {
+        transform: translate(-700px, -780px) scale(0.6);
+        opacity: 0;
+      }
+    }
+
+    /* TRAIL */
+
+    @keyframes trailMove {
+
+      0% {
+        opacity: 0;
+        transform: translateX(0px);
+      }
+
+      20% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+        transform: translateX(-420px);
+      }
+    }
+
+    /* LOGO FADE */
+
+    @keyframes logoFade {
+
+      0%,
+      45% {
+        opacity: 0;
+      }
+
+      65%,
+      100% {
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="scene">
+
+    <div class="glow"></div>
+
+    <div class="trail"></div>
+
+    <div class="bat"></div>
+
+    <div class="ball"></div>
+
+    <div class="logo">
+      <h1>KCP <span>Cricket</span></h1>
+      <p>YOUR CRICKET MATTERS</p>
+    </div>
+
+  </div>
+
+</body>
+
+</html>
