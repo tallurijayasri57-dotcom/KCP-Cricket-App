@@ -5238,6 +5238,11 @@
         <div id="tdHeroesContainer"></div>
       </div>
 
+      <!-- GALLERY VIEW -->
+      <div id="tdView-gallery" style="display:none;">
+        <div id="tdGalleryContainer" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:16px;"></div>
+      </div>
+
     </div>
   </div>
 
@@ -9093,10 +9098,7 @@
 
 
     // ---- Home banner: show welcome-tournament if user has tournaments, else default ----
-    // ---- LIVE SCORE SYNC ----
-    let currentLiveMatchId = null;
-
-    async function updateLiveScore() {
+    async function updateLiveScore(forcedStatus, forcedResult) {
       if (!currentLiveMatchId || !window.fbSetDoc) return;
 
       // Use cached player photos if available to avoid heavy loops
@@ -9136,6 +9138,9 @@
           actualTournamentId = t.id || currentTournamentId;
         }
       }
+      
+      // Calculate overs string safely
+      let currentOversStr = Math.floor(ballCount / 6) + "." + (ballCount % 6);
 
       let matchState = {
         id: currentLiveMatchId,
@@ -9146,7 +9151,7 @@
         runs: totalRuns,
         wickets: totalWickets,
         ballCount: ballCount,
-        overs: Math.floor(ballCount / 6) + "." + ballCount % 6,
+        overs: currentOversStr,
         totalOvers: typeof totalOvers !== 'undefined' ? totalOvers : 0,
         matchTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
         target: target,
@@ -9186,13 +9191,13 @@
         yetToBat: batPlayers.filter(p => !Object.keys(batsmanStats).includes(p)).join(", "),
         extras: totalRuns - Object.values(batsmanStats).reduce((acc, b) => acc + b.runs, 0),
         updatedAt: Date.now(),
-        status: "live",
+        status: forcedStatus || "live",
         ground: ground,
         seriesName: seriesName,
         tossInfo: matchTossText,
         matchType: matchType,
         matchDate: matchStartTime,
-        matchStatus: innings === 1 ? "In Progress" : "Run Chase",
+        matchStatus: forcedResult || (forcedStatus === "finished" ? "Match Finished" : (innings === 1 ? "In Progress" : "Run Chase")),
         lastBalls: matchCommentary.filter(c => c.ball !== undefined).slice(0, 10).reverse().map(c => c.ball),
         batsmanStats: batsmanStats,
         bowlerStats: bowlerStats,
@@ -9205,7 +9210,10 @@
           bowlTeam: innings1BowlTeam,
           runs: target > 0 ? target - 1 : 0,
           wickets: Object.values(innings1BowlStats).reduce((acc, b) => acc + (b.wickets || 0), 0),
-          overs: Object.values(innings1BowlStats).reduce((acc, b) => acc + (b.balls || 0), 0),
+          overs: (() => {
+            let b = Object.values(innings1BowlStats).reduce((acc, b) => acc + (b.balls || 0), 0);
+            return Math.floor(b / 6) + "." + (b % 6);
+          })(),
           batsmen: Object.keys(innings1BatStats).map(name => {
             let s = innings1BatStats[name];
             return {
@@ -9224,6 +9232,25 @@
             };
           }),
           extras: (target > 0 ? target - 1 : 0) - Object.values(innings1BatStats).reduce((acc, b) => acc + b.runs, 0)
+        } : null,
+        innings2: (innings === 2) ? {
+          batTeam: matchBatTeam,
+          bowlTeam: matchBowlTeam,
+          runs: totalRuns,
+          wickets: totalWickets,
+          overs: Math.floor(ballCount / 6) + "." + (ballCount % 6),
+          batsmen: Object.keys(batsmanStats).map(name => ({
+            name: name, runs: batsmanStats[name].runs, balls: batsmanStats[name].balls, fours: batsmanStats[name].fours, sixes: batsmanStats[name].sixes,
+            sr: batsmanStats[name].balls > 0 ? ((batsmanStats[name].runs / batsmanStats[name].balls) * 100).toFixed(2) : "0.00",
+            outDesc: batsmanStats[name].dismissal_type ? (batsmanStats[name].dismissal_type + (batsmanStats[name].dismissed_by ? ' ' + batsmanStats[name].dismissed_by : '')) : (outBatsmen.includes(name) ? 'out' : 'not out'),
+            isOut: outBatsmen.includes(name)
+          })),
+          bowlers: Object.keys(bowlerStats).map(name => ({
+            name: name, overs: Math.floor(bowlerStats[name].balls / 6) + "." + (bowlerStats[name].balls % 6),
+            maidens: bowlerStats[name].maidens || 0, runs: bowlerStats[name].runs, wickets: bowlerStats[name].wickets,
+            eco: bowlerStats[name].balls > 0 ? ((bowlerStats[name].runs / (bowlerStats[name].balls / 6))).toFixed(2) : "0.00"
+          })),
+          extras: totalRuns - Object.values(batsmanStats).reduce((acc, b) => acc + b.runs, 0)
         } : null
       };
 
@@ -9240,15 +9267,16 @@
       }
     }
 
-    async function finishLiveMatch() {
+    async function finishLiveMatch(result) {
       if (!currentLiveMatchId || !window.fbSetDoc) return;
+      
+      // Push final state one last time with 'finished' status and actual result
+      await updateLiveScore("finished", result);
+
       currentTournamentMatchIdx = null;
       localStorage.removeItem("currentTournamentMatchIdx");
-      try {
-        await window.fbSetDoc(window.fbDoc(window.fbDb, "live_matches", currentLiveMatchId.toString()), { status: "finished", updatedAt: Date.now() }, { merge: true });
-        currentLiveMatchId = null;
-        localStorage.removeItem("currentLiveMatchId");
-      } catch (e) { console.error(e); }
+      currentLiveMatchId = null;
+      localStorage.removeItem("currentLiveMatchId");
     }
 
     function renderHomeBanner() {
@@ -12089,7 +12117,7 @@
       if (tabEl) tabEl.classList.add('active');
 
       // Update View UI - show only the selected view
-      ['matches', 'points', 'leaderboard', 'teams', 'heroes'].forEach(id => {
+      ['matches', 'points', 'leaderboard', 'teams', 'heroes', 'gallery'].forEach(id => {
         let el = document.getElementById('tdView-' + id);
         if (el) el.style.display = (id === tabId) ? 'block' : 'none';
       });
@@ -12114,6 +12142,8 @@
         await renderTdTeams();
       } else if (tabId === 'heroes') {
         await renderTdHeroes();
+      } else if (tabId === 'gallery') {
+        await renderTdGallery();
       }
     }
 
@@ -12282,6 +12312,33 @@
     }
 
 
+
+    async function renderTdGallery() {
+      let t = currentViewingTournament;
+      if (!t || !t.id) return;
+      let container = document.getElementById('tdGalleryContainer');
+      container.innerHTML = `<div style="text-align:center;padding:40px;color:#6ee7b7;">⏳ Loading Gallery...</div>`;
+
+      try {
+        const r = await fetch(API + '/tournament-gallery/' + t.id + '?_t=' + Date.now());
+        let photos = [];
+        if (r.ok) photos = await r.json();
+
+        if (photos.length === 0) {
+          container.innerHTML = `<div style="text-align:center;padding:60px 20px;color:rgba(255,255,255,0.4);font-family:'Inter',sans-serif;font-size:14px;">📸 No photos uploaded yet.</div>`;
+          return;
+        }
+
+        container.innerHTML = photos.map(photo => `
+          <div style="position:relative; border-radius:10px; overflow:hidden; aspect-ratio:1; background:#1e293b; box-shadow:0 4px 16px rgba(0,0,0,0.4); cursor:pointer;" onclick="openGalleryPhoto('${photo.photo_url.replace(/'/g, "\\'")}')">
+            <img src="${photo.photo_url}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
+            ${photo.caption ? `<div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.6);color:#fff;font-size:12px;padding:6px 10px;font-family:'Inter',sans-serif;">${photo.caption}</div>` : ''}
+          </div>
+        `).join('');
+      } catch (e) {
+        container.innerHTML = `<div style="text-align:center;padding:40px;color:#ef4444;">Error loading photos.</div>`;
+      }
+    }
 
     async function renderTdPointsTable() {
       let t = currentViewingTournament;
@@ -13413,7 +13470,7 @@
         choice: choice
       });
       let tossLoser = tossTeams[tossWinnerIndex === 0 ? 1 : 0];
-      matchTossText = `Toss: ${tossWinner} opt to ${choice} first`;
+      matchTossText = `${tossWinner} opt to ${choice} first`;
       let finalBatTeam = choice === "bat" ? tossWinner : tossLoser;
       let finalBowlTeam = choice === "bat" ? tossLoser : tossWinner;
       document.getElementById("tossOverlay").classList.remove("open");
@@ -14343,7 +14400,7 @@
       let tId = (currentViewingTournament ? currentViewingTournament.id : null);
       saveMatchResult(winner, loser, "won", margin, currentTournamentMatchIdx, tId, matchTossText).then(() => {
         updateAllPlayerStatsAfterMatch(inningsNum);
-        finishLiveMatch();
+        finishLiveMatch(finalResult);
       });
 
 
