@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KCP CREX HUB - Elite Splash</title>
+    <title>KCP CREX HUB - Cinematic Action</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #6ee7b7;
-            --bg: #030712;
+            --bg: #000000;
         }
 
         body, html {
@@ -25,65 +25,47 @@
             color: white;
         }
 
-        .mesh-bg {
+        /* Full Screen Cinematic Container */
+        .splash-stage {
             position: absolute;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(at 0% 0%, rgba(110, 231, 183, 0.12) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.12) 0px, transparent 50%),
-                radial-gradient(at 50% 50%, rgba(15, 23, 42, 1) 0px, transparent 100%);
-            z-index: 0;
-        }
-
-        .container {
-            position: relative;
-            z-index: 10;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            perspective: 1200px;
+            background: radial-gradient(circle at center, #0f172a 0%, #000000 100%);
+            perspective: 1500px;
+            overflow: hidden;
         }
 
-        .action-stage {
-            position: relative;
-            width: 400px;
-            height: 400px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transform-style: preserve-3d;
-        }
-
-        /* 100% Reliable Realistic Bat */
-        .bat-box {
+        /* Action Elements */
+        .bat-action {
             position: absolute;
-            width: 100px;
-            height: 400px;
+            width: 110px;
+            height: 440px;
             left: 45%;
             bottom: 5%;
             transform-origin: 50% 10%;
             transform: rotateX(20deg) rotateY(-110deg);
             z-index: 20;
-            animation: eliteActionSwing 4s infinite cubic-bezier(0.45, 0, 0.05, 1);
+            filter: drop-shadow(0 20px 60px rgba(0,0,0,1));
+            animation: actionSwing 4s infinite cubic-bezier(0.45, 0, 0.05, 1);
         }
 
-        /* 100% Reliable Realistic Ball */
-        .ball-box {
+        .ball-action {
             position: absolute;
-            width: 65px;
-            height: 65px;
+            width: 70px;
+            height: 70px;
             z-index: 25;
             opacity: 0;
-            animation: eliteActionBall 4s infinite cubic-bezier(0.4, 0, 0.2, 1);
+            animation: actionBall 4s infinite cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         canvas { width: 100%; height: 100%; object-fit: contain; }
 
-        @keyframes eliteActionSwing {
+        @keyframes actionSwing {
             0%, 40% { transform: rotateX(20deg) rotateY(-110deg); opacity: 0; }
             42% { opacity: 1; }
             50% { transform: rotateX(0deg) rotateY(20deg) translateZ(100px); }
@@ -91,43 +73,57 @@
             85%, 100% { opacity: 0; }
         }
 
-        @keyframes eliteActionBall {
-            0% { transform: translate(500px, 150px) scale(0.2); opacity: 0; }
+        @keyframes actionBall {
+            0% { transform: translate(600px, 150px) scale(0.3); opacity: 0; }
             10% { opacity: 1; }
-            48% { transform: translate(20px, 10px) scale(1); opacity: 1; }
-            50% { transform: translate(0, 0) scale(1.3); opacity: 1; }
-            55% { transform: translate(-200px, -400px) scale(8); opacity: 0; }
+            48% { transform: translate(30px, 10px) scale(1); opacity: 1; }
+            50% { transform: translate(0, 0) scale(1.4); opacity: 1; }
+            55% { transform: translate(-300px, -500px) scale(12); opacity: 0; filter: blur(10px); }
             100% { opacity: 0; }
         }
 
         /* Impact Flash */
         .flash {
             position: absolute;
-            width: 200px;
-            height: 200px;
-            background: radial-gradient(circle, #fff 0%, var(--primary) 40%, transparent 70%);
-            border-radius: 50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, #fff 0%, var(--primary) 20%, transparent 60%);
             opacity: 0;
             z-index: 30;
-            animation: flashTrigger 4s infinite;
+            animation: flashAction 4s infinite;
         }
 
-        @keyframes flashTrigger {
+        @keyframes flashAction {
             0%, 49% { opacity: 0; transform: scale(0); }
-            50% { opacity: 1; transform: scale(1.5); }
-            55% { opacity: 0; transform: scale(3); }
+            50% { opacity: 0.8; transform: scale(1.5); }
+            55% { opacity: 0; transform: scale(4); }
             100% { opacity: 0; }
         }
 
-        /* Branding Reveal */
-        .branding {
-            text-align: center;
-            margin-top: -60px;
-            opacity: 0;
-            animation: brandingShow 4s infinite;
+        /* Cinematic Vignette */
+        .vignette {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, transparent 30%, rgba(0,0,0,0.9) 100%);
+            z-index: 40;
+            pointer-events: none;
         }
 
-        .branding h1 {
+        /* Branding Overlay */
+        .overlay {
+            position: absolute;
+            bottom: 100px;
+            width: 100%;
+            text-align: center;
+            z-index: 50;
+            opacity: 0;
+            animation: overlayFade 4s infinite;
+        }
+
+        .overlay h1 {
             font-size: 64px;
             font-weight: 800;
             letter-spacing: 5px;
@@ -137,9 +133,9 @@
             -webkit-text-fill-color: transparent;
         }
 
-        @keyframes brandingShow {
-            0%, 55% { opacity: 0; transform: translateY(30px); }
-            70%, 90% { opacity: 1; transform: translateY(0); }
+        @keyframes overlayFade {
+            0%, 55% { opacity: 0; transform: translateY(20px); }
+            70%, 95% { opacity: 1; transform: translateY(0); }
             100% { opacity: 0; }
         }
 
@@ -147,22 +143,19 @@
 </head>
 <body>
 
-    <div class="mesh-bg"></div>
-
-    <div class="container">
-        <div class="action-stage">
-            <div class="flash"></div>
-            
-            <div class="bat-box">
-                <canvas id="batCanvas"></canvas>
-            </div>
-
-            <div class="ball-box">
-                <canvas id="ballCanvas"></canvas>
-            </div>
+    <div class="splash-stage">
+        <div class="vignette"></div>
+        <div class="flash"></div>
+        
+        <div class="bat-action">
+            <canvas id="batCanvas"></canvas>
         </div>
 
-        <div class="branding">
+        <div class="ball-action">
+            <canvas id="ballCanvas"></canvas>
+        </div>
+
+        <div class="overlay">
             <h1>KCP CREX HUB</h1>
         </div>
     </div>
