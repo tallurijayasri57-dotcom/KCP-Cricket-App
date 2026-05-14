@@ -4029,157 +4029,103 @@
     }
 
     /* Premium Event Popups - Toast Banner style */
+    /* Premium Event Popups - Professional Broadcast Style */
     .event-popup-overlay {
       display: none;
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
+      inset: 0;
       z-index: 11000;
-      align-items: flex-start;
+      align-items: center;
       justify-content: center;
-      padding-top: 0;
-      pointer-events: none;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(10px);
+      transition: all 0.4s ease;
     }
 
     .event-popup-overlay.open {
       display: flex;
     }
 
-    /* Winner popup needs full overlay */
-    .event-popup-overlay.winner-mode {
-      inset: 0;
-      background: rgba(5, 30, 20, 0.97);
-      backdrop-filter: blur(10px);
-      align-items: center;
-      pointer-events: all;
-    }
-
     .event-popup-box {
-      width: 92%;
-      max-width: 420px;
-      max-height: 90vh;
-      overflow-y: auto;
-      text-align: center;
-      color: #fff;
-      animation: popupSlideDown 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-      padding: 10px 0;
-      pointer-events: all;
-    }
-
-    /* Toast banner for FOUR/SIX/WICKET/TARGET */
-    .event-toast-banner {
-      width: 100%;
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-      border-bottom: 3px solid #6ee7b7;
-      padding: 14px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 14px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-      animation: popupSlideDown 0.3s ease;
-      pointer-events: all;
-    }
-
-    @keyframes popupSlideDown {
-      from { transform: translateY(-100%); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
-    .event-title {
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 14px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: #94a3b8;
-      margin-bottom: 15px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-
-    .event-main-text {
-      font-family: 'Inter', sans-serif;
-      font-size: 32px;
-      font-weight: 800;
-      margin-bottom: 10px;
-      line-height: 1.2;
-    }
-
-    .event-sub-text {
-      font-size: 18px;
-      color: #64748b;
-      margin-bottom: 20px;
-    }
-
-    .event-highlight-text {
-      font-size: 20px;
-      font-weight: 700;
-      color: #fbbf24;
-      margin-bottom: 30px;
-    }
-
-    .event-mom-card {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
-      padding: 24px;
-      margin-top: 30px;
+      width: 90%;
+      max-width: 450px;
       position: relative;
+      animation: eventPopIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    .event-mom-card::before {
-      content: '★';
-      position: absolute;
-      top: -12px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #0b0f1a;
-      color: #fbbf24;
-      font-size: 20px;
-      padding: 0 10px;
+    @keyframes eventPopIn {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
     }
 
-    .event-done-btn {
-      margin-top: 30px;
-      padding: 14px 40px;
-      background: #16a34a;
-      border-radius: 12px;
-      color: #fff;
-      font-weight: 700;
-      font-size: 16px;
-      border: none;
-      cursor: pointer;
-      width: 100%;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+    .premium-event-card {
+      background: linear-gradient(165deg, rgba(30,41,59,0.95) 0%, rgba(15,23,42,0.98) 100%);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 24px;
+      padding: 32px 24px;
+      text-align: center;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
     }
 
-    .event-confetti {
-      font-size: 40px;
-      margin-bottom: 20px;
-    }
-
-    .boundary-animation {
-      font-size: clamp(60px, 20vw, 100px);
+    .event-big-text {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 80px;
       font-weight: 900;
       font-style: italic;
-      color: #fff;
-      text-shadow: 0 0 20px rgba(37, 99, 235, 0.8);
-      animation: boundaryBounce 0.6s infinite alternate;
       line-height: 1;
+      margin: 20px 0;
+      text-transform: uppercase;
+      letter-spacing: -2px;
+      background: linear-gradient(to bottom, #fff 30%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 20px rgba(255,255,255,0.2));
     }
 
-    @keyframes boundaryBounce {
-      from {
-        transform: scale(1);
-      }
+    .event-glow-four { text-shadow: 0 0 30px rgba(59, 130, 246, 0.6); color: #60a5fa !important; -webkit-text-fill-color: #60a5fa !important; }
+    .event-glow-six { text-shadow: 0 0 30px rgba(239, 68, 68, 0.6); color: #f87171 !important; -webkit-text-fill-color: #f87171 !important; }
+    .event-glow-wicket { text-shadow: 0 0 30px rgba(251, 191, 36, 0.6); color: #fbbf24 !important; -webkit-text-fill-color: #fbbf24 !important; }
 
-      to {
-        transform: scale(1.1);
-      }
+    .event-label-tag {
+      display: inline-block;
+      padding: 6px 16px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .event-btn-primary {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      color: white;
+      border: none;
+      padding: 14px 40px;
+      border-radius: 12px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+      transition: all 0.2s;
+      width: 100%;
+    }
+
+    .event-btn-secondary {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #f8fafc;
+      padding: 12px 24px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
     }
   </style>
 
@@ -9197,7 +9143,7 @@
         tossInfo: matchTossText,
         matchType: matchType,
         matchDate: matchStartTime,
-        matchStatus: forcedResult || (forcedStatus === "finished" ? "Match Finished" : (innings === 1 ? "In Progress" : "Run Chase")),
+        matchStatus: forcedResult || (forcedStatus === "finished" ? (result || "Match Finished") : (innings === 1 ? "In Progress" : "Run Chase")),
         lastBalls: matchCommentary.filter(c => c.ball !== undefined).slice(0, 10).reverse().map(c => c.ball),
         batsmanStats: batsmanStats,
         bowlerStats: bowlerStats,
@@ -9492,80 +9438,7 @@
 
     let celebrationOldState = null;
 
-    function showEventPopup(type, data = {}) {
-      const modal = document.getElementById('eventPopupModal');
-      const content = document.getElementById('eventPopupContent');
-      if (!modal || !content) return;
-
-      let html = '';
-      if (type === 'FOUR') {
-        modal.classList.remove('winner-mode');
-        html = `<div class="event-toast-banner">
-          <span style="font-size:32px;">🏏</span>
-          <div>
-            <div style="font-family:'Rajdhani',sans-serif; font-size:28px; font-weight:900; color:#3b82f6; letter-spacing:2px;">FOUR!</div>
-            <div style="font-size:12px; color:#94a3b8;">Ball raced to the boundary</div>
-          </div>
-          <span style="font-size:28px;">🎊</span>
-        </div>`;
-      } else if (type === 'SIX') {
-        modal.classList.remove('winner-mode');
-        html = `<div class="event-toast-banner" style="border-bottom-color:#ef4444;">
-          <span style="font-size:32px;">🏏</span>
-          <div>
-            <div style="font-family:'Rajdhani',sans-serif; font-size:28px; font-weight:900; color:#ef4444; letter-spacing:2px;">SIX!</div>
-            <div style="font-size:12px; color:#94a3b8;">Ball went out of the stadium!</div>
-          </div>
-          <span style="font-size:28px;">🎉</span>
-        </div>`;
-      } else if (type === 'WICKET') {
-        modal.classList.remove('winner-mode');
-        html = `<div class="event-toast-banner" style="border-bottom-color:#ef4444;">
-          <span style="font-size:32px;">☝️</span>
-          <div>
-            <div style="font-family:'Rajdhani',sans-serif; font-size:28px; font-weight:900; color:#ef4444; letter-spacing:2px;">WICKET!</div>
-            <div style="font-size:12px; color:#94a3b8;">That's a huge breakthrough!</div>
-          </div>
-          <span style="font-size:32px;">🎯</span>
-        </div>`;
-      } else if (type === 'TARGET') {
-        modal.classList.remove('winner-mode');
-        html = `<div class="event-toast-banner" style="border-bottom-color:#f59e0b;">
-          <span style="font-size:32px;">🎯</span>
-          <div>
-            <div style="font-family:'Rajdhani',sans-serif; font-size:22px; font-weight:900; color:#f59e0b;">TARGET: ${data.target} RUNS</div>
-            <div style="font-size:12px; color:#94a3b8;">${data.team} needs ${data.target} in ${data.overs} overs</div>
-          </div>
-        </div>`;
-      } else if (type === 'WINNER') {
-        modal.classList.add('winner-mode');
-        html = `
-          <div class="event-popup-box" style="padding:30px 20px;">
-            <div style="font-size:60px;">🏆</div>
-            <div style="font-size:14px; font-weight:900; color:#6ee7b7; letter-spacing:3px; margin:10px 0;">MATCH WINNER</div>
-            <div style="font-family:'Rajdhani',sans-serif; font-size:32px; font-weight:900; color:#fff;">${data.winner}</div>
-            <div style="font-size:20px; font-weight:700; color:#fbbf24; margin:8px 0;">${data.margin || 'Won the match!'}</div>
-            <div style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:16px; margin:16px 0;">
-              <div style="font-size:11px; color:#fbbf24; font-weight:800; letter-spacing:2px; margin-bottom:6px;">⭐ MAN OF THE MATCH</div>
-              <div style="font-size:20px; font-weight:800; color:#fff;">${data.momName || 'TBA'}</div>
-              <div style="font-size:13px; color:#94a3b8;">${data.momStats || ''}</div>
-            </div>
-            <button class="event-done-btn" onclick="closeEventPopup()">DONE ✓</button>
-          </div>`;
-        content.innerHTML = html;
-        modal.classList.add('open');
-        return;
-      }
-
-      content.innerHTML = html;
-      modal.classList.add('open');
-      if (type !== 'WINNER') setTimeout(closeEventPopup, 2000);
-    }
-
-    function closeEventPopup() {
-      const modal = document.getElementById('eventPopupModal');
-      if (modal) modal.classList.remove('open');
-    }
+    // showEventPopup consolidated below
 
     function renderPremiumMatchView(m) {
       if (!m) return;
@@ -9761,106 +9634,100 @@
     }
 
     function calculateMatchAwards(m) {
-      let allBatsmen = [];
-      let allBowlers = [];
+      let players = {};
 
-      (m.batsmen || []).forEach(b => { allBatsmen.push({ ...b, team: m.batTeam }); });
-      (m.bowlers || []).forEach(b => { allBowlers.push({ ...b, team: m.bowlTeam }); });
+      const getP = (name, team) => {
+        if (!players[name]) {
+          players[name] = { 
+            name, team, 
+            runs: 0, balls: 0, fours: 0, sixes: 0, 
+            bowledRuns: 0, bowledBalls: 0, wickets: 0, maidens: 0,
+            batPts: 0, bowlPts: 0, totalPts: 0,
+            outDesc: ''
+          };
+        }
+        return players[name];
+      };
 
+      const processBatting = (list, team) => {
+        (list || []).forEach(b => {
+          let p = getP(b.name, team);
+          p.runs += parseInt(b.runs) || 0;
+          p.balls += parseInt(b.balls) || 0;
+          p.fours += parseInt(b.fours) || 0;
+          p.sixes += parseInt(b.sixes) || 0;
+          if (b.outDesc) p.outDesc = b.outDesc;
+        });
+      };
+
+      const processBowling = (list, team) => {
+        (list || []).forEach(b => {
+          let p = getP(b.name, team);
+          p.bowledRuns += parseInt(b.runs) || 0;
+          p.wickets += parseInt(b.wickets) || 0;
+          p.maidens += parseInt(b.maidens) || 0;
+          let ov = parseFloat(b.overs) || 0;
+          let totalB = Math.floor(ov) * 6 + Math.round((ov % 1) * 10);
+          p.bowledBalls += totalB;
+        });
+      };
+
+      processBatting(m.batsmen, m.batTeam);
+      processBowling(m.bowlers, m.bowlTeam);
       if (m.innings1) {
-        (m.innings1.batsmen || []).forEach(b => { allBatsmen.push({ ...b, team: m.innings1.batTeam }); });
-        (m.innings1.bowlers || []).forEach(b => { allBowlers.push({ ...b, team: m.innings1.batTeam === m.batTeam ? m.bowlTeam : m.batTeam }); }); // Bowlers are usually opponent team
+        processBatting(m.innings1.batsmen, m.innings1.batTeam);
+        processBowling(m.innings1.bowlers, m.innings1.bowlTeam);
       }
       if (m.innings2) {
-        (m.innings2.batsmen || []).forEach(b => { allBatsmen.push({ ...b, team: m.innings2.batTeam }); });
-        (m.innings2.bowlers || []).forEach(b => { allBowlers.push({ ...b, team: m.innings2.batTeam === m.batTeam ? m.bowlTeam : m.batTeam }); });
+        processBatting(m.innings2.batsmen, m.innings2.batTeam);
+        processBowling(m.innings2.bowlers, m.innings2.bowlTeam);
       }
 
-      let bestBatter = null;
-      let maxBatPts = -1000;
-      allBatsmen.forEach(b => {
-        let runs = parseInt(b.runs) || 0;
-        let balls = parseInt(b.balls) || 0;
-        let fours = parseInt(b.fours) || 0;
-        let sixes = parseInt(b.sixes) || 0;
+      let allPlayersList = Object.values(players);
 
-        let pts = runs / 10;
-        pts += (fours * 0.012) + (sixes * 0.016);
-        if (balls >= 10) {
-          let sr = (runs / balls) * 100;
-          if (sr >= 200) pts += 0.05;
-          else if (sr >= 150) pts += 0.03;
-          else if (sr < 100) pts -= 0.05;
-        }
-        if (runs === 0 && balls > 0 && String(b.outDesc).toLowerCase() !== 'not out') pts -= 0.15;
-
-        b.battingPoints = parseFloat(pts.toFixed(3));
-        if (b.battingPoints > maxBatPts) { maxBatPts = b.battingPoints; bestBatter = b; }
-      });
-
-      let bestBowler = null;
-      let maxBowlPts = -1000;
-      allBowlers.forEach(b => {
-        let wickets = parseInt(b.wickets) || 0;
-        let runsConceded = parseInt(b.runs) || 0;
-        let maidens = parseInt(b.maidens) || 0;
-        let oversFloat = parseFloat(b.overs) || 0;
-        let oversNum = Math.floor(oversFloat);
-        let extraBalls = Math.round((oversFloat - oversNum) * 10);
-        let totalBalls = (oversNum * 6) + extraBalls;
-
-        let pts = wickets * 1.33;
-        pts += maidens * 0.25;
-
-        if (totalBalls >= 6) {
-          let eco = (runsConceded / (totalBalls / 6));
-          if (eco <= 5.0) pts += 0.25;
-          else if (eco <= 6.0) pts += 0.15;
-          else if (eco <= 7.0) pts += 0.05;
-          else if (eco >= 10.0) pts -= 0.1;
-        }
-        b.bowlingPoints = parseFloat(pts.toFixed(3));
-        if (b.bowlingPoints > maxBowlPts) { maxBowlPts = b.bowlingPoints; bestBowler = b; }
-      });
-
-      allBatsmen.forEach(bat => {
-        if (bat.outDesc) {
-          let desc = bat.outDesc.toLowerCase();
-          if (desc.includes(" b ") || desc.startsWith("b ") || desc.includes("lbw")) {
-            allBowlers.forEach(bowl => {
-              if (desc.includes(bowl.name.toLowerCase())) {
-                bowl.bowlingPoints += 0.15;
-                bowl.bowlingPoints = parseFloat(bowl.bowlingPoints.toFixed(3));
-                if (bowl.bowlingPoints > maxBowlPts) { maxBowlPts = bowl.bowlingPoints; bestBowler = bowl; }
-              }
-            });
-          }
-        }
-      });
-
-      let allPlayers = {};
-      allBatsmen.forEach(b => {
-        if (!allPlayers[b.name]) allPlayers[b.name] = { name: b.name, team: b.team, pts: 0 };
-        allPlayers[b.name].pts += b.battingPoints;
-        allPlayers[b.name].batData = b;
-      });
-      allBowlers.forEach(b => {
-        if (!allPlayers[b.name]) allPlayers[b.name] = { name: b.name, team: b.team, pts: 0 };
-        allPlayers[b.name].pts += b.bowlingPoints;
-        allPlayers[b.name].bowlData = b;
-      });
-
-      let mvp = null;
-      let maxMvpPts = -1000;
-      let allPlayersList = Object.values(allPlayers);
       allPlayersList.forEach(p => {
-        p.pts = parseFloat(p.pts.toFixed(3));
-        if (p.pts > maxMvpPts) { maxMvpPts = p.pts; mvp = p; }
+        // Batting Points
+        let batPts = p.runs / 10;
+        batPts += (p.fours * 0.1) + (p.sixes * 0.2);
+        if (p.balls >= 6) {
+          let sr = (p.runs / p.balls) * 100;
+          if (sr >= 200) batPts += 2;
+          else if (sr >= 150) batPts += 1;
+          else if (sr < 100) batPts -= 1;
+        }
+        p.batPts = batPts;
+
+        // Bowling Points
+        let bowlPts = p.wickets * 5;
+        bowlPts += p.maidens * 2;
+        if (p.bowledBalls >= 6) {
+          let eco = (p.bowledRuns / (p.bowledBalls / 6));
+          if (eco <= 6.0) bowlPts += 2;
+          else if (eco <= 8.0) bowlPts += 1;
+          else if (eco >= 12.0) bowlPts -= 2;
+        }
+        p.bowlPts = p.bowledBalls > 0 ? bowlPts : -1000;
+        p.totalPts = p.batPts + (p.bowledBalls > 0 ? p.bowlPts : 0);
+        
+        // Root fields for rendering compatibility
+        p.sr = p.balls > 0 ? ((p.runs / p.balls) * 100).toFixed(2) : "0.00";
+        p.overs = Math.floor(p.bowledBalls / 6) + "." + (p.bowledBalls % 6);
+        p.eco = p.bowledBalls > 0 ? (p.bowledRuns / (p.bowledBalls / 6)).toFixed(2) : "0.00";
+        // Ensure 'runs' for bowling-specific view doesn't conflict with batting runs if possible
+        // but the renderer uses .runs for both based on context
+        p.bowlRuns = p.bowledRuns; 
+
+        p.batData = { runs: p.runs, balls: p.balls, fours: p.fours, sixes: p.sixes, sr: p.sr, battingPoints: p.batPts };
+        p.bowlData = { runs: p.bowlRuns, wickets: p.wickets, maidens: p.maidens, overs: p.overs, eco: p.eco, bowlingPoints: p.bowlPts };
+        p.pts = p.totalPts;
       });
 
-      allPlayersList.sort((a, b) => b.pts - a.pts);
+      let bestBatter = [...allPlayersList].sort((a,b) => b.batPts - a.batPts || b.runs - a.runs)[0];
+      let activeBowlers = allPlayersList.filter(p => p.bowledBalls > 0);
+      let bestBowler = activeBowlers.sort((a,b) => b.bowlPts - a.bowlPts || b.wickets - a.wickets || a.bowledRuns - b.bowledRuns)[0];
+      let mvp = [...allPlayersList].sort((a,b) => b.totalPts - a.totalPts)[0];
 
-      return { bestBatter, bestBowler, mvp, allPlayersList };
+      return { bestBatter, bestBowler, mvp, allPlayersList: allPlayersList.sort((a,b) => b.totalPts - a.totalPts) };
     }
 
     function renderPremiumMvpTab(m, container) {
@@ -9956,7 +9823,7 @@
         } else if (role === 'bat') {
           statsHtml = `<div style="margin-bottom:2px;">Batting</div><div style="font-weight:600;">${playerObj.runs} R &nbsp; ${playerObj.balls} B &nbsp; ${playerObj.fours} (4S) &nbsp; ${playerObj.sixes} (6S) &nbsp; ${playerObj.sr} (SR)</div>`;
         } else if (role === 'bowl') {
-          statsHtml = `<div style="margin-bottom:2px;">Bowling</div><div style="font-weight:600;">${playerObj.overs} Ov &nbsp; ${playerObj.maidens} M &nbsp; ${playerObj.runs} R &nbsp; ${playerObj.wickets} W &nbsp; ${playerObj.eco} ECO</div>`;
+          statsHtml = `<div style="margin-bottom:2px;">Bowling</div><div style="font-weight:600;">${playerObj.overs} Ov &nbsp; ${playerObj.maidens} M &nbsp; ${playerObj.bowlRuns} R &nbsp; ${playerObj.wickets} W &nbsp; ${playerObj.eco} ECO</div>`;
         }
 
         return `
@@ -10228,48 +10095,87 @@
           const wormCanvas = document.getElementById('wormChart');
 
           if (manCanvas || wormCanvas) {
-            const t1Color = '#3b82f6', t2Color = '#f59e0b';
-            let m1_labels = i1Summaries.map(s => s.over);
-            let m1_values = [];
-            let prevR = 0;
-            i1Summaries.forEach(s => { m1_values.push(s.runs - prevR); prevR = s.runs; });
+            const t1Color = '#3b82f6'; // Bright Blue
+            const t2Color = '#f43f5e'; // Vibrant Rose
+            
+            let maxO = Math.max(
+              i1Summaries.length > 0 ? Math.max(...i1Summaries.map(s => s.over)) : 0,
+              i2Summaries.length > 0 ? Math.max(...i2Summaries.map(s => s.over)) : 0,
+              Math.ceil(parseFloat(m.overs || 0))
+            );
+            if (maxO < 1) maxO = 1;
+            const labels = Array.from({length: maxO}, (_, i) => i + 1);
 
-            // Live data injection for Trend charts
-            if (m.innings === 1 && m.runs > 0) {
-              let currentOverNum = Math.ceil(parseFloat(m.overs || 0));
-              if (currentOverNum > 0 && !m1_labels.includes(currentOverNum)) {
-                m1_labels.push(currentOverNum);
-                m1_values.push(m.runs - prevR);
-              }
-            }
+            // Manhattan Prep
+            const getManData = (summaries, currentInn, currentRuns, currentOvers) => {
+              let vals = [];
+              labels.forEach(ov => {
+                let s = summaries.find(x => x.over === ov);
+                if (s) {
+                  let prevR = summaries.find(x => x.over === ov - 1)?.runs || 0;
+                  vals.push(s.runs - prevR);
+                } else if (currentInn && Math.ceil(parseFloat(currentOvers)) === ov) {
+                  let prevR = summaries.length > 0 ? summaries[summaries.length - 1].runs : 0;
+                  vals.push(currentRuns - prevR);
+                } else {
+                  vals.push(null);
+                }
+              });
+              return vals;
+            };
+
+            const m1_values = getManData(i1Summaries, m.innings === 1, m.runs, m.overs);
+            const m2_values = getManData(i2Summaries, m.innings === 2, m.runs, m.overs);
 
             if (manCanvas) {
-              new Chart(manCanvas, {
+              if (window._liveCharts['man']) window._liveCharts['man'].destroy();
+              window._liveCharts['man'] = new Chart(manCanvas, {
                 type: 'bar',
                 data: {
-                  labels: m1_labels,
+                  labels: labels,
                   datasets: [
-                    { label: m.innings1?.batTeam || (m.innings === 1 ? m.batTeam : m.bowlTeam) || 'Team 1', data: m1_values, backgroundColor: t1Color, borderRadius: 4 },
-                    { label: m.innings2?.batTeam || (m.innings === 1 ? m.bowlTeam : m.batTeam) || 'Team 2', data: i2Summaries.map((s, i) => s.runs - (i2Summaries[i - 1]?.runs || 0)), backgroundColor: t2Color, borderRadius: 4 }
+                    { label: (m.innings1?.batTeam || 'Team 1'), data: m1_values, backgroundColor: t1Color, borderRadius: 4 },
+                    { label: (m.innings2?.batTeam || 'Team 2'), data: m2_values, backgroundColor: t2Color, borderRadius: 4 }
                   ]
                 },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }, x: { grid: { display: false }, ticks: { color: '#94a3b8' } } }, plugins: { legend: { labels: { color: '#f8fafc' } } } }
+                options: { 
+                  responsive: true, maintainAspectRatio: false, 
+                  scales: { 
+                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }, 
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } } 
+                  }, 
+                  plugins: { legend: { labels: { color: '#f8fafc', font: { family: 'Rajdhani', weight: '600' } } } } 
+                }
               });
             }
 
             if (wormCanvas) {
-              let wormData1 = i1Summaries.map(s => ({ x: s.over, y: s.runs }));
-              if (m.innings === 1) wormData1.push({ x: parseFloat(m.overs), y: m.runs });
+              const getWormData = (summaries, currentInn, currentRuns, currentOvers) => {
+                let pts = summaries.map(s => ({ x: s.over, y: s.runs }));
+                if (currentInn && parseFloat(currentOvers) > 0) {
+                  pts.push({ x: parseFloat(currentOvers), y: currentRuns });
+                }
+                if (pts.length > 0 && pts[0].x !== 0) pts.unshift({ x: 0, y: 0 });
+                return pts;
+              };
 
-              new Chart(wormCanvas, {
+              if (window._liveCharts['worm']) window._liveCharts['worm'].destroy();
+              window._liveCharts['worm'] = new Chart(wormCanvas, {
                 type: 'line',
                 data: {
                   datasets: [
-                    { label: m.innings1?.batTeam || m.batTeam || 'Team A', data: wormData1, borderColor: t1Color, backgroundColor: 'rgba(59, 130, 246, 0.1)', fill: true, tension: 0.3 },
-                    { label: m.innings2?.batTeam || 'Team B', data: i2Summaries.map(s => ({ x: s.over, y: s.runs })), borderColor: t2Color, tension: 0.3 }
+                    { label: (m.innings1?.batTeam || 'Team 1'), data: getWormData(i1Summaries, m.innings === 1, m.runs, m.overs), borderColor: t1Color, backgroundColor: 'rgba(59, 130, 246, 0.1)', fill: true, tension: 0.3, pointRadius: 2 },
+                    { label: (m.innings2?.batTeam || 'Team 2'), data: getWormData(i2Summaries, m.innings === 2, m.runs, m.overs), borderColor: t2Color, backgroundColor: 'rgba(244, 63, 94, 0.1)', fill: true, tension: 0.3, pointRadius: 2 }
                   ]
                 },
-                options: { responsive: true, maintainAspectRatio: false, scales: { x: { type: 'linear', grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }, y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } } }, plugins: { legend: { labels: { color: '#f8fafc' } } } }
+                options: { 
+                  responsive: true, maintainAspectRatio: false, 
+                  scales: { 
+                    x: { type: 'linear', grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' }, beginAtZero: true }, 
+                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' }, beginAtZero: true } 
+                  }, 
+                  plugins: { legend: { labels: { color: '#f8fafc', font: { family: 'Rajdhani', weight: '600' } } } } 
+                }
               });
             }
           }
@@ -11508,74 +11414,127 @@
       openPlayerProfile(currentUser, foundTeam, foundRole || 'Player');
     }
 
-    function showEventPopup(type, data) {
-      let modal = document.getElementById('eventPopupModal');
-      let content = document.getElementById('eventPopupContent');
-      let html = '';
+    function showOversOverlay() {
+      const overlay = document.getElementById("oversOverlay");
+      if (overlay) overlay.classList.add("open");
+    }
 
-      if (type === 'toss') {
+    function formatOvers(balls) {
+      if (typeof balls === 'string' && balls.includes('.')) return balls;
+      const b = parseInt(balls) || 0;
+      return Math.floor(b / 6) + "." + (b % 6);
+    }
+
+    function showEventPopup(type, data = {}) {
+      const modal = document.getElementById('eventPopupModal');
+      const content = document.getElementById('eventPopupContent');
+      if (!modal || !content) return;
+
+      const t = type.toLowerCase();
+      let html = '';
+      let autoClose = 3000;
+
+      if (t === 'boundary' || t === 'four' || t === 'six') {
+        const runs = data.runs || (t === 'four' ? 4 : (t === 'six' ? 6 : 0));
+        const label = runs === 6 ? 'SIX' : 'FOUR';
+        const glowClass = runs === 6 ? 'event-glow-six' : 'event-glow-four';
         html = `
-          <div class="event-title">🪙 COIN TOSS</div>
-          <div class="event-main-text">${data.winner} Won the Toss! 🎊</div>
-          <div class="event-sub-text">Who won the toss on ground?</div>
-          <div style="display:flex; gap:10px; margin-bottom:20px;">
-            <button style="flex:1; padding:12px; background:${data.winner === data.team1 ? '#2563eb' : '#374151'}; border-radius:10px; border:none; color:#fff; font-weight:600;">${data.team1}</button>
-            <button style="flex:1; padding:12px; background:${data.winner === data.team2 ? '#2563eb' : '#374151'}; border-radius:10px; border:none; color:#fff; font-weight:600;">${data.team2}</button>
+          <div class="premium-event-card">
+            <div class="event-label-tag">${runs} RUNS</div>
+            <div class="event-big-text ${glowClass}">${label}</div>
+            <div style="font-family:'Rajdhani',sans-serif; font-size:14px; color:#94a3b8; font-weight:700; letter-spacing:1px;">PROFESSIONAL SHOT!</div>
           </div>
-          <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:15px; padding:20px;">
-            <div style="color:#fbbf24; font-family:'Rajdhani',sans-serif; font-size:18px; font-weight:700; margin-bottom:10px;">${data.winner} — Choose Bat or Bowl:</div>
-            <div style="display:flex; gap:10px;">
-              <button style="flex:1; padding:12px; background:#16a34a; border-radius:10px; border:none; color:#fff; font-weight:600;">🏏 Bat First</button>
-              <button style="flex:1; padding:12px; background:#2563eb; border-radius:10px; border:none; color:#fff; font-weight:600;">🎳 Bowl First</button>
+        `;
+        if (runs === 6) startConfetti();
+      } else if (t === 'wicket') {
+        html = `
+          <div class="premium-event-card" style="border-color:rgba(239,68,68,0.4);">
+            <div class="event-label-tag" style="color:#ef4444; background:rgba(239,68,68,0.1);">OUT</div>
+            <div class="event-big-text" style="color:#ef4444; -webkit-text-fill-color:#ef4444; text-shadow:0 0 30px rgba(239,68,68,0.5);">WICKET!</div>
+            <div style="font-family:'Rajdhani',sans-serif; font-size:14px; color:#94a3b8; font-weight:700; letter-spacing:1px;">HUGE BREAKTHROUGH!</div>
+          </div>
+        `;
+      } else if (t === 'toss') {
+        autoClose = data.isOrganiser ? 0 : 4000;
+        html = `
+          <div class="premium-event-card">
+            <div class="event-label-tag">COIN TOSS</div>
+            <div style="font-size:40px; margin-bottom:10px;">🪙</div>
+            <div style="font-family:'Rajdhani',sans-serif; font-size:24px; font-weight:800; color:#fff; margin-bottom:6px;">${data.winner} Won the Toss!</div>
+            <div style="font-family:'Inter',sans-serif; font-size:14px; color:#fbbf24; font-weight:600; margin-bottom:20px;">They decided to ${data.choice || 'bat'} first</div>
+            ${data.isOrganiser ? `<button class="event-btn-primary" onclick="closeEventPopup(); showOversOverlay();">CONTINUE SETUP</button>` : ''}
+          </div>
+        `;
+      } else if (t === 'target') {
+        autoClose = 5000;
+        html = `
+          <div class="premium-event-card">
+            <div class="event-label-tag">TARGET SET</div>
+            <div style="font-size:40px; margin-bottom:10px;">🎯</div>
+            <div class="event-big-text event-glow-wicket" style="font-size:60px;">${data.target} RUNS</div>
+            <div style="font-family:'Rajdhani',sans-serif; font-size:16px; color:#fff; margin-bottom:20px;">
+               ${data.batTeam} needs ${data.target} to win in ${data.overs} overs
             </div>
+            <button class="event-btn-primary" onclick="closeEventPopup()">START 2ND INNINGS</button>
           </div>
         `;
-        setTimeout(() => closeEventPopup(), 3000);
-      } else if (type === 'boundary') {
-        let text = data.runs === 4 ? 'FOUR' : 'SIX';
-        let color = data.runs === 4 ? '#2563eb' : '#ef4444';
+      } else if (t === 'winner') {
+        autoClose = 0; // Stay until clicked
+        startConfetti();
         html = `
-          <div class="event-confetti">🎉 🎊 🎉</div>
-          <div class="boundary-animation" style="text-shadow: 0 0 20px ${color};">${text}</div>
-          <div class="event-main-text" style="color:${color}; margin-top:20px;">${data.runs} RUNS!</div>
-        `;
-        setTimeout(() => closeEventPopup(), 2000);
-      } else if (type === 'wicket') {
-        html = `
-          <div class="event-confetti">☝️ 🏏 ☝️</div>
-          <div class="boundary-animation" style="color:#ef4444; text-shadow: 0 0 20px #ef4444;">WICKET!</div>
-          <div class="event-main-text" style="margin-top:20px;">OUT!</div>
-        `;
-        setTimeout(() => closeEventPopup(), 2000);
-      } else if (type === 'target') {
-        html = `
-          <div class="event-title">🎯 TARGET SET</div>
-          <div class="event-main-text">${data.target} Runs</div>
-          <div class="event-sub-text">${data.batTeam} needs ${data.target} to win in ${data.overs} overs.</div>
-          <button class="event-done-btn" onclick="closeEventPopup()">START 2ND INNINGS</button>
-        `;
-      } else if (type === 'winner') {
-        html = `
-          <div class="event-confetti">🏆 🥇 🏆</div>
-          <div class="event-title">MATCH WINNER</div>
-          <div class="event-main-text">${data.winner}</div>
-          <div class="event-sub-text">won the match</div>
-          <div class="event-highlight-text">won by ${data.margin}</div>
-          <div class="event-mom-card">
-            <div style="font-family:'Rajdhani',sans-serif; font-size:12px; color:#fbbf24; letter-spacing:1px; text-transform:uppercase; margin-bottom:8px;">MAN OF THE MATCH</div>
-            <div style="font-size:24px; font-weight:800; color:#fff;">${data.mom}</div>
-            <div style="font-size:14px; color:#94a3b8; margin-top:4px;">${data.momStats}</div>
+          <div class="premium-event-card">
+            <div class="event-label-tag">CHAMPIONS</div>
+            <div style="font-size:60px; margin:10px 0;">🏆</div>
+            <div style="font-family:'Rajdhani',sans-serif; font-size:32px; font-weight:900; color:#fff; margin-bottom:4px;">${data.winner}</div>
+            <div style="font-size:18px; font-weight:700; color:#fbbf24; margin-bottom:20px;">WON BY ${data.margin}</div>
+            <div style="background:rgba(255,255,255,0.05); padding:16px; border-radius:20px; border:1px solid rgba(255,255,255,0.1); text-align:left; margin-bottom:20px;">
+               <div style="font-size:10px; color:#94a3b8; font-weight:800; letter-spacing:1px; margin-bottom:4px;">PLAYER OF THE MATCH</div>
+               <div style="font-size:20px; font-weight:800; color:#fff;">${data.mom || data.momName || 'TBA'}</div>
+               <div style="font-size:12px; color:#64748b;">${data.momStats || ''}</div>
+            </div>
+            <button class="event-btn-primary" onclick="closeEventPopup()">DONE ✓</button>
           </div>
-          <button class="event-done-btn" onclick="closeEventPopup()">DONE</button>
         `;
       }
 
       content.innerHTML = html;
       modal.classList.add('open');
+      if (autoClose > 0) setTimeout(closeEventPopup, autoClose);
     }
 
     function closeEventPopup() {
-      document.getElementById('eventPopupModal').classList.remove('open');
+      const m = document.getElementById('eventPopupModal');
+      if (m) m.classList.remove('open');
+      stopConfetti();
+    }
+
+    let confettiInterval = null;
+    function startConfetti() {
+       // Simple emoji confetti
+       const container = document.getElementById('eventPopupModal');
+       if (!container) return;
+       stopConfetti();
+       confettiInterval = setInterval(() => {
+         const c = document.createElement('div');
+         c.innerText = ['🎉','🎊','⭐','🏏','🔥'][Math.floor(Math.random()*5)];
+         c.style.position = 'fixed';
+         c.style.left = Math.random()*100 + 'vw';
+         c.style.top = '-50px';
+         c.style.fontSize = (20 + Math.random()*20) + 'px';
+         c.style.zIndex = '12000';
+         c.style.transition = 'all 3s linear';
+         c.style.pointerEvents = 'none';
+         document.body.appendChild(c);
+         setTimeout(() => {
+           c.style.top = '110vh';
+           c.style.transform = `rotate(${Math.random()*360}deg) translateX(${Math.random()*100 - 50}px)`;
+         }, 50);
+         setTimeout(() => c.remove(), 3500);
+       }, 150);
+    }
+    function stopConfetti() {
+      if (confettiInterval) clearInterval(confettiInterval);
+      confettiInterval = null;
     }
 
     function showWinPopup(winner, margin) {
@@ -13467,7 +13426,8 @@
         winner: tossWinner,
         team1: tossTeams[0],
         team2: tossTeams[1],
-        choice: choice
+        choice: choice,
+        isOrganiser: true
       });
       let tossLoser = tossTeams[tossWinnerIndex === 0 ? 1 : 0];
       matchTossText = `${tossWinner} opt to ${choice} first`;
@@ -13507,7 +13467,10 @@
       selectedOversVal = 0;
       document.getElementById("customOversInput").value = "";
       document.querySelectorAll(".overs-quick-btn").forEach(b => b.classList.remove("selected"));
-      document.getElementById("oversOverlay").classList.add("open");
+      
+      // Removed immediate oversOverlay showing to prevent overlap
+      // It will be shown via CONTINUE button in the Toss popup
+      
       currentLiveMatchId = Date.now();
       localStorage.setItem("currentLiveMatchId", currentLiveMatchId);
       matchStartTime = new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', year: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true });
@@ -13963,23 +13926,24 @@
     function changeStrike() { let s = strike.value; strike.value = nonstrike.value; nonstrike.value = s; }
     function updateScore() {
       scoreRuns.innerText = totalRuns; scoreWkts.innerText = totalWickets;
-      overs.innerText = Math.floor(ballCount / 6) + "." + ballCount % 6;
+      overs.innerText = formatOvers(ballCount);
       if (innings == 2 && target > 0 && totalRuns >= target && !winShown) {
+        let res = getMatchResult();
+        let winner = res.winner, loser = res.loser, margin = res.margin, finalResult = res.text;
         winShown = true;
-        let winner = matchBatTeam, loser = matchBowlTeam, margin = "won by " + (10 - totalWickets) + " wickets";
         let tId = (currentViewingTournament ? currentViewingTournament.id : null);
         saveMatchResult(winner, loser, "won", margin, currentTournamentMatchIdx, tId, matchTossText).then(() => {
           updateAllPlayerStatsAfterMatch(2);
-          finishLiveMatch();
+          finishLiveMatch(finalResult);
         });
-        showWinPopup(winner, margin);
+        showEventPopup('winner', { winner: winner, margin: margin });
 
         // Update tournament match result in SQL if it exists
         if (currentTournamentMatchIdx !== null && !isNaN(currentTournamentMatchIdx)) {
           fetch(API + "/tournament-matches/" + currentTournamentMatchIdx, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ status: "finished", result: winner + " won by " + margin, toss_info: matchTossText })
+            body: JSON.stringify({ status: "finished", result: finalResult, toss_info: matchTossText })
           }).catch(e => console.warn("Failed to update tournament match:", e));
         }
       }
@@ -14382,19 +14346,30 @@
       content.innerHTML = html;
     }
 
-    async function finishMatch() {
-      if (winShown) return;
-      let winner, loser, margin, inningsNum;
+    function getMatchResult() {
+      let winner = "", loser = "", margin = "";
       if (innings == 1) {
         winner = matchBowlTeam; loser = matchBatTeam;
-        margin = "match ended in 1st innings";
-        inningsNum = 1;
+        margin = "Match ended in 1st innings";
       } else {
-        winner = matchBowlTeam; loser = matchBatTeam;
-        margin = (target - 1 - totalRuns) + " runs";
-        inningsNum = 2;
+        if (totalRuns >= target) {
+          winner = matchBatTeam; loser = matchBowlTeam;
+          margin = (10 - totalWickets) + " wickets";
+        } else if (totalWickets >= 10 || (totalOvers > 0 && ballCount >= totalOvers * 6)) {
+          winner = matchBowlTeam; loser = matchBatTeam;
+          margin = (target - 1 - totalRuns) + " runs";
+        } else if (totalRuns === target - 1 && (totalWickets >= 10 || (totalOvers > 0 && ballCount >= totalOvers * 6))) {
+          winner = "Match Tied"; margin = "Tied";
+        }
       }
-      let finalResult = `${winner} won by ${margin}`;
+      return { winner, loser, margin, text: winner === "Match Tied" ? "Match Tied" : `${winner} won by ${margin}` };
+    }
+
+    async function finishMatch() {
+      if (winShown) return;
+      let res = getMatchResult();
+      let winner = res.winner, loser = res.loser, margin = res.margin, finalResult = res.text;
+      let inningsNum = innings;
       winShown = true;
 
       let tId = (currentViewingTournament ? currentViewingTournament.id : null);
