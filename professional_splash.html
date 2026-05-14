@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KCP CREX HUB - Cinematic Action</title>
+    <title>KCP CREX HUB - Professional Video Splash</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #6ee7b7;
             --bg: #000000;
         }
 
@@ -22,11 +21,9 @@
             align-items: center;
             font-family: 'Rajdhani', sans-serif;
             overflow: hidden;
-            color: white;
         }
 
-        /* Full Screen Cinematic Container */
-        .splash-stage {
+        .video-container {
             position: absolute;
             top: 0;
             left: 0;
@@ -35,152 +32,69 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: radial-gradient(circle at center, #0f172a 0%, #000000 100%);
-            perspective: 1500px;
-            overflow: hidden;
+            background: #000;
         }
 
-        /* Action Elements */
-        .bat-action {
-            position: absolute;
-            width: 110px;
-            height: 440px;
-            left: 45%;
-            bottom: 5%;
-            transform-origin: 50% 10%;
-            transform: rotateX(20deg) rotateY(-110deg);
-            z-index: 20;
-            filter: drop-shadow(0 20px 60px rgba(0,0,0,1));
-            animation: actionSwing 4s infinite cubic-bezier(0.45, 0, 0.05, 1);
-        }
-
-        .ball-action {
-            position: absolute;
-            width: 70px;
-            height: 70px;
-            z-index: 25;
-            opacity: 0;
-            animation: actionBall 4s infinite cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        canvas { width: 100%; height: 100%; object-fit: contain; }
-
-        @keyframes actionSwing {
-            0%, 40% { transform: rotateX(20deg) rotateY(-110deg); opacity: 0; }
-            42% { opacity: 1; }
-            50% { transform: rotateX(0deg) rotateY(20deg) translateZ(100px); }
-            60% { transform: rotateX(-10deg) rotateY(40deg) translateZ(150px); }
-            85%, 100% { opacity: 0; }
-        }
-
-        @keyframes actionBall {
-            0% { transform: translate(600px, 150px) scale(0.3); opacity: 0; }
-            10% { opacity: 1; }
-            48% { transform: translate(30px, 10px) scale(1); opacity: 1; }
-            50% { transform: translate(0, 0) scale(1.4); opacity: 1; }
-            55% { transform: translate(-300px, -500px) scale(12); opacity: 0; filter: blur(10px); }
-            100% { opacity: 0; }
-        }
-
-        /* Impact Flash */
-        .flash {
-            position: absolute;
+        video {
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle, #fff 0%, var(--primary) 20%, transparent 60%);
+            object-fit: cover;
+        }
+
+        .overlay {
+            position: absolute;
+            bottom: 60px;
+            width: 100%;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .brand-title {
+            font-size: 52px;
+            font-weight: 800;
+            letter-spacing: 4px;
+            color: #fff;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.8);
             opacity: 0;
-            z-index: 30;
-            animation: flashAction 4s infinite;
+            animation: fadeIn 1s ease forwards 1s;
         }
 
-        @keyframes flashAction {
-            0%, 49% { opacity: 0; transform: scale(0); }
-            50% { opacity: 0.8; transform: scale(1.5); }
-            55% { opacity: 0; transform: scale(4); }
-            100% { opacity: 0; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Cinematic Vignette */
         .vignette {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle, transparent 30%, rgba(0,0,0,0.9) 100%);
-            z-index: 40;
+            background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.8) 100%);
+            z-index: 5;
             pointer-events: none;
-        }
-
-        /* Branding Overlay */
-        .overlay {
-            position: absolute;
-            bottom: 100px;
-            width: 100%;
-            text-align: center;
-            z-index: 50;
-            opacity: 0;
-            animation: overlayFade 4s infinite;
-        }
-
-        .overlay h1 {
-            font-size: 64px;
-            font-weight: 800;
-            letter-spacing: 5px;
-            background: linear-gradient(to bottom, #fff 40%, #64748b 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        @keyframes overlayFade {
-            0%, 55% { opacity: 0; transform: translateY(20px); }
-            70%, 95% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; }
         }
 
     </style>
 </head>
 <body>
 
-    <div class="splash-stage">
-        <div class="vignette"></div>
-        <div class="flash"></div>
-        
-        <div class="bat-action">
-            <canvas id="batCanvas"></canvas>
-        </div>
+    <div class="video-container">
+        <video id="splashVideo" src="splash_video.mp4" autoplay muted playsinline></video>
+    </div>
 
-        <div class="ball-action">
-            <canvas id="ballCanvas"></canvas>
-        </div>
+    <div class="vignette"></div>
 
-        <div class="overlay">
-            <h1>KCP CREX HUB</h1>
-        </div>
+    <div class="overlay">
+        <h1 class="brand-title">KCP CREX HUB</h1>
     </div>
 
     <script>
-        function removeBackground(imgSrc, canvasId) {
-            const canvas = document.getElementById(canvasId);
-            const ctx = canvas.getContext('2d');
-            const img = new Image();
-            img.src = imgSrc;
-            img.onload = () => {
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
-                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                const data = imgData.data;
-                for (let i = 0; i < data.length; i += 4) {
-                    const r = data[i], g = data[i + 1], b = data[i + 2];
-                    if (r < 50 && g < 50 && b < 50) { data[i + 3] = 0; }
-                }
-                ctx.putImageData(imgData, 0, 0);
-            };
-        }
-        removeBackground('bat_clean.png', 'batCanvas');
-        removeBackground('ball_clean.png', 'ballCanvas');
+        const video = document.getElementById('splashVideo');
+        video.onended = () => {
+            video.currentTime = 0;
+            video.play();
+        };
     </script>
 
 </body>
