@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realistic Cricket Splash</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #065f46;
+            --bg: #ffffff;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Rajdhani', sans-serif;
+            overflow: hidden;
+            color: #111827;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at center, #f8fafc 0%, #e2e8f0 100%);
+        }
+
+        /* Realistic Bat */
+        .bat-container {
+            position: absolute;
+            width: 100px;
+            height: 400px;
+            bottom: 20%;
+            left: 45%;
+            transform-origin: top center;
+            transform: rotate(-110deg);
+            z-index: 10;
+            animation: realisticSwing 3s infinite ease-in-out;
+        }
+
+        .bat-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            /* Using mix-blend-mode to remove white background on light bg */
+            mix-blend-mode: multiply;
+        }
+
+        @keyframes realisticSwing {
+            0%, 40% { transform: rotate(-110deg); }
+            50% { transform: rotate(30deg); }
+            60% { transform: rotate(40deg); }
+            100% { transform: rotate(40deg); opacity: 0; }
+        }
+
+        /* Realistic Ball */
+        .ball-container {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            z-index: 15;
+            opacity: 0;
+            animation: realisticBall 3s infinite ease-in-out;
+        }
+
+        .ball-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            mix-blend-mode: multiply;
+        }
+
+        @keyframes realisticBall {
+            0% { transform: translate(400px, 100px) scale(0.5); opacity: 0; }
+            15% { opacity: 1; }
+            50% { transform: translate(0, 0) scale(1.2); }
+            55% { transform: translate(-500px, -600px) scale(6); opacity: 0; }
+            100% { opacity: 0; }
+        }
+
+        /* Impact Effect */
+        .impact {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(110,231,183,0.5) 40%, transparent 70%);
+            z-index: 20;
+            opacity: 0;
+            animation: impactFlash 3s infinite;
+        }
+
+        @keyframes impactFlash {
+            0%, 49% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+            55% { opacity: 0; transform: scale(2); }
+            100% { opacity: 0; }
+        }
+
+        /* Branding Reveal */
+        .branding {
+            position: absolute;
+            text-align: center;
+            opacity: 0;
+            animation: brandingReveal 3s infinite;
+            z-index: 30;
+        }
+
+        .branding h1 {
+            font-size: 64px;
+            font-weight: 800;
+            margin: 0;
+            color: var(--primary);
+            letter-spacing: 2px;
+        }
+
+        .branding p {
+            font-size: 14px;
+            letter-spacing: 8px;
+            color: #64748b;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        @keyframes brandingReveal {
+            0%, 55% { opacity: 0; transform: translateY(20px); }
+            65%, 90% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="impact"></div>
+        
+        <div class="bat-container">
+            <img src="bat.png" alt="Bat">
+        </div>
+
+        <div class="ball-container">
+            <img src="ball.png" alt="Ball">
+        </div>
+
+        <div class="branding">
+            <p>PREMIUM CRICKET HUB</p>
+            <h1>KCP CREX HUB</h1>
+        </div>
+    </div>
+
+</body>
+</html>
