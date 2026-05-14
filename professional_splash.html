@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Realistic Cricket Splash</title>
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@700;800&display=swap" rel="stylesheet">
+    <title>Elite Cricket Splash</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@700;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #065f46;
-            --bg: #ffffff;
+            --primary: #6ee7b7;
+            --accent: #3b82f6;
+            --bg: #030712;
         }
 
         body, html {
@@ -22,141 +23,243 @@
             align-items: center;
             font-family: 'Rajdhani', sans-serif;
             overflow: hidden;
-            color: #111827;
+            color: white;
+        }
+
+        /* Premium Mesh Gradient Background */
+        .mesh-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(at 0% 0%, rgba(110, 231, 183, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.1) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(15, 23, 42, 1) 0px, transparent 100%);
+            z-index: 0;
         }
 
         .container {
             position: relative;
+            z-index: 10;
             width: 100%;
             height: 100%;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: radial-gradient(circle at center, #f8fafc 0%, #e2e8f0 100%);
         }
 
-        /* Realistic Bat */
-        .bat-container {
+        /* The Action Stage */
+        .stage {
+            position: relative;
+            width: 400px;
+            height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+        }
+
+        /* Realistic Bat with Motion Blur Effect */
+        .bat-box {
             position: absolute;
-            width: 100px;
-            height: 400px;
-            bottom: 20%;
-            left: 45%;
-            transform-origin: top center;
-            transform: rotate(-110deg);
-            z-index: 10;
-            animation: realisticSwing 3s infinite ease-in-out;
-        }
-
-        .bat-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            /* Using mix-blend-mode to remove white background on light bg */
-            mix-blend-mode: multiply;
-        }
-
-        @keyframes realisticSwing {
-            0%, 40% { transform: rotate(-110deg); }
-            50% { transform: rotate(30deg); }
-            60% { transform: rotate(40deg); }
-            100% { transform: rotate(40deg); opacity: 0; }
-        }
-
-        /* Realistic Ball */
-        .ball-container {
-            position: absolute;
-            width: 60px;
-            height: 60px;
-            z-index: 15;
-            opacity: 0;
-            animation: realisticBall 3s infinite ease-in-out;
-        }
-
-        .ball-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            mix-blend-mode: multiply;
-        }
-
-        @keyframes realisticBall {
-            0% { transform: translate(400px, 100px) scale(0.5); opacity: 0; }
-            15% { opacity: 1; }
-            50% { transform: translate(0, 0) scale(1.2); }
-            55% { transform: translate(-500px, -600px) scale(6); opacity: 0; }
-            100% { opacity: 0; }
-        }
-
-        /* Impact Effect */
-        .impact {
-            position: absolute;
-            width: 200px;
-            height: 200px;
-            background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(110,231,183,0.5) 40%, transparent 70%);
+            width: 80px;
+            height: 320px;
+            bottom: 10%;
+            left: 40%;
+            transform-origin: 50% 10%;
+            transform: rotate(-115deg) translateZ(50px);
             z-index: 20;
-            opacity: 0;
-            animation: impactFlash 3s infinite;
+            filter: drop-shadow(0 20px 30px rgba(0,0,0,0.8));
+            animation: eliteSwing 3.5s infinite cubic-bezier(0.45, 0, 0.05, 1);
         }
 
-        @keyframes impactFlash {
-            0%, 49% { opacity: 0; transform: scale(0); }
-            50% { opacity: 1; transform: scale(1); }
-            55% { opacity: 0; transform: scale(2); }
+        .bat-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            mix-blend-mode: screen;
+        }
+
+        @keyframes eliteSwing {
+            0%, 35% { transform: rotate(-115deg) translateZ(50px); opacity: 1; filter: blur(0); }
+            45% { transform: rotate(20deg) translateZ(80px); filter: blur(2px); } /* High speed swing */
+            55% { transform: rotate(35deg) translateZ(100px); filter: blur(0); }
+            80%, 100% { transform: rotate(35deg) translateZ(100px); opacity: 0; }
+        }
+
+        /* Realistic Ball with Trail */
+        .ball-box {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            z-index: 25;
+            opacity: 0;
+            animation: eliteBall 3.5s infinite cubic-bezier(0.45, 0, 0.05, 1);
+        }
+
+        .ball-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            mix-blend-mode: screen;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));
+        }
+
+        @keyframes eliteBall {
+            0% { transform: translate(500px, 150px) scale(0.3); opacity: 0; }
+            10% { opacity: 1; }
+            45% { transform: translate(0, 0) scale(1); opacity: 1; } /* Hit point */
+            55% { transform: translate(-400px, -600px) scale(8); opacity: 0; } /* Zoom to camera */
             100% { opacity: 0; }
         }
 
-        /* Branding Reveal */
-        .branding {
+        /* Impact Shockwave */
+        .shockwave {
             position: absolute;
+            width: 2px;
+            height: 2px;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            opacity: 0;
+            z-index: 15;
+            animation: shock 3.5s infinite;
+        }
+
+        @keyframes shock {
+            0%, 44% { opacity: 0; transform: scale(0); }
+            45% { opacity: 1; transform: scale(1); }
+            55% { opacity: 0; transform: scale(300); }
+            100% { opacity: 0; }
+        }
+
+        /* Premium Branding Reveal */
+        .branding {
             text-align: center;
             opacity: 0;
-            animation: brandingReveal 3s infinite;
-            z-index: 30;
+            transform: translateY(30px);
+            animation: brandingElite 3.5s infinite;
+            margin-top: -40px;
         }
 
-        .branding h1 {
-            font-size: 64px;
-            font-weight: 800;
-            margin: 0;
-            color: var(--primary);
-            letter-spacing: 2px;
-        }
-
-        .branding p {
+        .brand-sub {
+            font-family: 'Inter', sans-serif;
             font-size: 14px;
-            letter-spacing: 8px;
-            color: #64748b;
-            margin-bottom: 5px;
-            font-weight: 700;
+            letter-spacing: 10px;
+            color: var(--primary);
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 10px;
         }
 
-        @keyframes brandingReveal {
-            0%, 55% { opacity: 0; transform: translateY(20px); }
-            65%, 90% { opacity: 1; transform: translateY(0); }
+        .brand-main {
+            font-size: 58px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            background: linear-gradient(to bottom, #fff 30%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+        }
+
+        @keyframes brandingElite {
+            0%, 55% { opacity: 0; transform: translateY(30px) scale(0.9); }
+            65%, 90% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: scale(1.1); }
+        }
+
+        /* Floating Light Particles */
+        .particle {
+            position: absolute;
+            background: rgba(110, 231, 183, 0.4);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 5;
+            animation: float 10s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            50% { opacity: 0.5; }
+            100% { transform: translateY(-100vh) scale(1); opacity: 0; }
+        }
+
+        /* Progress Line */
+        .progress-line {
+            position: absolute;
+            bottom: 60px;
+            width: 200px;
+            height: 2px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 2px;
+            overflow: hidden;
+            opacity: 0;
+            animation: lineFade 3.5s infinite;
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+            animation: fill 3.5s infinite;
+        }
+
+        @keyframes lineFade {
+            0%, 65% { opacity: 0; }
+            75%, 90% { opacity: 1; }
             100% { opacity: 0; }
+        }
+
+        @keyframes fill {
+            0%, 70% { width: 0%; }
+            90% { width: 100%; }
+            100% { width: 100%; }
         }
 
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="impact"></div>
-        
-        <div class="bat-container">
-            <img src="bat.png" alt="Bat">
-        </div>
+    <div class="mesh-bg"></div>
 
-        <div class="ball-container">
-            <img src="ball.png" alt="Ball">
+    <div class="container">
+        <div class="stage">
+            <div class="shockwave"></div>
+            
+            <div class="bat-box">
+                <img src="bat_clean.png" alt="Bat">
+            </div>
+
+            <div class="ball-box">
+                <img src="ball_clean.png" alt="Ball">
+            </div>
         </div>
 
         <div class="branding">
-            <p>PREMIUM CRICKET HUB</p>
-            <h1>KCP CREX HUB</h1>
+            <div class="brand-sub">PREMIUM CRICKET EXPERIENCE</div>
+            <div class="brand-main">KCP CREX HUB</div>
+        </div>
+
+        <div class="progress-line">
+            <div class="progress-fill"></div>
         </div>
     </div>
+
+    <script>
+        // Generate elegant particles
+        for(let i=0; i<20; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.width = (Math.random() * 4 + 2) + 'px';
+            p.style.height = p.style.width;
+            p.style.animationDelay = Math.random() * 10 + 's';
+            p.style.opacity = Math.random() * 0.3;
+            document.body.appendChild(p);
+        }
+    </script>
 
 </body>
 </html>
