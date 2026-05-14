@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Cricket Bounce Splash</title>
+    <title>Premium Cricket Hub - Splash</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@700;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #6ee7b7;
-            --accent: #3b82f6;
             --bg: #030712;
         }
 
@@ -31,8 +30,8 @@
             width: 100%;
             height: 100%;
             background: 
-                radial-gradient(at 0% 0%, rgba(110, 231, 183, 0.1) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.1) 0px, transparent 50%),
+                radial-gradient(at 0% 0%, rgba(110, 231, 183, 0.12) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.12) 0px, transparent 50%),
                 radial-gradient(at 50% 50%, rgba(15, 23, 42, 1) 0px, transparent 100%);
             z-index: 0;
         }
@@ -40,55 +39,40 @@
         .container {
             position: relative;
             z-index: 10;
-            width: 100%;
-            height: 100%;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
+            animation: fadeIn 1.5s ease-out;
         }
 
-        .stage {
+        .visual-stage {
             position: relative;
-            width: 400px;
-            height: 400px;
+            width: 350px;
+            height: 350px;
             display: flex;
             justify-content: center;
             align-items: center;
-            perspective: 1000px;
+            margin-bottom: 30px;
         }
 
-        /* Horizontal Bat Position */
+        /* Static Premium Layout */
         .bat-box {
             position: absolute;
             width: 120px;
             height: 480px;
-            bottom: -50px;
-            transform-origin: 50% 10%;
-            transform: rotate(70deg) translateZ(0); /* Tilted horizontally */
+            transform: rotate(45deg) translateY(-20px);
             z-index: 20;
-            animation: batReact 2s infinite ease-in-out;
+            filter: drop-shadow(0 20px 40px rgba(0,0,0,0.6));
         }
 
-        @keyframes batReact {
-            0%, 100% { transform: rotate(70deg) translateY(0); }
-            50% { transform: rotate(72deg) translateY(10px); } /* Bat dips on hit */
-        }
-
-        /* Bouncing Ball */
         .ball-box {
             position: absolute;
-            width: 50px;
-            height: 50px;
+            width: 80px;
+            height: 80px;
+            bottom: 60px;
+            left: 100px;
             z-index: 25;
-            bottom: 250px;
-            left: 200px;
-            animation: ballBounce 2s infinite ease-in-out;
-        }
-
-        @keyframes ballBounce {
-            0%, 100% { transform: translateY(0) scale(1, 1); } /* Top point */
-            50% { transform: translateY(180px) scale(1.1, 0.9); } /* Hit point on bat - squish slightly */
+            filter: drop-shadow(0 15px 30px rgba(0,0,0,0.8));
         }
 
         canvas {
@@ -97,37 +81,50 @@
             object-fit: contain;
         }
 
-        /* Branding Reveal */
+        /* Branding */
         .branding {
             text-align: center;
-            opacity: 0;
-            animation: brandingReveal 2s infinite;
-            margin-top: 20px;
         }
 
         .brand-sub {
             font-size: 14px;
-            letter-spacing: 10px;
+            letter-spacing: 12px;
             color: var(--primary);
             text-transform: uppercase;
             font-weight: 600;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            opacity: 0.8;
         }
 
         .brand-main {
-            font-size: 58px;
+            font-size: 64px;
             font-weight: 800;
             letter-spacing: 2px;
             background: linear-gradient(to bottom, #fff 30%, #94a3b8 100%);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        @keyframes brandingReveal {
-            0%, 40% { opacity: 0; transform: translateY(20px); }
-            50%, 90% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Subtle Glow Animation */
+        .glow-pulse {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(110, 231, 183, 0.15) 0%, transparent 70%);
+            z-index: 5;
+            animation: pulse 4s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { opacity: 0.4; transform: scale(1); }
+            to { opacity: 0.8; transform: scale(1.3); }
         }
 
     </style>
@@ -135,9 +132,10 @@
 <body>
 
     <div class="mesh-bg"></div>
+    <div class="glow-pulse"></div>
 
     <div class="container">
-        <div class="stage">
+        <div class="visual-stage">
             <div class="bat-box">
                 <canvas id="batCanvas"></canvas>
             </div>
@@ -148,7 +146,7 @@
         </div>
 
         <div class="branding">
-            <div class="brand-sub">PREMIUM CRICKET HUB</div>
+            <div class="brand-sub">THE NEXT GENERATION</div>
             <div class="brand-main">KCP CREX HUB</div>
         </div>
     </div>
