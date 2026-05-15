@@ -725,11 +725,26 @@ app.get("/player-role/:name", async (req, res) => {
             .input("n", sql.NVarChar, req.params.name)
             .query("SELECT role, batting_style, bowling_style FROM player_profiles WHERE player_name = @n");
         if (r.recordset[0]) {
-            res.json({ 
-                role: r.recordset[0].role, 
-                batting_style: r.recordset[0].batting_style, 
-                bowling_style: r.recordset[0].bowling_style 
-            });
+            let { role, batting_style, bowling_style } = r.recordset[0];
+            // Fallback: if styles are null in player_profiles, check tournament_players
+            if (!batting_style && !bowling_style) {
+                const tp = await pool.request()
+                    .input("n", sql.NVarChar, req.params.name)
+                    .query("SELECT TOP 1 batting_style, bowling_style FROM tournament_players WHERE player_name = @n AND (batting_style IS NOT NULL OR bowling_style IS NOT NULL) ORDER BY id DESC");
+                if (tp.recordset[0]) {
+                    batting_style = tp.recordset[0].batting_style || null;
+                    bowling_style = tp.recordset[0].bowling_style || null;
+                    // Auto-sync back to player_profiles for future fetches
+                    if (batting_style || bowling_style) {
+                        await pool.request()
+                            .input("n", sql.NVarChar, req.params.name)
+                            .input("bs", sql.NVarChar, batting_style || null)
+                            .input("bows", sql.NVarChar, bowling_style || null)
+                            .query("UPDATE player_profiles SET batting_style = @bs, bowling_style = @bows WHERE player_name = @n");
+                    }
+                }
+            }
+            res.json({ role, batting_style, bowling_style });
         } else {
             res.json({ role: null });
         }

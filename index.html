@@ -368,33 +368,16 @@
 
     .role-badge {
       display: inline-block;
-      padding: 2px 8px;
-      border-radius: 10px;
       font-size: 11px;
       font-weight: 600;
-      margin-left: 8px;
-      letter-spacing: 0.5px;
+      color: #6b7280;
+      letter-spacing: 0.3px;
     }
 
-    .role-BAT {
-      background: #1d4ed8;
-      color: #bfdbfe;
-    }
-
-    .role-BOWL {
-      background: #15803d;
-      color: #bbf7d0;
-    }
-
-    .role-AR {
-      background: #7c3aed;
-      color: #ede9fe;
-    }
-
-    .role-WK {
-      background: #b45309;
-      color: #fef3c7;
-    }
+    .role-BAT { color: #6b7280; }
+    .role-BOWL { color: #6b7280; }
+    .role-AR { color: #6b7280; }
+    .role-WK { color: #6b7280; }
 
     /* Style Badges */
     .style-badge {
@@ -408,9 +391,9 @@
       letter-spacing: 0.3px;
     }
 
-    .style-RHB { background: rgba(37, 99, 235, 0.15); color: #93c5fd; border: 1px solid rgba(37, 99, 235, 0.3); }
-    .style-LHB { background: rgba(220, 38, 38, 0.15); color: #fca5a5; border: 1px solid rgba(220, 38, 38, 0.3); }
-    .style-BOWL { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .style-RHB { background: rgba(71, 85, 105, 0.15); color: #cbd5e1; border: 1px solid rgba(71, 85, 105, 0.3); }
+    .style-LHB { background: rgba(71, 85, 105, 0.15); color: #cbd5e1; border: 1px solid rgba(71, 85, 105, 0.3); }
+    .style-BOWL { background: rgba(71, 85, 105, 0.15); color: #cbd5e1; border: 1px solid rgba(71, 85, 105, 0.3); }
 
 
     /* HOME BANNER - WELCOME TO TOURNAMENT (shown after tournament created) */
@@ -4179,33 +4162,137 @@
       animation: boundaryPulse 0.6s infinite alternate;
     }
 
-    /* Professional Founder Splash Screen */
+    /* Professional Splash Screen - Phase 1: Bat+Ball, Phase 2: Founder */
     #splashScreen {
       position: fixed;
       inset: 0;
-      background: linear-gradient(to bottom, #ffffff 0%, #ffffff 50%, #1a2a4a 50%, #1a2a4a 100%);
+      background: #000;
       display: flex;
       justify-content: center;
       align-items: center;
       z-index: 20000;
       overflow: hidden;
+      transition: opacity 0.7s ease;
     }
 
-    .splash-oval-frame {
-      width: 320px;
-      height: 440px;
-      position: relative;
-      z-index: 10;
+    #splashScreen .sp-bat-container,
+    #splashScreen .sp-ball-container {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
-
-    .splash-oval-frame img {
-      width: 100%;
-      height: 100%;
+    #splashScreen .sp-bat-container {
+      width: 160px; height: 640px;
+      z-index: 20;
+      animation: spBat 6s ease-out;
+    }
+    @keyframes spBat {
+      0%        { transform: translate(-800px, 800px) rotate(-45deg); opacity: 0; }
+      10%       { opacity: 1; }
+      22%       { transform: translate(-50%, -50%) rotate(-15deg); opacity: 1; }
+      23%, 100% { opacity: 0; }
+    }
+    #splashScreen .sp-ball-container {
+      width: 70px; height: 70px;
+      z-index: 25;
+      animation: spBall 6s ease-out;
+    }
+    @keyframes spBall {
+      0%        { transform: translate(800px, -800px) scale(0.5); opacity: 0; }
+      10%       { opacity: 1; }
+      22%       { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+      23%       { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+      28%       { transform: translate(-50%, -50%) scale(30); opacity: 0; }
+      100%      { opacity: 0; }
+    }
+    #splashScreen .sp-flash {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, #fff 0%, rgba(110,231,183,0.4) 50%, transparent 70%);
+      border-radius: 50%;
+      z-index: 30;
+      opacity: 0;
+      animation: spFlash 6s;
+    }
+    @keyframes spFlash {
+      0%, 21%   { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+      22%       { opacity: 1; transform: translate(-50%, -50%) scale(1.5); }
+      25%       { opacity: 0; transform: translate(-50%, -50%) scale(3); }
+      100%      { opacity: 0; }
+    }
+    #splashScreen .sp-branding {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%; text-align: center;
+      z-index: 100;
+      opacity: 0;
+      font-family: 'Rajdhani', sans-serif;
+      animation: spReveal 6s;
+    }
+    #splashScreen .sp-branding h1 {
+      font-size: 72px;
+      font-weight: 800;
+      letter-spacing: 7px;
+      margin: 0;
+      background: linear-gradient(to bottom, #fff 40%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    @keyframes spReveal {
+      0%, 25%   { opacity: 0; transform: translate(-50%, -50%) scale(0.85); }
+      30%, 47%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      50%       { opacity: 0; }
+      100%      { opacity: 0; }
+    }
+    #splashScreen .sp-founder-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 150;
+      opacity: 0;
+      background: linear-gradient(to bottom, #ffffff 50%, #1b2f5e 50%);
+      animation: spFdrBg 4s 3s both;
+    }
+    @keyframes spFdrBg {
+      0%    { opacity: 0; }
+      13%   { opacity: 1; }
+      87%   { opacity: 1; }
+      100%  { opacity: 0; }
+    }
+    #splashScreen .sp-founder-wrap {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 160;
+      opacity: 0;
+      animation: spFdrPhoto 4s 3s both;
+    }
+    @keyframes spFdrPhoto {
+      0%    { opacity: 0; transform: translate(-50%, -50%) scale(0.92); }
+      15%   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      82%   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      100%  { opacity: 0; transform: translate(-50%, -50%) scale(0.96); }
+    }
+    #splashScreen .sp-founder-oval {
+      width: 230px; height: 290px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 5px solid #fff;
+      box-shadow: 0 0 0 2px #c8d6e8, 0 8px 40px rgba(0,0,0,0.35);
+    }
+    #splashScreen .sp-founder-oval img {
+      width: 100%; height: 100%;
       object-fit: cover;
-      border-radius: 160px / 220px; /* Perfect oval matching screenshot */
-      box-shadow: 0 10px 50px rgba(0,0,0,0.4);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      object-position: top center;
+      filter: grayscale(100%) contrast(1.1);
     }
+    #splashScreen canvas { width: 100%; height: 100%; object-fit: contain; }
   </style>
 
 </head>
@@ -4214,10 +4301,44 @@
 
 
   <div id="splashScreen">
-    <div class="splash-oval-frame">
-      <img src="/founder_splash.png?v=2" alt="KCP Founder">
+    <!-- Phase 1: Bat + Ball + Flash + Branding (0–3s) -->
+    <div class="sp-flash"></div>
+    <div class="sp-bat-container"><canvas id="spBatCanvas"></canvas></div>
+    <div class="sp-ball-container"><canvas id="spBallCanvas"></canvas></div>
+    <div class="sp-branding"><h1>KCP CREX HUB</h1></div>
+    <!-- Phase 2: Founder Photo (3–6s) -->
+    <div class="sp-founder-bg"></div>
+    <div class="sp-founder-wrap">
+      <div class="sp-founder-oval">
+        <img src="/founder_splash.png" alt="KCP Founder">
+      </div>
     </div>
   </div>
+  <script>
+    (function() {
+      function spRemoveBg(src, id) {
+        var c = document.getElementById(id);
+        if (!c) return;
+        var ctx = c.getContext('2d');
+        var img = new Image();
+        img.src = src;
+        img.onload = function() {
+          var s = 4;
+          c.width = img.width * s; c.height = img.height * s;
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(img, 0, 0, c.width, c.height);
+          var d = ctx.getImageData(0, 0, c.width, c.height).data;
+          for (var i = 0; i < d.length; i += 4) {
+            if (d[i] < 60 && d[i+1] < 60 && d[i+2] < 60) d[i+3] = 0;
+          }
+          ctx.putImageData(new ImageData(d, c.width, c.height), 0, 0);
+        };
+      }
+      spRemoveBg('/bat_hd.png', 'spBatCanvas');
+      spRemoveBg('/ball_sharp.png', 'spBallCanvas');
+    })();
+  </script>
 
   <div id="shotOverlay">
     <div class="shot-box">
@@ -6652,10 +6773,10 @@
             <div style="border-top:1px dashed rgba(255,255,255,0.15); width:100%; margin:8px 0 6px;"></div>
             <div class="profile-styles" style="font-size:13px; color:#e2e8f0; font-weight:600; display:flex; align-items:center; white-space:nowrap; flex-wrap:nowrap; justify-content:flex-start; width:100%;">
               <span id="profileRoleLabel" style="color:#fcd34d;">Player</span>
-              <span style="color:rgba(255,255,255,0.3); margin:0 8px;">|</span>
-              <span id="profileBatStyle" style="color:#38bdf8;">RHB</span>
-              <span style="color:rgba(255,255,255,0.3); margin:0 8px;">|</span>
-              <span id="profileBowlStyle" style="color:#6ee7b7;">Bowl Style</span>
+              <span id="profileBatStyleSep" style="color:rgba(255,255,255,0.3); margin:0 8px;">|</span>
+              <span id="profileBatStyle" style="color:#38bdf8;"></span>
+              <span id="profileBowlStyleSep" style="color:rgba(255,255,255,0.3); margin:0 8px;">|</span>
+              <span id="profileBowlStyle" style="color:#6ee7b7;"></span>
             </div>
             <div class="profile-team" id="profileTeam" style="display:none;"></div>
           </div>
@@ -7090,7 +7211,7 @@
         splash.style.opacity = '0';
         setTimeout(() => { splash.style.display = 'none'; }, 700);
       }
-    }, 2800);
+    }, 7000);
 
     function toggleDotsMenu() {
       let dd = document.getElementById('dotsDropdown');
@@ -7710,7 +7831,7 @@
         `<tr style="border-bottom:1px solid #e5e7eb;">
           <td style="padding:16px; color:#0d9488; font-weight:500; cursor:pointer;" onclick="openTeamMembersModalByName('${escapeQ(team.name)}')">${team.name}</td>
           <td style="padding:16px; text-align:center;">
-            <span style="color:#0d9488; font-size:15px; font-weight:700; cursor:pointer;" onclick="event.stopPropagation(); openAddTeamPlayerModal(${i})">${team.playerCount !== undefined ? team.playerCount : (team.players ? team.players.length : 0)}</span>
+            <span style="color:#0d9488; font-size:15px; font-weight:700; cursor:pointer;" onclick="event.stopPropagation(); openTeamMembersModalByName('${escapeQ(team.name)}')">${team.playerCount !== undefined ? team.playerCount : (team.players ? team.players.length : 0)}</span>
           </td>
           <td style="padding:16px; color:#6b7280; font-size:16px; background:#f9fafb;">
             <span style="cursor:pointer;margin-right:12px;opacity:0.8;display:inline-flex;vertical-align:middle;" title="Edit Team" onclick="event.stopPropagation(); openEditTeamModal(${i})">
@@ -7811,6 +7932,8 @@
       let team = sqlTeamsList[teamIdx];
       if (!team) { alert('Team data not available. Please refresh the page.'); return; }
       currentEditTeamName = team.name;
+      currentAddPlayerTeamIdx = teamIdx;
+      currentAddPlayerTeamName = team.name;
       document.getElementById('editTeamNameInput').value = team.name;
       document.getElementById('editTeamModal').style.display = 'flex';
     }
@@ -8008,6 +8131,7 @@
       document.getElementById('addTeamPlayerRoleInput').value = '';
       document.getElementById('addTeamPlayerBattingStyleInput').value = '';
       document.getElementById('addTeamPlayerBowlingStyleInput').value = '';
+      renderEditTeamPlayersListFromSQL(currentAddPlayerTeamName);
       document.getElementById('addTeamPlayerModal').style.display = 'flex';
     }
     function closeAddTeamPlayerModal() {
@@ -8071,8 +8195,11 @@
 
       document.getElementById('addTeamPlayerNameInput').value = '';
       document.getElementById('addTeamPlayerRoleInput').value = '';
-      document.getElementById('addTeamPlayerModal').style.display = 'none';
+      document.getElementById('addTeamPlayerBattingStyleInput').value = '';
+      document.getElementById('addTeamPlayerBowlingStyleInput').value = '';
+      
       showPlayerAddedToast(tName);
+      renderEditTeamPlayersListFromSQL(tName);
       // Refresh members modal if open
       if (document.getElementById('teamMembersModal').style.display === 'flex') {
         renderTeamMembersViewByName(tName);
@@ -8181,26 +8308,20 @@
 
         // Double-click to set captain (organiser only)
         let dblClickAttr = isOrganiser
-          ? 'ondblclick="setSQLTeamCaptain(\'' + escapeQ(p.player_name) + '\',\'' + escapeQ(teamName) + '\')" title="Double-click to set as captain" style="cursor:pointer;"'
+          ? 'ondblclick="setSQLTeamCaptain(\'' + escapeQ(p.player_name) + '\',\'' + escapeQ(teamName) + '\')" title="Double-click to set as captain"'
           : 'title="' + p.player_name + '"';
 
-        let roleLabel = roleBadge(p.role, p.batting_style, p.bowling_style);
-        let actionButtons = isOrganiser ? `
-          <div style="display:flex; gap:6px; margin-top:8px;">
-            <button onclick="openEditPlayerInTeamSQL('${escapeQ(p.player_name)}', '${escapeQ(p.role)}', '${escapeQ(p.batting_style || '')}', '${escapeQ(p.bowling_style || '')}')" style="background:none; border:1px solid #0d9488; color:#0d9488; padding:2px 6px; border-radius:4px; font-size:10px; cursor:pointer; font-weight:600;">EDIT</button>
-            <button onclick="deletePlayerInEditModalSQL('${escapeQ(p.player_name)}')" style="background:none; border:1px solid #dc2626; color:#dc2626; padding:2px 6px; border-radius:4px; font-size:10px; cursor:pointer; font-weight:600;">DEL</button>
-          </div>
-        ` : '';
+        let roleLabel = roleBadge(p.role);
+        let cursorStyle = isOrganiser ? 'cursor:pointer;' : '';
 
-        return '<div ' + dblClickAttr + ' style="display:flex;flex-direction:column;align-items:center;width:120px;background:#ffffff;' + borderStyle + 'border-radius:8px;padding:6px;user-select:none;">' +
-          '<div style="position:relative;width:100px;height:100px;">' +
+        return '<div ' + dblClickAttr + ' style="display:flex;flex-direction:column;align-items:center;width:100%;background:#ffffff;' + borderStyle + 'border-radius:10px;padding:10px 8px 12px;user-select:none;transition:box-shadow 0.2s;box-sizing:border-box;' + cursorStyle + '">' +
+          '<div style="position:relative;width:64px;height:64px;margin:0 auto;">' +
           captainBadge + wkBadge +
-          '<div style="width:100%;height:100%;background:#e5e7eb;border-radius:4px;overflow:hidden;display:flex;align-items:center;justify-content:center;">' +
+          '<div style="width:100%;height:100%;background:#e5e7eb;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;">' +
           avatarHtml + '</div>' +
           '</div>' +
-          '<div style="margin-top:6px;font-size:13px;font-family:Inter,sans-serif;' + nameColor + 'text-align:center;">' + p.player_name + '</div>' +
-          '<div style="font-size:11px;color:#6b7280;font-family:Inter,sans-serif;margin-top:2px;text-align:center;">' + roleLabel + '</div>' +
-          actionButtons +
+          '<div style="margin-top:8px;font-size:12px;font-family:Inter,sans-serif;' + nameColor + 'text-align:center;line-height:1.3;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px;box-sizing:border-box;">' + p.player_name + '</div>' +
+          '<div style="margin-top:5px;text-align:center;">' + roleLabel + '</div>' +
           '</div>';
       }).join('');
 
@@ -8286,30 +8407,66 @@
       container.innerHTML = '<div style="color:#9ca3af; font-size:13px; padding:8px 0;">Loading...</div>';
       let t = getCurrentTournament();
       let players = [];
+      let captainName = "";
       if (t && t.id) {
         try {
           const r = await fetch(API + '/tournament-players/' + t.id + '/' + encodeURIComponent(teamName));
           if (r.ok) players = await r.json();
+          let teamObj = t.teams ? t.teams.find(tm => tm.name === teamName) : null;
+          if (teamObj) captainName = teamObj.captain || "";
         } catch (e) { console.warn('Fetch players error:', e); }
       }
       if (players.length === 0) {
         container.innerHTML = '<div style="color:#9ca3af; font-size:13px; padding:8px 0;">No players added yet.</div>';
         return;
       }
-      container.innerHTML = players.map(function (p, pi) {
-        let photoHtml = p.photo_url ? '<img src="' + p.photo_url + '" style="width:24px;height:24px;border-radius:50%;object-fit:cover;margin-right:8px;">' : '<span style="margin-right:8px;">🧑</span>';
-        let safeName = escapeQ(p.player_name);
-        let safeRole = escapeQ(p.role || '');
-        let safeBat = escapeQ(p.batting_style || '');
-        let safeBowl = escapeQ(p.bowling_style || '');
-        return '<div style="display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f3f4f6;">' +
-          '<div style="display:flex;align-items:center;font-size:14px; color:#1f2937;">' + photoHtml + p.player_name + ' <span style="font-size:11px; color:#6b7280;margin-left:4px;">(' + (p.role || '') + ')</span></div>' +
-          '<div style="display:flex; gap:8px; align-items:center;">' +
-          '<span onclick="openEditPlayerInTeamSQL(\'' + safeName + '\', \'' + safeRole + '\', \'' + safeBat + '\', \'' + safeBowl + '\')" style="cursor:pointer; color:#0d9488; font-size:12px; border:1px solid #0d9488; padding:3px 8px; border-radius:4px;">Edit</span>' +
-          '<span onclick="deletePlayerInEditModalSQL(\'' + safeName + '\')" style="cursor:pointer; color:#dc2626; font-size:12px; border:1px solid #dc2626; padding:3px 8px; border-radius:4px;">Delete</span>' +
+      
+      // Sort players: Captain first
+      players.sort((a, b) => {
+        let aIsCap = (captainName && a.player_name === captainName) || (a.role === 'Captain' || a.isCaptain);
+        let bIsCap = (captainName && b.player_name === captainName) || (b.role === 'Captain' || b.isCaptain);
+        if (aIsCap && !bIsCap) return -1;
+        if (!aIsCap && bIsCap) return 1;
+        return 0;
+      });
+
+      let html = `<div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:10px; padding:8px 0;">`;
+      
+      html += players.map(function (p, pi) {
+        let pName = p.player_name || p.name;
+        let isCaptain = (captainName && pName === captainName) || (p.role === 'Captain' || p.isCaptain);
+        let isWK = (p.role === 'Wicket-Keeper');
+        
+        let photoSrc = p.photo_url || p.photo || '';
+        let avatarHtml = photoSrc
+          ? '<img src="' + photoSrc + '" style="width:100%;height:100%;object-fit:cover;">'
+          : '<svg width="48" height="48" viewBox="0 0 24 24" fill="#9ca3af"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>';
+
+        let captainBadge = isCaptain
+          ? '<div style="position:absolute;top:-8px;right:-8px;width:24px;height:24px;border-radius:50%;background:#0d9488;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,0.25);z-index:2;font-family:Inter,sans-serif;">C</div>'
+          : '';
+
+        let wkBadge = isWK
+          ? '<div style="position:absolute;top:-8px;left:-8px;width:24px;height:24px;border-radius:50%;background:#0ea5e9;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,0.25);z-index:2;" title="Wicket Keeper">🧤</div>'
+          : '';
+
+        let borderStyle = isCaptain ? 'border:2px solid #0d9488;' : 'border:1px solid #e5e7eb;box-shadow:0 2px 8px rgba(0,0,0,0.05);';
+        let nameColor = isCaptain ? 'color:#0d9488;font-weight:700;' : 'color:#1f2937;font-weight:600;';
+        let roleLabel = roleBadge(p.role);
+
+        return '<div style="display:flex;flex-direction:column;align-items:center;width:100%;background:#ffffff;' + borderStyle + 'border-radius:10px;padding:10px 8px 12px;user-select:none;transition:box-shadow 0.2s;box-sizing:border-box;">' +
+          '<div style="position:relative;width:64px;height:64px;">' +
+          captainBadge + wkBadge +
+          '<div style="width:100%;height:100%;background:#e5e7eb;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;">' +
+          avatarHtml + '</div>' +
           '</div>' +
+          '<div style="margin-top:8px;font-size:12px;font-family:Inter,sans-serif;' + nameColor + 'text-align:center;line-height:1.3;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + pName + '</div>' +
+          '<div style="margin-top:5px;text-align:center;">' + roleLabel + '</div>' +
           '</div>';
       }).join('');
+      
+      html += `</div>`;
+      container.innerHTML = html;
     }
 
     // Fallback renderEditTeamPlayersList (localStorage-based)
@@ -8455,6 +8612,7 @@
       document.getElementById('addTeamPlayerRoleInput').value = '';
       document.getElementById('addTeamPlayerBattingStyleInput').value = '';
       document.getElementById('addTeamPlayerBowlingStyleInput').value = '';
+      renderEditTeamPlayersListFromSQL(currentAddPlayerTeamName);
       document.getElementById('addTeamPlayerModal').style.display = 'flex';
     }
 
@@ -13208,8 +13366,14 @@
         let roleKey = (displayRole || '').toLowerCase().trim();
         document.getElementById("profileRoleLabel").innerText = roleMap[roleKey] || (displayRole ? displayRole.charAt(0).toUpperCase() + displayRole.slice(1) : 'Player');
         
-        document.getElementById("profileBatStyle").innerText = batStyle || "Style N/A";
-        document.getElementById("profileBowlStyle").innerText = bowlStyle || "Style N/A";
+        let batEl = document.getElementById("profileBatStyle");
+        let bowlEl = document.getElementById("profileBowlStyle");
+        let batSep = document.getElementById("profileBatStyleSep");
+        let bowlSep = document.getElementById("profileBowlStyleSep");
+        if (batEl) { batEl.innerText = batStyle || ''; batEl.style.display = batStyle ? '' : 'none'; }
+        if (batSep) batSep.style.display = batStyle ? '' : 'none';
+        if (bowlEl) { bowlEl.innerText = bowlStyle || ''; bowlEl.style.display = bowlStyle ? '' : 'none'; }
+        if (bowlSep) bowlSep.style.display = bowlStyle ? '' : 'none';
         
         if (!profilePhoto) {
           document.getElementById("profileAvatar").innerHTML = '<span style="font-size:40px;">' + roleEmoji(displayRole) + '</span>';
@@ -15157,7 +15321,8 @@
           <button onclick="confirmUpdateTeam()"
             style="background:#10b981; color:#fff; border:none; padding:10px 24px; border-radius:4px; font-family:'Inter',sans-serif; font-size:14px; font-weight:600; cursor:pointer; text-transform:uppercase;">UPDATE</button>
         </div>
-      <div style="display:flex; justify-content:center; padding:0 24px 24px;">
+        
+      <div style="display:flex; justify-content:center; padding:0 24px 24px; margin-top:24px;">
         <button onclick="closeEditTeamModal()"
           style="background:#fff; color:#6b7280; border:1px solid #d1d5db; padding:10px 24px; border-radius:4px; font-family:'Inter',sans-serif; font-size:14px; cursor:pointer;">CANCEL</button>
       </div>
@@ -15258,7 +15423,7 @@
   <div id="addTeamPlayerModal"
     style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:10002; align-items:center; justify-content:center;">
     <div
-      style="background:#fff; width:90%; max-width:400px; border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.2); font-family:'Inter',sans-serif; overflow:hidden;">
+      style="background:#fff; width:90%; max-width:560px; max-height:85vh; overflow-y:auto; border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.2); font-family:'Inter',sans-serif; overflow-x:hidden;">
       <div
         style="display:flex; justify-content:space-between; align-items:center; padding:18px 24px; border-bottom:1px solid #e5e7eb;">
         <h3 style="margin:0; font-size:18px; font-weight:700; color:#1f2937;">Add Player <span style="font-size:10px; color:#9ca3af; font-weight:400;">v2.0</span></h3>
@@ -15309,8 +15474,10 @@
       </div>
       <div style="display:flex; justify-content:center; padding:8px 24px 24px;">
         <button onclick="confirmAddTeamPlayer()"
-          style="background:#10b981; color:#fff; border:none; padding:12px 48px; border-radius:4px; font-family:'Inter',sans-serif; font-size:14px; font-weight:700; cursor:pointer; text-transform:uppercase; letter-spacing:0.5px;">ADD</button>
+          style="background:#10b981; color:#fff; border:none; padding:12px 48px; border-radius:4px; font-family:'Inter',sans-serif; font-size:14px; font-weight:700; cursor:pointer; text-transform:uppercase; letter-spacing:0.5px;">ADD PLAYER</button>
       </div>
+      
+
     </div>
   </div>
 
@@ -15330,7 +15497,7 @@
             style="cursor:pointer; font-size:24px; color:#6b7280; line-height:1;">&times;</span>
         </div>
       </div>
-      <div id="teamMembersGrid" style="padding:24px; display:flex; flex-wrap:wrap; gap:20px;"></div>
+      <div id="teamMembersGrid" style="padding:24px; display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:16px; align-items:start;"></div>
     </div>
   </div>
 
