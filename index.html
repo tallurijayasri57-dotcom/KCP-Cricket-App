@@ -9841,7 +9841,7 @@
         let scoreDisplay = `
           <div style="font-size:32px; font-weight:800; color:#f8fafc; display:flex; align-items:center; gap:8px;">
             ${m.runs || 0}/${m.wickets || 0} 
-            <span style="font-size:14px; color:rgba(255,255,255,0.6); font-weight:500;">(${m.overs || '0.0'} Ov)</span>
+            <span style="font-size:14px; color:rgba(255,255,255,0.6); font-weight:500;">(${m.overs || '0.0'}/${m.totalOvers || '0'} Ov)</span>
             ${!isFinished ? '<span class="live-pulse-dot"></span>' : ''}
           </div>
         `;
@@ -9870,8 +9870,9 @@
               </div>
             </div>
             
-            <div style="color:rgba(255,255,255,0.4); font-size:11px; margin-bottom:16px; font-weight:500;">
-              ${m.tossInfo ? (m.tossInfo.toLowerCase().startsWith('toss') ? m.tossInfo : 'Toss: ' + m.tossInfo) : 'Toss info not available'}
+            <div style="color:rgba(255,255,255,0.4); font-size:11px; margin-bottom:16px; font-weight:500; display:flex; align-items:center; gap:6px;">
+              <span style="font-size:12px;">🪙</span>
+              <span>${m.tossInfo ? (m.tossInfo.toLowerCase().includes('toss') ? m.tossInfo : 'Toss: ' + m.tossInfo) : 'Toss info not available'}</span>
             </div>
 
             <div style="display:flex; justify-content:space-between; align-items:flex-end;">
@@ -9933,7 +9934,11 @@
         if (document.getElementById('sbSeriesName')) document.getElementById('sbSeriesName').innerText = m.seriesName || 'Friendly Match';
         if (document.getElementById('sbMatchDate')) document.getElementById('sbMatchDate').innerText = m.matchDate || m.date || new Date().toLocaleDateString('en-IN');
         if (document.getElementById('sbLocation')) document.getElementById('sbLocation').innerText = m.ground || m.location || 'KCP CRICKET GROUND';
-        if (document.getElementById('sbLastUpdated')) document.getElementById('sbLastUpdated').innerText = m.organiser ? m.organiser + ' (Live)' : 'Live';
+        if (document.getElementById('sbLastUpdated')) {
+          let statusText = isFinished ? 'Match Finished' : 'Live';
+          document.getElementById('sbLastUpdated').innerText = m.organiser ? `${m.organiser} (${statusText})` : statusText;
+          document.getElementById('sbLastUpdated').style.color = isFinished ? '#94a3b8' : '#6ee7b7';
+        }
       } catch (e) {
         console.error("Render error in premium view", e);
       }
@@ -11669,7 +11674,7 @@
     let tossTeams = [];
     let tossCallingTeamIndex = -1;
     let tossWinnerIndex = -1;
-    let matchTossText = "";
+    let matchTossText = localStorage.getItem("matchTossText") || "";
     let matchStartTime = "";
     let tossFlipped = false;
     let totalOvers = 0;
@@ -13656,6 +13661,7 @@
       });
       let tossLoser = tossTeams[tossWinnerIndex === 0 ? 1 : 0];
       matchTossText = `${tossWinner} opt to ${choice} first`;
+      localStorage.setItem("matchTossText", matchTossText);
       let finalBatTeam = choice === "bat" ? tossWinner : tossLoser;
       let finalBowlTeam = choice === "bat" ? tossLoser : tossWinner;
       document.getElementById("tossOverlay").classList.remove("open");
