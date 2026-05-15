@@ -4034,7 +4034,7 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(11, 15, 26, 0.97);
+      background: rgba(11, 15, 26, 0.9);
       z-index: 11000;
       align-items: center;
       justify-content: center;
@@ -4187,7 +4187,7 @@
     #splashScreen .sp-bat-container {
       width: 160px; height: 640px;
       z-index: 20;
-      animation: spBat 6s ease-out;
+      animation: spBat 4.5s ease-out;
     }
     @keyframes spBat {
       0%        { transform: translate(-800px, 800px) rotate(-45deg); opacity: 0; }
@@ -4198,7 +4198,7 @@
     #splashScreen .sp-ball-container {
       width: 70px; height: 70px;
       z-index: 25;
-      animation: spBall 6s ease-out;
+      animation: spBall 4.5s ease-out;
     }
     @keyframes spBall {
       0%        { transform: translate(800px, -800px) scale(0.5); opacity: 0; }
@@ -4217,7 +4217,7 @@
       border-radius: 50%;
       z-index: 30;
       opacity: 0;
-      animation: spFlash 6s;
+      animation: spFlash 4.5s;
     }
     @keyframes spFlash {
       0%, 21%   { opacity: 0; transform: translate(-50%, -50%) scale(0); }
@@ -4233,7 +4233,7 @@
       z-index: 100;
       opacity: 0;
       font-family: 'Rajdhani', sans-serif;
-      animation: spReveal 6s;
+      animation: spReveal 4.5s;
     }
     #splashScreen .sp-branding h1 {
       font-size: 72px;
@@ -4257,7 +4257,7 @@
       z-index: 150;
       opacity: 0;
       background: linear-gradient(to bottom, #ffffff 50%, #1b2f5e 50%);
-      animation: spFdrBg 4s 3s both;
+      animation: spFdrBg 3s 1.5s both;
     }
     @keyframes spFdrBg {
       0%    { opacity: 0; }
@@ -4271,7 +4271,7 @@
       transform: translate(-50%, -50%);
       z-index: 160;
       opacity: 0;
-      animation: spFdrPhoto 4s 3s both;
+      animation: spFdrPhoto 3s 1.5s both;
     }
     @keyframes spFdrPhoto {
       0%    { opacity: 0; transform: translate(-50%, -50%) scale(0.92); }
@@ -9712,49 +9712,63 @@
       if (!modal || !content) return;
 
       let html = '';
-      if (type === 'FOUR') {
-        modal.style.background = 'radial-gradient(circle, rgba(37, 99, 235, 0.25) 0%, rgba(11, 15, 26, 0.98) 100%)';
+      const eventType = (type || "").toUpperCase();
+
+      if (eventType === 'FOUR' || (eventType === 'BOUNDARY' && data.runs === 4)) {
+        modal.style.background = 'radial-gradient(circle, rgba(37, 99, 235, 0.2) 0%, rgba(11, 15, 26, 0.9) 100%)';
         html = `
-          <div class="event-confetti">🎊 🥳 🎊</div>
+          <div class="event-confetti">🎉 🎊 🎉</div>
           <div class="boundary-animation" style="color:#3b82f6; text-shadow:0 0 40px rgba(59,130,246,0.8);">FOUR</div>
           <div class="event-highlight-text">4 RUNS!</div>
         `;
-      } else if (type === 'SIX') {
-        modal.style.background = 'radial-gradient(circle, rgba(245, 158, 11, 0.25) 0%, rgba(11, 15, 26, 0.98) 100%)';
+        setTimeout(closeEventPopup, 3000);
+      } else if (eventType === 'SIX' || (eventType === 'BOUNDARY' && data.runs === 6)) {
+        modal.style.background = 'radial-gradient(circle, rgba(245, 158, 11, 0.2) 0%, rgba(11, 15, 26, 0.9) 100%)';
         html = `
           <div class="event-confetti">🚀 🔥 🚀</div>
           <div class="boundary-animation" style="color:#f59e0b; text-shadow:0 0 40px rgba(245,158,11,0.8);">SIX</div>
           <div class="event-highlight-text">6 RUNS!</div>
         `;
-      } else if (type === 'WICKET') {
-        modal.style.background = 'radial-gradient(circle, rgba(239, 68, 68, 0.25) 0%, rgba(11, 15, 26, 0.98) 100%)';
+        setTimeout(closeEventPopup, 3000);
+      } else if (eventType === 'WICKET') {
+        modal.style.background = 'radial-gradient(circle, rgba(239, 68, 68, 0.2) 0%, rgba(11, 15, 26, 0.9) 100%)';
         html = `
           <div class="event-confetti">☝️ 🏏 ☝️</div>
           <div class="boundary-animation" style="color:#ef4444; text-shadow:0 0 40px rgba(239,68,68,0.8);">OUT</div>
           <div class="event-highlight-text">WICKET!</div>
         `;
-      } else if (type === 'TARGET') {
-        modal.style.background = 'radial-gradient(circle, rgba(251, 191, 36, 0.15) 0%, rgba(11, 15, 26, 0.98) 100%)';
+        setTimeout(closeEventPopup, 3000);
+      } else if (eventType === 'TOSS') {
+        modal.style.background = 'radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(11, 15, 26, 0.9) 100%)';
+        html = `
+          <div class="event-title">🪙 COIN TOSS</div>
+          <div class="event-main-text" style="color:#6ee7b7; font-size:32px;">${data.winner} Won the Toss! 🎉</div>
+          <div class="event-sub-text">${data.winner} opted to ${data.choice || 'play'} first</div>
+          <button class="event-done-btn" style="margin-top:20px; background:linear-gradient(135deg, #2563eb, #1e40af);" onclick="closeEventPopup()">START MATCH</button>
+        `;
+      } else if (eventType === 'TARGET') {
+        modal.style.background = 'radial-gradient(circle, rgba(251, 191, 36, 0.15) 0%, rgba(11, 15, 26, 0.9) 100%)';
         html = `
           <div class="event-title">🎯 TARGET SET</div>
           <div class="event-main-text" style="color:#fbbf24; font-size:54px; margin:15px 0;">${data.target}</div>
           <div class="event-sub-text">Runs to win</div>
-          <div style="background:rgba(255,255,255,0.06); padding:20px; border-radius:16px; margin-top:10px; border:1px solid rgba(255,255,255,0.15); box-shadow:0 8px 25px rgba(0,0,0,0.3);">
-            <div style="color:#f8fafc; font-size:15px; font-weight:700; margin-bottom:4px;">${data.team} needs ${data.target} runs</div>
+          <div style="background:rgba(255,255,255,0.06); padding:20px; border-radius:16px; margin-top:10px; border:1px solid rgba(255,255,255,0.15);">
+            <div style="color:#f8fafc; font-size:15px; font-weight:700; margin-bottom:4px;">${data.team || data.batTeam} needs ${data.target} runs</div>
             <div style="color:#94a3b8; font-size:13px; font-weight:500;">in ${data.overs} overs</div>
           </div>
+          <button class="event-done-btn" style="margin-top:25px;" onclick="closeEventPopup()">START 2ND INNINGS</button>
         `;
-      } else if (type === 'WINNER') {
-        modal.style.background = 'radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, rgba(11, 15, 26, 0.98) 100%)';
+      } else if (eventType === 'WINNER') {
+        modal.style.background = 'radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, rgba(11, 15, 26, 0.9) 100%)';
         html = `
           <div class="event-confetti">🏆 🎊 🏆</div>
           <div class="event-title">MATCH WINNER</div>
           <div class="event-main-text" style="color:#10b981; margin-bottom:5px;">${data.winner}</div>
-          <div class="event-sub-text" style="color:#f8fafc; font-size:20px; font-weight:700;">${data.margin}</div>
+          <div class="event-sub-text" style="color:#f8fafc; font-size:20px; font-weight:700;">${data.margin || data.result}</div>
           
           <div class="event-mom-card">
             <div style="color:#94a3b8; font-size:12px; letter-spacing:2px; margin-bottom:14px; font-weight:800; text-transform:uppercase;">Player of the Match</div>
-            <div style="font-size:28px; font-weight:900; color:#fbbf24; margin-bottom:8px; font-family:'Rajdhani',sans-serif; letter-spacing:1px;">${data.momName || 'TBA'}</div>
+            <div style="font-size:28px; font-weight:900; color:#fbbf24; margin-bottom:8px; font-family:'Rajdhani',sans-serif; letter-spacing:1px;">${data.momName || data.mom || 'TBA'}</div>
             <div style="color:#f8fafc; font-size:16px; font-weight:600; opacity:0.9;">${data.momStats || ''}</div>
           </div>
           
@@ -9764,7 +9778,6 @@
 
       content.innerHTML = html;
       modal.classList.add('open');
-      if (type !== 'WINNER') setTimeout(closeEventPopup, 3500);
     }
 
     function closeEventPopup() {
@@ -11746,71 +11759,8 @@
       openPlayerProfile(currentUser, foundTeam, foundRole || 'Player');
     }
 
-    function showEventPopup(type, data) {
-      let modal = document.getElementById('eventPopupModal');
-      let content = document.getElementById('eventPopupContent');
-      let html = '';
-
-      if (type === 'toss') {
-        html = `
-          <div class="event-title">🪙 COIN TOSS</div>
-          <div class="event-main-text">${data.winner} Won the Toss! 🎊</div>
-          <div class="event-sub-text">Who won the toss on ground?</div>
-          <div style="display:flex; gap:10px; margin-bottom:20px;">
-            <button style="flex:1; padding:12px; background:${data.winner === data.team1 ? '#2563eb' : '#374151'}; border-radius:10px; border:none; color:#fff; font-weight:600;">${data.team1}</button>
-            <button style="flex:1; padding:12px; background:${data.winner === data.team2 ? '#2563eb' : '#374151'}; border-radius:10px; border:none; color:#fff; font-weight:600;">${data.team2}</button>
-          </div>
-          <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:15px; padding:20px;">
-            <div style="color:#fbbf24; font-family:'Rajdhani',sans-serif; font-size:18px; font-weight:700; margin-bottom:10px;">${data.winner} — Choose Bat or Bowl:</div>
-            <div style="display:flex; gap:10px;">
-              <button style="flex:1; padding:12px; background:#16a34a; border-radius:10px; border:none; color:#fff; font-weight:600;">🏏 Bat First</button>
-              <button style="flex:1; padding:12px; background:#2563eb; border-radius:10px; border:none; color:#fff; font-weight:600;">🎳 Bowl First</button>
-            </div>
-          </div>
-        `;
-        setTimeout(() => closeEventPopup(), 3000);
-      } else if (type === 'boundary') {
-        let text = data.runs === 4 ? 'FOUR' : 'SIX';
-        let color = data.runs === 4 ? '#2563eb' : '#ef4444';
-        html = `
-          <div class="event-confetti">🎉 🎊 🎉</div>
-          <div class="boundary-animation" style="text-shadow: 0 0 20px ${color};">${text}</div>
-          <div class="event-main-text" style="color:${color}; margin-top:20px;">${data.runs} RUNS!</div>
-        `;
-        setTimeout(() => closeEventPopup(), 2000);
-      } else if (type === 'wicket') {
-        html = `
-          <div class="event-confetti">☝️ 🏏 ☝️</div>
-          <div class="boundary-animation" style="color:#ef4444; text-shadow: 0 0 20px #ef4444;">WICKET!</div>
-          <div class="event-main-text" style="margin-top:20px;">OUT!</div>
-        `;
-        setTimeout(() => closeEventPopup(), 2000);
-      } else if (type === 'target') {
-        html = `
-          <div class="event-title">🎯 TARGET SET</div>
-          <div class="event-main-text">${data.target} Runs</div>
-          <div class="event-sub-text">${data.batTeam} needs ${data.target} to win in ${data.overs} overs.</div>
-          <button class="event-done-btn" onclick="closeEventPopup()">START 2ND INNINGS</button>
-        `;
-      } else if (type === 'winner') {
-        html = `
-          <div class="event-confetti">🏆 🥇 🏆</div>
-          <div class="event-title">MATCH WINNER</div>
-          <div class="event-main-text">${data.winner}</div>
-          <div class="event-sub-text">won the match</div>
-          <div class="event-highlight-text">won by ${data.margin}</div>
-          <div class="event-mom-card">
-            <div style="font-family:'Rajdhani',sans-serif; font-size:12px; color:#fbbf24; letter-spacing:1px; text-transform:uppercase; margin-bottom:8px;">MAN OF THE MATCH</div>
-            <div style="font-size:24px; font-weight:800; color:#fff;">${data.mom}</div>
-            <div style="font-size:14px; color:#94a3b8; margin-top:4px;">${data.momStats}</div>
-          </div>
-          <button class="event-done-btn" onclick="closeEventPopup()">DONE</button>
-        `;
-      }
-
-      content.innerHTML = html;
-      modal.classList.add('open');
-    }
+    // showEventPopup is now global and consolidated above.
+    // Legacy definition removed to prevent conflicts.
 
     function closeEventPopup() {
       document.getElementById('eventPopupModal').classList.remove('open');
@@ -14937,11 +14887,11 @@
         } catch (e) { console.error("Link parse error", e); }
 
         if (matchId) {
-          // Hide splash after 3 seconds as per new cinematic animation
+          // Hide splash after 4.5 seconds (1.5s branding + 3s founder portrait)
           setTimeout(() => {
             let splash = document.getElementById('splashScreen');
             if (splash) splash.style.display = 'none';
-          }, 3000);
+          }, 4500);
 
           function tryViewMatch() {
             if (window.fbDb && window.fbOnSnapshot) {
@@ -15051,7 +15001,7 @@
         setTimeout(() => {
           splash.style.display = 'none';
           showPage('loginPage');
-        }, 3000); // Show founder splash for 3 seconds
+        }, 4500); // Show full sequence: 1.5s branding + 3s founder
       }
     });
 
