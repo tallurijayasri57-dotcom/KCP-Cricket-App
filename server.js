@@ -87,6 +87,14 @@ async function startServer() {
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='player_stats'      AND COLUMN_NAME='opponent_team') ALTER TABLE player_stats  ADD opponent_team NVARCHAR(100) NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='match_results'     AND COLUMN_NAME='toss_info')  ALTER TABLE match_results     ADD toss_info NVARCHAR(MAX) NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_matches' AND COLUMN_NAME='toss_info') ALTER TABLE tournament_matches ADD toss_info NVARCHAR(MAX) NULL`,
+                
+                // Player Style Migrations
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='players' AND COLUMN_NAME='batting_style') ALTER TABLE players ADD batting_style NVARCHAR(50) NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='players' AND COLUMN_NAME='bowling_style') ALTER TABLE players ADD bowling_style NVARCHAR(50) NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_players' AND COLUMN_NAME='batting_style') ALTER TABLE tournament_players ADD batting_style NVARCHAR(50) NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_players' AND COLUMN_NAME='bowling_style') ALTER TABLE tournament_players ADD bowling_style NVARCHAR(50) NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='player_profiles' AND COLUMN_NAME='batting_style') ALTER TABLE player_profiles ADD batting_style NVARCHAR(50) NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='player_profiles' AND COLUMN_NAME='bowling_style') ALTER TABLE player_profiles ADD bowling_style NVARCHAR(50) NULL`,
             ];
             for (const mig of migrations) {
                 try { await pool.request().query(mig); } catch(e) { console.warn("Migration warning:", e.message); }
@@ -441,7 +449,9 @@ app.post("/tournament-players", async (req, res) => {
                 .input("pn", sql.NVarChar, player_name)
                 .input("r", sql.NVarChar, role || null)
                 .input("p", sql.NVarChar, photo_url || null)
-                .query("INSERT INTO tournament_players (tournament_id, team_name, player_name, role, photo_url) VALUES (@tid, @tn, @pn, @r, @p)");
+                .input("bs", sql.NVarChar, req.body.batting_style || null)
+                .input("bows", sql.NVarChar, req.body.bowling_style || null)
+                .query("INSERT INTO tournament_players (tournament_id, team_name, player_name, role, photo_url, batting_style, bowling_style) VALUES (@tid, @tn, @pn, @r, @p, @bs, @bows)");
 
             // 2. Auto-Sync to Player Profiles (Master Table)
             await pool.request()
@@ -449,11 +459,13 @@ app.post("/tournament-players", async (req, res) => {
                 .input("tn", sql.NVarChar, team_name)
                 .input("r", sql.NVarChar, role || null)
                 .input("p", sql.NVarChar, photo_url || null)
+                .input("bs", sql.NVarChar, req.body.batting_style || null)
+                .input("bows", sql.NVarChar, req.body.bowling_style || null)
                 .query(`
                     IF EXISTS (SELECT 1 FROM player_profiles WHERE player_name = @pn)
-                        UPDATE player_profiles SET team_name = @tn, role = @r, photo_url = COALESCE(@p, photo_url), updated_at = GETDATE() WHERE player_name = @pn
+                        UPDATE player_profiles SET team_name = @tn, role = @r, photo_url = COALESCE(@p, photo_url), batting_style = @bs, bowling_style = @bows, updated_at = GETDATE() WHERE player_name = @pn
                     ELSE
-                        INSERT INTO player_profiles (player_name, team_name, role, photo_url) VALUES (@pn, @tn, @r, @p)
+                        INSERT INTO player_profiles (player_name, team_name, role, photo_url, batting_style, bowling_style) VALUES (@pn, @tn, @r, @p, @bs, @bows)
                 `);
 
             res.json({ success: true });
@@ -480,7 +492,9 @@ app.put("/tournament-players/:tournament_id/:team_name/:old_player_name", async 
                 .input("opn", sql.NVarChar, old_player_name)
                 .input("npn", sql.NVarChar, player_name)
                 .input("r", sql.NVarChar, role || null)
-                .query("UPDATE tournament_players SET player_name = @npn, role = @r WHERE tournament_id = @tid AND team_name = @tn AND player_name = @opn");
+                .input("bs", sql.NVarChar, req.body.batting_style || null)
+                .input("bows", sql.NVarChar, req.body.bowling_style || null)
+                .query("UPDATE tournament_players SET player_name = @npn, role = @r, batting_style = @bs, bowling_style = @bows WHERE tournament_id = @tid AND team_name = @tn AND player_name = @opn");
             
             // 2. Check if this player was the captain, if so update the captain column in tournament_teams
             const checkCap = await pool.request()
@@ -669,18 +683,22 @@ app.post("/players", async (req, res) => {
             .input("t", sql.NVarChar, team_name)
             .input("p", sql.NVarChar, player_name)
             .input("r", sql.NVarChar, role)
-            .query("INSERT INTO players (team_name, player_name, role) VALUES (@t, @p, @r)");
+            .input("bs", sql.NVarChar, req.body.batting_style || null)
+            .input("bows", sql.NVarChar, req.body.bowling_style || null)
+            .query("INSERT INTO players (team_name, player_name, role, batting_style, bowling_style) VALUES (@t, @p, @r, @bs, @bows)");
             
         // Sync to profiles
         await pool.request()
             .input("pn", sql.NVarChar, player_name)
             .input("tn", sql.NVarChar, team_name)
             .input("r", sql.NVarChar, role || null)
+            .input("bs", sql.NVarChar, req.body.batting_style || null)
+            .input("bows", sql.NVarChar, req.body.bowling_style || null)
             .query(`
                 IF EXISTS (SELECT 1 FROM player_profiles WHERE player_name = @pn)
-                    UPDATE player_profiles SET team_name = @tn, role = @r, updated_at = GETDATE() WHERE player_name = @pn
+                    UPDATE player_profiles SET team_name = @tn, role = @r, batting_style = @bs, bowling_style = @bows, updated_at = GETDATE() WHERE player_name = @pn
                 ELSE
-                    INSERT INTO player_profiles (player_name, team_name, role) VALUES (@pn, @tn, @r)
+                    INSERT INTO player_profiles (player_name, team_name, role, batting_style, bowling_style) VALUES (@pn, @tn, @r, @bs, @bows)
             `);
             
         res.send("Player Added");
@@ -705,8 +723,16 @@ app.get("/player-role/:name", async (req, res) => {
         if (!pool) return res.json({ role: null });
         const r = await pool.request()
             .input("n", sql.NVarChar, req.params.name)
-            .query("SELECT role FROM player_profiles WHERE player_name = @n");
-        res.json({ role: r.recordset[0] ? r.recordset[0].role : null });
+            .query("SELECT role, batting_style, bowling_style FROM player_profiles WHERE player_name = @n");
+        if (r.recordset[0]) {
+            res.json({ 
+                role: r.recordset[0].role, 
+                batting_style: r.recordset[0].batting_style, 
+                bowling_style: r.recordset[0].bowling_style 
+            });
+        } else {
+            res.json({ role: null });
+        }
     } catch (e) { res.json({ role: null }); }
 });
 
@@ -717,14 +743,15 @@ app.post("/player-profile", async (req, res) => {
         
         await pool.request()
             .input("pn", sql.NVarChar, player_name)
-            .input("tn", sql.NVarChar, team_name || null)
             .input("r", sql.NVarChar, role || null)
             .input("p", sql.NVarChar, photo_url || null)
+            .input("bs", sql.NVarChar, req.body.batting_style || null)
+            .input("bows", sql.NVarChar, req.body.bowling_style || null)
             .query(`
                 IF EXISTS (SELECT 1 FROM player_profiles WHERE player_name = @pn)
-                    UPDATE player_profiles SET team_name = COALESCE(@tn, team_name), role = COALESCE(@r, role), photo_url = COALESCE(@p, photo_url), updated_at = GETDATE() WHERE player_name = @pn
+                    UPDATE player_profiles SET team_name = COALESCE(@tn, team_name), role = COALESCE(@r, role), photo_url = COALESCE(@p, photo_url), batting_style = @bs, bowling_style = @bows, updated_at = GETDATE() WHERE player_name = @pn
                 ELSE
-                    INSERT INTO player_profiles (player_name, team_name, role, photo_url) VALUES (@pn, @tn, @r, @p)
+                    INSERT INTO player_profiles (player_name, team_name, role, photo_url, batting_style, bowling_style) VALUES (@pn, @tn, @r, @p, @bs, @bows)
             `);
         res.json({ success: true });
     } catch (err) {

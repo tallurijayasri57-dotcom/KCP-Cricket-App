@@ -396,6 +396,23 @@
       color: #fef3c7;
     }
 
+    /* Style Badges */
+    .style-badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      margin-left: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .style-RHB { background: rgba(37, 99, 235, 0.15); color: #93c5fd; border: 1px solid rgba(37, 99, 235, 0.3); }
+    .style-LHB { background: rgba(220, 38, 38, 0.15); color: #fca5a5; border: 1px solid rgba(220, 38, 38, 0.3); }
+    .style-BOWL { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
+
+
     /* HOME BANNER - WELCOME TO TOURNAMENT (shown after tournament created) */
     .welcome-tournament-banner {
       position: relative;
@@ -6633,11 +6650,12 @@
               <span id="profileLocation">Jaggayyapeta</span>
             </div>
             <div style="border-top:1px dashed rgba(255,255,255,0.15); width:100%; margin:8px 0 6px;"></div>
-            <div class="profile-styles"
-              style="font-size:13px; color:#e2e8f0; font-weight:600; display:flex; align-items:center; white-space:nowrap; flex-wrap:nowrap; justify-content:flex-start; width:100%;">
+            <div class="profile-styles" style="font-size:13px; color:#e2e8f0; font-weight:600; display:flex; align-items:center; white-space:nowrap; flex-wrap:nowrap; justify-content:flex-start; width:100%;">
+              <span id="profileRoleLabel" style="color:#fcd34d;">Player</span>
+              <span style="color:rgba(255,255,255,0.3); margin:0 8px;">|</span>
               <span id="profileBatStyle" style="color:#38bdf8;">RHB</span>
               <span style="color:rgba(255,255,255,0.3); margin:0 8px;">|</span>
-              <span id="profileBowlStyle" style="color:#6ee7b7;">Player</span>
+              <span id="profileBowlStyle" style="color:#6ee7b7;">Bowl Style</span>
             </div>
             <div class="profile-team" id="profileTeam" style="display:none;"></div>
           </div>
@@ -7690,15 +7708,15 @@
 
       tbody.innerHTML = teams.map((team, i) =>
         `<tr style="border-bottom:1px solid #e5e7eb;">
-          <td style="padding:16px; color:#0d9488; font-weight:500;">${team.name}</td>
+          <td style="padding:16px; color:#0d9488; font-weight:500; cursor:pointer;" onclick="openTeamMembersModalByName('${escapeQ(team.name)}')">${team.name}</td>
           <td style="padding:16px; text-align:center;">
-            <span style="color:#0d9488; font-size:15px; font-weight:700; cursor:pointer;" onclick="openTeamMembersModalByName('${escapeQ(team.name)}')">${team.playerCount !== undefined ? team.playerCount : (team.players ? team.players.length : 0)}</span>
+            <span style="color:#0d9488; font-size:15px; font-weight:700; cursor:pointer;" onclick="event.stopPropagation(); openAddTeamPlayerModal(${i})">${team.playerCount !== undefined ? team.playerCount : (team.players ? team.players.length : 0)}</span>
           </td>
           <td style="padding:16px; color:#6b7280; font-size:16px; background:#f9fafb;">
-            <span style="cursor:pointer;margin-right:12px;opacity:0.8;display:inline-flex;vertical-align:middle;" title="Edit" onclick="openEditTeamModal(${i})">
+            <span style="cursor:pointer;margin-right:12px;opacity:0.8;display:inline-flex;vertical-align:middle;" title="Edit Team" onclick="event.stopPropagation(); openEditTeamModal(${i})">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
             </span>
-            <span style="cursor:pointer;margin-right:12px;opacity:0.8;display:inline-flex;vertical-align:middle;" title="Delete" onclick="deleteTournamentTeam(${i})">
+            <span style="cursor:pointer;margin-right:12px;opacity:0.8;display:inline-flex;vertical-align:middle;" title="Delete Team" onclick="deleteTournamentTeam(${i})">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
             </span>
           </td>
@@ -7787,14 +7805,13 @@
     let currentEditTeamName = '';
 
     function openEditTeamModal(teamIdx) {
+      document.getElementById('addTeamPlayerModal').style.display = 'none';
+      document.getElementById('editTournamentModal').style.display = 'none';
       currentEditTeamIdx = teamIdx;
-      // Use sqlTeamsList (set by renderTeamsList from SQL) — not localStorage
       let team = sqlTeamsList[teamIdx];
       if (!team) { alert('Team data not available. Please refresh the page.'); return; }
       currentEditTeamName = team.name;
       document.getElementById('editTeamNameInput').value = team.name;
-      // Load players from SQL for this team
-      renderEditTeamPlayersListFromSQL(team.name);
       document.getElementById('editTeamModal').style.display = 'flex';
     }
 
@@ -7823,10 +7840,12 @@
 
     let currentEditPlayerOldName = '';
 
-    function openEditPlayerInTeamSQL(playerName, playerRole) {
+    function openEditPlayerInTeamSQL(playerName, playerRole, batStyle = '', bowlStyle = '') {
       currentEditPlayerOldName = playerName;
       document.getElementById('editPlayerNameInput').value = playerName;
       document.getElementById('editPlayerRoleInput').value = playerRole || '';
+      document.getElementById('editPlayerBattingStyleInput').value = batStyle || '';
+      document.getElementById('editPlayerBowlingStyleInput').value = bowlStyle || '';
       document.getElementById('editPlayerInTeamSection').style.display = 'block';
       document.getElementById('editPlayerInTeamSection').scrollIntoView({ behavior: 'smooth' });
     }
@@ -7839,36 +7858,38 @@
     }
 
     async function confirmEditPlayerSQL() {
-      let name = document.getElementById('editPlayerNameInput').value.trim();
-      let role = document.getElementById('editPlayerRoleInput').value;
-      if (!name) { alert('Enter player name'); return; }
+       let name = document.getElementById('editPlayerNameInput').value.trim();
+       let role = document.getElementById('editPlayerRoleInput').value;
+       let batStyle = document.getElementById('editPlayerBattingStyleInput').value;
+       let bowlStyle = document.getElementById('editPlayerBowlingStyleInput').value;
+       if (!name) { alert('Enter player name'); return; }
 
-      let t = getCurrentTournament();
-      let tName = currentEditTeamName;
-      if (!t || !t.id || !tName || !currentEditPlayerOldName) { alert('Missing data to update player'); return; }
+       let t = getCurrentTournament();
+       let tName = currentEditTeamName;
+       if (!t || !t.id || !tName || !currentEditPlayerOldName) { alert('Missing data to update player'); return; }
 
-      try {
-        const res = await fetch(API + '/tournament-players/' + t.id + '/' + encodeURIComponent(tName) + '/' + encodeURIComponent(currentEditPlayerOldName), {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ player_name: name, role: role })
-        });
-        const data = await res.json();
-        if (!data.success) { alert('Failed to update player'); return; }
+       try {
+         const res = await fetch(API + '/tournament-players/' + t.id + '/' + encodeURIComponent(tName) + '/' + encodeURIComponent(currentEditPlayerOldName), {
+           method: 'PUT',
+           headers: { 'Content-Type': 'application/json' },
+           body: JSON.stringify({ player_name: name, role: role, batting_style: batStyle, bowling_style: bowlStyle })
+         });
+         const data = await res.json();
+         if (!data.success) { alert('Failed to update player'); return; }
 
-        // Sync with global player profile
-        try {
-          await fetch(API + "/player-profile", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ player_name: name, role: role })
-          });
-        } catch (e) { console.warn("Failed to sync player profile role", e); }
-      } catch (e) { alert('Error updating player: ' + e.message); return; }
+         // Sync with global player profile
+         try {
+           await fetch(API + "/player-profile", {
+             method: "POST",
+             headers: { "Content-Type": "application/json" },
+             body: JSON.stringify({ player_name: name, role: role, batting_style: batStyle, bowling_style: bowlStyle })
+           });
+         } catch (e) { console.warn("Failed to sync player profile role", e); }
+       } catch (e) { alert('Error updating player: ' + e.message); return; }
 
-      cancelEditPlayer();
-      renderEditTeamPlayersListFromSQL(tName);
-    }
+       cancelEditPlayer();
+       renderEditTeamPlayersListFromSQL(tName);
+     }
 
     async function deletePlayerInEditModalSQL(playerName) {
       if (!confirm('Delete this player?')) return;
@@ -7979,10 +8000,14 @@
 
     let currentAddPlayerTeamIdx = -1;
     function openAddTeamPlayerModal(teamIdx) {
+      document.getElementById('editTeamModal').style.display = 'none';
+      document.getElementById('editTournamentModal').style.display = 'none';
       currentAddPlayerTeamIdx = teamIdx;
       currentAddPlayerTeamName = sqlTeamsList[teamIdx] ? sqlTeamsList[teamIdx].name : '';
       document.getElementById('addTeamPlayerNameInput').value = '';
       document.getElementById('addTeamPlayerRoleInput').value = '';
+      document.getElementById('addTeamPlayerBattingStyleInput').value = '';
+      document.getElementById('addTeamPlayerBowlingStyleInput').value = '';
       document.getElementById('addTeamPlayerModal').style.display = 'flex';
     }
     function closeAddTeamPlayerModal() {
@@ -7992,6 +8017,8 @@
       let name = document.getElementById('addTeamPlayerNameInput').value.trim();
       if (!name) { alert('Enter player name'); return; }
       let role = document.getElementById('addTeamPlayerRoleInput').value;
+      let batStyle = document.getElementById('addTeamPlayerBattingStyleInput').value;
+      let bowlStyle = document.getElementById('addTeamPlayerBowlingStyleInput').value;
       if (!role) { alert('Select player role'); return; }
 
       let photo = localStorage.getItem("userPhoto_" + name) || "";
@@ -8012,7 +8039,15 @@
         const saveRes = await fetch(API + '/tournament-players', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tournament_id: t.id, team_name: tName, player_name: name, role: role, photo_url: photo })
+          body: JSON.stringify({
+            tournament_id: t.id,
+            team_name: tName,
+            player_name: name,
+            role: role,
+            photo_url: photo,
+            batting_style: batStyle,
+            bowling_style: bowlStyle
+          })
         });
         const saveData = await saveRes.json();
         console.log('Player save result:', saveData);
@@ -8023,7 +8058,13 @@
           await fetch(API + "/player-profile", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ player_name: name, team_name: tName, role: role })
+            body: JSON.stringify({
+              player_name: name,
+              team_name: tName,
+              role: role,
+              batting_style: batStyle,
+              bowling_style: bowlStyle
+            })
           });
         } catch (e) { console.warn("Failed to sync player profile role", e); }
       } catch (e) { alert('Error saving player: ' + e.message); return; }
@@ -8143,6 +8184,14 @@
           ? 'ondblclick="setSQLTeamCaptain(\'' + escapeQ(p.player_name) + '\',\'' + escapeQ(teamName) + '\')" title="Double-click to set as captain" style="cursor:pointer;"'
           : 'title="' + p.player_name + '"';
 
+        let roleLabel = roleBadge(p.role, p.batting_style, p.bowling_style);
+        let actionButtons = isOrganiser ? `
+          <div style="display:flex; gap:6px; margin-top:8px;">
+            <button onclick="openEditPlayerInTeamSQL('${escapeQ(p.player_name)}', '${escapeQ(p.role)}', '${escapeQ(p.batting_style || '')}', '${escapeQ(p.bowling_style || '')}')" style="background:none; border:1px solid #0d9488; color:#0d9488; padding:2px 6px; border-radius:4px; font-size:10px; cursor:pointer; font-weight:600;">EDIT</button>
+            <button onclick="deletePlayerInEditModalSQL('${escapeQ(p.player_name)}')" style="background:none; border:1px solid #dc2626; color:#dc2626; padding:2px 6px; border-radius:4px; font-size:10px; cursor:pointer; font-weight:600;">DEL</button>
+          </div>
+        ` : '';
+
         return '<div ' + dblClickAttr + ' style="display:flex;flex-direction:column;align-items:center;width:120px;background:#ffffff;' + borderStyle + 'border-radius:8px;padding:6px;user-select:none;">' +
           '<div style="position:relative;width:100px;height:100px;">' +
           captainBadge + wkBadge +
@@ -8150,7 +8199,8 @@
           avatarHtml + '</div>' +
           '</div>' +
           '<div style="margin-top:6px;font-size:13px;font-family:Inter,sans-serif;' + nameColor + 'text-align:center;">' + p.player_name + '</div>' +
-          '<div style="font-size:11px;color:#6b7280;font-family:Inter,sans-serif;margin-top:2px;text-align:center;">' + (p.role || '') + '</div>' +
+          '<div style="font-size:11px;color:#6b7280;font-family:Inter,sans-serif;margin-top:2px;text-align:center;">' + roleLabel + '</div>' +
+          actionButtons +
           '</div>';
       }).join('');
 
@@ -8250,10 +8300,12 @@
         let photoHtml = p.photo_url ? '<img src="' + p.photo_url + '" style="width:24px;height:24px;border-radius:50%;object-fit:cover;margin-right:8px;">' : '<span style="margin-right:8px;">🧑</span>';
         let safeName = escapeQ(p.player_name);
         let safeRole = escapeQ(p.role || '');
+        let safeBat = escapeQ(p.batting_style || '');
+        let safeBowl = escapeQ(p.bowling_style || '');
         return '<div style="display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f3f4f6;">' +
           '<div style="display:flex;align-items:center;font-size:14px; color:#1f2937;">' + photoHtml + p.player_name + ' <span style="font-size:11px; color:#6b7280;margin-left:4px;">(' + (p.role || '') + ')</span></div>' +
           '<div style="display:flex; gap:8px; align-items:center;">' +
-          '<span onclick="openEditPlayerInTeamSQL(\'' + safeName + '\', \'' + safeRole + '\')" style="cursor:pointer; color:#0d9488; font-size:12px; border:1px solid #0d9488; padding:3px 8px; border-radius:4px;">Edit</span>' +
+          '<span onclick="openEditPlayerInTeamSQL(\'' + safeName + '\', \'' + safeRole + '\', \'' + safeBat + '\', \'' + safeBowl + '\')" style="cursor:pointer; color:#0d9488; font-size:12px; border:1px solid #0d9488; padding:3px 8px; border-radius:4px;">Edit</span>' +
           '<span onclick="deletePlayerInEditModalSQL(\'' + safeName + '\')" style="cursor:pointer; color:#dc2626; font-size:12px; border:1px solid #dc2626; padding:3px 8px; border-radius:4px;">Delete</span>' +
           '</div>' +
           '</div>';
@@ -8401,6 +8453,8 @@
       document.getElementById('teamMembersModal').style.display = 'none';
       document.getElementById('addTeamPlayerNameInput').value = '';
       document.getElementById('addTeamPlayerRoleInput').value = '';
+      document.getElementById('addTeamPlayerBattingStyleInput').value = '';
+      document.getElementById('addTeamPlayerBowlingStyleInput').value = '';
       document.getElementById('addTeamPlayerModal').style.display = 'flex';
     }
 
@@ -8729,6 +8783,8 @@
     async function confirmAddPlayerModal() {
       let pname = document.getElementById('addPlayerNameInput').value.trim();
       let role = document.getElementById('addPlayerRoleInput').value;
+      let batStyle = document.getElementById('addPlayerBattingStyleInput').value;
+      let bowlStyle = document.getElementById('addPlayerBowlingStyleInput').value;
       if (!pname) { alert('Enter player name'); return; }
       if (!role) { alert('Select a role'); return; }
 
@@ -8743,11 +8799,11 @@
       tournaments = loadTournaments();
       let t = tournaments[currentTournamentId];
       let teamName = t.teams[addPlayerTargetTeamIdx].name;
-      t.teams[addPlayerTargetTeamIdx].players.push({ name: pname, role: role });
+      t.teams[addPlayerTargetTeamIdx].players.push({ name: pname, role: role, batting_style: batStyle, bowling_style: bowlStyle });
       saveTournamentsData(tournaments);
 
       // Sync with SSMS
-      syncPlayerToSSMS(teamName, pname, role);
+      syncPlayerToSSMS(teamName, pname, role, batStyle, bowlStyle);
 
       closeAddPlayerModal();
       renderMtTeams();
@@ -8782,7 +8838,7 @@
               ? `<img src="${p.photo}" style="width:20px;height:20px;border-radius:50%;object-fit:cover;margin-right:6px;">`
               : '🧑 ';
             return `<div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.03);border-radius:6px;padding:6px 10px;">
-                  <span style="font-size:13px;color:#d1fae5;display:flex;align-items:center;">${pPhotoHtml}${p.name} ${roleBadge(p.role)}</span>
+                  <span style="font-size:13px;color:#d1fae5;display:flex;align-items:center;">${pPhotoHtml}${p.name} ${roleBadge(p.role, p.batting_style, p.bowling_style)}</span>
                   <div style="display:flex;gap:4px;">
                     <button onclick="editTournamentPlayer(${ti},${pi})" style="background:none;border:none;color:#93c5fd;cursor:pointer;font-size:12px;padding:2px 4px;">✏️</button>
                     <button class="delete-player-btn" onclick="deleteTournamentPlayer(${ti},${pi})" title="Remove">✕</button>
@@ -10432,7 +10488,9 @@
                 ${photoHtml || `<div style="font-size:20px; font-weight:800; color:#fff;">${pName.charAt(0).toUpperCase()}</div>`}
               </div>
               <div style="font-size:12px; font-weight:700; color:#f8fafc; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${pName}</div>
-              <div style="font-size:10px; color:#94a3b8; font-weight:600; text-transform:uppercase; letter-spacing:0.3px;">${p.role || 'Player'}</div>
+              <div style="font-size:10px; color:#9ca3af; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-top:4px;">
+                ${roleBadge(p.role, p.batting_style, p.bowling_style)}
+              </div>
             </div>
           `;
         });
@@ -11375,11 +11433,17 @@
       }).catch(err => console.error("SSMS Sync Error:", err));
     }
 
-    function syncPlayerToSSMS(teamName, playerName, role) {
+    function syncPlayerToSSMS(teamName, playerName, role, batStyle = '', bowlStyle = '') {
       fetch(API + "/players", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ team_name: teamName, player_name: playerName, role: role })
+        body: JSON.stringify({
+          team_name: teamName,
+          player_name: playerName,
+          role: role,
+          batting_style: batStyle,
+          bowling_style: bowlStyle
+        })
       }).catch(err => console.error("SSMS Player Sync Error:", err));
     }
 
@@ -11455,12 +11519,22 @@
       return `${h}:${m} ${ampm}`;
     }
 
-    function roleBadge(role) {
-      if (role === "Batsman") return '<span class="role-badge role-BAT"> Batsman</span>';
-      if (role === "Bowler") return '<span class="role-badge role-BOWL"> Bowler</span>';
-      if (role === "All-Rounder") return '<span class="role-badge role-AR"> All-Rounder</span>';
-      if (role === "Wicket-Keeper") return '<span class="role-badge role-WK"> Wicket-Keeper</span>';
-      return "";
+    function roleBadge(role, batStyle = '', bowlStyle = '') {
+      let html = "";
+      if (role === "Batsman") html = '<span class="role-badge role-BAT"> Batsman</span>';
+      else if (role === "Bowler") html = '<span class="role-badge role-BOWL"> Bowler</span>';
+      else if (role === "All-Rounder") html = '<span class="role-badge role-AR"> All-Rounder</span>';
+      else if (role === "Wicket-Keeper") html = '<span class="role-badge role-WK"> Wicket-Keeper</span>';
+
+      if (batStyle) {
+        html += `<span class="style-badge style-${batStyle}">${batStyle}</span>`;
+      }
+      if (bowlStyle) {
+        // Use a generic bowl class if specific RAS/RAF/etc not defined in CSS yet
+        let styleClass = bowlStyle.includes('RAS') || bowlStyle.includes('RAF') ? 'BOWL' : 'BOWL';
+        html += `<span class="style-badge style-${styleClass}">${bowlStyle}</span>`;
+      }
+      return html;
     }
     function roleEmoji(role) {
       if (role === "Batsman") return "🏏";
@@ -12216,7 +12290,7 @@
                             ${photoHtml || `<div style="font-size:24px;font-weight:800;color:#fff;">${p.player_name.charAt(0).toUpperCase()}</div>`}
                           </div>
                           <div style="font-size:12.5px;font-weight:700;color:#f8fafc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:85px;margin:0 auto 2px;">${p.player_name}</div>
-                          <div style="font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;">${p.role || 'Player'}</div>
+                          <div style="font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;">${roleBadge(p.role, p.batting_style, p.bowling_style)}</div>
                         </div>`;
               }).join('')
             }
@@ -13102,33 +13176,26 @@
       if (tabs.length > 0) switchProfileTab('matches', tabs[0]);
 
       currentProfilePlayerName = playerName;
+      document.getElementById("profileName").innerText = playerName;
       document.getElementById("photoUploadStatus").innerText = "";
       document.getElementById("photoUploadInput").value = "";
 
-      // Robust role lookup: Prioritize passed role, then fetch from DB
-      try {
-        if (!role || role.toLowerCase() === 'player' || role === 'undefined') {
-          try {
-            const rRes = await fetch(API + "/player-role/" + encodeURIComponent(playerName));
-            const rData = await rRes.json();
-            if (rData.role && rData.role.toLowerCase() !== 'player') {
-              role = rData.role;
-            }
-          } catch (e) { }
-        }
-      } catch (e) { }
       let profilePhoto = localStorage.getItem("userPhoto_" + playerName);
       if (profilePhoto) {
         document.getElementById("profileAvatar").innerHTML = '<img src="' + profilePhoto + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">';
-      } else {
-        document.getElementById("profileAvatar").innerHTML = '<span style="font-size:40px;">' + roleEmoji(role) + '</span>';
       }
 
-      document.getElementById("profileName").innerText = playerName;
-      document.getElementById("profileRoleBadge").innerText = role || "PLAYER";
-      // Show role label: Batsman, Bowler, All Rounder, Wicket Keeper etc.
-      let roleEl = document.getElementById("profileBowlStyle");
-      if (roleEl) {
+      // Robust role lookup: Prioritize passed role, then fetch from DB
+      try {
+        const rRes = await fetch(API + "/player-role/" + encodeURIComponent(playerName));
+        const rData = await rRes.json();
+        
+        let displayRole = role || rData.role || "Player";
+        let batStyle = rData.batting_style || "";
+        let bowlStyle = rData.bowling_style || "";
+
+        document.getElementById("profileRoleBadge").innerText = displayRole.toUpperCase();
+        
         let roleMap = {
           'bat': 'Batsman', 'batsman': 'Batsman',
           'bowl': 'Bowler', 'bowler': 'Bowler',
@@ -13138,9 +13205,16 @@
           'wicket-keeper': 'Wicket-Keeper',
           'player': 'Player', '': 'Player'
         };
-        let roleKey = (role || '').toLowerCase().trim();
-        roleEl.innerText = roleMap[roleKey] || (role ? role.charAt(0).toUpperCase() + role.slice(1) : 'Player');
-      }
+        let roleKey = (displayRole || '').toLowerCase().trim();
+        document.getElementById("profileRoleLabel").innerText = roleMap[roleKey] || (displayRole ? displayRole.charAt(0).toUpperCase() + displayRole.slice(1) : 'Player');
+        
+        document.getElementById("profileBatStyle").innerText = batStyle || "Style N/A";
+        document.getElementById("profileBowlStyle").innerText = bowlStyle || "Style N/A";
+        
+        if (!profilePhoto) {
+          document.getElementById("profileAvatar").innerHTML = '<span style="font-size:40px;">' + roleEmoji(displayRole) + '</span>';
+        }
+      } catch (e) { console.error("Profile data fetch error:", e); }
       let pTeamEl = document.getElementById("profileTeam");
       if (pTeamEl) pTeamEl.innerText = teamName ? ("🏏 " + teamName) : "";
 
@@ -14928,14 +15002,36 @@
       <div class="add-player-modal-label">Player Name</div>
       <input class="add-player-modal-input" id="addPlayerNameInput" placeholder="Enter player name"
         style="margin-bottom:16px;">
-      <div class="add-player-modal-label">Role</div>
-      <select class="add-player-modal-select" id="addPlayerRoleInput">
+      <select class="add-player-modal-select" id="addPlayerRoleInput" style="margin-bottom:16px;">
         <option value="">-- Select Role --</option>
         <option value="Batsman">🏏 Batsman</option>
         <option value="Bowler">🎳 Bowler</option>
         <option value="All-Rounder">⭐ All-Rounder</option>
         <option value="Wicket-Keeper">🧤 Wicket-Keeper</option>
       </select>
+
+      <div style="display:flex; gap:10px; margin-bottom:16px;">
+        <div style="flex:1;">
+          <div class="add-player-modal-label">Batting Style</div>
+          <select class="add-player-modal-select" id="addPlayerBattingStyleInput" style="width:100%; margin:0;">
+            <option value="">-- Select --</option>
+            <option value="RHB">Right Hand Bat (RHB)</option>
+            <option value="LHB">Left Hand Bat (LHB)</option>
+          </select>
+        </div>
+        <div style="flex:1;">
+          <div class="add-player-modal-label">Bowling Style</div>
+          <select class="add-player-modal-select" id="addPlayerBowlingStyleInput" style="width:100%; margin:0;">
+            <option value="">-- Select --</option>
+            <option value="RAF">Right-Arm Fast</option>
+            <option value="RAS">Right-Arm Spin</option>
+            <option value="RAM">Right-Arm Medium</option>
+            <option value="LAF">Left-Arm Fast</option>
+            <option value="LAS">Left-Arm Spin</option>
+            <option value="LAM">Left-Arm Medium</option>
+          </select>
+        </div>
+      </div>
       <div class="add-player-modal-btns">
         <button class="add-player-modal-cancel" onclick="closeAddPlayerModal()">Cancel</button>
         <button class="add-player-modal-confirm" onclick="confirmAddPlayerModal()">✅ Add Player</button>
@@ -15039,7 +15135,7 @@
       <!-- Header -->
       <div
         style="display:flex; justify-content:space-between; align-items:center; padding:16px 24px; border-bottom:1px solid #f0f0f0; position:sticky; top:0; background:#fff; z-index:1;">
-        <h3 style="margin:0; font-size:18px; font-weight:700; color:#374151;">Edit Team</h3>
+        <h3 style="margin:0; font-size:18px; font-weight:700; color:#374151;">Edit Team <span style="font-size:10px; color:#9ca3af; font-weight:400;">v2.0</span></h3>
         <span onclick="closeEditTeamModal()"
           style="cursor:pointer; font-size:24px; color:#6b7280; line-height:1;">&times;</span>
       </div>
@@ -15057,72 +15153,76 @@
           <label for="updateTeamMatchesCheck" style="font-size:14px; color:#4b5563;">Update team name in past
             matches</label>
         </div>
-        <div style="display:flex; justify-content:flex-start; margin-bottom:28px;">
+        <div style="display:flex; justify-content:center; margin-top:20px;">
           <button onclick="confirmUpdateTeam()"
             style="background:#10b981; color:#fff; border:none; padding:10px 24px; border-radius:4px; font-family:'Inter',sans-serif; font-size:14px; font-weight:600; cursor:pointer; text-transform:uppercase;">UPDATE</button>
         </div>
+      <div style="display:flex; justify-content:center; padding:0 24px 24px;">
+        <button onclick="closeEditTeamModal()"
+          style="background:#fff; color:#6b7280; border:1px solid #d1d5db; padding:10px 24px; border-radius:4px; font-family:'Inter',sans-serif; font-size:14px; cursor:pointer;">CANCEL</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-        <!-- Divider -->
-        <div style="height:1px; background:#e5e7eb; margin-bottom:20px;"></div>
-
-        <!-- Players Section -->
-        <div style="margin-bottom:8px; font-size:14px; font-weight:600; color:#374151;">Players</div>
-        <div id="editTeamPlayersList" style="margin-bottom:18px;"></div>
-
-        <!-- Add New Player -->
-        <div style="background:#f9fafb; border:1px solid #e5e7eb; border-radius:6px; padding:14px; margin-bottom:14px;">
-          <div style="font-size:13px; font-weight:600; color:#374151; margin-bottom:10px;">+ Add New Player</div>
-          <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end;">
-            <div style="flex:1; min-width:140px;">
-              <div style="font-size:11px; color:#9ca3af; margin-bottom:4px;">Player Name</div>
-              <input id="newPlayerNameInEdit" placeholder="Enter name"
-                style="width:100%; border:none; border-bottom:1px solid #d1d5db; padding:6px 0; font-size:14px; color:#1f2937; outline:none; background:transparent; box-sizing:border-box;">
-            </div>
-            <div style="flex:1; min-width:130px;">
-              <div style="font-size:11px; color:#9ca3af; margin-bottom:4px;">Role</div>
-              <select id="newPlayerRoleInEdit"
-                style="width:100%; border:none; border-bottom:1px solid #d1d5db; padding:6px 0; font-size:14px; color:#1f2937; outline:none; background:transparent;">
-                <option value="">-- Select Role --</option>
-                <option value="Batsman">🏏 Batsman</option>
-                <option value="Bowler">🎳 Bowler</option>
-                <option value="All-Rounder">⭐ All-Rounder</option>
-                <option value="Wicket-Keeper">🧤 Wicket-Keeper</option>
-              </select>
-            </div>
-            <button onclick="addPlayerFromEditTeamModal()"
-              style="background:#10b981; color:#fff; border:none; padding:8px 16px; border-radius:4px; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; cursor:pointer; text-transform:uppercase; white-space:nowrap;">ADD</button>
+  <!-- EDIT PLAYER MODAL (STANDALONE) -->
+  <div id="editPlayerInTeamSection"
+    style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:10010; align-items:center; justify-content:center; padding:20px;">
+    <div
+      style="background:#fff; width:90%; max-width:400px; border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.2); font-family:'Inter',sans-serif; overflow:hidden;">
+      <div
+        style="display:flex; justify-content:space-between; align-items:center; padding:18px 24px; border-bottom:1px solid #e5e7eb;">
+        <h3 style="margin:0; font-size:18px; font-weight:700; color:#1f2937;">✏️ Edit Player</h3>
+        <span onclick="cancelEditPlayer()"
+          style="cursor:pointer; font-size:24px; color:#6b7280; line-height:1;">&times;</span>
+      </div>
+      <div style="padding:24px; display:flex; flex-direction:column; gap:20px;">
+        <div>
+          <div style="font-size:13px; color:#9ca3af; margin-bottom:6px;">Player Name</div>
+          <input id="editPlayerNameInput" placeholder="Enter name"
+            style="width:100%; border:none; border-bottom:1px solid #d1d5db; padding:8px 0; font-size:15px; color:#1f2937; outline:none; background:transparent; font-family:'Inter',sans-serif; box-sizing:border-box;">
+        </div>
+        <div>
+          <div style="font-size:13px; color:#9ca3af; margin-bottom:6px;">Role</div>
+          <select id="editPlayerRoleInput"
+            style="width:100%; border:none; border-bottom:1px solid #d1d5db; padding:8px 0; font-size:15px; color:#1f2937; outline:none; background:transparent; font-family:'Inter',sans-serif;">
+            <option value="">-- Select Role --</option>
+            <option value="Batsman">🏏 Batsman</option>
+            <option value="Bowler">🎳 Bowler</option>
+            <option value="All-Rounder">⭐ All-Rounder</option>
+            <option value="Wicket-Keeper">🧤 Wicket-Keeper</option>
+          </select>
+        </div>
+        <div style="display:flex; gap:16px;">
+          <div style="flex:1;">
+            <div style="font-size:13px; color:#9ca3af; margin-bottom:6px;">Batting Style</div>
+            <select id="editPlayerBattingStyleInput"
+              style="width:100%; border:none; border-bottom:1px solid #d1d5db; padding:8px 0; font-size:15px; color:#1f2937; outline:none; background:transparent; font-family:'Inter',sans-serif;">
+              <option value="">-- Select --</option>
+              <option value="RHB">RHB</option>
+              <option value="LHB">LHB</option>
+            </select>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:13px; color:#9ca3af; margin-bottom:6px;">Bowling Style</div>
+            <select id="editPlayerBowlingStyleInput"
+              style="width:100%; border:none; border-bottom:1px solid #d1d5db; padding:8px 0; font-size:15px; color:#1f2937; outline:none; background:transparent; font-family:'Inter',sans-serif;">
+              <option value="">-- Select --</option>
+              <option value="RAF">R-Fast</option>
+              <option value="RAS">R-Spin</option>
+              <option value="RAM">R-Med</option>
+              <option value="LAF">L-Fast</option>
+              <option value="LAS">L-Spin</option>
+              <option value="LAM">L-Med</option>
+            </select>
           </div>
         </div>
-
-        <!-- Edit Player Inline Section -->
-        <div id="editPlayerInTeamSection"
-          style="display:none; background:#fffbeb; border:1px solid #fde68a; border-radius:6px; padding:14px;">
-          <div style="font-size:13px; font-weight:600; color:#92400e; margin-bottom:10px;">✏️ Edit Player</div>
-          <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end;">
-            <div style="flex:1; min-width:140px;">
-              <div style="font-size:11px; color:#9ca3af; margin-bottom:4px;">Player Name</div>
-              <input id="editPlayerNameInput" placeholder="Enter name"
-                style="width:100%; border:none; border-bottom:1px solid #d1d5db; padding:6px 0; font-size:14px; color:#1f2937; outline:none; background:transparent; box-sizing:border-box;">
-            </div>
-            <div style="flex:1; min-width:130px;">
-              <div style="font-size:11px; color:#9ca3af; margin-bottom:4px;">Role</div>
-              <select id="editPlayerRoleInput"
-                style="width:100%; border:none; border-bottom:1px solid #d1d5db; padding:6px 0; font-size:14px; color:#1f2937; outline:none; background:transparent;">
-                <option value="">-- Select Role --</option>
-                <option value="Batsman">🏏 Batsman</option>
-                <option value="Bowler">🎳 Bowler</option>
-                <option value="All-Rounder">⭐ All-Rounder</option>
-                <option value="Wicket-Keeper">🧤 Wicket-Keeper</option>
-              </select>
-            </div>
-          </div>
-          <div style="display:flex; gap:8px; margin-top:12px;">
-            <button onclick="confirmEditPlayerSQL()"
-              style="background:#0d9488; color:#fff; border:none; padding:8px 18px; border-radius:4px; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; cursor:pointer; text-transform:uppercase;">SAVE</button>
-            <button onclick="cancelEditPlayer()"
-              style="background:#fff; color:#6b7280; border:1px solid #d1d5db; padding:8px 14px; border-radius:4px; font-family:'Inter',sans-serif; font-size:13px; cursor:pointer;">Cancel</button>
-          </div>
-        </div>
+      </div>
+      <div style="display:flex; justify-content:center; gap:12px; padding:8px 24px 24px;">
+        <button onclick="confirmEditPlayerSQL()"
+          style="background:#10b981; color:#fff; border:none; padding:12px 32px; border-radius:4px; font-family:'Inter',sans-serif; font-size:14px; font-weight:700; cursor:pointer; text-transform:uppercase; letter-spacing:0.5px;">SAVE</button>
+        <button onclick="cancelEditPlayer()"
+          style="background:#fff; color:#6b7280; border:1px solid #d1d5db; padding:12px 24px; border-radius:4px; font-family:'Inter',sans-serif; font-size:14px; cursor:pointer;">CANCEL</button>
       </div>
     </div>
   </div>
@@ -15161,7 +15261,7 @@
       style="background:#fff; width:90%; max-width:400px; border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.2); font-family:'Inter',sans-serif; overflow:hidden;">
       <div
         style="display:flex; justify-content:space-between; align-items:center; padding:18px 24px; border-bottom:1px solid #e5e7eb;">
-        <h3 style="margin:0; font-size:18px; font-weight:700; color:#1f2937;">Add Player</h3>
+        <h3 style="margin:0; font-size:18px; font-weight:700; color:#1f2937;">Add Player <span style="font-size:10px; color:#9ca3af; font-weight:400;">v2.0</span></h3>
         <span onclick="closeAddTeamPlayerModal()"
           style="cursor:pointer; font-size:24px; color:#6b7280; line-height:1;">&times;</span>
       </div>
@@ -15181,6 +15281,30 @@
             <option value="All-Rounder">&#11088; All-Rounder</option>
             <option value="Wicket-Keeper">&#129510; Wicket-Keeper</option>
           </select>
+        </div>
+        <div style="display:flex; gap:16px;">
+          <div style="flex:1;">
+            <div style="font-size:13px; color:#9ca3af; margin-bottom:6px;">Batting Style</div>
+            <select id="addTeamPlayerBattingStyleInput"
+              style="width:100%; border:none; border-bottom:1px solid #d1d5db; padding:8px 0; font-size:15px; color:#1f2937; outline:none; background:transparent; font-family:'Inter',sans-serif;">
+              <option value="">-- Select --</option>
+              <option value="RHB">Right Hand Bat (RHB)</option>
+              <option value="LHB">Left Hand Bat (LHB)</option>
+            </select>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:13px; color:#9ca3af; margin-bottom:6px;">Bowling Style</div>
+            <select id="addTeamPlayerBowlingStyleInput"
+              style="width:100%; border:none; border-bottom:1px solid #d1d5db; padding:8px 0; font-size:15px; color:#1f2937; outline:none; background:transparent; font-family:'Inter',sans-serif;">
+              <option value="">-- Select --</option>
+              <option value="RAF">Right-Arm Fast</option>
+              <option value="RAS">Right-Arm Spin</option>
+              <option value="RAM">Right-Arm Medium</option>
+              <option value="LAF">Left-Arm Fast</option>
+              <option value="LAS">Left-Arm Spin</option>
+              <option value="LAM">Left-Arm Medium</option>
+            </select>
+          </div>
         </div>
       </div>
       <div style="display:flex; justify-content:center; padding:8px 24px 24px;">
