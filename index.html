@@ -374,10 +374,21 @@
       letter-spacing: 0.3px;
     }
 
-    .role-BAT { color: #6b7280; }
-    .role-BOWL { color: #6b7280; }
-    .role-AR { color: #6b7280; }
-    .role-WK { color: #6b7280; }
+    .role-BAT {
+      color: #6b7280;
+    }
+
+    .role-BOWL {
+      color: #6b7280;
+    }
+
+    .role-AR {
+      color: #6b7280;
+    }
+
+    .role-WK {
+      color: #6b7280;
+    }
 
     /* Style Badges */
     .style-badge {
@@ -391,9 +402,23 @@
       letter-spacing: 0.3px;
     }
 
-    .style-RHB { background: rgba(71, 85, 105, 0.15); color: #cbd5e1; border: 1px solid rgba(71, 85, 105, 0.3); }
-    .style-LHB { background: rgba(71, 85, 105, 0.15); color: #cbd5e1; border: 1px solid rgba(71, 85, 105, 0.3); }
-    .style-BOWL { background: rgba(71, 85, 105, 0.15); color: #cbd5e1; border: 1px solid rgba(71, 85, 105, 0.3); }
+    .style-RHB {
+      background: rgba(71, 85, 105, 0.15);
+      color: #cbd5e1;
+      border: 1px solid rgba(71, 85, 105, 0.3);
+    }
+
+    .style-LHB {
+      background: rgba(71, 85, 105, 0.15);
+      color: #cbd5e1;
+      border: 1px solid rgba(71, 85, 105, 0.3);
+    }
+
+    .style-BOWL {
+      background: rgba(71, 85, 105, 0.15);
+      color: #cbd5e1;
+      border: 1px solid rgba(71, 85, 105, 0.3);
+    }
 
 
     /* HOME BANNER - WELCOME TO TOURNAMENT (shown after tournament created) */
@@ -4056,8 +4081,15 @@
     }
 
     @keyframes popupEntrance {
-      0% { transform: scale(0.7) translateY(30px); opacity: 0; }
-      100% { transform: scale(1) translateY(0); opacity: 1; }
+      0% {
+        transform: scale(0.7) translateY(30px);
+        opacity: 0;
+      }
+
+      100% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+      }
     }
 
     .event-title {
@@ -4104,7 +4136,7 @@
       padding: 28px;
       margin-top: 35px;
       position: relative;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
       backdrop-filter: blur(8px);
     }
 
@@ -4143,13 +4175,15 @@
       box-shadow: 0 8px 20px rgba(22, 163, 74, 0.3);
       transition: transform 0.2s;
     }
-    
-    .event-done-btn:active { transform: scale(0.98); }
+
+    .event-done-btn:active {
+      transform: scale(0.98);
+    }
 
     .event-confetti {
       font-size: 52px;
       margin-bottom: 25px;
-      filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));
+      filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2));
     }
 
     .boundary-animation {
@@ -4178,65 +4212,131 @@
     #splashScreen .sp-bat-container,
     #splashScreen .sp-ball-container {
       position: absolute;
-      top: 50%; left: 50%;
+      top: 50%;
+      left: 50%;
       transform: translate(-50%, -50%);
       display: flex;
       justify-content: center;
       align-items: center;
     }
+
     #splashScreen .sp-bat-container {
-      width: 160px; height: 640px;
+      width: 160px;
+      height: 640px;
       z-index: 20;
       opacity: 0;
       animation: spBat 4.5s ease-out both;
     }
+
     @keyframes spBat {
-      0%        { transform: translate(-800px, 800px) rotate(-45deg); opacity: 0; }
-      10%       { opacity: 1; }
-      22%       { transform: translate(-50%, -50%) rotate(-15deg); opacity: 1; }
-      23%, 100% { opacity: 0; }
+      0% {
+        transform: translate(-800px, 800px) rotate(-45deg);
+        opacity: 0;
+      }
+
+      10% {
+        opacity: 1;
+      }
+
+      22% {
+        transform: translate(-50%, -50%) rotate(-15deg);
+        opacity: 1;
+      }
+
+      23%,
+      100% {
+        opacity: 0;
+      }
     }
+
     #splashScreen .sp-ball-container {
-      width: 70px; height: 70px;
+      width: 70px;
+      height: 70px;
       z-index: 25;
       opacity: 0;
       animation: spBall 4.5s ease-out both;
     }
+
     @keyframes spBall {
-      0%        { transform: translate(800px, -800px) scale(0.5); opacity: 0; }
-      10%       { opacity: 1; }
-      22%       { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
-      23%       { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
-      28%       { transform: translate(-50%, -50%) scale(30); opacity: 0; }
-      100%      { opacity: 0; }
+      0% {
+        transform: translate(800px, -800px) scale(0.5);
+        opacity: 0;
+      }
+
+      10% {
+        opacity: 1;
+      }
+
+      22% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 1;
+      }
+
+      23% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.2);
+      }
+
+      28% {
+        transform: translate(-50%, -50%) scale(30);
+        opacity: 0;
+      }
+
+      100% {
+        opacity: 0;
+      }
     }
+
     #splashScreen .sp-flash {
       position: absolute;
-      top: 50%; left: 50%;
+      top: 50%;
+      left: 50%;
       transform: translate(-50%, -50%);
-      width: 400px; height: 400px;
-      background: radial-gradient(circle, #fff 0%, rgba(110,231,183,0.4) 50%, transparent 70%);
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, #fff 0%, rgba(110, 231, 183, 0.4) 50%, transparent 70%);
       border-radius: 50%;
       z-index: 30;
       opacity: 0;
       animation: spFlash 4.5s both;
     }
+
     @keyframes spFlash {
-      0%, 21%   { opacity: 0; transform: translate(-50%, -50%) scale(0); }
-      22%       { opacity: 1; transform: translate(-50%, -50%) scale(1.5); }
-      25%       { opacity: 0; transform: translate(-50%, -50%) scale(3); }
-      100%      { opacity: 0; }
+
+      0%,
+      21% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0);
+      }
+
+      22% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.5);
+      }
+
+      25% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(3);
+      }
+
+      100% {
+        opacity: 0;
+      }
     }
+
     #splashScreen .sp-branding {
       position: absolute;
-      top: 50%; left: 50%;
+      top: 50%;
+      left: 50%;
       transform: translate(-50%, -50%);
-      width: 100%; text-align: center;
+      width: 100%;
+      text-align: center;
       z-index: 100;
       opacity: 0;
       font-family: 'Rajdhani', sans-serif;
       animation: spReveal 4.5s both;
     }
+
     #splashScreen .sp-branding h1 {
       font-size: 72px;
       font-weight: 800;
@@ -4247,12 +4347,30 @@
       background-clip: text;
       -webkit-text-fill-color: transparent;
     }
+
     @keyframes spReveal {
-      0%, 25%   { opacity: 0; transform: translate(-50%, -50%) scale(0.85); }
-      30%, 47%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-      50%       { opacity: 0; }
-      100%      { opacity: 0; }
+
+      0%,
+      25% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.85);
+      }
+
+      30%,
+      47% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+
+      50% {
+        opacity: 0;
+      }
+
+      100% {
+        opacity: 0;
+      }
     }
+
     #splashScreen .sp-founder-bg {
       position: absolute;
       inset: 0;
@@ -4261,36 +4379,63 @@
       background: linear-gradient(to bottom, #ffffff 50%, #1b2f5e 50%);
       animation: spFdrBg 3s 1.5s both;
     }
+
     @keyframes spFdrBg {
-      0%    { opacity: 0; }
-      13%, 100% { opacity: 1; }
+      0% {
+        opacity: 0;
+      }
+
+      13%,
+      100% {
+        opacity: 1;
+      }
     }
+
     #splashScreen .sp-founder-wrap {
       position: absolute;
-      top: 50%; left: 50%;
+      top: 50%;
+      left: 50%;
       transform: translate(-50%, -50%);
       z-index: 160;
       opacity: 0;
       animation: spFdrPhoto 3s 1.5s both;
     }
+
     @keyframes spFdrPhoto {
-      0%    { opacity: 0; transform: translate(-50%, -50%) scale(0.92); }
-      15%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.92);
+      }
+
+      15%,
+      100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
     }
+
     #splashScreen .sp-founder-oval {
-      width: 230px; height: 290px;
+      width: 230px;
+      height: 290px;
       border-radius: 50%;
       overflow: hidden;
       border: 5px solid #fff;
-      box-shadow: 0 0 0 2px #c8d6e8, 0 8px 40px rgba(0,0,0,0.35);
+      box-shadow: 0 0 0 2px #c8d6e8, 0 8px 40px rgba(0, 0, 0, 0.35);
     }
+
     #splashScreen .sp-founder-oval img {
-      width: 100%; height: 100%;
+      width: 100%;
+      height: 100%;
       object-fit: cover;
       object-position: top center;
       filter: grayscale(100%) contrast(1.1);
     }
-    #splashScreen canvas { width: 100%; height: 100%; object-fit: contain; }
+
+    #splashScreen canvas {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
   </style>
 
 </head>
@@ -4303,7 +4448,9 @@
     <div class="sp-flash"></div>
     <div class="sp-bat-container"><canvas id="spBatCanvas"></canvas></div>
     <div class="sp-ball-container"><canvas id="spBallCanvas"></canvas></div>
-    <div class="sp-branding"><h1>KCP CREX HUB</h1></div>
+    <div class="sp-branding">
+      <h1>KCP CREX HUB</h1>
+    </div>
     <!-- Phase 2: Founder Photo (3–6s) -->
     <div class="sp-founder-bg"></div>
     <div class="sp-founder-wrap">
@@ -4313,14 +4460,14 @@
     </div>
   </div>
   <script>
-    (function() {
+    (function () {
       function spRemoveBg(src, id) {
         var c = document.getElementById(id);
         if (!c) return;
         var ctx = c.getContext('2d');
         var img = new Image();
         img.src = src;
-        img.onload = function() {
+        img.onload = function () {
           var s = 4;
           c.width = img.width * s; c.height = img.height * s;
           ctx.imageSmoothingEnabled = true;
@@ -4328,7 +4475,7 @@
           ctx.drawImage(img, 0, 0, c.width, c.height);
           var d = ctx.getImageData(0, 0, c.width, c.height).data;
           for (var i = 0; i < d.length; i += 4) {
-            if (d[i] < 60 && d[i+1] < 60 && d[i+2] < 60) d[i+3] = 0;
+            if (d[i] < 60 && d[i + 1] < 60 && d[i + 2] < 60) d[i + 3] = 0;
           }
           ctx.putImageData(new ImageData(d, c.width, c.height), 0, 0);
         };
@@ -6764,12 +6911,14 @@
             🏏</div>
           <div class="profile-info-block" style="gap:4px; display:flex; flex-direction:column; align-items:flex-start;">
             <div id="profileRoleBadge" style="display:none;"></div>
-            <h2 class="profile-name" id="profileName" style="font-size:28px;margin:2px 0; text-align:left;">Player Name</h2>
+            <h2 class="profile-name" id="profileName" style="font-size:28px;margin:2px 0; text-align:left;">Player Name
+            </h2>
             <div class="profile-sub-info" style="font-size:13px; color:#94a3b8; margin:0; text-align:left;">
               <span id="profileLocation">Jaggayyapeta</span>
             </div>
             <div style="border-top:1px dashed rgba(255,255,255,0.15); width:100%; margin:8px 0 6px;"></div>
-            <div class="profile-styles" style="font-size:13px; color:#e2e8f0; font-weight:600; display:flex; align-items:center; white-space:nowrap; flex-wrap:nowrap; justify-content:flex-start; width:100%;">
+            <div class="profile-styles"
+              style="font-size:13px; color:#e2e8f0; font-weight:600; display:flex; align-items:center; white-space:nowrap; flex-wrap:nowrap; justify-content:flex-start; width:100%;">
               <span id="profileRoleLabel" style="color:#fcd34d;">Player</span>
               <span id="profileBatStyleSep" style="color:rgba(255,255,255,0.3); margin:0 8px;">|</span>
               <span id="profileBatStyle" style="color:#38bdf8;"></span>
@@ -7979,38 +8128,38 @@
     }
 
     async function confirmEditPlayerSQL() {
-       let name = document.getElementById('editPlayerNameInput').value.trim();
-       let role = document.getElementById('editPlayerRoleInput').value;
-       let batStyle = document.getElementById('editPlayerBattingStyleInput').value;
-       let bowlStyle = document.getElementById('editPlayerBowlingStyleInput').value;
-       if (!name) { alert('Enter player name'); return; }
+      let name = document.getElementById('editPlayerNameInput').value.trim();
+      let role = document.getElementById('editPlayerRoleInput').value;
+      let batStyle = document.getElementById('editPlayerBattingStyleInput').value;
+      let bowlStyle = document.getElementById('editPlayerBowlingStyleInput').value;
+      if (!name) { alert('Enter player name'); return; }
 
-       let t = getCurrentTournament();
-       let tName = currentEditTeamName;
-       if (!t || !t.id || !tName || !currentEditPlayerOldName) { alert('Missing data to update player'); return; }
+      let t = getCurrentTournament();
+      let tName = currentEditTeamName;
+      if (!t || !t.id || !tName || !currentEditPlayerOldName) { alert('Missing data to update player'); return; }
 
-       try {
-         const res = await fetch(API + '/tournament-players/' + t.id + '/' + encodeURIComponent(tName) + '/' + encodeURIComponent(currentEditPlayerOldName), {
-           method: 'PUT',
-           headers: { 'Content-Type': 'application/json' },
-           body: JSON.stringify({ player_name: name, role: role, batting_style: batStyle, bowling_style: bowlStyle })
-         });
-         const data = await res.json();
-         if (!data.success) { alert('Failed to update player'); return; }
+      try {
+        const res = await fetch(API + '/tournament-players/' + t.id + '/' + encodeURIComponent(tName) + '/' + encodeURIComponent(currentEditPlayerOldName), {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ player_name: name, role: role, batting_style: batStyle, bowling_style: bowlStyle })
+        });
+        const data = await res.json();
+        if (!data.success) { alert('Failed to update player'); return; }
 
-         // Sync with global player profile
-         try {
-           await fetch(API + "/player-profile", {
-             method: "POST",
-             headers: { "Content-Type": "application/json" },
-             body: JSON.stringify({ player_name: name, role: role, batting_style: batStyle, bowling_style: bowlStyle })
-           });
-         } catch (e) { console.warn("Failed to sync player profile role", e); }
-       } catch (e) { alert('Error updating player: ' + e.message); return; }
+        // Sync with global player profile
+        try {
+          await fetch(API + "/player-profile", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ player_name: name, role: role, batting_style: batStyle, bowling_style: bowlStyle })
+          });
+        } catch (e) { console.warn("Failed to sync player profile role", e); }
+      } catch (e) { alert('Error updating player: ' + e.message); return; }
 
-       cancelEditPlayer();
-       renderEditTeamPlayersListFromSQL(tName);
-     }
+      cancelEditPlayer();
+      renderEditTeamPlayersListFromSQL(tName);
+    }
 
     async function deletePlayerInEditModalSQL(playerName) {
       if (!confirm('Delete this player?')) return;
@@ -8195,7 +8344,7 @@
       document.getElementById('addTeamPlayerRoleInput').value = '';
       document.getElementById('addTeamPlayerBattingStyleInput').value = '';
       document.getElementById('addTeamPlayerBowlingStyleInput').value = '';
-      
+
       showPlayerAddedToast(tName);
       renderEditTeamPlayersListFromSQL(tName);
       // Refresh members modal if open
@@ -8418,7 +8567,7 @@
         container.innerHTML = '<div style="color:#9ca3af; font-size:13px; padding:8px 0;">No players added yet.</div>';
         return;
       }
-      
+
       // Sort players: Captain first
       players.sort((a, b) => {
         let aIsCap = (captainName && a.player_name === captainName) || (a.role === 'Captain' || a.isCaptain);
@@ -8429,12 +8578,12 @@
       });
 
       let html = `<div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:10px; padding:8px 0;">`;
-      
+
       html += players.map(function (p, pi) {
         let pName = p.player_name || p.name;
         let isCaptain = (captainName && pName === captainName) || (p.role === 'Captain' || p.isCaptain);
         let isWK = (p.role === 'Wicket-Keeper');
-        
+
         let photoSrc = p.photo_url || p.photo || '';
         let avatarHtml = photoSrc
           ? '<img src="' + photoSrc + '" style="width:100%;height:100%;object-fit:cover;">'
@@ -8462,7 +8611,7 @@
           '<div style="margin-top:5px;text-align:center;">' + roleLabel + '</div>' +
           '</div>';
       }).join('');
-      
+
       html += `</div>`;
       container.innerHTML = html;
     }
@@ -9484,7 +9633,7 @@
 
     async function finishLiveMatch(result) {
       if (!currentLiveMatchId || !window.fbSetDoc) return;
-      
+
       // Push final state one last time with 'finished' status and actual result
       await updateLiveScore("finished", result);
 
@@ -9872,7 +10021,7 @@
               </div>
               <div style="display:flex; align-items:center; gap:8px;">
                 <span class="status-badge-v3 ${isFinished ? 'finished' : 'live'}">${isFinished ? 'FINISHED' : 'LIVE'}</span>
-                <svg onclick="shareMatchLink('${m.id}', '${(m.seriesName||'KCPL').replace(/'/g, `\\'`).replace(/\"/g, `&quot;`)}', '${(m.batTeam||'T1').replace(/'/g, `\\'`).replace(/\"/g, `&quot;`)}', '${(m.bowlTeam||'T2').replace(/'/g, `\\'`).replace(/\"/g, `&quot;`)}')" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" style="cursor:pointer; transition: stroke 0.2s;" onmouseover="this.style.stroke='#fff'" onmouseout="this.style.stroke='rgba(255,255,255,0.4)'"><path d="M15 3h6v6"/><path d="M10 14L21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+                <svg onclick="shareMatchLink('${m.id}', '${(m.seriesName || 'KCPL').replace(/'/g, `\\'`).replace(/\"/g, `&quot;`)}', '${(m.batTeam || 'T1').replace(/'/g, `\\'`).replace(/\"/g, `&quot;`)}', '${(m.bowlTeam || 'T2').replace(/'/g, `\\'`).replace(/\"/g, `&quot;`)}')" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" style="cursor:pointer; transition: stroke 0.2s;" onmouseover="this.style.stroke='#fff'" onmouseout="this.style.stroke='rgba(255,255,255,0.4)'"><path d="M15 3h6v6"/><path d="M10 14L21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
               </div>
             </div>
             
@@ -10459,7 +10608,7 @@
           if (manCanvas || wormCanvas) {
             const t1Color = '#3b82f6'; // Bright Blue
             const t2Color = '#f43f5e'; // Vibrant Rose
-            
+
             // Unify Labels (Overs 1 to Max)
             let maxO = Math.max(
               i1Summaries.length > 0 ? Math.max(...i1Summaries.map(s => s.over)) : 0,
@@ -10467,7 +10616,7 @@
               Math.ceil(parseFloat(m.overs || 0))
             );
             if (maxO < 1) maxO = 1;
-            const labels = Array.from({length: maxO}, (_, i) => i + 1);
+            const labels = Array.from({ length: maxO }, (_, i) => i + 1);
 
             const getManData = (summaries, isInn, curRuns, curOvers) => {
               let vals = [];
@@ -10500,13 +10649,13 @@
                     { label: (m.innings2?.batTeam || (m.innings === 2 ? m.batTeam : m.bowlTeam) || 'Team 2'), data: m2_values, backgroundColor: t2Color, borderRadius: 4 }
                   ]
                 },
-                options: { 
-                  responsive: true, maintainAspectRatio: false, 
-                  scales: { 
-                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }, 
-                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } } 
-                  }, 
-                  plugins: { legend: { labels: { color: '#f8fafc', font: { family: 'Rajdhani', weight: '600' } } } } 
+                options: {
+                  responsive: true, maintainAspectRatio: false,
+                  scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                  },
+                  plugins: { legend: { labels: { color: '#f8fafc', font: { family: 'Rajdhani', weight: '600' } } } }
                 }
               });
             }
@@ -10530,13 +10679,13 @@
                     { label: (m.innings2?.batTeam || (m.innings === 2 ? m.batTeam : m.bowlTeam) || 'Team 2'), data: getWormData(i2Summaries, m.innings === 2, m.runs, m.overs), borderColor: t2Color, backgroundColor: 'rgba(244, 63, 94, 0.1)', fill: true, tension: 0.3, pointRadius: 2 }
                   ]
                 },
-                options: { 
-                  responsive: true, maintainAspectRatio: false, 
-                  scales: { 
-                    x: { type: 'linear', grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' }, beginAtZero: true }, 
-                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' }, beginAtZero: true } 
-                  }, 
-                  plugins: { legend: { labels: { color: '#f8fafc', font: { family: 'Rajdhani', weight: '600' } } } } 
+                options: {
+                  responsive: true, maintainAspectRatio: false,
+                  scales: {
+                    x: { type: 'linear', grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' }, beginAtZero: true },
+                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' }, beginAtZero: true }
+                  },
+                  plugins: { legend: { labels: { color: '#f8fafc', font: { family: 'Rajdhani', weight: '600' } } } }
                 }
               });
             }
@@ -10641,8 +10790,8 @@
           const tTeams = await tTeamsRes.json();
           const searchBat = (m.batTeam || '').toLowerCase().trim();
           const searchBowl = (m.bowlTeam || '').toLowerCase().trim();
-          const t1 = (tTeams || []).find(t => (t.team_name||'').toLowerCase().trim() === searchBat);
-          const t2 = (tTeams || []).find(t => (t.team_name||'').toLowerCase().trim() === searchBowl);
+          const t1 = (tTeams || []).find(t => (t.team_name || '').toLowerCase().trim() === searchBat);
+          const t2 = (tTeams || []).find(t => (t.team_name || '').toLowerCase().trim() === searchBowl);
           if (t1) captain1 = t1.captain;
           if (t2) captain2 = t2.captain;
         }
@@ -10658,8 +10807,8 @@
         players.sort((a, b) => {
           let aName = (a.player_name || a.name || '').toLowerCase().trim();
           let bName = (b.player_name || b.name || '').toLowerCase().trim();
-          let aCap = (capClean && aName === capClean) || ((a.role||'').toLowerCase() === 'captain') || a.isCaptain;
-          let bCap = (capClean && bName === capClean) || ((b.role||'').toLowerCase() === 'captain') || b.isCaptain;
+          let aCap = (capClean && aName === capClean) || ((a.role || '').toLowerCase() === 'captain') || a.isCaptain;
+          let bCap = (capClean && bName === capClean) || ((b.role || '').toLowerCase() === 'captain') || b.isCaptain;
           if (aCap && !bCap) return -1;
           if (!aCap && bCap) return 1;
           return 0;
@@ -10669,7 +10818,7 @@
         html += `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(100px, 1fr)); gap:12px; margin-bottom:20px;">`;
         players.forEach(p => {
           let pName = p.player_name || p.name;
-          let isCaptain = (capClean && (pName||'').toLowerCase().trim() === capClean) || ((p.role||'').toLowerCase() === 'captain') || p.isCaptain;
+          let isCaptain = (capClean && (pName || '').toLowerCase().trim() === capClean) || ((p.role || '').toLowerCase() === 'captain') || p.isCaptain;
           let photoSrc = p.photo_url || p.photo || localStorage.getItem("userPhoto_" + pName) || '';
           let photoHtml = photoSrc ? `<img src="${photoSrc}" style="width:100%; height:100%; object-fit:cover;">` : '';
 
@@ -10744,8 +10893,8 @@
         let c = comms[i];
         if (c.type === 'over_summary') {
           if (currentOverBalls.length > 0 || i === 0) {
-             oversArray.push(currentOverBalls);
-             currentOverBalls = [];
+            oversArray.push(currentOverBalls);
+            currentOverBalls = [];
           }
         } else {
           currentOverBalls.unshift(c.ball);
@@ -10825,8 +10974,8 @@
 
       let contentHtml = '';
 
-        // Progress/Summary for Matches
-        contentHtml += `
+      // Progress/Summary for Matches
+      contentHtml += `
           <div class="premium-card" style="margin-bottom:16px; padding:24px; text-align:center;">
             <div style="font-size:16px; color:#6ee7b7; font-weight:800; text-transform:uppercase; margin-bottom:8px;">${isFinished ? 'Match Result' : 'Current Status'}</div>
             <div style="font-size:24px; font-weight:800; color:#f8fafc; margin-bottom:20px;">${m.matchStatus || (m.innings === 1 ? 'In Progress' : 'Run Chase')}</div>
@@ -10857,13 +11006,13 @@
                 <thead><tr style="background:rgba(255,255,255,0.03);"><th style="text-align:left; width:40%;">Batters</th><th style="text-align:center;">R</th><th style="text-align:center;">B</th><th style="text-align:center;">4s</th><th style="text-align:center;">6s</th><th style="text-align:center;">SR</th></tr></thead>
                 <tbody>
                   ${bestBatsmen.map(p => {
-                    let srVal = p.batData.sr != null && !isNaN(p.batData.sr) ? parseFloat(p.batData.sr).toFixed(1) : (parseInt(p.batData.balls) > 0 ? ((parseInt(p.batData.runs)/parseInt(p.batData.balls))*100).toFixed(1) : '0.0');
-                    return `
+          let srVal = p.batData.sr != null && !isNaN(p.batData.sr) ? parseFloat(p.batData.sr).toFixed(1) : (parseInt(p.batData.balls) > 0 ? ((parseInt(p.batData.runs) / parseInt(p.batData.balls)) * 100).toFixed(1) : '0.0');
+          return `
                     <tr>
                       <td class="name-cell" style="text-align:left;">${p.name}<span style="color:rgba(255,255,255,0.4); font-weight:400; margin-left:4px;">(${p.team})</span></td>
-                      <td style="text-align:center;">${p.batData.runs}</td><td style="text-align:center;">${p.batData.balls}</td><td style="text-align:center;">${p.batData.fours||0}</td><td style="text-align:center;">${p.batData.sixes||0}</td><td style="text-align:center;">${srVal}</td>
+                      <td style="text-align:center;">${p.batData.runs}</td><td style="text-align:center;">${p.batData.balls}</td><td style="text-align:center;">${p.batData.fours || 0}</td><td style="text-align:center;">${p.batData.sixes || 0}</td><td style="text-align:center;">${srVal}</td>
                     </tr>`;
-                  }).join('')}
+        }).join('')}
                 </tbody>
               </table>
             </div>
@@ -10872,12 +11021,12 @@
                 <thead><tr style="background:rgba(255,255,255,0.03);"><th style="text-align:left; width:40%;">Bowlers</th><th style="text-align:center;">O</th><th style="text-align:center;">M</th><th style="text-align:center;">R</th><th style="text-align:center;">W</th><th style="text-align:center;">Eco</th></tr></thead>
                 <tbody>
                   ${bestBowlers.map(p => {
-                    let ecoVal = p.bowlData.eco != null && !isNaN(parseFloat(p.bowlData.eco)) ? parseFloat(p.bowlData.eco).toFixed(2) : (() => { let ov = parseFloat(p.bowlData.overs)||0; let totalB = Math.floor(ov)*6 + Math.round((ov - Math.floor(ov))*10); return totalB > 0 ? ((parseInt(p.bowlData.runs)||0)/(totalB/6)).toFixed(2) : '0.00'; })();
-                    return `<tr>
+          let ecoVal = p.bowlData.eco != null && !isNaN(parseFloat(p.bowlData.eco)) ? parseFloat(p.bowlData.eco).toFixed(2) : (() => { let ov = parseFloat(p.bowlData.overs) || 0; let totalB = Math.floor(ov) * 6 + Math.round((ov - Math.floor(ov)) * 10); return totalB > 0 ? ((parseInt(p.bowlData.runs) || 0) / (totalB / 6)).toFixed(2) : '0.00'; })();
+          return `<tr>
                       <td class="name-cell" style="text-align:left;">${p.name}<span style="color:rgba(255,255,255,0.4); font-weight:400; margin-left:4px;">(${p.team})</span></td>
-                      <td style="text-align:center;">${parseFloat(p.bowlData.overs).toFixed(1)}</td><td style="text-align:center;">${p.bowlData.maidens||0}</td><td style="text-align:center;">${p.bowlData.runs}</td><td style="text-align:center;">${p.bowlData.wickets}</td><td style="text-align:center;">${ecoVal}</td>
+                      <td style="text-align:center;">${parseFloat(p.bowlData.overs).toFixed(1)}</td><td style="text-align:center;">${p.bowlData.maidens || 0}</td><td style="text-align:center;">${p.bowlData.runs}</td><td style="text-align:center;">${p.bowlData.wickets}</td><td style="text-align:center;">${ecoVal}</td>
                     </tr>`;
-                  }).join('')}
+        }).join('')}
                 </tbody>
               </table>
             </div>
@@ -11096,21 +11245,28 @@
         // Step 5: Build innings from player stats
         const calcInnings = (bat, bowl) => {
           if (bat.length === 0) return null;
+          // Total overs = sum of all balls bowled by all bowlers / 6
+          let totalBallsBowled = bowl.reduce((sum, b) => {
+            let ov = parseFloat(b.overs_bowled || 0);
+            return sum + Math.floor(ov) * 6 + Math.round((ov - Math.floor(ov)) * 10);
+          }, 0);
+          let oversStr = Math.floor(totalBallsBowled / 6) + '.' + (totalBallsBowled % 6);
           return {
             batTeam: bat[0].team_name,
             runs: bat.reduce((s, p) => s + (p.runs || 0), 0),
             wickets: bat.filter(p => p.dismissal_type && p.dismissal_type !== 'not out').length,
-            overs: bowl.reduce((mx, b) => Math.max(mx, parseFloat(b.overs_bowled || 0)), 0).toFixed(1),
+            overs: oversStr,
             batsmen: bat.map(p => ({
               name: p.player_name, runs: p.runs, balls: p.balls_faced,
-              fours: p.fours, sixes: p.sixes, sr: p.strike_rate,
+              fours: p.fours, sixes: p.sixes,
+              sr: (p.strike_rate && parseFloat(p.strike_rate) > 0) ? parseFloat(p.strike_rate).toFixed(2) : (p.balls_faced > 0 ? ((p.runs / p.balls_faced) * 100).toFixed(2) : '0.00'),
               outDesc: p.dismissal_type ? (p.dismissal_type === 'Bowled' ? 'b ' + p.dismissed_by : p.dismissal_type) : 'not out',
               isOut: !!(p.dismissal_type && p.dismissal_type !== 'not out')
             })),
             bowlers: bowl.map(p => ({
               name: p.player_name, overs: p.overs_bowled, maidens: p.maidens || 0,
               runs: p.runs_conceded, wickets: p.wickets,
-              eco: p.overs_bowled > 0 ? (p.runs_conceded / parseFloat(p.overs_bowled)).toFixed(2) : '0.00'
+              eco: (() => { let ov = parseFloat(p.overs_bowled || 0); let b = Math.floor(ov) * 6 + Math.round((ov - Math.floor(ov)) * 10); return b > 0 ? ((p.runs_conceded || 0) / (b / 6)).toFixed(2) : '0.00'; })()
             }))
           };
         };
@@ -11320,16 +11476,21 @@
 
         const calcInnings = (bat, bowl) => {
           if (bat.length === 0) return null;
+          // Total overs = sum of all balls bowled by all bowlers / 6
+          let totalBallsBowled = bowl.reduce((sum, b) => {
+            let ov = parseFloat(b.overs_bowled || 0);
+            return sum + Math.floor(ov) * 6 + Math.round((ov - Math.floor(ov)) * 10);
+          }, 0);
+          let oversStr = Math.floor(totalBallsBowled / 6) + '.' + (totalBallsBowled % 6);
           let runs = bat.reduce((sum, p) => sum + (p.runs || 0), 0);
           let wickets = bat.filter(p => p.dismissal_type && p.dismissal_type !== 'not out').length;
-          let overs = bowl.reduce((max, b) => Math.max(max, parseFloat(b.overs_bowled || 0)), 0).toFixed(1);
           let batsmen = bat.map(p => ({
             name: p.player_name,
             runs: p.runs,
             balls: p.balls_faced,
             fours: p.fours,
             sixes: p.sixes,
-            sr: p.strike_rate,
+            sr: (p.strike_rate && parseFloat(p.strike_rate) > 0) ? parseFloat(p.strike_rate).toFixed(2) : (p.balls_faced > 0 ? ((p.runs / p.balls_faced) * 100).toFixed(2) : '0.00'),
             outDesc: p.dismissal_type ? (p.dismissal_type === 'Bowled' ? 'b ' + p.dismissed_by : p.dismissal_type + (p.dismissed_by ? ' ' + p.dismissed_by : '')) : 'not out',
             isOut: p.dismissal_type && p.dismissal_type !== 'not out',
             shot_types: p.shot_types ? p.shot_types.split(',') : [],
@@ -11341,13 +11502,9 @@
             maidens: p.maidens || 0,
             runs: p.runs_conceded,
             wickets: p.wickets,
-            dots: p.catches || 0,
-            fours: p.fours || 0,
-            sixes: p.sixes || 0,
-            wd: p.run_outs || 0,
-            nb: p.stumpings || 0 // Misusing
+            eco: (() => { let ov = parseFloat(p.overs_bowled || 0); let b = Math.floor(ov) * 6 + Math.round((ov - Math.floor(ov)) * 10); return b > 0 ? ((p.runs_conceded || 0) / (b / 6)).toFixed(2) : '0.00'; })()
           }));
-          return { runs, wickets, overs, batsmen, bowlers, batTeam: bat[0].team_name };
+          return { runs, wickets, overs: oversStr, batsmen, bowlers, batTeam: bat[0].team_name };
         };
 
         let innings1Data = calcInnings(i1Bat, i1Bowl);
@@ -13068,19 +13225,19 @@
         content.innerHTML = "<p style='color:#6ee7b7'>Loading...</p>";
         document.getElementById("allPlayersModal").classList.add("open");
         let fetches = teams.map(t => fetch(API + "/players/" + t.team_name, { cache: "no-store" }).then(r => r.json()).then(players => ({ team: t.team_name, players })).catch(() => ({ team: t.team_name, players: [] })));
-      Promise.all(fetches).then(results => {
-        let html = "";
-        results.forEach(r => {
-          html += `<div class="modal-team-block">
+        Promise.all(fetches).then(results => {
+          let html = "";
+          results.forEach(r => {
+            html += `<div class="modal-team-block">
             <h4 style="font-family:'Rajdhani',sans-serif; color:#6ee7b7; border-bottom:1px solid rgba(110,231,183,0.2); padding-bottom:8px; margin-bottom:16px;">🏏 ${r.team}</h4>`;
-          if (r.players.length === 0) {
-            html += '<div style="color:#4b5563; padding:10px 0;">No players added</div>';
-          } else {
-            html += `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(100px, 1fr)); gap:16px; margin-bottom:24px;">`;
-            r.players.forEach(p => {
-              const photoSrc = p.photo || localStorage.getItem("userPhoto_" + p.player_name) || '';
-              const photoHtml = photoSrc ? `<img src="${photoSrc}" style="width:100%; height:100%; object-fit:cover;">` : '';
-              html += `
+            if (r.players.length === 0) {
+              html += '<div style="color:#4b5563; padding:10px 0;">No players added</div>';
+            } else {
+              html += `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(100px, 1fr)); gap:16px; margin-bottom:24px;">`;
+              r.players.forEach(p => {
+                const photoSrc = p.photo || localStorage.getItem("userPhoto_" + p.player_name) || '';
+                const photoHtml = photoSrc ? `<img src="${photoSrc}" style="width:100%; height:100%; object-fit:cover;">` : '';
+                html += `
                 <div style="text-align:center; position:relative; cursor:pointer;" onclick="openPlayerProfile('${escapeQ(p.player_name)}', '${escapeQ(r.team)}', '${escapeQ(p.role)}')">
                   <div style="width:58px; height:58px; border-radius:50%; overflow:hidden; margin:0 auto 8px; border:2px solid rgba(110,231,183,0.2); background:linear-gradient(135deg,#1e3a5f,#0d9488); display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(0,0,0,0.3);">
                     ${photoHtml || `<div style="font-size:20px; font-weight:800; color:#fff;">${p.player_name.charAt(0).toUpperCase()}</div>`}
@@ -13088,13 +13245,13 @@
                   <div style="font-size:12px; font-weight:700; color:#f8fafc; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.player_name}</div>
                   <div style="font-size:9px; color:#94a3b8; font-weight:600; text-transform:uppercase;">${p.role || 'Player'}</div>
                 </div>`;
-            });
-            html += `</div>`;
-          }
-          html += '</div>';
+              });
+              html += `</div>`;
+            }
+            html += '</div>';
+          });
+          content.innerHTML = html;
         });
-        content.innerHTML = html;
-      });
       }).catch(() => { });
     }
 
@@ -13332,13 +13489,13 @@
       try {
         const rRes = await fetch(API + "/player-role/" + encodeURIComponent(playerName));
         const rData = await rRes.json();
-        
+
         let displayRole = role || rData.role || "Player";
         let batStyle = rData.batting_style || "";
         let bowlStyle = rData.bowling_style || "";
 
         document.getElementById("profileRoleBadge").innerText = displayRole.toUpperCase();
-        
+
         let roleMap = {
           'bat': 'Batsman', 'batsman': 'Batsman',
           'bowl': 'Bowler', 'bowler': 'Bowler',
@@ -13350,7 +13507,7 @@
         };
         let roleKey = (displayRole || '').toLowerCase().trim();
         document.getElementById("profileRoleLabel").innerText = roleMap[roleKey] || (displayRole ? displayRole.charAt(0).toUpperCase() + displayRole.slice(1) : 'Player');
-        
+
         let batEl = document.getElementById("profileBatStyle");
         let bowlEl = document.getElementById("profileBowlStyle");
         let batSep = document.getElementById("profileBatStyleSep");
@@ -13359,7 +13516,7 @@
         if (batSep) batSep.style.display = batStyle ? '' : 'none';
         if (bowlEl) { bowlEl.innerText = bowlStyle || ''; bowlEl.style.display = bowlStyle ? '' : 'none'; }
         if (bowlSep) bowlSep.style.display = bowlStyle ? '' : 'none';
-        
+
         if (!profilePhoto) {
           document.getElementById("profileAvatar").innerHTML = '<span style="font-size:40px;">' + roleEmoji(displayRole) + '</span>';
         }
@@ -14582,7 +14739,7 @@
           html += `<div class="modal-team-block">
             <h4 style="font-family:'Rajdhani',sans-serif; color:#6ee7b7; border-bottom:1px solid rgba(110,231,183,0.2); padding-bottom:8px; margin-bottom:16px;">🏏 ${team.name} <span style="color:#4b5563; font-size:12px; font-weight:400;">(${t.name})</span></h4>
             <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(100px, 1fr)); gap:16px; margin-bottom:24px;">`;
-          
+
           team.players.forEach(function (p) {
             const pName = p.name || p.player_name;
             const photoSrc = p.photo || localStorage.getItem("userPhoto_" + pName) || '';
@@ -15280,7 +15437,8 @@
       <!-- Header -->
       <div
         style="display:flex; justify-content:space-between; align-items:center; padding:16px 24px; border-bottom:1px solid #f0f0f0; position:sticky; top:0; background:#fff; z-index:1;">
-        <h3 style="margin:0; font-size:18px; font-weight:700; color:#374151;">Edit Team <span style="font-size:10px; color:#9ca3af; font-weight:400;">v2.0</span></h3>
+        <h3 style="margin:0; font-size:18px; font-weight:700; color:#374151;">Edit Team <span
+            style="font-size:10px; color:#9ca3af; font-weight:400;">v2.0</span></h3>
         <span onclick="closeEditTeamModal()"
           style="cursor:pointer; font-size:24px; color:#6b7280; line-height:1;">&times;</span>
       </div>
@@ -15302,14 +15460,14 @@
           <button onclick="confirmUpdateTeam()"
             style="background:#10b981; color:#fff; border:none; padding:10px 24px; border-radius:4px; font-family:'Inter',sans-serif; font-size:14px; font-weight:600; cursor:pointer; text-transform:uppercase;">UPDATE</button>
         </div>
-        
-      <div style="display:flex; justify-content:center; padding:0 24px 24px; margin-top:24px;">
-        <button onclick="closeEditTeamModal()"
-          style="background:#fff; color:#6b7280; border:1px solid #d1d5db; padding:10px 24px; border-radius:4px; font-family:'Inter',sans-serif; font-size:14px; cursor:pointer;">CANCEL</button>
+
+        <div style="display:flex; justify-content:center; padding:0 24px 24px; margin-top:24px;">
+          <button onclick="closeEditTeamModal()"
+            style="background:#fff; color:#6b7280; border:1px solid #d1d5db; padding:10px 24px; border-radius:4px; font-family:'Inter',sans-serif; font-size:14px; cursor:pointer;">CANCEL</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
   <!-- EDIT PLAYER MODAL (STANDALONE) -->
   <div id="editPlayerInTeamSection"
@@ -15407,7 +15565,8 @@
       style="background:#fff; width:90%; max-width:560px; max-height:85vh; overflow-y:auto; border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.2); font-family:'Inter',sans-serif; overflow-x:hidden;">
       <div
         style="display:flex; justify-content:space-between; align-items:center; padding:18px 24px; border-bottom:1px solid #e5e7eb;">
-        <h3 style="margin:0; font-size:18px; font-weight:700; color:#1f2937;">Add Player <span style="font-size:10px; color:#9ca3af; font-weight:400;">v2.0</span></h3>
+        <h3 style="margin:0; font-size:18px; font-weight:700; color:#1f2937;">Add Player <span
+            style="font-size:10px; color:#9ca3af; font-weight:400;">v2.0</span></h3>
         <span onclick="closeAddTeamPlayerModal()"
           style="cursor:pointer; font-size:24px; color:#6b7280; line-height:1;">&times;</span>
       </div>
@@ -15455,9 +15614,10 @@
       </div>
       <div style="display:flex; justify-content:center; padding:8px 24px 24px;">
         <button onclick="confirmAddTeamPlayer()"
-          style="background:#10b981; color:#fff; border:none; padding:12px 48px; border-radius:4px; font-family:'Inter',sans-serif; font-size:14px; font-weight:700; cursor:pointer; text-transform:uppercase; letter-spacing:0.5px;">ADD PLAYER</button>
+          style="background:#10b981; color:#fff; border:none; padding:12px 48px; border-radius:4px; font-family:'Inter',sans-serif; font-size:14px; font-weight:700; cursor:pointer; text-transform:uppercase; letter-spacing:0.5px;">ADD
+          PLAYER</button>
       </div>
-      
+
 
     </div>
   </div>
@@ -15478,7 +15638,9 @@
             style="cursor:pointer; font-size:24px; color:#6b7280; line-height:1;">&times;</span>
         </div>
       </div>
-      <div id="teamMembersGrid" style="padding:24px; display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:16px; align-items:start;"></div>
+      <div id="teamMembersGrid"
+        style="padding:24px; display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:16px; align-items:start;">
+      </div>
     </div>
   </div>
 
