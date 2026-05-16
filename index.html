@@ -9796,9 +9796,7 @@
         if (overChanged && runsDiff === 4 && wicketDiff === 0) showEventPopup('FOUR');
         else if (overChanged && runsDiff === 6 && wicketDiff === 0) showEventPopup('SIX');
         else if (wicketDiff > 0) showEventPopup('WICKET');
-        else if (m.innings === 2 && old.innings === 1) {
-          showEventPopup('TARGET', { target: m.target, team: m.batTeam, overs: m.totalOvers || 20 });
-        } else if ((m.status === 'finished' || m.status === 'Finished') && (old.status !== 'finished' && old.status !== 'Finished')) {
+        else if ((m.status === 'finished' || m.status === 'Finished') && (old.status !== 'finished' && old.status !== 'Finished')) {
           let awards = calculateMatchAwards(m);
           showEventPopup('WINNER', {
             winner: m.winner || m.batTeam,
@@ -10719,27 +10717,31 @@
       let pRuns = activeBatsmen.reduce((sum, b) => sum + parseInt(b.runs || 0), 0);
       let pBalls = activeBatsmen.reduce((sum, b) => sum + parseInt(b.balls || 0), 0);
 
-      let recentBalls = [];
       let comms = m.commentary || [];
-      let summariesSeen = 0;
-      for (let i = 0; i < comms.length; i++) {
+      let oversArray = [];
+      let currentOverBalls = [];
+      for (let i = 0; i < Math.min(36, comms.length); i++) {
         let c = comms[i];
         if (c.type === 'over_summary') {
-          summariesSeen++;
-          if (recentBalls.length > 0) break;
-          if (summariesSeen > 1) break;
+          if (currentOverBalls.length > 0 || i === 0) {
+             oversArray.push(currentOverBalls);
+             currentOverBalls = [];
+          }
         } else {
-          recentBalls.unshift(c.ball);
+          currentOverBalls.unshift(c.ball);
         }
       }
+      if (currentOverBalls.length > 0) oversArray.push(currentOverBalls);
 
-      let recentHtml = recentBalls.map(b => {
-        let bg = 'rgba(255,255,255,0.08)'; let c = 'rgba(255,255,255,0.6)'; let border = '1px solid rgba(255,255,255,0.1)';
-        if (b == 4) { bg = '#3b82f6'; c = '#fff'; border = 'none'; }
-        else if (b == 6) { bg = '#10b981'; c = '#fff'; border = 'none'; }
-        else if (b == 'W' || String(b).includes('W')) { bg = '#ef4444'; c = '#fff'; border = 'none'; }
-        return `<span style="display:inline-flex; width:26px; height:26px; align-items:center; justify-content:center; border-radius:50%; background:${bg}; border:${border}; color:${c}; font-size:12px; font-weight:700; margin-right:4px;">${b}</span>`;
-      }).join('');
+      let recentHtml = oversArray.slice(0, 3).map(overBalls => {
+        return overBalls.map(b => {
+          let bg = 'rgba(255,255,255,0.08)'; let c = 'rgba(255,255,255,0.6)'; let border = '1px solid rgba(255,255,255,0.1)';
+          if (b == 4) { bg = '#3b82f6'; c = '#fff'; border = 'none'; }
+          else if (b == 6) { bg = '#10b981'; c = '#fff'; border = 'none'; }
+          else if (b == 'W' || String(b).includes('W')) { bg = '#ef4444'; c = '#fff'; border = 'none'; }
+          return `<span style="display:inline-flex; width:26px; height:26px; align-items:center; justify-content:center; border-radius:50%; background:${bg}; border:${border}; color:${c}; font-size:12px; font-weight:700; margin-right:4px;">${b}</span>`;
+        }).join('');
+      }).filter(html => html.length > 0).join(`<span style="margin: 0 6px; color: #cbd5e1; font-weight: 800; font-size: 16px;">|</span>`);
 
       let html = `
         <div class="premium-card" style="margin-bottom: 16px;">
@@ -14169,7 +14171,7 @@
           updateAllPlayerStatsAfterMatch(2);
           finishLiveMatch(finalResult);
         });
-        showEventPopup('winner', { winner: winner, margin: margin, result: finalResult });
+        showWinPopup(winner, margin);
 
         // Update tournament match result in SQL if it exists
         if (currentTournamentMatchIdx !== null && !isNaN(currentTournamentMatchIdx)) {
@@ -14631,12 +14633,7 @@
         }
       }
 
-      showEventPopup('winner', {
-        winner: winner,
-        margin: margin,
-        mom: mom,
-        momStats: momStats
-      });
+      // Removed showEventPopup to use the old showWinPopup
 
       showWinPopup(winner, margin);
       // finishLiveMatch() moved to .then of saveMatchResult to avoid race condition with stats
