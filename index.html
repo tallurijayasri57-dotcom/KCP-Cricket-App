@@ -9434,8 +9434,8 @@
             return {
               name: name, runs: s.runs, balls: s.balls, fours: s.fours, sixes: s.sixes,
               sr: s.balls > 0 ? ((s.runs / s.balls) * 100).toFixed(2) : "0.00",
-              outDesc: s.dismissal_type ? s.dismissal_type + (s.dismissed_by ? ' ' + s.dismissed_by : '') : 'out',
-              isOut: true
+              outDesc: s.dismissal_type ? s.dismissal_type + (s.dismissed_by ? ' ' + s.dismissed_by : '') : 'not out',
+              isOut: !!s.dismissal_type
             };
           }),
           bowlers: Object.keys(innings1BowlStats).map(name => {
@@ -9872,10 +9872,10 @@
             
             <div style="color:rgba(255,255,255,0.4); font-size:11px; margin-bottom:16px; font-weight:500; display:flex; align-items:center; gap:6px;">
               <span style="font-size:12px;">🪙</span>
-              <span>${m.tossInfo ? (m.tossInfo.toLowerCase().includes('toss') ? m.tossInfo : 'Toss: ' + m.tossInfo) : 'Toss info not available'}</span>
+              <span>${m.tossInfo ? 'Toss: ' + m.tossInfo.replace(/^(Toss:\s*)+/gi, '') : 'Toss info not available'}</span>
             </div>
 
-            <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
               <div style="flex:1; min-width:0;">
                 <div style="font-size:24px; font-weight:900; color:#f8fafc; text-transform:uppercase; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${m.batTeam || 'Team A'}</div>
                 <div style="font-size:16px; font-weight:600; color:rgba(255,255,255,0.5); text-transform:uppercase; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${m.bowlTeam || 'Team B'}</div>
@@ -9886,7 +9886,7 @@
               </div>
             </div>
 
-            ${(!isFinished && m.innings == 2 && m.target > 0) ? `
+            ${(!isFinished && m.innings == 2 && m.target > 0 && (m.target - (m.runs || 0) > 0)) ? `
               <div style="margin-top:12px; padding:10px; background:rgba(245, 158, 11, 0.1); border:1px solid rgba(245, 158, 11, 0.2); border-radius:8px; font-size:13px; font-weight:700; color:#f59e0b;">
                 ${(() => {
               let rNeeded = m.target - (m.runs || 0);
@@ -10686,6 +10686,11 @@
       if (activeBatsmen.length === 0) {
         activeBatsmen = (m.batsmen || []).filter(b => !b.isOut).slice(0, 2);
       }
+      activeBatsmen.sort((a, b) => {
+        if (a.name === m.strike) return -1;
+        if (b.name === m.strike) return 1;
+        return 0;
+      });
       // Only bowlers who have bowled at least 1 ball — show current bowler + previous bowler
       let allBowledBowlers = (m.bowlers || []).filter(b => {
         let oversStr = String(b.overs || '0.0');
@@ -10716,19 +10721,19 @@
 
       let recentBalls = [];
       let comms = m.commentary || [];
-      for (let i = 0; i < Math.min(30, comms.length); i++) {
+      let summariesSeen = 0;
+      for (let i = 0; i < comms.length; i++) {
         let c = comms[i];
         if (c.type === 'over_summary') {
-          recentBalls.unshift('|');
+          summariesSeen++;
+          if (recentBalls.length > 0) break;
+          if (summariesSeen > 1) break;
         } else {
           recentBalls.unshift(c.ball);
         }
       }
-      recentBalls = recentBalls.slice(-18);
-      if (recentBalls[0] === '|') recentBalls.shift();
 
       let recentHtml = recentBalls.map(b => {
-        if (b === '|') return `<span style="margin: 0 6px; color: #cbd5e1; font-weight: 800; font-size: 16px;">|</span>`;
         let bg = 'rgba(255,255,255,0.08)'; let c = 'rgba(255,255,255,0.6)'; let border = '1px solid rgba(255,255,255,0.1)';
         if (b == 4) { bg = '#3b82f6'; c = '#fff'; border = 'none'; }
         else if (b == 6) { bg = '#10b981'; c = '#fff'; border = 'none'; }
