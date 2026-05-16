@@ -7567,37 +7567,46 @@
         return `${day}-${month}-${year}`;
       };
 
-      tbody.innerHTML = tournaments.map((t, i) =>
-        `<tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
+      tbody.innerHTML = tournaments.map((t) => {
+        const tId = t.id;
+        return `<tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
           <td style="padding:16px; color:#0d9488; font-weight:500;">${t.name}</td>
           <td style="padding:16px; color:#ffffff;">${(t.ball || 'LEATHER').toUpperCase()}</td>
           <td style="padding:16px; color:#ffffff;">${formatOutDate(t.startDate)}</td>
           <td style="padding:16px; color:#ffffff;">${formatOutDate(t.endDate)}</td>
           <td style="padding:16px; color:rgba(255,255,255,0.7); font-size:16px; background:rgba(255,255,255,0.03);">
-            <span style="cursor:pointer;margin-right:12px;opacity:0.8;display:inline-flex;vertical-align:middle;" title="Edit" onclick="openEditTournament(${i})">
+            <span style="cursor:pointer;margin-right:12px;opacity:0.8;display:inline-flex;vertical-align:middle;" title="Edit" onclick="openEditTournament(${tId})">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
             </span>
-            <span style="cursor:pointer;margin-right:12px;opacity:0.8;display:inline-flex;vertical-align:middle;" title="Delete" onclick="promptDeleteTournament(${i})">
+            <span style="cursor:pointer;margin-right:12px;opacity:0.8;display:inline-flex;vertical-align:middle;" title="Delete" onclick="promptDeleteTournament(${tId})">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
             </span>
-            <span style="cursor:pointer;opacity:0.8;display:inline-flex;vertical-align:middle;position:relative;" title="Settings" onclick="toggleSettingsDropdown(event, ${i})">
+            <span style="cursor:pointer;opacity:0.8;display:inline-flex;vertical-align:middle;position:relative;" title="Settings" onclick="toggleSettingsDropdown(event, ${tId})">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
             </span>
           </td>
-        </tr>`
-      ).join('');
+        </tr>`;
+      }).join('');
+
 
       document.getElementById('oaPaginationText').innerText = `1-${tournaments.length} of ${tournaments.length}`;
     }
 
-    let currentEditTournamentIdx = -1;
-    function openEditTournament(idx) {
+    let currentEditTournamentId = null;
+    function openEditTournament(id) {
       const modal = document.getElementById('editTournamentModal');
       if (modal) modal.style.display = 'flex';
 
-      currentEditTournamentIdx = idx;
-      let t = tournaments[idx];
-      if (!t) return;
+      currentEditTournamentId = id;
+      let t = tournaments.find(x => x.id == id);
+
+      if (!t) {
+        // Fallback: If not in current global list, maybe it's in another list?
+        // But for the table, it should be in the 'tournaments' array.
+        console.warn("Tournament not found by ID:", id);
+        return;
+      }
+
 
       // Fill text fields
       const setVal = (id, val) => { let el = document.getElementById(id); if (el) el.value = val || ''; };
@@ -7652,7 +7661,7 @@
         if (!name) { alert('Enter tournament name'); throw new Error("Name required"); }
 
         // Use the current tournaments array directly
-        let t = tournaments[currentEditTournamentIdx];
+        let t = tournaments.find(x => x.id == currentEditTournamentId);
         if (!t) throw new Error("Tournament not found");
 
         t.name = name;
@@ -7778,10 +7787,11 @@
       }
     }
 
-    let tournamentToDeleteIdx = null;
+    let tournamentToDeleteId = null;
 
-    function promptDeleteTournament(idx) {
-      tournamentToDeleteIdx = idx;
+    function promptDeleteTournament(id) {
+      tournamentToDeleteId = id;
+
       document.querySelectorAll('input[name="deleteReason"]').forEach(el => el.checked = false);
       document.getElementById('deleteReasonDesc').value = '';
       document.getElementById('deleteReasonModal').style.display = 'flex';
@@ -7801,12 +7811,12 @@
 
       if (!confirm('Are you sure you want to delete Tournament? This cannot be undone.')) return;
 
-      let idx = tournamentToDeleteIdx;
-      if (idx === null || !tournaments[idx]) return;
+      let tId = tournamentToDeleteId;
+      if (tId === null) return;
 
-      let t = tournaments[idx];
-      let tId = t.id;
-      let tName = t.name;
+      // Find tournament info for confirmation and name-based sync
+      let t = tournaments.find(x => x.id == tId);
+      let tName = t ? t.name : "";
 
       closeDeleteReasonModal();
 
@@ -7818,21 +7828,21 @@
       }
 
       try {
-        // 1. Delete from SQL DB (Try ID first, then Name as fallback)
-        if (tId && tId < 1000000) {
+        // 1. Delete from SQL DB strictly by ID
+        if (tId) {
           await fetch(API + "/tournaments/" + tId, { method: "DELETE" });
         }
 
-        // Always try to delete by Name just to be 100% sure SQL is clean
-        await fetch(API + "/tournaments/name/" + encodeURIComponent(tName), { method: "DELETE" });
-
-        // 2. Delete from Local Storage (Backup wipe)
-        let localData = loadTournaments();
-        let localIdx = localData.findIndex(x => x.name === tName);
-        if (localIdx > -1) {
-          localData.splice(localIdx, 1);
-          localStorage.setItem(getTournamentsKey(), JSON.stringify(localData));
+        // 2. Delete from Local Storage (Backup wipe) if name is available
+        if (tName) {
+          let localData = loadTournaments();
+          let localIdx = localData.findIndex(x => x.name === tName);
+          if (localIdx > -1) {
+            localData.splice(localIdx, 1);
+            localStorage.setItem(getTournamentsKey(), JSON.stringify(localData));
+          }
         }
+
 
         // 3. Refresh UI
         await refreshTournamentsFromServer();
@@ -7846,8 +7856,9 @@
           btn.innerText = originalText;
           btn.disabled = false;
         }
-        tournamentToDeleteIdx = null;
+        tournamentToDeleteId = null;
       }
+
     }
 
     function showDeleteSuccessToast() {
@@ -7864,17 +7875,16 @@
       }, 3000);
     }
 
-    let currentSettingsTournamentIdx = null;
-
-    function toggleSettingsDropdown(event, idx) {
+    let currentSettingsTournamentId = null;
+    function toggleSettingsDropdown(event, id) {
       event.stopPropagation();
       let dropdown = document.getElementById('settingsDropdownMenu');
-      if (currentSettingsTournamentIdx === idx && dropdown.style.display === 'block') {
+      if (currentSettingsTournamentId === id && dropdown.style.display === 'block') {
         dropdown.style.display = 'none';
-        currentSettingsTournamentIdx = null;
+        currentSettingsTournamentId = null;
         return;
       }
-      currentSettingsTournamentIdx = idx;
+      currentSettingsTournamentId = id;
       let rect = event.currentTarget.getBoundingClientRect();
       dropdown.style.display = 'block';
       dropdown.style.top = (rect.bottom + window.scrollY + 5) + 'px';
@@ -7886,51 +7896,55 @@
       if (dropdown && dropdown.style.display === 'block') {
         if (!e.target.closest('#settingsDropdownMenu') && !e.target.closest('[title="Settings"]')) {
           dropdown.style.display = 'none';
-          currentSettingsTournamentIdx = null;
+          currentSettingsTournamentId = null;
         }
       }
     });
 
     function handleSettingsOption(option) {
       document.getElementById('settingsDropdownMenu').style.display = 'none';
-      let idx = currentSettingsTournamentIdx;
-      if (idx === null) return;
+      let id = currentSettingsTournamentId;
+      if (id === null) return;
+
+      let t = tournaments.find(x => x.id == id);
+      if (!t) return;
 
       if (option === 'teams') {
-        openTournamentTeamsPage(idx);
+        openTournamentTeamsPage(t.id);
       } else if (option === 'gallery') {
-        openTournamentGalleryPage(idx);
+        openTournamentGalleryPage(t.id);
       } else if (option === 'matches') {
-        // Navigate to manage tournament page and switch to schedule tab
-        currentTeamsTournamentIdx = idx;
-        currentTournamentId = idx;
-        let t = tournaments[idx];
-        if (!t) return;
-        document.getElementById('mtTournamentName').innerText = t.name;
-        showPage('manageTournament');
-        switchMtTab('schedule');
+        openManageTournamentPage(t.id, t.name);
       } else {
         alert(option + ' page coming soon');
       }
     }
 
-    let currentTeamsTournamentIdx = null;
+    function openManageTournamentPage(id, name) {
+      currentTournamentId = id;
+      document.getElementById('mtTournamentName').innerText = name;
+      showPage('manageTournament');
+      switchMtTab('schedule');
+    }
+
+
+
     let currentEditTeamIdx = null;
 
-    function openTournamentTeamsPage(idx) {
-      currentTeamsTournamentIdx = idx;
-      localStorage.setItem("currentTeamsTournamentIdx", idx);
+
+    function openTournamentTeamsPage(id) {
+      currentTournamentId = id;
+      localStorage.setItem("currentTournamentId", id);
       showPage('tournamentTeamsPage');
       renderTeamsList();
     }
 
     function getCurrentTournament() {
-      // Prefer global tournaments array (has SQL id) over localStorage
-      if (Array.isArray(tournaments) && tournaments.length > currentTeamsTournamentIdx && currentTeamsTournamentIdx !== null) {
-        return tournaments[currentTeamsTournamentIdx];
+      // Find by ID in the global tournaments array
+      if (currentTournamentId !== null) {
+        return tournaments.find(x => x.id == currentTournamentId);
       }
-      let local = loadTournaments();
-      return local[currentTeamsTournamentIdx] || null;
+      return null;
     }
 
     // Global SQL teams list — set by renderTeamsList, used by edit/delete/member functions
@@ -8088,7 +8102,7 @@
 
     function renderEditTeamPlayersList() {
       tournaments = loadTournaments();
-      let t = tournaments[currentTeamsTournamentIdx];
+      let t = getCurrentTournament();
       let team = t.teams[currentEditTeamIdx];
       let players = team.players || [];
       let container = document.getElementById('editTeamPlayersList');
@@ -8502,7 +8516,7 @@
     // Render team members from localStorage (legacy fallback)
     function renderTeamMembersView() {
       tournaments = loadTournaments();
-      let t = tournaments[currentTeamsTournamentIdx];
+      let t = getCurrentTournament();
       if (!t || !t.teams[currentAddPlayerTeamIdx]) return;
       let team = t.teams[currentAddPlayerTeamIdx];
       let el = document.getElementById('teamMembersTitle');
@@ -8620,7 +8634,7 @@
     // Fallback renderEditTeamPlayersList (localStorage-based)
     function renderEditTeamPlayersList() {
       tournaments = loadTournaments();
-      let t = tournaments[currentTeamsTournamentIdx];
+      let t = getCurrentTournament();
       let team = t && t.teams ? t.teams[currentEditTeamIdx] : null;
       let players = team ? (team.players || []) : [];
       let container = document.getElementById('editTeamPlayersList');
@@ -8638,16 +8652,17 @@
     }
 
     // =================== TOURNAMENT GALLERY ===================
-    let currentGalleryTournamentIdx = null;
+    let currentGalleryTournamentId = null;
 
-    async function openTournamentGalleryPage(idx) {
-      currentGalleryTournamentIdx = idx;
-      let t = getCurrentTournamentByIdx(idx);
+    async function openTournamentGalleryPage(id) {
+      currentGalleryTournamentId = id;
+      let t = tournaments.find(x => x.id == id);
       if (!t) return;
 
       // Set tournament name in header
       let nameEl = document.getElementById('galleryTournamentName');
       if (nameEl) nameEl.innerText = t.name || '';
+
 
       // Check if current user is the organiser (created_by)
       let currentUser = (localStorage.getItem('currentUser') || '').toLowerCase().trim();
@@ -8661,12 +8676,8 @@
       await renderGalleryPhotos(t.id, isOrganiser);
     }
 
-    function getCurrentTournamentByIdx(idx) {
-      if (Array.isArray(tournaments) && tournaments.length > idx && idx !== null) {
-        return tournaments[idx];
-      }
-      let local = loadTournaments();
-      return local[idx] || null;
+    function getCurrentTournamentById(id) {
+      return tournaments.find(x => x.id == id) || null;
     }
 
     async function renderGalleryPhotos(tournamentId, isOrganiser) {
@@ -8766,7 +8777,7 @@
 
     async function setTeamCaptain(playerName) {
       tournaments = loadTournaments();
-      let t = tournaments[currentTeamsTournamentIdx];
+      let t = getCurrentTournament();
       if (!t || !t.teams[currentAddPlayerTeamIdx]) return;
       t.teams[currentAddPlayerTeamIdx].captain = playerName;
       t.lastModified = Date.now();
@@ -8774,14 +8785,6 @@
       renderTeamMembersView();
     }
 
-    function manageTournament(idx) {
-      currentTournamentId = idx;
-      localStorage.setItem("currentTournamentId", idx);
-      let t = tournaments[idx];
-      document.getElementById('mtTournamentName').innerText = t.name;
-      showPage('manageTournament');
-      switchMtTab('schedule');
-    }
 
     function switchMtTab(tab) {
       document.querySelectorAll('.mt-tab').forEach(b => b.classList.remove('active'));
@@ -8799,7 +8802,7 @@
     }
 
     async function renderMtScheduleDropdowns() {
-      let t = tournaments[currentTournamentId];
+      let t = getCurrentTournament();
       let sel1 = document.getElementById('mtSchedT1');
       let sel2 = document.getElementById('mtSchedT2');
       if (!sel1 || !sel2 || !t) return;
@@ -8831,7 +8834,7 @@
     }
 
     async function renderMtUpcomingMatches() {
-      let t = tournaments[currentTournamentId];
+      let t = getCurrentTournament();
       let el = document.getElementById('mtMatchesList');
       if (!el || !t) return;
 
@@ -8890,7 +8893,7 @@
     }
 
     async function renderMtFinishedMatches() {
-      let t = tournaments[currentTournamentId];
+      let t = getCurrentTournament();
       let el = document.getElementById('mtResultsList');
       if (!el || !t) return;
 
@@ -8934,7 +8937,7 @@
     }
 
     async function renderMtPointsTable() {
-      let t = tournaments[currentTournamentId];
+      let t = getCurrentTournament();
       let ptEl = document.getElementById('mtPointsTable');
       if (!ptEl || !t) return;
 
@@ -9062,7 +9065,7 @@
       let name = document.getElementById('mtTeamName').value.trim();
       if (!name) return alert('Enter team name');
       tournaments = loadTournaments();
-      let t = tournaments[currentTournamentId];
+      let t = getCurrentTournament();
       if (t.teams.find(tm => tm.name === name)) return alert('Team already exists');
       t.teams.push({ name, players: [] });
       saveTournamentsData(tournaments);
@@ -9103,7 +9106,7 @@
       }
 
       tournaments = loadTournaments();
-      let t = tournaments[currentTournamentId];
+      let t = getCurrentTournament();
       let teamName = t.teams[addPlayerTargetTeamIdx].name;
       t.teams[addPlayerTargetTeamIdx].players.push({ name: pname, role: role, batting_style: batStyle, bowling_style: bowlStyle });
       saveTournamentsData(tournaments);
@@ -9117,7 +9120,7 @@
 
     function renderMtTeams() {
       tournaments = loadTournaments();
-      let t = tournaments[currentTournamentId];
+      let t = getCurrentTournament();
       let el = document.getElementById('mtTeamsList');
       if (!el) return; // Prevent crash if element is missing from current page
       if (!t || !t.teams || t.teams.length === 0) {
@@ -9168,7 +9171,7 @@
 
     function editTournamentPlayer(ti, pi) {
       tournaments = loadTournaments();
-      let t = tournaments[currentTournamentId];
+      let t = getCurrentTournament();
       let p = t.teams[ti].players[pi];
       let newName = prompt("Edit Player Name:", p.name);
       if (newName === null) return;
@@ -9229,16 +9232,20 @@
         closeTeamDeleteReasonModal();
 
         tournaments = loadTournaments();
-        if (!tournaments[tIdx] || !tournaments[tIdx].teams || !tournaments[tIdx].teams[teamIdx]) {
+        let t = getCurrentTournament();
+        if (!t || !t.teams || !t.teams[teamIdx]) {
+
           alert("Error: Team not found in data.");
           return;
         }
 
-        let teamName = tournaments[tIdx].teams[teamIdx].name;
+        let teamName = t.teams[teamIdx].name;
+
 
         // Update local list
-        tournaments[tIdx].teams.splice(teamIdx, 1);
-        tournaments[tIdx].lastModified = Date.now();
+        t.teams.splice(teamIdx, 1);
+        t.lastModified = Date.now();
+
 
         let btn = document.getElementById("confirmDeleteTeamBtn");
         let originalText = btn ? btn.innerText : "DELETE";
@@ -9272,7 +9279,7 @@
 
     function deleteTournamentPlayer(teamIdx, playerIdx) {
       tournaments = loadTournaments();
-      let t = tournaments[currentTournamentId];
+      let t = getCurrentTournament();
       let teamName = t.teams[teamIdx].name;
       let pname = t.teams[teamIdx].players[playerIdx].name;
       if (!confirm('Remove player "' + pname + '"?')) return;
@@ -9286,7 +9293,7 @@
     }
 
     async function addTournamentMatch() {
-      let t = tournaments[currentTournamentId];
+      let t = getCurrentTournament();
       let t1 = document.getElementById('mtSchedT1').value;
       let t2 = document.getElementById('mtSchedT2').value;
       let dtStr = document.getElementById('mtSchedDateTime').value;
@@ -9359,7 +9366,7 @@
 
     function enterMatchResult(matchIdx) {
       tournaments = loadTournaments();
-      let t = tournaments[currentTournamentId];
+      let t = getCurrentTournament();
       let m = t.matches[matchIdx];
       let winner = prompt(`Who won?\n1. ${m.team1}\n2. ${m.team2}\nEnter team name:`);
       if (!winner) return;
@@ -9373,7 +9380,7 @@
 
     async function deleteTournamentMatch(matchId) {
       if (!confirm('Delete this match?')) return;
-      let t = tournaments[currentTournamentId];
+      let t = getCurrentTournament();
       if (!t) return;
 
       try {
@@ -9492,15 +9499,13 @@
       let actualTournamentId = null;
 
       if (currentTournamentId !== null) {
-        // Prioritize global SQL-backed tournaments array
-        let t = null;
-        if (typeof tournaments !== 'undefined' && tournaments[currentTournamentId]) {
-          t = tournaments[currentTournamentId];
-        } else {
+        let t = getCurrentTournament();
+        if (!t) {
           // Fallback to local storage if global isn't loaded yet
           let tours = loadTournaments();
-          t = tours[currentTournamentId];
+          t = tours.find(x => x.id == currentTournamentId);
         }
+
 
         if (t) {
           ground = t.ground || "";
@@ -9714,7 +9719,8 @@
         let ballIcon = (t.ball || '').toLowerCase().includes('leather') ? '🏏' : (t.ball || '').toLowerCase().includes('tennis') ? '🎾' : '';
 
         return `
-        <div onclick="openTournamentDetailsBySQL(${i})" style="
+        <div onclick="openTournamentDetailsBySQL(${t.id})" style="
+
           cursor:pointer;
           background: linear-gradient(135deg, rgba(15,23,42,0.97), rgba(20,38,64,0.95));
           border: 1px solid rgba(110,231,183,0.12);
@@ -12323,15 +12329,20 @@
 
       let lp = localStorage.getItem("lastPage");
       let tid = localStorage.getItem("currentTournamentId");
-      let cttid = localStorage.getItem("currentTeamsTournamentIdx");
+      let cttid = localStorage.getItem("currentTournamentId"); // Renamed and consolidated
+
       let tmid = localStorage.getItem("currentTournamentMatchIdx");
       if (tmid !== null) currentTournamentMatchIdx = parseInt(tmid);
 
       try {
-        if (lp === "manageTournament" && tid !== null && tournaments[parseInt(tid)]) {
-          manageTournament(parseInt(tid));
-        } else if (lp === "tournamentTeamsPage" && cttid !== null && tournaments[parseInt(cttid)]) {
+        if (lp === "manageTournament" && tid !== null && tournaments.find(x => x.id == tid)) {
+          let foundT = tournaments.find(x => x.id == tid);
+          openManageTournamentPage(foundT.id, foundT.name);
+        } else if (lp === "tournamentTeamsPage" && cttid !== null && tournaments.find(x => x.id == cttid)) {
           openTournamentTeamsPage(parseInt(cttid));
+
+
+
         } else {
           showPage("home");
           renderHomeBanner();
@@ -12430,14 +12441,15 @@
     }
 
     let currentViewingTournament = null;
-    let currentViewingTournamentIdx = null;
+    let currentViewingTournamentId = null;
 
-    async function openTournamentDetails(tIdx) {
+    async function openTournamentDetails(id) {
       let allTournaments = tournaments || [];
-      let t = allTournaments[tIdx];
+      let t = allTournaments.find(x => x.id == id);
       if (!t) return;
       currentViewingTournament = t;
-      currentViewingTournamentIdx = tIdx;
+      currentViewingTournamentId = id;
+
 
       showPage('tournamentDetailsPage');
 
@@ -12958,7 +12970,8 @@
       if (window.fbGetDocs) {
         const q = window.fbQuery(
           window.fbCollection(window.fbDb, "live_matches"),
-          window.fbWhere("tournamentId", "==", currentViewingTournamentIdx)
+          window.fbWhere("tournamentId", "==", currentViewingTournamentId)
+
         );
         try {
           const snap = await window.fbGetDocs(q);
@@ -13183,7 +13196,8 @@
           return dt.getDate().toString().padStart(2, '0') + '-' + dt.toLocaleString('en-US', { month: 'short' }) + '-' + dt.getFullYear().toString().substr(-2);
         };
         return `
-      <div class="my-card" onclick="openTournamentDetailsBySQL(${i})" style="cursor:pointer;">
+      <div class="my-card" onclick="openTournamentDetailsBySQL(${t.id})" style="cursor:pointer;">
+
         <div class="tourney-badge-premium">Premium</div>
         <div class="tourney-card">
           <div class="tourney-img">
@@ -13205,15 +13219,10 @@
     }
 
     // Open tournament details from the SQL-fetched myTourneys array
-    function openTournamentDetailsBySQL(idx) {
-      // Find the index in the global tournaments array
-      let t = (tournaments || [])[idx];
-      if (!t) return;
-      // Find matching index in global list
-      let globalIdx = (tournaments || []).indexOf(t);
-      if (globalIdx === -1) globalIdx = idx;
-      openTournamentDetails(globalIdx);
+    function openTournamentDetailsBySQL(id) {
+      openTournamentDetails(id);
     }
+
 
 
     function globalGoBack() {
@@ -14697,6 +14706,7 @@
       let tIdx = selEl ? parseInt(selEl.value) : 0;
       let t = allTournaments[tIdx];
 
+
       let tbody = document.getElementById("pointsTableBody");
       tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:20px;color:#6ee7b7;">⏳ Loading SQL Standings...</td></tr>';
 
@@ -14783,16 +14793,18 @@
           <td style="color:#6ee7b7; font-weight:800;">${s.Pts}</td>
           <td style="color:#94a3b8; font-size:12px;">${s.nrr > 0 ? '+' : ''}${s.nrr}</td>
           <td>
-            <button onclick="deleteTeamFromPoints('${escapeQ(name)}', ${tIdx})" style="background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.3);color:#f87171;padding:3px 8px;border-radius:5px;font-size:12px;cursor:pointer;">❌</button>
+            <button onclick="deleteTeamFromPoints('${escapeQ(name)}', ${t.id})" style="background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.3);color:#f87171;padding:3px 8px;border-radius:5px;font-size:12px;cursor:pointer;">❌</button>
+
           </td>
         </tr>
       `).join('');
     }
 
-    function deleteTeamFromPoints(teamName, tournamentIdx) {
+    function deleteTeamFromPoints(teamName, tournamentId) {
       if (!confirm('Remove "' + teamName + '" from this tournament\'s points table?\n(This removes the team and all their matches from this tournament.)')) return;
       let allTournaments = loadTournaments();
-      let t = allTournaments[tournamentIdx];
+      let t = allTournaments.find(x => x.id == tournamentId);
+
       // Remove team
       t.teams = (t.teams || []).filter(team => team.name !== teamName);
       // Remove matches involving this team
