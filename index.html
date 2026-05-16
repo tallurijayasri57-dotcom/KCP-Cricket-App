@@ -9929,8 +9929,8 @@
           let totalBalls = (parseInt(oversParts[0]) || 0) * 6 + (parseInt(oversParts[1]) || 0);
           if (totalBalls > 0) {
             currentRRVal = ((m.runs / totalBalls) * 6).toFixed(2);
-            let totalOversNum = parseInt(m.matchType) || 20;
-            if (isNaN(totalOversNum)) totalOversNum = 20;
+            let totalOversNum = parseInt(m.totalOvers) || 20;
+            if (isNaN(totalOversNum) || totalOversNum <= 0) totalOversNum = 20;
             projScore = Math.floor((m.runs / totalBalls) * (totalOversNum * 6));
           }
         }
@@ -10853,28 +10853,31 @@
           <div class="premium-card" style="margin-bottom:16px;">
             <div style="font-weight:700; color:#f8fafc; padding:16px; font-size:18px; border-bottom:1px solid rgba(255,255,255,0.08);">Match Key Performances</div>
             <div style="overflow-x:auto;">
-              <table class="sc-table" style="min-width:320px;">
-                <thead><tr style="background:rgba(255,255,255,0.03);"><th>Batters</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead>
+              <table class="sc-table" style="min-width:320px; table-layout:fixed; width:100%;">
+                <thead><tr style="background:rgba(255,255,255,0.03);"><th style="text-align:left; width:40%;">Batters</th><th style="text-align:center;">R</th><th style="text-align:center;">B</th><th style="text-align:center;">4s</th><th style="text-align:center;">6s</th><th style="text-align:center;">SR</th></tr></thead>
                 <tbody>
-                  ${bestBatsmen.map(p => `
+                  ${bestBatsmen.map(p => {
+                    let srVal = p.batData.sr != null && !isNaN(p.batData.sr) ? parseFloat(p.batData.sr).toFixed(1) : (parseInt(p.batData.balls) > 0 ? ((parseInt(p.batData.runs)/parseInt(p.batData.balls))*100).toFixed(1) : '0.0');
+                    return `
                     <tr>
-                      <td class="name-cell">${p.name}<span style="color:rgba(255,255,255,0.4); font-weight:400; margin-left:4px;">(${p.team})</span></td>
-                      <td>${p.batData.runs}</td><td>${p.batData.balls}</td><td>${p.batData.fours}</td><td>${p.batData.sixes}</td><td>${p.batData.sr}</td>
-                    </tr>
-                  `).join('')}
+                      <td class="name-cell" style="text-align:left;">${p.name}<span style="color:rgba(255,255,255,0.4); font-weight:400; margin-left:4px;">(${p.team})</span></td>
+                      <td style="text-align:center;">${p.batData.runs}</td><td style="text-align:center;">${p.batData.balls}</td><td style="text-align:center;">${p.batData.fours||0}</td><td style="text-align:center;">${p.batData.sixes||0}</td><td style="text-align:center;">${srVal}</td>
+                    </tr>`;
+                  }).join('')}
                 </tbody>
               </table>
             </div>
             <div style="overflow-x:auto; margin-top:0px;">
-              <table class="sc-table" style="min-width:320px;">
-                <thead><tr style="background:rgba(255,255,255,0.03);"><th>Bowlers</th><th>O</th><th>M</th><th>R</th><th>W</th><th>Eco</th></tr></thead>
+              <table class="sc-table" style="min-width:320px; table-layout:fixed; width:100%;">
+                <thead><tr style="background:rgba(255,255,255,0.03);"><th style="text-align:left; width:40%;">Bowlers</th><th style="text-align:center;">O</th><th style="text-align:center;">M</th><th style="text-align:center;">R</th><th style="text-align:center;">W</th><th style="text-align:center;">Eco</th></tr></thead>
                 <tbody>
-                  ${bestBowlers.map(p => `
-                    <tr>
-                      <td class="name-cell">${p.name}<span style="color:rgba(255,255,255,0.4); font-weight:400; margin-left:4px;">(${p.team})</span></td>
-                      <td>${parseFloat(p.bowlData.overs).toFixed(1)}</td><td>${p.bowlData.maidens}</td><td>${p.bowlData.runs}</td><td>${p.bowlData.wickets}</td><td>${p.bowlData.eco}</td>
-                    </tr>
-                  `).join('')}
+                  ${bestBowlers.map(p => {
+                    let ecoVal = p.bowlData.eco != null && !isNaN(parseFloat(p.bowlData.eco)) ? parseFloat(p.bowlData.eco).toFixed(2) : (() => { let ov = parseFloat(p.bowlData.overs)||0; let totalB = Math.floor(ov)*6 + Math.round((ov - Math.floor(ov))*10); return totalB > 0 ? ((parseInt(p.bowlData.runs)||0)/(totalB/6)).toFixed(2) : '0.00'; })();
+                    return `<tr>
+                      <td class="name-cell" style="text-align:left;">${p.name}<span style="color:rgba(255,255,255,0.4); font-weight:400; margin-left:4px;">(${p.team})</span></td>
+                      <td style="text-align:center;">${parseFloat(p.bowlData.overs).toFixed(1)}</td><td style="text-align:center;">${p.bowlData.maidens||0}</td><td style="text-align:center;">${p.bowlData.runs}</td><td style="text-align:center;">${p.bowlData.wickets}</td><td style="text-align:center;">${ecoVal}</td>
+                    </tr>`;
+                  }).join('')}
                 </tbody>
               </table>
             </div>
@@ -11152,6 +11155,7 @@
           matchDate: matchResult ? matchResult.played_on : (found ? found.match_date : ''),
           ground: 'KCP CRICKET GROUND',
           matchStatus: (margin && String(margin).includes('won')) ? margin : (winner + ' won by ' + margin),
+          tossInfo: matchResult ? (matchResult.toss_info || '') : '',
           winner, loser, margin,
           innings: inn2Fallback ? 2 : 1,
           runs: inn2Fallback ? inn2Fallback.runs : (inn1Fallback ? inn1Fallback.runs : 0),
@@ -11359,6 +11363,7 @@
           matchDate: finalSummary.played_on,
           ground: 'KCP CRICKET GROUND',
           matchStatus: (finalSummary.margin && String(finalSummary.margin).includes('won')) ? finalSummary.margin : (finalSummary.winner + ' won by ' + finalSummary.margin),
+          tossInfo: finalSummary.toss_info || '',
           winner: finalSummary.winner,
           loser: finalSummary.loser,
           winType: finalSummary.win_type,
