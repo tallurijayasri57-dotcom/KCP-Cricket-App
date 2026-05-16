@@ -70,6 +70,7 @@ async function startServer() {
             // Ensure extra columns exist (safe migrations)
             const migrations = [
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournaments'       AND COLUMN_NAME='logo')    ALTER TABLE tournaments       ADD logo     NVARCHAR(MAX) NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournaments'       AND COLUMN_NAME='organiser') ALTER TABLE tournaments       ADD organiser NVARCHAR(200) NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_teams'  AND COLUMN_NAME='captain')  ALTER TABLE tournament_teams  ADD captain  NVARCHAR(100) NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_teams'  AND COLUMN_NAME='city')     ALTER TABLE tournament_teams  ADD city     NVARCHAR(100) NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_teams'  AND COLUMN_NAME='logo')     ALTER TABLE tournament_teams  ADD logo     NVARCHAR(MAX) NULL`,
@@ -87,7 +88,7 @@ async function startServer() {
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='player_stats'      AND COLUMN_NAME='opponent_team') ALTER TABLE player_stats  ADD opponent_team NVARCHAR(100) NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='match_results'     AND COLUMN_NAME='toss_info')  ALTER TABLE match_results     ADD toss_info NVARCHAR(MAX) NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_matches' AND COLUMN_NAME='toss_info') ALTER TABLE tournament_matches ADD toss_info NVARCHAR(MAX) NULL`,
-                
+
                 // Player Style Migrations
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='players' AND COLUMN_NAME='batting_style') ALTER TABLE players ADD batting_style NVARCHAR(50) NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='players' AND COLUMN_NAME='bowling_style') ALTER TABLE players ADD bowling_style NVARCHAR(50) NULL`,
@@ -97,7 +98,7 @@ async function startServer() {
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='player_profiles' AND COLUMN_NAME='bowling_style') ALTER TABLE player_profiles ADD bowling_style NVARCHAR(50) NULL`,
             ];
             for (const mig of migrations) {
-                try { await pool.request().query(mig); } catch(e) { console.warn("Migration warning:", e.message); }
+                try { await pool.request().query(mig); } catch (e) { console.warn("Migration warning:", e.message); }
             }
             console.log("✅ Schema migrations applied");
         } catch (e) {
@@ -111,8 +112,8 @@ startServer();
 
 // --- ROUTES ---
 app.get("/health", (req, res) => {
-    res.json({ 
-        status: "ok", 
+    res.json({
+        status: "ok",
         connected: !!pool && !useJSON,
         mode: useJSON ? "JSON" : "SQL"
     });
@@ -180,6 +181,31 @@ app.post("/login", async (req, res) => {
 });
 
 // ================= TOURNAMENTS =================
+
+// Get ALL tournaments from all users (for home page global display)
+app.get("/all-tournaments", async (req, res) => {
+    try {
+        if (pool) {
+            const result = await pool.request().query(`
+                SELECT 
+                    id, name, created_by, organiser, status, created_at,
+                    ball_type AS ball, 
+                    start_date AS startDate, 
+                    end_date AS endDate,
+                    logo
+                FROM tournaments 
+                ORDER BY id DESC
+            `);
+            res.json(result.recordset);
+        } else {
+            res.json([]);
+        }
+    } catch (err) {
+        console.error("GET all-tournaments error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.get("/tournaments/:username", async (req, res) => {
     try {
         const { username } = req.params;
@@ -189,7 +215,7 @@ app.get("/tournaments/:username", async (req, res) => {
                 .input("u", sql.NVarChar, username.toLowerCase())
                 .query(`
                     SELECT 
-                        id, name, created_by, status, created_at,
+                        id, name, created_by, organiser, status, created_at,
                         ball_type AS ball, 
                         start_date AS startDate, 
                         end_date AS endDate,
@@ -211,20 +237,21 @@ app.get("/tournaments/:username", async (req, res) => {
 
 app.post("/tournaments", async (req, res) => {
     try {
-        const { name, created_by, ball_type, start_date, end_date, logo } = req.body;
+        const { name, created_by, organiser, ball_type, start_date, end_date, logo } = req.body;
         if (!name || !created_by) return res.status(400).json({ message: "Name and created_by required" });
         if (pool) {
             const result = await pool.request()
                 .input("n", sql.NVarChar, name)
                 .input("c", sql.NVarChar, created_by)
+                .input("org", sql.NVarChar, organiser || null)
                 .input("b", sql.NVarChar, ball_type || null)
                 .input("sd", sql.Date, start_date || null)
                 .input("ed", sql.Date, end_date || null)
                 .input("logo", sql.NVarChar(sql.MAX), logo || null)
                 .query(`
-                    INSERT INTO tournaments (name, created_by, ball_type, start_date, end_date, logo) 
+                    INSERT INTO tournaments (name, created_by, organiser, ball_type, start_date, end_date, logo) 
                     OUTPUT INSERTED.id 
-                    VALUES (@n, @c, @b, @sd, @ed, @logo)
+                    VALUES (@n, @c, @org, @b, @sd, @ed, @logo)
                 `);
             res.json({ success: true, id: result.recordset[0].id });
         } else {
@@ -325,7 +352,7 @@ app.post("/tournament-teams", async (req, res) => {
                         .input("city", sql.NVarChar, city || '')
                         .input("logo", sql.NVarChar(sql.MAX), logo || '')
                         .query("UPDATE tournament_teams SET city=@city, logo=@logo WHERE id=@id");
-                } catch(e) { /* city/logo columns may not exist yet, ignore */ }
+                } catch (e) { /* city/logo columns may not exist yet, ignore */ }
             }
             res.json({ success: true, id: newId });
         } else {
@@ -495,7 +522,7 @@ app.put("/tournament-players/:tournament_id/:team_name/:old_player_name", async 
                 .input("bs", sql.NVarChar, req.body.batting_style || null)
                 .input("bows", sql.NVarChar, req.body.bowling_style || null)
                 .query("UPDATE tournament_players SET player_name = @npn, role = @r, batting_style = @bs, bowling_style = @bows WHERE tournament_id = @tid AND team_name = @tn AND player_name = @opn");
-            
+
             // 2. Check if this player was the captain, if so update the captain column in tournament_teams
             const checkCap = await pool.request()
                 .input("tid", sql.Int, tournament_id)
@@ -624,10 +651,10 @@ app.get("/teams", async (req, res) => {
 
 app.post("/teams", async (req, res) => {
     try {
-        if (useJSON || !pool) { 
-            MEMORY_DB.teams.push({ id: Date.now(), team_name: req.body.name }); 
-            saveDB(); 
-            return res.send("Ok"); 
+        if (useJSON || !pool) {
+            MEMORY_DB.teams.push({ id: Date.now(), team_name: req.body.name });
+            saveDB();
+            return res.send("Ok");
         }
         await pool.request().input("n", sql.NVarChar, req.body.name).query("INSERT INTO teams (team_name) VALUES (@n)");
         res.send("Ok");
@@ -686,7 +713,7 @@ app.post("/players", async (req, res) => {
             .input("bs", sql.NVarChar, req.body.batting_style || null)
             .input("bows", sql.NVarChar, req.body.bowling_style || null)
             .query("INSERT INTO players (team_name, player_name, role, batting_style, bowling_style) VALUES (@t, @p, @r, @bs, @bows)");
-            
+
         // Sync to profiles
         await pool.request()
             .input("pn", sql.NVarChar, player_name)
@@ -700,7 +727,7 @@ app.post("/players", async (req, res) => {
                 ELSE
                     INSERT INTO player_profiles (player_name, team_name, role, batting_style, bowling_style) VALUES (@pn, @tn, @r, @bs, @bows)
             `);
-            
+
         res.send("Player Added");
     } catch (err) {
         res.status(500).send(err.message);
@@ -755,7 +782,7 @@ app.post("/player-profile", async (req, res) => {
     try {
         const { player_name, team_name, role, photo_url } = req.body;
         if (!pool) return res.status(500).json({ message: "No SQL connection" });
-        
+
         await pool.request()
             .input("pn", sql.NVarChar, player_name)
             .input("r", sql.NVarChar, role || null)
@@ -780,7 +807,7 @@ app.post("/upload-photo", upload.single("photo"), async (req, res) => {
         const b64 = req.file.buffer.toString("base64");
         const dataUri = "data:" + req.file.mimetype + ";base64," + b64;
         const uploadRes = await cloudinary.uploader.upload(dataUri, { folder: "player_photos" });
-        
+
         const playerName = req.body.player_name;
         if (playerName && pool) {
             await pool.request()
@@ -845,14 +872,14 @@ app.get("/match-results/:id", async (req, res) => {
 
 app.post("/match-results", async (req, res) => {
     try {
-        const { 
+        const {
             winner, loser, win_type, margin, played_on, organiser, commentary,
             match_id, t1_score, t2_score, t1_overs, t2_overs, t1_wickets, t2_wickets
         } = req.body;
 
         if (useJSON || !pool) {
             const id = Date.now();
-            MEMORY_DB.match_results.push({ 
+            MEMORY_DB.match_results.push({
                 id, winner, loser, win_type, margin, played_on, organiser, commentary,
                 match_id, t1_score, t2_score, t1_overs, t2_overs, t1_wickets, t2_wickets,
                 toss_info: req.body.toss_info
@@ -908,17 +935,17 @@ app.delete("/match-results/:id", async (req, res) => {
 app.get("/upcoming-matches", async (req, res) => {
     try {
         if (useJSON || !pool) return res.json(MEMORY_DB.upcoming_matches);
-        
+
         // Fetch regular upcoming matches (assuming regular ones don't have status yet, or we default to upcoming)
         const r1 = await pool.request().query("SELECT id, team1, team2, match_date, match_time, 'regular' as type FROM upcoming_matches");
-        
+
         // Fetch tournament matches that are ONLY upcoming
         const r2 = await pool.request().query("SELECT id, team1, team2, match_date, match_time, 'tournament' as type FROM tournament_matches WHERE status = 'upcoming'");
-        
+
         // Combine and sort
         const combined = [...r1.recordset, ...r2.recordset];
         combined.sort((a, b) => new Date(a.match_date) - new Date(b.match_date));
-        
+
         res.json(combined);
     } catch (err) {
         console.error("GET upcoming-matches error:", err);
@@ -959,15 +986,15 @@ app.delete("/upcoming-matches/:id", async (req, res) => {
             saveDB();
             return res.json({ message: "Match deleted" });
         }
-        
+
         // Try deleting from upcoming_matches first
         const r1 = await pool.request().input("id", sql.Int, req.params.id).query("DELETE FROM upcoming_matches WHERE id=@id");
-        
+
         // Also try marking tournament match as cancelled (or delete if that's preferred, but usually status update is safer)
         if (r1.rowsAffected[0] === 0) {
             await pool.request().input("id", sql.Int, req.params.id).query("UPDATE tournament_matches SET status='cancelled' WHERE id=@id");
         }
-        
+
         res.json({ message: "Match deleted" });
     } catch (err) {
         console.error("DELETE upcoming-matches error:", err);
@@ -1071,7 +1098,7 @@ app.post("/player-stats", async (req, res) => {
             .query(`INSERT INTO player_stats (player_name, team_name, match_date, match_type, runs, balls_faced, fours, sixes, wickets, overs_bowled, runs_conceded, dismissal_type, dismissed_by, catches, run_outs, stumpings, match_id, innings, opponent_team, shot_types, wagon_wheel) 
                     OUTPUT INSERTED.id VALUES (@pn, @tn, @md, @mt, @r, @bf, @f4, @s6, @w, @ob, @rc, @dt, @db, @c, @ro, @s, @mid, @inn, @ot, @st, @ww)`);
 
-        
+
         res.json({ success: true, id: r.recordset[0].id });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -1131,7 +1158,7 @@ app.get("/player-match-history/:playerName", async (req, res) => {
                 WHERE ps.player_name = @pn
                 ORDER BY ps.match_date DESC, ps.id DESC
             `);
-        
+
         // Group by match_id to consolidate bat/bowl stats
         const grouped = {};
         result.recordset.forEach(row => {
@@ -1256,7 +1283,7 @@ app.get("/points-table", async (req, res) => {
 app.post("/points-table/update", async (req, res) => {
     try {
         const { winner, loser, winner_runs, winner_overs, loser_runs, loser_overs } = req.body;
-        
+
         if (useJSON || !pool) {
             // Basic JSON update logic (simplified)
             return res.json({ message: "Points updated (JSON)" });
@@ -1294,7 +1321,7 @@ app.post("/points-table/update", async (req, res) => {
 
         // Update NRR
         await pool.request().query(`UPDATE points_table SET net_run_rate = CASE WHEN overs_bowled > 0 AND overs_faced > 0 THEN ROUND((runs_scored / overs_faced) - (runs_conceded / overs_bowled), 3) ELSE 0 END`);
-        
+
         res.json({ message: "Points updated" });
     } catch (err) {
         res.status(500).send(err.message);
@@ -1536,14 +1563,14 @@ app.patch("/tournament-matches/:id", async (req, res) => {
         if (result === undefined && status === undefined && toss_info === undefined) {
             return res.json({ success: true, message: "Nothing to update" });
         }
-        
+
         let updates = [];
         const request = pool.request().input("id", sql.Int, id);
-        
+
         if (result !== undefined) { updates.push("result=@res"); request.input("res", sql.NVarChar, result); }
         if (status !== undefined) { updates.push("status=@st"); request.input("st", sql.NVarChar, status); }
         if (toss_info !== undefined) { updates.push("toss_info=@toss"); request.input("toss", sql.NVarChar, toss_info); }
-        
+
         let query = "UPDATE tournament_matches SET " + updates.join(", ") + " WHERE id=@id";
         await request.query(query);
         res.json({ success: true });
@@ -1577,27 +1604,27 @@ const PORT = process.env.PORT || 3001;
 const server = app.listen(PORT, () => console.log(`✅ Server Live on port ${PORT}`));
 
 server.on('error', (e) => {
-  if (e.code === 'EADDRINUSE') {
-    console.log(`⚠️ Port ${PORT} is busy. Auto-fixing it for you...`);
-    const { exec } = require('child_process');
-    
-    // Command to forcefully close the old server
-    const cmd = process.platform === 'win32' 
-      ? `powershell.exe -Command "Stop-Process -Id (Get-NetTCPConnection -LocalPort ${PORT}).OwningProcess -Force"`
-      : `lsof -i :${PORT} -t | xargs kill -9`;
-      
-    exec(cmd, (err) => {
-      if (err) {
-        console.error("❌ Auto-fix failed. Please close the other terminal manually.");
-        process.exit(1);
-      }
-      console.log(`✅ Old server closed! Starting the new one...`);
-      setTimeout(() => {
-        server.close();
-        app.listen(PORT, () => console.log(`✅ Server Live on port ${PORT}`));
-      }, 1000);
-    });
-  } else {
-    console.error(e);
-  }
+    if (e.code === 'EADDRINUSE') {
+        console.log(`⚠️ Port ${PORT} is busy. Auto-fixing it for you...`);
+        const { exec } = require('child_process');
+
+        // Command to forcefully close the old server
+        const cmd = process.platform === 'win32'
+            ? `powershell.exe -Command "Stop-Process -Id (Get-NetTCPConnection -LocalPort ${PORT}).OwningProcess -Force"`
+            : `lsof -i :${PORT} -t | xargs kill -9`;
+
+        exec(cmd, (err) => {
+            if (err) {
+                console.error("❌ Auto-fix failed. Please close the other terminal manually.");
+                process.exit(1);
+            }
+            console.log(`✅ Old server closed! Starting the new one...`);
+            setTimeout(() => {
+                server.close();
+                app.listen(PORT, () => console.log(`✅ Server Live on port ${PORT}`));
+            }, 1000);
+        });
+    } else {
+        console.error(e);
+    }
 });

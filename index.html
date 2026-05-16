@@ -6609,6 +6609,7 @@
           body: JSON.stringify({
             name: t.name,
             created_by: user,
+            organiser: t.organiser || null,
             ball_type: t.ball || null,
             start_date: t.startDate || null,
             end_date: t.endDate || null
@@ -9643,28 +9644,126 @@
       localStorage.removeItem("currentLiveMatchId");
     }
 
-    function renderHomeBanner() {
+    async function renderHomeBanner() {
       let bannerArea = document.getElementById('homeBannerArea');
       bannerArea.innerHTML = `
-      <div id="liveMatchesSection" style="margin-top:20px; padding:0 10px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-          <h3 style="font-family:'Rajdhani',sans-serif; color:#6ee7b7; margin:0; letter-spacing:1px; display:flex; align-items:center; gap:8px;">
-            <span style="width:8px; height:8px; background:#ef4444; border-radius:50%; animation: pulse-live 1.5s infinite;"></span>
-            LIVE MATCHES
+      <div style="margin-top:20px; padding:0 10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+          <h3 style="font-family:'Rajdhani',sans-serif; color:#6ee7b7; margin:0; letter-spacing:1px; font-size:20px; display:flex; align-items:center; gap:10px;">
+            🏆 ALL TOURNAMENTS
           </h3>
         </div>
-        <div id="liveMatchesGrid" style="display:flex; flex-direction:column; gap:12px;"></div>
-      </div>
-      <style>
-        @keyframes pulse-live {
-          0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-          70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
-          100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-        }
-      </style>`;
+        <div id="allTournamentsGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:14px;">
+          <div style="text-align:center; padding:40px 20px; color:rgba(255,255,255,0.4); font-family:'Inter',sans-serif; font-size:14px; grid-column:1/-1;">
+            ⏳ Loading tournaments...
+          </div>
+        </div>
+      </div>`;
 
-      listenToLiveMatches();
+      loadAllTournamentsForHome();
     }
+
+    async function loadAllTournamentsForHome() {
+      let container = document.getElementById('allTournamentsGrid');
+      if (!container) return;
+
+      let allTourneys = [];
+      try {
+        const res = await fetch(API + '/all-tournaments?_t=' + Date.now());
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data)) allTourneys = data;
+        }
+      } catch (e) {
+        console.warn('loadAllTournamentsForHome error:', e);
+      }
+
+      // Restore logos from localStorage if SQL doesn't have them
+      let localTs = loadTournaments();
+      allTourneys.forEach(sqlT => {
+        let localMatch = localTs.find(lt => lt.name === sqlT.name);
+        if (localMatch && localMatch.logo && !sqlT.logo) sqlT.logo = localMatch.logo;
+      });
+
+      if (allTourneys.length === 0) {
+        container.innerHTML = `
+          <div style="background:rgba(255,255,255,0.03); border:1px dashed rgba(255,255,255,0.1); border-radius:14px; padding:40px 20px; text-align:center;">
+            <div style="font-size:48px; margin-bottom:12px;">🏏</div>
+            <div style="font-family:'Rajdhani',sans-serif; font-size:18px; color:#6ee7b7; font-weight:700; margin-bottom:6px;">No Tournaments Yet</div>
+            <div style="color:rgba(255,255,255,0.4); font-size:13px; font-family:'Inter',sans-serif;">Tournaments created by any user will appear here.</div>
+          </div>`;
+        return;
+      }
+
+      // Store globally so openTournamentDetails works by index
+      tournaments = allTourneys;
+
+      let fmtDate = (d) => {
+        if (!d) return '';
+        let dt = new Date(d);
+        if (isNaN(dt)) return d;
+        return dt.getDate().toString().padStart(2, '0') + '-' + dt.toLocaleString('en-US', { month: 'short' }) + '-' + dt.getFullYear().toString().substr(-2);
+      };
+
+      container.innerHTML = allTourneys.map((t, i) => {
+        let logoHtml = t.logo
+          ? `<img src="${t.logo}" alt="logo" style="width:100%; height:100%; object-fit:cover; border-radius:10px;" onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=\\'font-size:26px;display:flex;align-items:center;justify-content:center;width:100%;height:100%;\\'>🏆</div>'">`
+          : `<div style="font-size:26px; display:flex; align-items:center; justify-content:center; width:100%; height:100%;">🏏</div>`;
+
+        let organiserLabel = t.organiser || t.created_by || '';
+        let ballIcon = (t.ball || '').toLowerCase().includes('leather') ? '🏏' : (t.ball || '').toLowerCase().includes('tennis') ? '🎾' : '';
+
+        return `
+        <div onclick="openTournamentDetailsBySQL(${i})" style="
+          cursor:pointer;
+          background: linear-gradient(135deg, rgba(15,23,42,0.97), rgba(20,38,64,0.95));
+          border: 1px solid rgba(110,231,183,0.12);
+          border-radius: 16px;
+          padding: 16px 18px 16px 22px;
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          position: relative;
+          overflow: hidden;
+          transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+        "
+        onmouseover="this.style.borderColor='rgba(110,231,183,0.38)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 32px rgba(0,0,0,0.5)';"
+        onmouseout="this.style.borderColor='rgba(110,231,183,0.12)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.35)';">
+
+          <!-- Left accent bar -->
+          <div style="position:absolute; top:0; left:0; width:4px; height:100%; background:linear-gradient(180deg,#6ee7b7,#0d9488); border-radius:16px 0 0 16px;"></div>
+
+          <!-- Logo -->
+          <div style="
+            width:56px; height:56px; min-width:56px;
+            border-radius:12px;
+            background: linear-gradient(135deg, #0d9488, #1e3a5f);
+            overflow:hidden;
+            border: 1.5px solid rgba(110,231,183,0.2);
+            display:flex; align-items:center; justify-content:center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+          ">${logoHtml}</div>
+
+          <!-- Info -->
+          <div style="flex:1; min-width:0;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px; flex-wrap:wrap;">
+              <span style="background:rgba(16,185,129,0.13); color:#6ee7b7; font-size:10px; font-weight:700; padding:2px 9px; border-radius:20px; text-transform:uppercase; letter-spacing:0.6px; border:1px solid rgba(110,231,183,0.2);">Ongoing</span>
+              ${ballIcon ? `<span style="font-size:11px; color:rgba(255,255,255,0.35); font-family:'Inter',sans-serif;">${ballIcon} ${t.ball}</span>` : ''}
+            </div>
+            <div style="font-family:'Rajdhani',sans-serif; font-size:20px; font-weight:800; color:#f8fafc; letter-spacing:0.3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.2;">${t.name}</div>
+            <div style="display:flex; align-items:center; gap:14px; margin-top:5px; flex-wrap:wrap;">
+              ${organiserLabel ? `<span style="font-size:12px; color:rgba(255,255,255,0.42); font-family:'Inter',sans-serif; display:flex; align-items:center; gap:4px;"><span style="opacity:0.6;">👤</span> ${organiserLabel}</span>` : ''}
+              <span style="font-size:12px; color:rgba(255,255,255,0.32); font-family:'Inter',sans-serif;">📅 ${fmtDate(t.startDate)} → ${fmtDate(t.endDate)}</span>
+            </div>
+          </div>
+
+          <!-- Chevron -->
+          <div style="color:rgba(110,231,183,0.35); font-size:22px; font-weight:300; flex-shrink:0;">›</div>
+        </div>`;
+      }).join('');
+    }
+
 
     let liveMatchesUnsubscribe = null;
     window._liveMatchCache = {};
@@ -12374,8 +12473,14 @@
 
       let totalMatches = t.matches ? t.matches.length : 0;
       let totalTeams = t.teams ? t.teams.length : 0;
-      let startDateStr = t.startDate ? t.startDate : 'N/A';
-      let endDateStr = t.endDate ? t.endDate : 'N/A';
+      let fmtTdDate = (d) => {
+        if (!d) return 'N/A';
+        let dt = new Date(d);
+        if (isNaN(dt)) return d;
+        return dt.getDate().toString().padStart(2, '0') + '-' + dt.toLocaleString('en-US', { month: 'short' }) + '-' + dt.getFullYear().toString().substr(-2);
+      };
+      let startDateStr = fmtTdDate(t.startDate);
+      let endDateStr = fmtTdDate(t.endDate);
 
       let headerHtml = `
         <div style="position:absolute; top:12px; left:16px; color:#94a3b8; font-size:14px; cursor:pointer; font-weight:500;" onclick="goBack()">← Back</div>
