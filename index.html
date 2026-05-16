@@ -13912,7 +13912,8 @@
 
     let batsmanStats = {}, bowlerStats = {}, totalRuns = 0, totalWickets = 0, ballCount = 0, innings = 1, target = 0;
     let winShown = false;
-    let outBatsmen = [];
+    let outBatsmen = [], matchCommentary = [];
+
 
     function startMatch() {
       let t1 = (batTeam.value || "").replace(/\\'/g, "'"), t2 = (bowlTeam.value || "").replace(/\\'/g, "'");
@@ -14054,8 +14055,13 @@
     function processRun(r, shotType, wagonZone) {
       if (r === 4 || r === 6) showEventPopup('boundary', { runs: r });
       let s = strike.value, b = bowler.value;
+      if (!s || s === "") { alert("Please select a striker first!"); return; }
+      if (!batsmanStats[s]) batsmanStats[s] = { runs: 0, balls: 0, fours: 0, sixes: 0 };
+      if (!bowlerStats[b]) bowlerStats[b] = { runs: 0, balls: 0, wickets: 0, dots: 0, fours: 0, sixes: 0, wides: 0, noballs: 0 };
+
       totalRuns += r; ballCount++;
       batsmanStats[s].runs += r; batsmanStats[s].balls++;
+
       if (r == 4) batsmanStats[s].fours++;
       if (r == 6) batsmanStats[s].sixes++;
       bowlerStats[b].runs += r; bowlerStats[b].balls++;
@@ -14403,11 +14409,35 @@
           // Last ball wicket: first ask striker/non-striker, then bowler
           setTimeout(openStrikerSelectPopup, 300);
         }
+      } else {
+        // Middle of over wicket: Just select new batsman
+        setTimeout(openNewBatsmanPopup, 300);
       }
+
 
       updateScore(); updateTables();
       updateLiveScore();
     }
+
+    function openNewBatsmanPopup() {
+      let newSel = document.getElementById('newBatsmanSelect');
+      newSel.innerHTML = '<option value="">Select New Batsman</option>';
+      batPlayers.forEach(p => {
+        if (outBatsmen.indexOf(p) === -1 && p !== nonstrike.value) {
+          newSel.innerHTML += '<option value="' + p + '">' + p + '</option>';
+        }
+      });
+      document.getElementById('newBatsmanOverlay').classList.add('open');
+    }
+
+    function confirmNewBatsman() {
+      let newPlayer = document.getElementById('newBatsmanSelect').value;
+      if (!newPlayer) return alert("Select a player!");
+      strike.value = newPlayer;
+      document.getElementById('newBatsmanOverlay').classList.remove('open');
+      updateLiveScore();
+    }
+
 
     // Striker select popup after over-end wicket
     function openStrikerSelectPopup() {
@@ -15369,6 +15399,21 @@
       </div>
       <button onclick="document.getElementById('wicketRunsOverlay').classList.remove('open')"
         style="width:100%;margin-top:14px;padding:11px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#6b7280;font-family:'Rajdhani',sans-serif;font-size:14px;cursor:pointer;">Cancel</button>
+    </div>
+  </div>
+  
+  <!-- New Batsman Select Popup (middle-over wicket) -->
+  <div class="extra-popup-overlay" id="newBatsmanOverlay">
+    <div class="extra-popup-box">
+      <div class="extra-popup-title">🏏 New Batsman</div>
+      <div class="extra-popup-subtitle">Select the incoming batsman</div>
+      <div style="margin-bottom:16px;">
+        <select id="newBatsmanSelect"
+          style="width:100%;padding:12px 14px;background:#1e293b;border:1px solid rgba(110,231,183,0.3);border-radius:10px;color:#e5e7eb;font-family:'Inter',sans-serif;font-size:15px;box-sizing:border-box;outline:none;color-scheme:dark;"></select>
+      </div>
+      <button onclick="confirmNewBatsman()"
+        style="width:100%;padding:13px;background:linear-gradient(135deg,#16a34a,#15803d);border:none;border-radius:10px;color:white;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">✅
+        Confirm Batsman</button>
     </div>
   </div>
 
