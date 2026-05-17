@@ -11148,6 +11148,10 @@
         let oversStr = inn.overs;
         if (typeof inn.overs === 'number') oversStr = Math.floor(inn.overs / 6) + "." + (inn.overs % 6);
 
+        // Calculate Extras: total runs minus runs scored by all batsmen
+        let batRunsSum = (inn.batsmen || []).reduce((sum, b) => sum + (parseInt(b.runs) || 0), 0);
+        let extras = Math.max(0, (parseInt(inn.runs) || 0) - batRunsSum);
+
         return `
           <div class="premium-card" style="margin-bottom: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px;">
             <div onclick="const d = document.getElementById('innDetails_${title.replace(/\s+/g, '')}'); d.style.display = d.style.display === 'none' ? 'block' : 'none'" 
@@ -11173,6 +11177,16 @@
                         <td style="text-align:right; color:#94a3b8; padding-right:10px;">${b.sr}</td>
                       </tr>
                     `).join('')}
+                    <!-- Extras Row -->
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.05); background:rgba(255,255,255,0.02);">
+                      <td style="padding:10px; color:#94a3b8; font-weight:600;">Extras</td>
+                      <td colspan="5" style="text-align:right; color:#f8fafc; font-weight:700; padding-right:10px;">${extras}</td>
+                    </tr>
+                    <!-- Total Row -->
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.1); background:rgba(110,231,183,0.05);">
+                      <td style="padding:10px; color:#6ee7b7; font-weight:700;">Total</td>
+                      <td colspan="5" style="text-align:right; color:#6ee7b7; font-weight:800; padding-right:10px;">${inn.runs}/${inn.wickets} <span style="font-weight:500; font-size:12px; color:rgba(255,255,255,0.6);">(${oversStr} Ov)</span></td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
@@ -11380,16 +11394,59 @@
           stats.filter(s => s.innings == 1 && s.match_type === 'bat'),
           stats.filter(s => s.innings == 1 && s.match_type === 'bowl')
         );
+        if (innings1Data) {
+          if (matchResult && matchResult.t1_score != null) {
+            innings1Data.runs = parseInt(matchResult.t1_score);
+            if (matchResult.t1_wickets != null) innings1Data.wickets = parseInt(matchResult.t1_wickets);
+          } else if (found && found.score1 != null) {
+            innings1Data.runs = parseInt(found.score1);
+            if (found.wickets1 != null) innings1Data.wickets = parseInt(found.wickets1);
+          }
+        }
+
         const innings2Data = calcInnings(
           stats.filter(s => s.innings == 2 && s.match_type === 'bat'),
           stats.filter(s => s.innings == 2 && s.match_type === 'bowl')
         );
+        if (innings2Data) {
+          if (matchResult && matchResult.t2_score != null) {
+            innings2Data.runs = parseInt(matchResult.t2_score);
+            if (matchResult.t2_wickets != null) innings2Data.wickets = parseInt(matchResult.t2_wickets);
+          } else if (found && found.score2 != null) {
+            innings2Data.runs = parseInt(found.score2);
+            if (found.wickets2 != null) innings2Data.wickets = parseInt(found.wickets2);
+          }
+        }
 
         // Step 6: Determine best available winner/loser/margin info
         const winner = matchResult ? matchResult.winner : (found ? found.team1 : 'Unknown');
         const loser = matchResult ? matchResult.loser : (found ? found.team2 : 'Unknown');
         const margin = matchResult ? matchResult.margin : (found ? found.result || 'Match Completed' : 'Match Completed');
-        const seriesName = matchResult ? (matchResult.win_type || 'Tournament') : 'Tournament';
+        const formatDate = (ds) => {
+          if (!ds) return '';
+          if (typeof ds === 'string' && isNaN(Date.parse(ds)) && ds.includes(' ')) return ds;
+          try {
+            const d = new Date(ds);
+            if (isNaN(d.getTime())) return ds;
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear().toString().slice(-2)}`;
+          } catch (e) {
+            return ds;
+          }
+        };
+
+        // Fetch real tournament name from tournaments list as fallback
+        let tournamentName = 'Tournament';
+        try {
+          const tRes = await fetch(API + "/all-tournaments");
+          if (tRes.ok) {
+            const tournaments = await tRes.json();
+            const currentT = tournaments.find(t => t.id == tournamentId);
+            if (currentT) tournamentName = currentT.name;
+          }
+        } catch (te) { }
+
+        const seriesName = matchResult ? (matchResult.series_name || tournamentName || matchResult.win_type || 'Tournament') : (tournamentName || 'Tournament');
 
         // Step 7: Build innings fallback from match_results score columns or found data
         const inn1Fallback = innings1Data || (matchResult && matchResult.t1_score != null ? {
@@ -11408,12 +11465,27 @@
           overs: found.overs2 || '0.0', batsmen: [], bowlers: []
         } : null));
 
+        let calculatedTotalOvers = 10;
+        if (inn1Fallback && inn1Fallback.overs) {
+          let ov = parseFloat(inn1Fallback.overs);
+          if (ov > 0) {
+            calculatedTotalOvers = (ov % 1 === 0) ? ov : Math.ceil(ov);
+          }
+        } else if (inn2Fallback && inn2Fallback.overs) {
+          let ov = parseFloat(inn2Fallback.overs);
+          if (ov > 0) {
+            calculatedTotalOvers = (ov % 1 === 0) ? ov : Math.ceil(ov);
+          }
+        }
+
         const matchData = {
           id: matchId, tournamentId,
           batTeam: winner, bowlTeam: loser,
           status: 'finished',
           seriesName,
-          matchDate: matchResult ? matchResult.played_on : (found ? found.match_date : ''),
+          totalOvers: calculatedTotalOvers,
+          organiser: matchResult ? matchResult.organiser : '',
+          matchDate: matchResult ? formatDate(matchResult.played_on) : (found ? formatDate(found.match_date) : ''),
           ground: 'KCP CRICKET GROUND',
           matchStatus: (margin && String(margin).includes('won')) ? margin : (winner + ' won by ' + margin),
           tossInfo: matchResult ? (matchResult.toss_info || '') : '',
@@ -11613,16 +11685,87 @@
         };
 
         let innings1Data = calcInnings(i1Bat, i1Bowl);
+        if (innings1Data) {
+          if (finalSummary && finalSummary.t1_score != null) {
+            innings1Data.runs = parseInt(finalSummary.t1_score);
+            if (finalSummary.t1_wickets != null) innings1Data.wickets = parseInt(finalSummary.t1_wickets);
+          }
+        }
+
         let innings2Data = calcInnings(i2Bat, i2Bowl);
+        if (innings2Data) {
+          if (finalSummary && finalSummary.t2_score != null) {
+            innings2Data.runs = parseInt(finalSummary.t2_score);
+            if (finalSummary.t2_wickets != null) innings2Data.wickets = parseInt(finalSummary.t2_wickets);
+          }
+        }
+
+        const formatDate = (ds) => {
+          if (!ds) return '';
+          if (typeof ds === 'string' && isNaN(Date.parse(ds)) && ds.includes(' ')) return ds;
+          try {
+            const d = new Date(ds);
+            if (isNaN(d.getTime())) return ds;
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear().toString().slice(-2)}`;
+          } catch (e) {
+            return ds;
+          }
+        };
+
+        const inn1Fallback = innings1Data || (finalSummary.t1_score != null ? {
+          batTeam: finalSummary.winner,
+          runs: finalSummary.t1_score,
+          wickets: 0,
+          overs: finalSummary.t1_overs || '0.0',
+          batsmen: [], bowlers: []
+        } : null);
+
+        const inn2Fallback = innings2Data || (finalSummary.t2_score != null ? {
+          batTeam: finalSummary.loser,
+          runs: finalSummary.t2_score,
+          wickets: 0,
+          overs: finalSummary.t2_overs || '0.0',
+          batsmen: [], bowlers: []
+        } : null);
+
+        let calculatedTotalOvers = 10;
+        if (inn1Fallback && inn1Fallback.overs) {
+          let ov = parseFloat(inn1Fallback.overs);
+          if (ov > 0) {
+            calculatedTotalOvers = (ov % 1 === 0) ? ov : Math.ceil(ov);
+          }
+        } else if (inn2Fallback && inn2Fallback.overs) {
+          let ov = parseFloat(inn2Fallback.overs);
+          if (ov > 0) {
+            calculatedTotalOvers = (ov % 1 === 0) ? ov : Math.ceil(ov);
+          }
+        }
+
+        // Fetch real tournament name from tournaments list as fallback
+        let tournamentName = 'Tournament';
+        let lookupTId = tId || (finalSummary ? finalSummary.tournament_id : null);
+        if (lookupTId) {
+          try {
+            const tRes = await fetch(API + "/all-tournaments");
+            if (tRes.ok) {
+              const tournaments = await tRes.json();
+              const currentT = tournaments.find(t => t.id == lookupTId);
+              if (currentT) tournamentName = currentT.name;
+            }
+          } catch (te) { }
+        }
 
         let matchData = {
           id: matchId,
-          tournamentId: tId,
+          tournamentId: lookupTId,
           batTeam: finalSummary.winner,
           bowlTeam: finalSummary.loser,
           status: 'finished',
-          seriesName: finalSummary.win_type || 'Tournament',
-          matchDate: finalSummary.played_on,
+          seriesName: finalSummary.series_name || tournamentName || finalSummary.win_type || 'Tournament',
+          totalOvers: calculatedTotalOvers,
+          organiser: finalSummary ? finalSummary.organiser : '',
+          matchDate: finalSummary ? formatDate(finalSummary.played_on) : '',
           ground: 'KCP CRICKET GROUND',
           matchStatus: (finalSummary.margin && String(finalSummary.margin).includes('won')) ? finalSummary.margin : (finalSummary.winner + ' won by ' + finalSummary.margin),
           tossInfo: finalSummary.toss_info || '',
@@ -11630,21 +11773,8 @@
           loser: finalSummary.loser,
           winType: finalSummary.win_type,
           margin: finalSummary.margin,
-          // Use player_stats innings if available, else fall back to t1_score/t2_score summary columns
-          innings1: innings1Data || (finalSummary.t1_score != null ? {
-            batTeam: finalSummary.winner,
-            runs: finalSummary.t1_score,
-            wickets: 0,
-            overs: finalSummary.t1_overs || '0.0',
-            batsmen: [], bowlers: []
-          } : null),
-          innings2: innings2Data || (finalSummary.t2_score != null ? {
-            batTeam: finalSummary.loser,
-            runs: finalSummary.t2_score,
-            wickets: 0,
-            overs: finalSummary.t2_overs || '0.0',
-            batsmen: [], bowlers: []
-          } : null),
+          innings1: inn1Fallback,
+          innings2: inn2Fallback,
           innings: innings2Data ? 2 : (innings1Data ? 1 : (finalSummary.t2_score != null ? 2 : 1)),
           runs: innings2Data ? innings2Data.runs : (innings1Data ? innings1Data.runs : (finalSummary.t2_score || finalSummary.t1_score || 0)),
           wickets: innings2Data ? innings2Data.wickets : (innings1Data ? innings1Data.wickets : 0),
@@ -14591,6 +14721,7 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             winner, loser, win_type: winType, margin, played_on: today, organiser,
+            series_name: typeof seriesName !== 'undefined' ? seriesName : null,
             commentary: JSON.stringify(matchCommentary),
             match_id: tournamentMatchId || null,
             tournament_id: tournamentId || (currentViewingTournament ? currentViewingTournament.id : null),
