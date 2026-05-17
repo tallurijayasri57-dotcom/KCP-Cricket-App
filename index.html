@@ -2624,10 +2624,14 @@
     /* Profile Tabs */
     .profile-tabs-nav {
       display: flex;
-      background: #ffffff;
-      border-bottom: 1px solid #e2e8f0;
+      background: rgba(30, 41, 59, 0.4);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       overflow-x: auto;
       padding: 0 10px;
+      scrollbar-width: none; /* Hide scrollbar on Firefox */
+    }
+    .profile-tabs-nav::-webkit-scrollbar {
+      display: none; /* Hide scrollbar on Chrome/Safari */
     }
 
     .profile-tab-btn {
@@ -2636,7 +2640,7 @@
       border: none;
       font-size: 13px;
       font-weight: 600;
-      color: #64748b;
+      color: #94a3b8;
       cursor: pointer;
       white-space: nowrap;
       border-bottom: 2px solid transparent;
@@ -2644,12 +2648,12 @@
     }
 
     .profile-tab-btn:hover {
-      color: #0f172a;
+      color: #ffffff;
     }
 
     .profile-tab-btn.active {
-      color: #0f172a;
-      border-bottom-color: #0f172a;
+      color: #6ee7b7;
+      border-bottom-color: #6ee7b7;
     }
 
     .profile-tab-content-area {
@@ -2673,11 +2677,11 @@
     }
 
     .pm-card {
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
+      background: rgba(30, 41, 59, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
       padding: 16px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      backdrop-filter: blur(4px);
     }
 
     .pm-card-header {
@@ -2685,7 +2689,7 @@
       justify-content: space-between;
       margin-bottom: 12px;
       font-size: 11px;
-      color: #64748b;
+      color: #94a3b8;
     }
 
     .pm-badge-past {
@@ -2700,7 +2704,7 @@
     .pm-tourney-name {
       text-transform: uppercase;
       font-weight: 600;
-      color: #475569;
+      color: #6ee7b7;
       margin-bottom: 8px;
       font-size: 12px;
     }
@@ -2715,12 +2719,12 @@
 
     .pm-team-name {
       font-weight: 700;
-      color: #1e293b;
+      color: #f8fafc;
     }
 
     .pm-team-score {
       font-weight: 700;
-      color: #0d9488;
+      color: #6ee7b7;
     }
 
     .pm-team-score-loser {
@@ -2737,9 +2741,9 @@
     .pm-result {
       margin-top: 12px;
       font-size: 12px;
-      color: #64748b;
+      color: #cbd5e1;
       padding-top: 10px;
-      border-top: 1px solid #f1f5f9;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .pm-load-more {
@@ -2764,9 +2768,9 @@
       grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
       gap: 15px;
       padding: 15px;
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
+      background: rgba(30, 41, 59, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
       margin-bottom: 20px;
     }
 
@@ -2885,7 +2889,7 @@
     .profile-stat-lbl {
       font-family: 'Inter', sans-serif;
       font-size: 10px;
-      color: #4b5563;
+      color: #94a3b8;
       text-transform: uppercase;
       letter-spacing: 1px;
       margin-top: 4px;
@@ -2897,7 +2901,7 @@
       font-weight: 600;
       letter-spacing: 2px;
       text-transform: uppercase;
-      color: #4b5563;
+      color: #cbd5e1;
       margin-bottom: 10px;
     }
 
@@ -2922,7 +2926,7 @@
     .profile-no-matches {
       font-family: 'Inter', sans-serif;
       font-size: 13px;
-      color: #374151;
+      color: #94a3b8;
       text-align: center;
       padding: 16px 0;
     }
@@ -2946,6 +2950,51 @@
     .profile-close-btn:hover {
       background: rgba(255, 255, 255, 0.1);
       color: #e5e7eb;
+    }
+
+    /* Mobile-First Premium Responsive Profile Alignment */
+    @media (max-width: 768px) {
+      .profile-banner {
+        padding: 20px 16px !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 16px !important;
+        min-height: auto !important;
+      }
+      .profile-header-left {
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+        gap: 12px !important;
+        width: 100%;
+      }
+      .profile-header-left button.profile-close-btn {
+        margin-right: 0 !important;
+        width: 100% !important;
+        max-width: 120px !important;
+      }
+      .profile-info-block {
+        align-items: center !important;
+        text-align: center !important;
+        width: 100%;
+      }
+      .profile-styles {
+        justify-content: center !important;
+        width: 100%;
+      }
+      .profile-header-right {
+        justify-content: center !important;
+        gap: 8px !important;
+        width: 100%;
+      }
+      .profile-header-right > div {
+        flex: 1 !important;
+        min-width: 0 !important;
+        padding: 10px 8px !important;
+      }
+      .profile-header-right div[id*="profileTotal"] {
+        font-size: 20px !important;
+      }
     }
 
     .btn-profile {
