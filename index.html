@@ -943,6 +943,74 @@
       }
     }
 
+    /* Premium MVP Tab Styling */
+    .mvp-stats-grid {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    .mvp-stat-box {
+      text-align: left;
+    }
+    .mvp-stat-lbl {
+      color: #94a3b8;
+      font-size: 11px;
+      margin-bottom: 2px;
+      font-weight: 500;
+    }
+    .mvp-stat-val {
+      font-weight: 600;
+      color: #f8fafc;
+    }
+    .mvp-math-operator {
+      font-weight: 600;
+      color: #475569;
+    }
+    .mvp-total-val {
+      font-weight: 800;
+      color: #38bdf8;
+    }
+
+    /* Mobile Responsive MVP & Layout Overrides */
+    @media (max-width: 500px) {
+      .mvp-header-row {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+      }
+      .mvp-stats-grid {
+        flex-wrap: wrap !important;
+        gap: 6px 8px !important;
+        font-size: 11px !important;
+      }
+      .mvp-stat-box {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        background: rgba(255, 255, 255, 0.04);
+        padding: 2px 6px;
+        border-radius: 4px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+      .mvp-stat-lbl {
+        margin-bottom: 0;
+        font-size: 9px;
+        text-transform: uppercase;
+      }
+      .mvp-stat-val {
+        font-size: 10.5px;
+      }
+      .mvp-math-operator {
+        display: none !important;
+      }
+      .mvp-stat-box.mvp-total-box {
+        background: rgba(56, 189, 248, 0.1);
+        border-color: rgba(56, 189, 248, 0.25);
+      }
+    }
+
     /* Commentary */
     .comm-item {
       border-bottom: 1px solid #f1f5f9;
@@ -10405,9 +10473,9 @@
 
       let html = `
         <div class="premium-card" style="padding:20px; background:rgba(30,41,59,0.5); border:1px solid rgba(255,255,255,0.1);">
-          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:16px; margin-bottom:16px;">
+          <div class="mvp-header-row" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:16px; margin-bottom:16px;">
             <div style="font-size:18px; color:#f8fafc; display:flex; align-items:center; gap:8px;">
-              MVP (Most Valuable Player)
+              MVP <span style="font-size:12px; color:rgba(255,255,255,0.4);">(Most Valuable Player)</span>
               <span style="background:rgba(255,255,255,0.1); border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:12px; color:#94a3b8; font-weight:bold;">?</span>
             </div>
             <div style="color:#2dd4bf; font-weight:600; font-size:14px; cursor:pointer;">Export Leaderboard</div>
@@ -10432,25 +10500,25 @@
                 <div style="font-size:16px; font-weight:700; color:#ffffff; margin-bottom:4px;">
                   ${p.name} <span style="font-weight:400; color:#94a3b8; font-size:13px;">(${p.team})</span>
                 </div>
-                <div style="display:flex; gap:12px; font-size:12px; color:#94a3b8; align-items:center;">
-                  <div>
-                    <div style="color:#94a3b8; margin-bottom:2px;">Batting</div>
-                    <div style="font-weight:600; color:#f8fafc;">${batPts.toFixed(3)}</div>
+                <div class="mvp-stats-grid">
+                  <div class="mvp-stat-box">
+                    <div class="mvp-stat-lbl">Batting</div>
+                    <div class="mvp-stat-val">${batPts.toFixed(3)}</div>
                   </div>
-                  <div style="font-weight:600; color:#475569;">+</div>
-                  <div>
-                    <div style="color:#94a3b8; margin-bottom:2px;">Bowling</div>
-                    <div style="font-weight:600; color:#f8fafc;">${bowlPts.toFixed(3)}</div>
+                  <div class="mvp-math-operator">+</div>
+                  <div class="mvp-stat-box">
+                    <div class="mvp-stat-lbl">Bowling</div>
+                    <div class="mvp-stat-val">${bowlPts.toFixed(3)}</div>
                   </div>
-                  <div style="font-weight:600; color:#475569;">+</div>
-                  <div>
-                    <div style="color:#94a3b8; margin-bottom:2px;">Fielding</div>
-                    <div style="font-weight:600; color:#f8fafc;">${fieldPts.toFixed(3)}</div>
+                  <div class="mvp-math-operator">+</div>
+                  <div class="mvp-stat-box">
+                    <div class="mvp-stat-lbl">Fielding</div>
+                    <div class="mvp-stat-val">${fieldPts.toFixed(3)}</div>
                   </div>
-                  <div style="font-weight:600; color:#475569;">=</div>
-                  <div>
-                    <div style="color:#94a3b8; margin-bottom:2px;">Total</div>
-                    <div style="font-weight:700; color:#38bdf8;">${p.pts.toFixed(3)}</div>
+                  <div class="mvp-math-operator">=</div>
+                  <div class="mvp-stat-box mvp-total-box">
+                    <div class="mvp-stat-lbl" style="color: #38bdf8;">Total</div>
+                    <div class="mvp-stat-val mvp-total-val">${p.pts.toFixed(3)}</div>
                   </div>
                 </div>
               </div>
@@ -10580,7 +10648,7 @@
 
       // UI Template - Professional Long Dashboard
       container.innerHTML = `
-        <div class="analysis-scroll-container" style="max-height: 80vh; overflow-y: auto; padding: 10px; background: #0f172a; border-radius:12px;">
+        <div class="analysis-scroll-container" style="padding: 0; background: transparent; border-radius: 0;">
            
            <!-- 1. Manhattan Chart Section -->
            <div class="premium-card-v2">
@@ -11155,8 +11223,8 @@
         contentHtml += `
           <div class="premium-card" style="margin-bottom:16px;">
             <div style="font-weight:700; color:#f8fafc; padding:16px; font-size:18px; border-bottom:1px solid rgba(255,255,255,0.08);">Match Key Performances</div>
-            <div style="overflow-x:auto;">
-              <table class="sc-table" style="min-width:320px; table-layout:fixed; width:100%;">
+            <div style="overflow-x:auto; padding: 0 16px 16px 16px;">
+              <table class="sc-table" style="width:100%;">
                 <thead><tr style="background:rgba(255,255,255,0.03);"><th style="text-align:left; width:40%;">Batters</th><th style="text-align:center;">R</th><th style="text-align:center;">B</th><th style="text-align:center;">4s</th><th style="text-align:center;">6s</th><th style="text-align:center;">SR</th></tr></thead>
                 <tbody>
                   ${bestBatsmen.map(p => {
@@ -11170,8 +11238,8 @@
                 </tbody>
               </table>
             </div>
-            <div style="overflow-x:auto; margin-top:0px;">
-              <table class="sc-table" style="min-width:320px; table-layout:fixed; width:100%;">
+            <div style="overflow-x:auto; padding: 0 16px 16px 16px; margin-top:10px;">
+              <table class="sc-table" style="width:100%;">
                 <thead><tr style="background:rgba(255,255,255,0.03);"><th style="text-align:left; width:40%;">Bowlers</th><th style="text-align:center;">O</th><th style="text-align:center;">M</th><th style="text-align:center;">R</th><th style="text-align:center;">W</th><th style="text-align:center;">Eco</th></tr></thead>
                 <tbody>
                   ${bestBowlers.map(p => {
@@ -11212,7 +11280,7 @@
               </div>
             </div>
             <div id="innDetails_${title.replace(/\s+/g, '')}" style="display:${isOpen ? 'block' : 'none'};">
-              <div style="overflow-x: auto;">
+              <div style="overflow-x: auto; padding: 0 16px 16px 16px;">
                 <table class="sc-table" style="width:100%; border-collapse:collapse;">
                   <thead><tr style="border-bottom:1px solid rgba(255,255,255,0.1);"><th style="text-align:left; padding:10px; color:#94a3b8;">Batters</th><th style="padding:10px;">R</th><th style="padding:10px;">B</th><th style="padding:10px;">4s</th><th style="padding:10px;">6s</th><th style="padding:10px; text-align:right;">SR</th></tr></thead>
                   <tbody>
@@ -11239,7 +11307,7 @@
                   </tbody>
                 </table>
               </div>
-              <div style="overflow-x: auto;">
+              <div style="overflow-x: auto; padding: 0 16px 16px 16px;">
                 <table class="sc-table" style="width:100%; border-collapse:collapse; margin-top:15px;">
                   <thead><tr style="border-bottom:1px solid rgba(255,255,255,0.1);"><th style="text-align:left; padding:10px; color:#94a3b8;">Bowlers</th><th style="padding:10px;">O</th><th style="padding:10px;">M</th><th style="padding:10px;">R</th><th style="padding:10px;">W</th><th style="padding:10px; text-align:right;">Eco</th></tr></thead>
                   <tbody>
