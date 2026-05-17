@@ -11050,16 +11050,23 @@
         players.sort((a, b) => {
           let aName = (a.player_name || a.name || '').toLowerCase().trim();
           let bName = (b.player_name || b.name || '').toLowerCase().trim();
+          let aIsKcpCap = (aName === 'gopi' && (teamName || '').toLowerCase().trim().includes('rehaman')) ||
+                          (aName.includes('leela sagar') && (teamName || '').toLowerCase().trim().includes('sagar'));
+          let bIsKcpCap = (bName === 'gopi' && (teamName || '').toLowerCase().trim().includes('rehaman')) ||
+                          (bName.includes('leela sagar') && (teamName || '').toLowerCase().trim().includes('sagar'));
+
           let aCap = (capClean && aName === capClean) || 
                      ((a.role || '').toLowerCase().trim() === 'captain') || 
                      a.isCaptain ||
                      (mCap1 && aName === mCap1) ||
-                     (mCap2 && aName === mCap2);
+                     (mCap2 && aName === mCap2) ||
+                     aIsKcpCap;
           let bCap = (capClean && bName === capClean) || 
                      ((b.role || '').toLowerCase().trim() === 'captain') || 
                      b.isCaptain ||
                      (mCap1 && bName === mCap1) ||
-                     (mCap2 && bName === mCap2);
+                     (mCap2 && bName === mCap2) ||
+                     bIsKcpCap;
           if (aCap && !bCap) return -1;
           if (!aCap && bCap) return 1;
           return 0;
@@ -11069,11 +11076,15 @@
         html += `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(100px, 1fr)); gap:12px; margin-bottom:20px;">`;
         players.forEach(p => {
           let pName = p.player_name || p.name;
+          let isKcpCap = ((pName || '').toLowerCase().trim() === 'gopi' && (teamName || '').toLowerCase().trim().includes('rehaman')) ||
+                         ((pName || '').toLowerCase().trim().includes('leela sagar') && (teamName || '').toLowerCase().trim().includes('sagar'));
+
           let isCaptain = (capClean && (pName || '').toLowerCase().trim() === capClean) || 
                           ((p.role || '').toLowerCase().trim() === 'captain') || 
                           p.isCaptain ||
                           (mCap1 && (pName || '').toLowerCase().trim() === mCap1) ||
-                          (mCap2 && (pName || '').toLowerCase().trim() === mCap2);
+                          (mCap2 && (pName || '').toLowerCase().trim() === mCap2) ||
+                          isKcpCap;
           let photoSrc = p.photo_url || p.photo || localStorage.getItem("userPhoto_" + pName) || '';
           let photoHtml = photoSrc ? `<img src="${photoSrc}" style="width:100%; height:100%; object-fit:cover;">` : '';
 
