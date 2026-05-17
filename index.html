@@ -9632,9 +9632,27 @@
         }
       }
 
+      let cap1 = null;
+      let cap2 = null;
+      try {
+        let tid = actualTournamentId || currentTournamentId;
+        if (tid) {
+          let tours = loadTournaments();
+          let t = tours.find(x => x.id == tid);
+          if (t && t.teams) {
+            let t1Obj = t.teams.find(team => (team.name || '').toLowerCase().trim() === (matchBatTeam || '').toLowerCase().trim());
+            let t2Obj = t.teams.find(team => (team.name || '').toLowerCase().trim() === (matchBowlTeam || '').toLowerCase().trim());
+            if (t1Obj) cap1 = t1Obj.captain;
+            if (t2Obj) cap2 = t2Obj.captain;
+          }
+        }
+      } catch (e) { console.warn("Save state captain resolve failed:", e); }
+
       let matchState = {
         id: currentLiveMatchId,
         tournamentId: actualTournamentId,
+        captain1: cap1,
+        captain2: cap2,
         organiser: localStorage.getItem('currentUser'),
         batTeam: matchBatTeam,
         bowlTeam: matchBowlTeam,
@@ -11026,11 +11044,22 @@
         }
 
         let capClean = (captainName || '').toLowerCase().trim();
+        let mCap1 = (m.captain1 || '').toLowerCase().trim();
+        let mCap2 = (m.captain2 || '').toLowerCase().trim();
+
         players.sort((a, b) => {
           let aName = (a.player_name || a.name || '').toLowerCase().trim();
           let bName = (b.player_name || b.name || '').toLowerCase().trim();
-          let aCap = (capClean && aName === capClean) || ((a.role || '').toLowerCase() === 'captain') || a.isCaptain;
-          let bCap = (capClean && bName === capClean) || ((b.role || '').toLowerCase() === 'captain') || b.isCaptain;
+          let aCap = (capClean && aName === capClean) || 
+                     ((a.role || '').toLowerCase().trim() === 'captain') || 
+                     a.isCaptain ||
+                     (mCap1 && aName === mCap1) ||
+                     (mCap2 && aName === mCap2);
+          let bCap = (capClean && bName === capClean) || 
+                     ((b.role || '').toLowerCase().trim() === 'captain') || 
+                     b.isCaptain ||
+                     (mCap1 && bName === mCap1) ||
+                     (mCap2 && bName === mCap2);
           if (aCap && !bCap) return -1;
           if (!aCap && bCap) return 1;
           return 0;
@@ -11040,7 +11069,11 @@
         html += `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(100px, 1fr)); gap:12px; margin-bottom:20px;">`;
         players.forEach(p => {
           let pName = p.player_name || p.name;
-          let isCaptain = (capClean && (pName || '').toLowerCase().trim() === capClean) || ((p.role || '').toLowerCase() === 'captain') || p.isCaptain;
+          let isCaptain = (capClean && (pName || '').toLowerCase().trim() === capClean) || 
+                          ((p.role || '').toLowerCase().trim() === 'captain') || 
+                          p.isCaptain ||
+                          (mCap1 && (pName || '').toLowerCase().trim() === mCap1) ||
+                          (mCap2 && (pName || '').toLowerCase().trim() === mCap2);
           let photoSrc = p.photo_url || p.photo || localStorage.getItem("userPhoto_" + pName) || '';
           let photoHtml = photoSrc ? `<img src="${photoSrc}" style="width:100%; height:100%; object-fit:cover;">` : '';
 
@@ -11135,9 +11168,9 @@
       }).filter(html => html.length > 0).join(`<span style="margin: 0 6px; color: #cbd5e1; font-weight: 800; font-size: 16px;">|</span>`);
 
       let html = `
-        <div class="premium-card" style="margin-bottom: 16px;">
-          <div style="overflow-x: auto;">
-            <table class="sc-table" style="min-width:320px;">
+        <div class="premium-card" style="margin-bottom: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;">
+          <div style="overflow-x: auto; padding: 16px 16px 0 16px;">
+            <table class="sc-table" style="width:100%; border-collapse:collapse;">
               <thead><tr style="background:rgba(255,255,255,0.03);"><th>Batters</th><th style="flex:1;"></th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead>
               <tbody>
                 ${activeBatsmen.map((b, idx) => `
@@ -11152,8 +11185,8 @@
           </div>
 
           ${activeBowlers.length > 0 ? `
-          <div style="overflow-x: auto; margin-top: 16px;">
-            <table class="sc-table" style="min-width:320px;">
+          <div style="overflow-x: auto; padding: 0 16px 16px 16px; margin-top: 16px;">
+            <table class="sc-table" style="width:100%; border-collapse:collapse;">
               <thead><tr style="background:rgba(255,255,255,0.03);"><th>Bowlers</th><th style="flex:1;"></th><th>O</th><th>M</th><th>R</th><th>W</th><th>Eco</th></tr></thead>
               <tbody>
                 ${activeBowlers.map((b, idx) => `
@@ -11873,9 +11906,27 @@
           } catch (te) { }
         }
 
+        let cap1 = null, cap2 = null;
+        if (lookupTId) {
+          try {
+            const tTeamsRes = await fetch(API + '/tournament-teams/' + lookupTId);
+            if (tTeamsRes.ok) {
+              const tTeams = await tTeamsRes.json();
+              const searchBat = (finalSummary.winner || '').toLowerCase().trim();
+              const searchBowl = (finalSummary.loser || '').toLowerCase().trim();
+              const t1 = (tTeams || []).find(t => (t.team_name || '').toLowerCase().trim() === searchBat);
+              const t2 = (tTeams || []).find(t => (t.team_name || '').toLowerCase().trim() === searchBowl);
+              if (t1) cap1 = t1.captain;
+              if (t2) cap2 = t2.captain;
+            }
+          } catch(e) {}
+        }
+
         let matchData = {
           id: matchId,
           tournamentId: lookupTId,
+          captain1: cap1,
+          captain2: cap2,
           batTeam: finalSummary.winner,
           bowlTeam: finalSummary.loser,
           status: 'finished',
