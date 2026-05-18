@@ -13970,6 +13970,57 @@
         const res = await fetch(API + "/player-match-history/" + encodeURIComponent(playerName), { cache: "no-store" });
         const rows = await res.json();
 
+        // --- INJECT CURRENT LIVE MATCH STATS IF NOT IN DB ---
+        if (typeof previousLiveMatchState !== 'undefined' && previousLiveMatchState) {
+          let cm = previousLiveMatchState;
+          let pNameSearch = playerName.toLowerCase().trim();
+          let pStats = [];
+          
+          let extractStats = (batsmen, bowlers, innName, batTeam, bowlTeam) => {
+            if(batsmen) {
+               let bat = batsmen.find(b => (b.name||b.player_name||'').toLowerCase().trim() === pNameSearch);
+               if(bat) pStats.push({ match_type: 'bat', runs: bat.runs, balls_faced: bat.balls, fours: bat.fours, sixes: bat.sixes, dismissal_type: bat.isOut ? 'out' : 'not out', innings: innName, team_name: batTeam });
+            }
+            if(bowlers) {
+               let bowl = bowlers.find(b => (b.name||b.player_name||'').toLowerCase().trim() === pNameSearch);
+               if(bowl) pStats.push({ match_type: 'bowl', wickets: bowl.wickets, overs_bowled: bowl.overs, runs_conceded: bowl.runs, innings: innName, team_name: bowlTeam });
+            }
+          };
+
+          if(cm.innings1 && cm.innings2) {
+             extractStats(cm.innings1.batsmen, cm.innings1.bowlers, 1, cm.innings1.batTeam, cm.innings1.bowlTeam);
+             extractStats(cm.innings2.batsmen, cm.innings2.bowlers, 2, cm.innings2.batTeam, cm.innings2.bowlTeam);
+          } else {
+             extractStats(cm.batsmen, cm.bowlers, 1, cm.batTeam, cm.bowlTeam);
+          }
+
+          if (pStats.length > 0) {
+            let existing = rows.find(r => r.match_id == cm.id || r.tournament_match_id == cm.id);
+            if (!existing) {
+              rows.unshift({
+                match_id: cm.id,
+                tournament_id: cm.tournament_id || cm.tournamentId,
+                tournament_name: cm.tournament_name || "LEAGUE MATCH",
+                match_date: cm.match_date || new Date().toISOString().split('T')[0],
+                winner: cm.winner,
+                loser: cm.loser || (cm.winner === cm.batTeam ? cm.bowlTeam : cm.batTeam),
+                margin: cm.matchStatus || cm.margin,
+                win_type: 'won',
+                t1_name: cm.innings1 ? cm.innings1.batTeam : cm.batTeam,
+                t1_score: cm.innings1 ? cm.innings1.runs : cm.runs,
+                t1_overs: cm.innings1 ? cm.innings1.overs : cm.overs,
+                t1_wickets: cm.innings1 ? cm.innings1.wickets : cm.wickets,
+                t2_name: cm.innings2 ? cm.innings2.batTeam : cm.bowlTeam,
+                t2_score: cm.innings2 ? cm.innings2.runs : 0,
+                t2_overs: cm.innings2 ? cm.innings2.overs : 0,
+                t2_wickets: cm.innings2 ? cm.innings2.wickets : 0,
+                player_stats: pStats
+              });
+            }
+          }
+        }
+        // ----------------------------------------------------
+
         // Top Banner Stats (Calculated from aggregated performance data)
         // Note: For banner stats, we need individual performance rows.
         // I will fetch them separately or calculate from rows.
