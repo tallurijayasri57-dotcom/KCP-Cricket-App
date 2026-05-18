@@ -13976,6 +13976,15 @@
         window.registeredProfileTeams = await teamsRes.json();
       } catch (e) { console.warn("Failed to fetch player teams", e); }
 
+      // --- INJECT CURRENT TEAM IF NOT IN DB ---
+      if (teamName && teamName.trim() !== '') {
+         let existingTeam = window.registeredProfileTeams.find(t => t.team_name === teamName);
+         if (!existingTeam) {
+            window.registeredProfileTeams.push({ team_name: teamName });
+         }
+      }
+      // ----------------------------------------
+
       try {
         await fetch(API + "/player-profile", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ player_name: playerName, team_name: teamName, role: role, runs: 0 }) });
         const res = await fetch(API + "/player-match-history/" + encodeURIComponent(playerName), { cache: "no-store" });
