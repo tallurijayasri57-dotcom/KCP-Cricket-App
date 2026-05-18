@@ -5674,7 +5674,8 @@
       <!-- GALLERY VIEW -->
       <div id="tdView-gallery" style="display:none;">
         <div id="tdGalleryContainer">
-          <div style="text-align:center;padding:40px;color:rgba(255,255,255,0.4);font-size:14px;">Loading gallery...</div>
+          <div style="text-align:center;padding:40px;color:rgba(255,255,255,0.4);font-size:14px;">Loading gallery...
+          </div>
         </div>
       </div>
 
@@ -10425,7 +10426,7 @@
       if (m.innings1) {
         (m.innings1.batsmen || []).forEach(b => { allBatsmen.push({ ...b, team: m.innings1.batTeam }); });
         (m.innings1.bowlers || []).forEach(b => { allBowlers.push({ ...b, team: m.innings1.batTeam === m.batTeam ? m.bowlTeam : m.batTeam }); });
-        
+
         if (m.innings2) {
           (m.innings2.batsmen || []).forEach(b => { allBatsmen.push({ ...b, team: m.innings2.batTeam }); });
           (m.innings2.bowlers || []).forEach(b => { allBowlers.push({ ...b, team: m.innings2.batTeam === m.batTeam ? m.bowlTeam : m.batTeam }); });
@@ -14869,10 +14870,10 @@
       } else if (dismissalType === "Run Out" && dismissedBy) {
         if (!bowlerStats[dismissedBy]) bowlerStats[dismissedBy] = { runs: 0, balls: 0, wickets: 0, catches: 0, run_outs: 0, stumpings: 0 };
         bowlerStats[dismissedBy].run_outs = (bowlerStats[dismissedBy].run_outs || 0) + 1;
-        
+
         if (dismissedBy2 && dismissedBy2 !== dismissedBy) {
-           if (!bowlerStats[dismissedBy2]) bowlerStats[dismissedBy2] = { runs: 0, balls: 0, wickets: 0, catches: 0, run_outs: 0, stumpings: 0 };
-           bowlerStats[dismissedBy2].run_outs = (bowlerStats[dismissedBy2].run_outs || 0) + 1;
+          if (!bowlerStats[dismissedBy2]) bowlerStats[dismissedBy2] = { runs: 0, balls: 0, wickets: 0, catches: 0, run_outs: 0, stumpings: 0 };
+          bowlerStats[dismissedBy2].run_outs = (bowlerStats[dismissedBy2].run_outs || 0) + 1;
         }
       } else if (dismissalType === "Stumped" && dismissedBy) {
         if (!bowlerStats[dismissedBy]) bowlerStats[dismissedBy] = { runs: 0, balls: 0, wickets: 0, catches: 0, run_outs: 0, stumpings: 0 };
