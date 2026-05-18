@@ -16051,6 +16051,80 @@
       }
     });
 
+    // GLOBAL SWIPE TO SWITCH TABS
+    (function() {
+      let swipeStartX = 0;
+      let swipeStartY = 0;
+
+      document.addEventListener('touchstart', function(e) {
+        if (e.changedTouches && e.changedTouches.length > 0) {
+          swipeStartX = e.changedTouches[0].screenX;
+          swipeStartY = e.changedTouches[0].screenY;
+        }
+      }, {passive: true});
+
+      document.addEventListener('touchend', function(e) {
+        if (!e.changedTouches || e.changedTouches.length === 0) return;
+        const page = document.getElementById('globalScorecardPage');
+
+        const swipeEndX = e.changedTouches[0].screenX;
+        const swipeEndY = e.changedTouches[0].screenY;
+        
+        const diffX = swipeStartX - swipeEndX;
+        const diffY = swipeStartY - swipeEndY;
+
+        if (Math.abs(diffX) > 60 && Math.abs(diffX) > Math.abs(diffY) * 1.5) {
+          
+          let isScrollable = false;
+          let target = e.target;
+          while (target && target !== document.body) {
+            const style = window.getComputedStyle(target);
+            if (style.overflowX === 'auto' || style.overflowX === 'scroll' || target.tagName === 'CANVAS' || target.tagName === 'INPUT') {
+              isScrollable = true;
+              break;
+            }
+            target = target.parentNode;
+          }
+
+          if (isScrollable) return;
+
+          // Find the tabs depending on which page is active
+          let tabsNav = document.querySelector('.match-tabs-nav');
+          let tabClass = '.match-tab-link';
+          
+          if (!page || page.style.display === 'none') {
+            // Check if live match page is visible instead
+            const livePage = document.getElementById('liveMatchPage');
+            if (livePage && livePage.style.display !== 'none') {
+              tabsNav = document.querySelector('.mt-tabs-container');
+              tabClass = '.mt-tab';
+            } else {
+              return; // Neither page is active
+            }
+          }
+
+          if (!tabsNav) return;
+          
+          const tabs = Array.from(tabsNav.querySelectorAll(tabClass));
+          if (tabs.length === 0) return;
+
+          const activeIndex = tabs.findIndex(t => t.classList.contains('active'));
+          if (activeIndex === -1) return;
+
+          if (diffX > 0) {
+            if (activeIndex < tabs.length - 1) {
+              tabs[activeIndex + 1].click();
+              tabs[activeIndex + 1].scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'center'});
+            }
+          } else {
+            if (activeIndex > 0) {
+              tabs[activeIndex - 1].click();
+              tabs[activeIndex - 1].scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'center'});
+            }
+          }
+        }
+      }, {passive: true});
+    })();
   </script>
   <div class="extra-popup-overlay" id="widePopupOverlay">
     <div class="extra-popup-box">
