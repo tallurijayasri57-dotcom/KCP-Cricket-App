@@ -907,6 +907,7 @@
     @media (max-width: 680px) {
       .sc-table {
         font-size: 11px;
+        min-width: 480px;
       }
 
       .sc-table th {
@@ -923,8 +924,8 @@
 
       /* Truncate long player names with ellipsis */
       .sc-table .name-cell {
-        max-width: 90px;
-        min-width: 70px;
+        max-width: 140px;
+        min-width: 90px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -939,7 +940,7 @@
       .sc-table td:not(.name-cell):not(.out-desc-cell),
       .sc-table th:not(:first-child) {
         text-align: center;
-        min-width: 22px;
+        min-width: 32px;
       }
     }
 
@@ -11342,10 +11343,15 @@
             Current Partnership: <span style="font-weight:600; color:rgba(255,255,255,0.6);">${pRuns}(${pBalls})</span>
           </div>
 
-          <div style="padding:12px 16px; border-top:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
-            <span style="font-weight:800; color:rgba(255,255,255,0.5); font-size:12px; letter-spacing:1px; text-transform:uppercase;">RECENT :</span>
-            <div style="display:flex; align-items:center;">
-              ${recentHtml}
+          <div style="padding:12px 16px; border-top:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; gap:8px; justify-content:space-between;">
+            <span style="font-weight:800; color:rgba(255,255,255,0.5); font-size:12px; letter-spacing:1px; text-transform:uppercase; flex-shrink:0;">RECENT :</span>
+            <div class="recent-balls-scroll-container" style="display:flex; align-items:center; overflow-x:auto; -webkit-overflow-scrolling:touch; white-space:nowrap; padding-bottom:2px; flex:1; scrollbar-width:none; -ms-overflow-style:none;">
+              <style>
+                .recent-balls-scroll-container::-webkit-scrollbar { display: none; }
+              </style>
+              <div style="display:inline-flex; align-items:center; white-space:nowrap;">
+                ${recentHtml}
+              </div>
             </div>
           </div>
         </div>
