@@ -951,23 +951,28 @@
       font-size: 12px;
       color: #94a3b8;
     }
+
     .mvp-stat-box {
       text-align: left;
     }
+
     .mvp-stat-lbl {
       color: #94a3b8;
       font-size: 11px;
       margin-bottom: 2px;
       font-weight: 500;
     }
+
     .mvp-stat-val {
       font-weight: 600;
       color: #f8fafc;
     }
+
     .mvp-math-operator {
       font-weight: 600;
       color: #475569;
     }
+
     .mvp-total-val {
       font-weight: 800;
       color: #38bdf8;
@@ -980,11 +985,13 @@
         align-items: flex-start !important;
         gap: 10px !important;
       }
+
       .mvp-stats-grid {
         flex-wrap: wrap !important;
         gap: 6px 8px !important;
         font-size: 11px !important;
       }
+
       .mvp-stat-box {
         display: flex;
         align-items: center;
@@ -994,17 +1001,21 @@
         border-radius: 4px;
         border: 1px solid rgba(255, 255, 255, 0.05);
       }
+
       .mvp-stat-lbl {
         margin-bottom: 0;
         font-size: 9px;
         text-transform: uppercase;
       }
+
       .mvp-stat-val {
         font-size: 10.5px;
       }
+
       .mvp-math-operator {
         display: none !important;
       }
+
       .mvp-stat-box.mvp-total-box {
         background: rgba(56, 189, 248, 0.1);
         border-color: rgba(56, 189, 248, 0.25);
@@ -2696,10 +2707,13 @@
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       overflow-x: auto;
       padding: 0 10px;
-      scrollbar-width: none; /* Hide scrollbar on Firefox */
+      scrollbar-width: none;
+      /* Hide scrollbar on Firefox */
     }
+
     .profile-tabs-nav::-webkit-scrollbar {
-      display: none; /* Hide scrollbar on Chrome/Safari */
+      display: none;
+      /* Hide scrollbar on Chrome/Safari */
     }
 
     .profile-tab-btn {
@@ -3029,6 +3043,7 @@
         gap: 16px !important;
         min-height: auto !important;
       }
+
       .profile-header-left {
         flex-direction: column !important;
         align-items: center !important;
@@ -3036,30 +3051,36 @@
         gap: 12px !important;
         width: 100%;
       }
+
       .profile-header-left button.profile-close-btn {
         margin-right: 0 !important;
         width: 100% !important;
         max-width: 120px !important;
       }
+
       .profile-info-block {
         align-items: center !important;
         text-align: center !important;
         width: 100%;
       }
+
       .profile-styles {
         justify-content: center !important;
         width: 100%;
       }
+
       .profile-header-right {
         justify-content: center !important;
         gap: 8px !important;
         width: 100%;
       }
-      .profile-header-right > div {
+
+      .profile-header-right>div {
         flex: 1 !important;
         min-width: 0 !important;
         padding: 10px 8px !important;
       }
+
       .profile-header-right div[id*="profileTotal"] {
         font-size: 20px !important;
       }
@@ -9692,6 +9713,9 @@
           sixes: bowlerStats[name].sixes || 0,
           wides: bowlerStats[name].wides || 0,
           noballs: bowlerStats[name].noballs || 0,
+          catches: bowlerStats[name].catches || 0,
+          run_outs: bowlerStats[name].run_outs || 0,
+          stumpings: bowlerStats[name].stumpings || 0,
           eco: bowlerStats[name].balls > 0 ? ((bowlerStats[name].runs / (bowlerStats[name].balls / 6))).toFixed(2) : "0.00",
           isCurrent: name === document.getElementById('bowler').value
         })),
@@ -9733,6 +9757,7 @@
             return {
               name: name, overs: formatOvers(s.balls || 0),
               maidens: s.maidens || 0, runs: s.runs, wickets: s.wickets,
+              catches: s.catches || 0, run_outs: s.run_outs || 0, stumpings: s.stumpings || 0,
               eco: s.balls > 0 ? ((s.runs / (s.balls / 6))).toFixed(2) : "0.00"
             };
           }),
@@ -11051,22 +11076,22 @@
           let aName = (a.player_name || a.name || '').toLowerCase().trim();
           let bName = (b.player_name || b.name || '').toLowerCase().trim();
           let aIsKcpCap = (aName === 'gopi' && (teamName || '').toLowerCase().trim().includes('rehaman')) ||
-                          (aName.includes('leela sagar') && (teamName || '').toLowerCase().trim().includes('sagar'));
+            (aName.includes('leela sagar') && (teamName || '').toLowerCase().trim().includes('sagar'));
           let bIsKcpCap = (bName === 'gopi' && (teamName || '').toLowerCase().trim().includes('rehaman')) ||
-                          (bName.includes('leela sagar') && (teamName || '').toLowerCase().trim().includes('sagar'));
+            (bName.includes('leela sagar') && (teamName || '').toLowerCase().trim().includes('sagar'));
 
-          let aCap = (capClean && aName === capClean) || 
-                     ((a.role || '').toLowerCase().trim() === 'captain') || 
-                     a.isCaptain ||
-                     (mCap1 && aName === mCap1) ||
-                     (mCap2 && aName === mCap2) ||
-                     aIsKcpCap;
-          let bCap = (capClean && bName === capClean) || 
-                     ((b.role || '').toLowerCase().trim() === 'captain') || 
-                     b.isCaptain ||
-                     (mCap1 && bName === mCap1) ||
-                     (mCap2 && bName === mCap2) ||
-                     bIsKcpCap;
+          let aCap = (capClean && aName === capClean) ||
+            ((a.role || '').toLowerCase().trim() === 'captain') ||
+            a.isCaptain ||
+            (mCap1 && aName === mCap1) ||
+            (mCap2 && aName === mCap2) ||
+            aIsKcpCap;
+          let bCap = (capClean && bName === capClean) ||
+            ((b.role || '').toLowerCase().trim() === 'captain') ||
+            b.isCaptain ||
+            (mCap1 && bName === mCap1) ||
+            (mCap2 && bName === mCap2) ||
+            bIsKcpCap;
           if (aCap && !bCap) return -1;
           if (!aCap && bCap) return 1;
           return 0;
@@ -11077,14 +11102,14 @@
         players.forEach(p => {
           let pName = p.player_name || p.name;
           let isKcpCap = ((pName || '').toLowerCase().trim() === 'gopi' && (teamName || '').toLowerCase().trim().includes('rehaman')) ||
-                         ((pName || '').toLowerCase().trim().includes('leela sagar') && (teamName || '').toLowerCase().trim().includes('sagar'));
+            ((pName || '').toLowerCase().trim().includes('leela sagar') && (teamName || '').toLowerCase().trim().includes('sagar'));
 
-          let isCaptain = (capClean && (pName || '').toLowerCase().trim() === capClean) || 
-                          ((p.role || '').toLowerCase().trim() === 'captain') || 
-                          p.isCaptain ||
-                          (mCap1 && (pName || '').toLowerCase().trim() === mCap1) ||
-                          (mCap2 && (pName || '').toLowerCase().trim() === mCap2) ||
-                          isKcpCap;
+          let isCaptain = (capClean && (pName || '').toLowerCase().trim() === capClean) ||
+            ((p.role || '').toLowerCase().trim() === 'captain') ||
+            p.isCaptain ||
+            (mCap1 && (pName || '').toLowerCase().trim() === mCap1) ||
+            (mCap2 && (pName || '').toLowerCase().trim() === mCap2) ||
+            isKcpCap;
           let photoSrc = p.photo_url || p.photo || localStorage.getItem("userPhoto_" + pName) || '';
           let photoHtml = photoSrc ? `<img src="${photoSrc}" style="width:100%; height:100%; object-fit:cover;">` : '';
 
@@ -11446,9 +11471,9 @@
 
     async function openTournamentMatchScorecard(tournamentId, matchId, status) {
       if (typeof previousLiveMatchState !== 'undefined' && previousLiveMatchState && (previousLiveMatchState.id == matchId || previousLiveMatchState.tournament_match_id == matchId)) {
-         showPage('matchDetailsPage');
-         renderPremiumMatchView(previousLiveMatchState);
-         return;
+        showPage('matchDetailsPage');
+        renderPremiumMatchView(previousLiveMatchState);
+        return;
       }
 
       currentTournamentMatchIdx = matchId;
@@ -11675,9 +11700,9 @@
 
     async function openMatchScorecardByMatchId(matchId, status) {
       if (typeof previousLiveMatchState !== 'undefined' && previousLiveMatchState && (previousLiveMatchState.id == matchId || previousLiveMatchState.tournament_match_id == matchId)) {
-         showPage('matchDetailsPage');
-         renderPremiumMatchView(previousLiveMatchState);
-         return;
+        showPage('matchDetailsPage');
+        renderPremiumMatchView(previousLiveMatchState);
+        return;
       }
 
       showPage('matchDetailsPage');
@@ -11941,7 +11966,7 @@
               if (t1) cap1 = t1.captain;
               if (t2) cap2 = t2.captain;
             }
-          } catch(e) {}
+          } catch (e) { }
         }
 
         let matchData = {
@@ -13978,10 +14003,10 @@
 
       // --- INJECT CURRENT TEAM IF NOT IN DB ---
       if (teamName && teamName.trim() !== '') {
-         let existingTeam = window.registeredProfileTeams.find(t => t.team_name === teamName);
-         if (!existingTeam) {
-            window.registeredProfileTeams.push({ team_name: teamName });
-         }
+        let existingTeam = window.registeredProfileTeams.find(t => t.team_name === teamName);
+        if (!existingTeam) {
+          window.registeredProfileTeams.push({ team_name: teamName });
+        }
       }
       // ----------------------------------------
 
@@ -13995,23 +14020,23 @@
           let cm = previousLiveMatchState;
           let pNameSearch = playerName.toLowerCase().trim();
           let pStats = [];
-          
+
           let extractStats = (batsmen, bowlers, innName, batTeam, bowlTeam) => {
-            if(batsmen) {
-               let bat = batsmen.find(b => (b.name||b.player_name||'').toLowerCase().trim() === pNameSearch);
-               if(bat) pStats.push({ match_type: 'bat', runs: bat.runs, balls_faced: bat.balls, fours: bat.fours, sixes: bat.sixes, dismissal_type: bat.isOut ? 'out' : 'not out', innings: innName, team_name: batTeam });
+            if (batsmen) {
+              let bat = batsmen.find(b => (b.name || b.player_name || '').toLowerCase().trim() === pNameSearch);
+              if (bat) pStats.push({ match_type: 'bat', runs: bat.runs, balls_faced: bat.balls, fours: bat.fours, sixes: bat.sixes, dismissal_type: bat.isOut ? 'out' : 'not out', innings: innName, team_name: batTeam });
             }
-            if(bowlers) {
-               let bowl = bowlers.find(b => (b.name||b.player_name||'').toLowerCase().trim() === pNameSearch);
-               if(bowl) pStats.push({ match_type: 'bowl', wickets: bowl.wickets, overs_bowled: bowl.overs, runs_conceded: bowl.runs, innings: innName, team_name: bowlTeam });
+            if (bowlers) {
+              let bowl = bowlers.find(b => (b.name || b.player_name || '').toLowerCase().trim() === pNameSearch);
+              if (bowl) pStats.push({ match_type: 'bowl', wickets: bowl.wickets, overs_bowled: bowl.overs, runs_conceded: bowl.runs, innings: innName, team_name: bowlTeam });
             }
           };
 
-          if(cm.innings1 && cm.innings2) {
-             extractStats(cm.innings1.batsmen, cm.innings1.bowlers, 1, cm.innings1.batTeam, cm.innings1.bowlTeam);
-             extractStats(cm.innings2.batsmen, cm.innings2.bowlers, 2, cm.innings2.batTeam, cm.innings2.bowlTeam);
+          if (cm.innings1 && cm.innings2) {
+            extractStats(cm.innings1.batsmen, cm.innings1.bowlers, 1, cm.innings1.batTeam, cm.innings1.bowlTeam);
+            extractStats(cm.innings2.batsmen, cm.innings2.bowlers, 2, cm.innings2.batTeam, cm.innings2.bowlTeam);
           } else {
-             extractStats(cm.batsmen, cm.bowlers, 1, cm.batTeam, cm.bowlTeam);
+            extractStats(cm.batsmen, cm.bowlers, 1, cm.batTeam, cm.bowlTeam);
           }
 
           if (pStats.length > 0) {
@@ -15782,7 +15807,7 @@
         style="width:100%;margin-top:14px;padding:11px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#6b7280;font-family:'Rajdhani',sans-serif;font-size:14px;cursor:pointer;">Cancel</button>
     </div>
   </div>
-  
+
   <!-- New Batsman Select Popup (middle-over wicket) -->
   <div class="extra-popup-overlay" id="newBatsmanOverlay">
     <div class="extra-popup-box">
