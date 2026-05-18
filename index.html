@@ -4746,9 +4746,6 @@
           <button class="dots-menu-item nav-action"
             style="color:#374151; padding:12px 20px; font-size:15px; text-transform:none; text-align:left;"
             onclick="openOrganiserAdmin()">Organiser Admin</button>
-          <button class="dots-menu-item nav-action"
-            style="color:#0d9488; padding:12px 20px; font-size:15px; text-transform:none; text-align:left; font-weight:600;"
-            onclick="syncAllPlayerProfilesToFirebaseBtn()">Sync All Profiles to Cloud</button>
           <button class="dots-menu-item"
             style="color:#ef4444; padding:12px 20px; font-size:15px; text-transform:none; text-align:left;"
             onclick="deleteAccount()">Delete Account</button>
@@ -8404,6 +8401,11 @@
       document.getElementById('newPlayerRoleInEdit').value = '';
       renderEditTeamPlayersListFromSQL(tName);
 
+      // Sync player profile to Firebase in background automatically
+      if (typeof syncPlayerProfileToFirebase === 'function') {
+        syncPlayerProfileToFirebase(name).catch(err => console.warn("Background sync error:", err));
+      }
+
       // Refresh teams list to update player count
       if (document.getElementById('tournamentTeamsPage').style.display === 'flex' || document.getElementById('tournamentTeamsPage').style.display === 'block') {
         renderTeamsList();
@@ -9282,6 +9284,11 @@
 
       // Sync with SSMS
       syncPlayerToSSMS(teamName, pname, role, batStyle, bowlStyle);
+
+      // Sync player profile to Firebase in background automatically
+      if (typeof syncPlayerProfileToFirebase === 'function') {
+        syncPlayerProfileToFirebase(pname).catch(err => console.warn("Background sync error:", err));
+      }
 
       closeAddPlayerModal();
       renderMtTeams();
@@ -14113,86 +14120,7 @@
       }
     }
 
-    async function syncAllPlayerProfilesToFirebaseBtn() {
-      document.getElementById('dotsDropdown').classList.remove('open');
-      if (!confirm("Are you sure you want to sync all player profiles to the Cloud database (Firebase)? This ensures that all viewer links are 100% up-to-date.")) return;
-      
-      const overlay = document.createElement("div");
-      overlay.style.position = "fixed";
-      overlay.style.top = "0";
-      overlay.style.left = "0";
-      overlay.style.width = "100%";
-      overlay.style.height = "100%";
-      overlay.style.background = "rgba(11,15,26,0.95)";
-      overlay.style.color = "#6ee7b7";
-      overlay.style.display = "flex";
-      overlay.style.flexDirection = "column";
-      overlay.style.alignItems = "center";
-      overlay.style.justifyContent = "center";
-      overlay.style.zIndex = "99999";
-      overlay.style.fontFamily = "'Rajdhani', sans-serif";
-      overlay.innerHTML = `
-        <div style="font-size:36px; font-weight:700; margin-bottom:12px; animation: pulse 1.5s infinite;">CLOUD SYNC ACTIVE</div>
-        <div id="syncProgressText" style="font-size:18px; color:#ffffff; font-family:'Inter', sans-serif; margin-bottom:24px;">Fetching player list...</div>
-        <div style="width:250px; height:8px; background:rgba(255,255,255,0.1); border-radius:4px; overflow:hidden; border:1px solid rgba(110,231,183,0.2);">
-          <div id="syncProgressBar" style="width:0%; height:100%; background:linear-gradient(90deg, #10b981, #6ee7b7); transition:width 0.2s;"></div>
-        </div>
-      `;
-      
-      if (!document.getElementById("syncPulseStyle")) {
-        const style = document.createElement("style");
-        style.id = "syncPulseStyle";
-        style.innerText = `
-          @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(1.02); }
-          }
-        `;
-        document.head.appendChild(style);
-      }
-      
-      document.body.appendChild(overlay);
-      
-      try {
-        const res = await fetch(API + "/player-profile");
-        const players = await res.json();
-        
-        let uniqueNames = [...new Set(players.map(p => (p.player_name || "").trim()).filter(n => n !== ""))];
-        let total = uniqueNames.length;
-        if (total === 0) {
-          overlay.innerHTML = `<div style="font-size:24px; color:#ef4444;">No player profiles found to sync!</div>`;
-          setTimeout(() => overlay.remove(), 2500);
-          return;
-        }
-        
-        let successCount = 0;
-        for (let i = 0; i < total; i++) {
-          let name = uniqueNames[i];
-          document.getElementById("syncProgressText").innerText = `Syncing player ${i + 1}/${total}: ${name}`;
-          document.getElementById("syncProgressBar").style.width = `${((i + 1) / total) * 100}%`;
-          
-          try {
-            await syncPlayerProfileToFirebase(name);
-            successCount++;
-          } catch (err) {
-            console.error(`Failed to sync player: ${name}`, err);
-          }
-        }
-        
-        overlay.innerHTML = `
-          <div style="font-size:36px; font-weight:700; color:#10b981; margin-bottom:12px;">✓ SYNC COMPLETE</div>
-          <div style="font-size:18px; color:#ffffff; font-family:'Inter', sans-serif; margin-bottom:24px;">Successfully synced ${successCount} player profiles to Firebase!</div>
-          <button onclick="this.parentElement.remove()" style="background:#10b981; color:#0f172a; border:none; padding:12px 32px; border-radius:8px; font-family:'Rajdhani', sans-serif; font-size:16px; font-weight:700; cursor:pointer; letter-spacing:0.5px;">DONE</button>
-        `;
-      } catch (e) {
-        console.error(e);
-        overlay.innerHTML = `
-          <div style="font-size:28px; color:#ef4444; margin-bottom:12px;">Sync Failed</div>
-          <div style="font-size:16px; color:#ffffff; font-family:'Inter', sans-serif; margin-bottom:24px;">${e.message}</div>
-          <button onclick="this.parentElement.remove()" style="background:#ef4444; color:#ffffff; border:none; padding:12px 32px; border-radius:8px; font-family:'Rajdhani', sans-serif; font-size:16px; font-weight:700; cursor:pointer;">CLOSE</button>
-        `;
-      }
-    }
+
 
     async function openPlayerProfile(playerName, teamName, role) {
       if (document.getElementById("allPlayersModal")) document.getElementById("allPlayersModal").classList.remove("open");
