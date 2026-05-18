@@ -10488,7 +10488,9 @@
       allBatsmen.forEach(bat => {
         if (bat.outDesc) {
           let desc = bat.outDesc.toLowerCase();
-          if (desc.includes(" b ") || desc.startsWith("b ") || desc.includes("lbw")) {
+          let isBowled = desc.includes("bowled") || (desc.includes(" b ") && !desc.includes("c ") && !desc.includes("st ")) || desc.startsWith("b ");
+          let isLbw = desc.includes("lbw");
+          if (isBowled || isLbw) {
             allBowlers.forEach(bowl => {
               if (desc.includes(bowl.name.toLowerCase())) {
                 bowl.bowlingPoints += 0.15;
@@ -10681,11 +10683,11 @@
 
           if (p.outDesc || p.dismissal_type) {
             let d = String(p.outDesc || p.dismissal_type).toLowerCase();
-            if (d.includes('b ') || d.startsWith('b ') || d === 'bowled') dismissals['Bowled']++;
-            else if (d.includes('caught')) dismissals['Caught']++;
+            if (d.includes('run out')) dismissals['Run Out']++;
+            else if (d.includes('caught') || d.startsWith('c ')) dismissals['Caught']++;
             else if (d.includes('lbw')) dismissals['LBW']++;
-            else if (d.includes('run out')) dismissals['Run Out']++;
-            else if (d.includes('stumped')) dismissals['Stumped']++;
+            else if (d.includes('stumped') || d.startsWith('st ')) dismissals['Stumped']++;
+            else if (d.includes('bowled') || (d.includes(' b ') && !d.includes('c ') && !d.includes('st ')) || d.startsWith('b ')) dismissals['Bowled']++;
             else if (d !== 'not out' && d !== '') dismissals['Others']++;
           }
           topBatsmen.push({ name: p.name, runs: runs, team: inn.batTeam || 'Team' });
