@@ -6757,7 +6757,8 @@
             organiser: t.organiser || null,
             ball_type: t.ball || null,
             start_date: t.startDate || null,
-            end_date: t.endDate || null
+            end_date: t.endDate || null,
+            logo: t.logo || null
           })
         });
 
@@ -7606,9 +7607,11 @@
           body: JSON.stringify({
             name: t.name,
             created_by: user,
+            organiser: t.organiser || null,
             ball_type: t.ball || t.ballType || null,
             start_date: t.startDate || null,
-            end_date: t.endDate || null
+            end_date: t.endDate || null,
+            logo: t.logo || null
           })
         });
         const tData = await tRes.json();
@@ -10976,7 +10979,8 @@
     }
 
     async function renderPremiumGalleryTab(m, container) {
-      if (!m.tournamentId) {
+      let tid = m.tournament_id || m.tournamentId || (typeof currentViewingTournament !== 'undefined' && currentViewingTournament ? currentViewingTournament.id : null);
+      if (!tid) {
         container.innerHTML = `
           <div class="premium-card" style="padding:40px; text-align:center;">
             <div style="font-size:48px; margin-bottom:16px;">📸</div>
@@ -11000,7 +11004,7 @@
       `;
 
       try {
-        const res = await fetch(API + '/tournament-gallery/' + m.tournamentId);
+        const res = await fetch(API + '/tournament-gallery/' + tid);
         const photos = await res.json();
         const grid = document.getElementById('premiumGalleryGrid');
         if (photos.length === 0) {
@@ -13613,12 +13617,7 @@
           ? `<img src="${orgPhoto}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid rgba(110,231,183,0.5);" alt="Organiser">`
           : `<div style="width:36px;height:36px;border-radius:50%;background:rgba(110,231,183,0.15);display:flex;align-items:center;justify-content:center;font-size:16px;">👤</div>`;
         return `
-      <div class="my-card" onclick="openTournamentDetailsBySQL(${t.id})" style="cursor:pointer; position:relative;">
-
-        <div class="tourney-badge-premium">Premium</div>
-        <div style="position:absolute;top:12px;right:12px;display:flex;align-items:center;gap:8px;z-index:2;">
-          ${orgPhotoHtml}
-        </div>
+      <div class="my-card" onclick="openTournamentDetailsBySQL(${t.id})" style="cursor:pointer;">
         <div class="tourney-card">
           <div class="tourney-img">
             ${t.logo
