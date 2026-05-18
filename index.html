@@ -10407,16 +10407,20 @@
       let allBatsmen = [];
       let allBowlers = [];
 
-      (m.batsmen || []).forEach(b => { allBatsmen.push({ ...b, team: m.batTeam }); });
-      (m.bowlers || []).forEach(b => { allBowlers.push({ ...b, team: m.bowlTeam }); });
-
       if (m.innings1) {
         (m.innings1.batsmen || []).forEach(b => { allBatsmen.push({ ...b, team: m.innings1.batTeam }); });
-        (m.innings1.bowlers || []).forEach(b => { allBowlers.push({ ...b, team: m.innings1.batTeam === m.batTeam ? m.bowlTeam : m.batTeam }); }); // Bowlers are usually opponent team
-      }
-      if (m.innings2) {
-        (m.innings2.batsmen || []).forEach(b => { allBatsmen.push({ ...b, team: m.innings2.batTeam }); });
-        (m.innings2.bowlers || []).forEach(b => { allBowlers.push({ ...b, team: m.innings2.batTeam === m.batTeam ? m.bowlTeam : m.batTeam }); });
+        (m.innings1.bowlers || []).forEach(b => { allBowlers.push({ ...b, team: m.innings1.batTeam === m.batTeam ? m.bowlTeam : m.batTeam }); });
+        
+        if (m.innings2) {
+          (m.innings2.batsmen || []).forEach(b => { allBatsmen.push({ ...b, team: m.innings2.batTeam }); });
+          (m.innings2.bowlers || []).forEach(b => { allBowlers.push({ ...b, team: m.innings2.batTeam === m.batTeam ? m.bowlTeam : m.batTeam }); });
+        } else {
+          (m.batsmen || []).forEach(b => { allBatsmen.push({ ...b, team: m.batTeam }); });
+          (m.bowlers || []).forEach(b => { allBowlers.push({ ...b, team: m.bowlTeam }); });
+        }
+      } else {
+        (m.batsmen || []).forEach(b => { allBatsmen.push({ ...b, team: m.batTeam }); });
+        (m.bowlers || []).forEach(b => { allBowlers.push({ ...b, team: m.bowlTeam }); });
       }
 
       let bestBatter = null;
