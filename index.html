@@ -11207,13 +11207,12 @@
         <div class="premium-card" style="margin-bottom: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;">
           <div style="overflow-x: auto; padding: 16px 16px 0 16px;">
             <table class="sc-table" style="width:100%; border-collapse:collapse;">
-              <thead><tr style="background:rgba(255,255,255,0.03);"><th>Batters</th><th style="flex:1;"></th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead>
+              <thead><tr style="background:rgba(255,255,255,0.03);"><th style="text-align:left; width:40%;">Batters</th><th style="text-align:center;">R</th><th style="text-align:center;">B</th><th style="text-align:center;">4s</th><th style="text-align:center;">6s</th><th style="text-align:center;">SR</th></tr></thead>
               <tbody>
                 ${activeBatsmen.map((b, idx) => `
                   <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-                    <td class="name-cell" style="color:#6ee7b7; font-weight:700;">${b.name}${b.name === m.strike || (idx === 0 && !m.strike) ? '*' : ''}</td>
-                    <td></td>
-                    <td>${b.runs}</td><td>${b.balls}</td><td>${b.fours}</td><td>${b.sixes}</td><td>${b.sr}</td>
+                    <td class="name-cell" style="color:#6ee7b7; font-weight:700; text-align:left !important;">${b.name}${b.name === m.strike || (idx === 0 && !m.strike) ? '*' : ''}</td>
+                    <td style="text-align:center;">${b.runs}</td><td style="text-align:center;">${b.balls}</td><td style="text-align:center;">${b.fours}</td><td style="text-align:center;">${b.sixes}</td><td style="text-align:center;">${b.sr}</td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -11223,13 +11222,12 @@
           ${activeBowlers.length > 0 ? `
           <div style="overflow-x: auto; padding: 0 16px 16px 16px; margin-top: 16px;">
             <table class="sc-table" style="width:100%; border-collapse:collapse;">
-              <thead><tr style="background:rgba(255,255,255,0.03);"><th>Bowlers</th><th style="flex:1;"></th><th>O</th><th>M</th><th>R</th><th>W</th><th>Eco</th></tr></thead>
+              <thead><tr style="background:rgba(255,255,255,0.03);"><th style="text-align:left; width:40%;">Bowlers</th><th style="text-align:center;">O</th><th style="text-align:center;">M</th><th style="text-align:center;">R</th><th style="text-align:center;">W</th><th style="text-align:center;">Eco</th></tr></thead>
               <tbody>
                 ${activeBowlers.map((b, idx) => `
                   <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-                    <td class="name-cell" style="color:#6ee7b7; font-weight:700;">${b.name}${b.name === m.bowler || (idx === activeBowlers.length - 1 && !m.bowler) ? '*' : ''}</td>
-                    <td></td>
-                    <td>${b.overs}</td><td>${b.maidens}</td><td>${b.runs}</td><td>${b.wickets}</td><td>${b.eco}</td>
+                    <td class="name-cell" style="color:#6ee7b7; font-weight:700; text-align:left !important;">${b.name}${b.name === m.bowler || (idx === activeBowlers.length - 1 && !m.bowler) ? '*' : ''}</td>
+                    <td style="text-align:center;">${b.overs}</td><td style="text-align:center;">${b.maidens}</td><td style="text-align:center;">${b.runs}</td><td style="text-align:center;">${b.wickets}</td><td style="text-align:center;">${b.eco}</td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -11351,26 +11349,26 @@
             <div id="innDetails_${title.replace(/\s+/g, '')}" style="display:${isOpen ? 'block' : 'none'};">
               <div style="overflow-x: auto; padding: 0 16px 16px 16px;">
                 <table class="sc-table" style="width:100%; border-collapse:collapse;">
-                  <thead><tr style="border-bottom:1px solid rgba(255,255,255,0.1);"><th style="text-align:left; padding:10px; color:#94a3b8;">Batters</th><th style="padding:10px;">R</th><th style="padding:10px;">B</th><th style="padding:10px;">4s</th><th style="padding:10px;">6s</th><th style="padding:10px; text-align:right;">SR</th></tr></thead>
+                  <thead><tr style="border-bottom:1px solid rgba(255,255,255,0.1);"><th style="text-align:left; padding:10px; color:#94a3b8; width:40%;">Batters</th><th style="padding:10px; text-align:center;">R</th><th style="padding:10px; text-align:center;">B</th><th style="padding:10px; text-align:center;">4s</th><th style="padding:10px; text-align:center;">6s</th><th style="padding:10px; text-align:center;">SR</th></tr></thead>
                   <tbody>
                     ${(inn.batsmen || []).map(b => `
                       <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-                        <td style="padding:10px;"><div style="color:#f8fafc; font-weight:600;">${b.name}</div><div style="font-size:11px; color:#94a3b8;">${b.outDesc || 'not out'}</div></td>
+                        <td style="padding:10px; text-align:left !important;"><div style="color:#f8fafc; font-weight:600;">${b.name}</div><div style="font-size:11px; color:#94a3b8; margin-top:2px; line-height:1.2;">${b.outDesc || 'not out'}</div></td>
                         <td style="text-align:center; color:#f8fafc;">${b.runs}</td>
                         <td style="text-align:center; color:#94a3b8;">${b.balls}</td>
                         <td style="text-align:center; color:#94a3b8;">${b.fours}</td>
                         <td style="text-align:center; color:#94a3b8;">${b.sixes}</td>
-                        <td style="text-align:right; color:#94a3b8; padding-right:10px;">${b.sr}</td>
+                        <td style="text-align:center; color:#94a3b8; padding-right:10px;">${b.sr}</td>
                       </tr>
                     `).join('')}
                     <!-- Extras Row -->
                     <tr style="border-bottom:1px solid rgba(255,255,255,0.05); background:rgba(255,255,255,0.02);">
-                      <td style="padding:10px; color:#94a3b8; font-weight:600;">Extras</td>
+                      <td style="padding:10px; color:#94a3b8; font-weight:600; text-align:left !important;">Extras</td>
                       <td colspan="5" style="text-align:right; color:#f8fafc; font-weight:700; padding-right:10px;">${extras}</td>
                     </tr>
                     <!-- Total Row -->
                     <tr style="border-bottom:1px solid rgba(255,255,255,0.1); background:rgba(110,231,183,0.05);">
-                      <td style="padding:10px; color:#6ee7b7; font-weight:700;">Total</td>
+                      <td style="padding:10px; color:#6ee7b7; font-weight:700; text-align:left !important;">Total</td>
                       <td colspan="5" style="text-align:right; color:#6ee7b7; font-weight:800; padding-right:10px;">${inn.runs}/${inn.wickets} <span style="font-weight:500; font-size:12px; color:rgba(255,255,255,0.6);">(${oversStr} Ov)</span></td>
                     </tr>
                   </tbody>
@@ -11378,16 +11376,16 @@
               </div>
               <div style="overflow-x: auto; padding: 0 16px 16px 16px;">
                 <table class="sc-table" style="width:100%; border-collapse:collapse; margin-top:15px;">
-                  <thead><tr style="border-bottom:1px solid rgba(255,255,255,0.1);"><th style="text-align:left; padding:10px; color:#94a3b8;">Bowlers</th><th style="padding:10px;">O</th><th style="padding:10px;">M</th><th style="padding:10px;">R</th><th style="padding:10px;">W</th><th style="padding:10px; text-align:right;">Eco</th></tr></thead>
+                  <thead><tr style="border-bottom:1px solid rgba(255,255,255,0.1);"><th style="text-align:left; padding:10px; color:#94a3b8; width:40%;">Bowlers</th><th style="padding:10px; text-align:center;">O</th><th style="padding:10px; text-align:center;">M</th><th style="padding:10px; text-align:center;">R</th><th style="padding:10px; text-align:center;">W</th><th style="padding:10px; text-align:center;">Eco</th></tr></thead>
                   <tbody>
                     ${(inn.bowlers || []).map(b => `
                       <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-                        <td style="padding:10px; color:#f8fafc; font-weight:600;">${b.name}</td>
+                        <td style="padding:10px; color:#f8fafc; font-weight:600; text-align:left !important;">${b.name}</td>
                         <td style="text-align:center; color:#f8fafc;">${b.overs}</td>
                         <td style="text-align:center; color:#94a3b8;">${b.maidens || 0}</td>
                         <td style="text-align:center; color:#94a3b8;">${b.runs}</td>
                         <td style="text-align:center; color:#6ee7b7; font-weight:700;">${b.wickets}</td>
-                        <td style="text-align:right; color:#94a3b8; padding-right:10px;">${b.eco}</td>
+                        <td style="text-align:center; color:#94a3b8; padding-right:10px;">${b.eco}</td>
                       </tr>
                     `).join('')}
                   </tbody>
