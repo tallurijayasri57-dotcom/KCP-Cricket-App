@@ -4751,6 +4751,9 @@
           <button class="dots-menu-item nav-action"
             style="color:#374151; padding:12px 20px; font-size:15px; text-transform:none; text-align:left;"
             onclick="openOrganiserAdmin()">Organiser Admin</button>
+          <button class="dots-menu-item nav-action"
+            style="color:#0d9488; padding:12px 20px; font-size:15px; text-transform:none; text-align:left; font-weight:600;"
+            onclick="syncAllPlayerProfilesToFirebaseBtn()">Sync All Profiles to Cloud</button>
           <button class="dots-menu-item"
             style="color:#ef4444; padding:12px 20px; font-size:15px; text-transform:none; text-align:left;"
             onclick="deleteAccount()">Delete Account</button>
@@ -13837,6 +13840,18 @@
       }
 
       await Promise.all(saves);
+
+      // Trigger background sync to Firebase for all participating players!
+      let playersToSync = new Set();
+      for (let p in batsmanStats) playersToSync.add(p);
+      for (let p in bowlerStats) playersToSync.add(p);
+      if (inningsNum === 2 && Object.keys(innings1BatStats).length > 0) {
+        for (let p in innings1BatStats) playersToSync.add(p);
+        for (let p in innings1BowlStats) playersToSync.add(p);
+      }
+      playersToSync.forEach(p => {
+        syncPlayerProfileToFirebase(p).catch(err => console.error("Error syncing profile after match for " + p, err));
+      });
     }
 
     window.currentProfileMatches = [];
@@ -14004,9 +14019,143 @@
       return { winner, loser, margin, text: winner === "Match Tied" ? "Match Tied" : `${winner} won by ${margin}` };
     }
 
+    async function syncPlayerProfileToFirebase(playerName) {
+      if (!window.fbSetDoc || !window.fbDb) return;
+      try {
+        const rRes = await fetch(API + "/player-role/" + encodeURIComponent(playerName));
+        const rData = await rRes.json();
+        let displayRole = rData.role || "Player";
+        let batStyle = rData.batting_style || "";
+        let bowlStyle = rData.bowling_style || "";
+
+        let photoUrl = "";
+        try {
+          const photoRes = await fetch(API + "/player-photo/" + encodeURIComponent(playerName));
+          const photoData = await photoRes.json();
+          photoUrl = photoData.photo_url || "";
+        } catch (e) {}
+
+        let matchHistory = [];
+        try {
+          const res = await fetch(API + "/player-match-history/" + encodeURIComponent(playerName), { cache: "no-store" });
+          matchHistory = await res.json();
+        } catch (e) {}
+
+        let teams = [];
+        try {
+          const teamsRes = await fetch(API + "/player-teams/" + encodeURIComponent(playerName));
+          teams = await teamsRes.json();
+        } catch (e) {}
+
+        let profileData = {
+          playerName: playerName,
+          role: displayRole,
+          batting_style: batStyle,
+          bowling_style: bowlStyle,
+          photo_url: photoUrl,
+          teams: teams,
+          matchHistory: matchHistory,
+          updatedAt: new Date().toISOString()
+        };
+
+        await window.fbSetDoc(window.fbDoc(window.fbDb, "player_profiles", playerName.trim().toLowerCase()), profileData);
+        console.log("Synced player profile to Firebase:", playerName);
+      } catch (e) {
+        console.error("Error syncing player profile to Firebase:", e);
+      }
+    }
+
+    async function syncAllPlayerProfilesToFirebaseBtn() {
+      document.getElementById('dotsDropdown').classList.remove('open');
+      if (!confirm("Are you sure you want to sync all player profiles to the Cloud database (Firebase)? This ensures that all viewer links are 100% up-to-date.")) return;
+      
+      const overlay = document.createElement("div");
+      overlay.style.position = "fixed";
+      overlay.style.top = "0";
+      overlay.style.left = "0";
+      overlay.style.width = "100%";
+      overlay.style.height = "100%";
+      overlay.style.background = "rgba(11,15,26,0.95)";
+      overlay.style.color = "#6ee7b7";
+      overlay.style.display = "flex";
+      overlay.style.flexDirection = "column";
+      overlay.style.alignItems = "center";
+      overlay.style.justifyContent = "center";
+      overlay.style.zIndex = "99999";
+      overlay.style.fontFamily = "'Rajdhani', sans-serif";
+      overlay.innerHTML = `
+        <div style="font-size:36px; font-weight:700; margin-bottom:12px; animation: pulse 1.5s infinite;">CLOUD SYNC ACTIVE</div>
+        <div id="syncProgressText" style="font-size:18px; color:#ffffff; font-family:'Inter', sans-serif; margin-bottom:24px;">Fetching player list...</div>
+        <div style="width:250px; height:8px; background:rgba(255,255,255,0.1); border-radius:4px; overflow:hidden; border:1px solid rgba(110,231,183,0.2);">
+          <div id="syncProgressBar" style="width:0%; height:100%; background:linear-gradient(90deg, #10b981, #6ee7b7); transition:width 0.2s;"></div>
+        </div>
+      `;
+      
+      if (!document.getElementById("syncPulseStyle")) {
+        const style = document.createElement("style");
+        style.id = "syncPulseStyle";
+        style.innerText = `
+          @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.02); }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+      
+      document.body.appendChild(overlay);
+      
+      try {
+        const res = await fetch(API + "/player-profile");
+        const players = await res.json();
+        
+        let uniqueNames = [...new Set(players.map(p => (p.player_name || "").trim()).filter(n => n !== ""))];
+        let total = uniqueNames.length;
+        if (total === 0) {
+          overlay.innerHTML = `<div style="font-size:24px; color:#ef4444;">No player profiles found to sync!</div>`;
+          setTimeout(() => overlay.remove(), 2500);
+          return;
+        }
+        
+        let successCount = 0;
+        for (let i = 0; i < total; i++) {
+          let name = uniqueNames[i];
+          document.getElementById("syncProgressText").innerText = `Syncing player ${i + 1}/${total}: ${name}`;
+          document.getElementById("syncProgressBar").style.width = `${((i + 1) / total) * 100}%`;
+          
+          try {
+            await syncPlayerProfileToFirebase(name);
+            successCount++;
+          } catch (err) {
+            console.error(`Failed to sync player: ${name}`, err);
+          }
+        }
+        
+        overlay.innerHTML = `
+          <div style="font-size:36px; font-weight:700; color:#10b981; margin-bottom:12px;">✓ SYNC COMPLETE</div>
+          <div style="font-size:18px; color:#ffffff; font-family:'Inter', sans-serif; margin-bottom:24px;">Successfully synced ${successCount} player profiles to Firebase!</div>
+          <button onclick="this.parentElement.remove()" style="background:#10b981; color:#0f172a; border:none; padding:12px 32px; border-radius:8px; font-family:'Rajdhani', sans-serif; font-size:16px; font-weight:700; cursor:pointer; letter-spacing:0.5px;">DONE</button>
+        `;
+      } catch (e) {
+        console.error(e);
+        overlay.innerHTML = `
+          <div style="font-size:28px; color:#ef4444; margin-bottom:12px;">Sync Failed</div>
+          <div style="font-size:16px; color:#ffffff; font-family:'Inter', sans-serif; margin-bottom:24px;">${e.message}</div>
+          <button onclick="this.parentElement.remove()" style="background:#ef4444; color:#ffffff; border:none; padding:12px 32px; border-radius:8px; font-family:'Rajdhani', sans-serif; font-size:16px; font-weight:700; cursor:pointer;">CLOSE</button>
+        `;
+      }
+    }
+
     async function openPlayerProfile(playerName, teamName, role) {
       if (document.getElementById("allPlayersModal")) document.getElementById("allPlayersModal").classList.remove("open");
       showPage("playerProfilePage");
+
+      // Hide upload button for spectators
+      let isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname) || window.location.hostname.startsWith('192.168.');
+      let uploadBtn = document.querySelector(".photo-upload-btn");
+      if (uploadBtn) {
+        uploadBtn.style.display = isLocal ? "inline-block" : "none";
+      }
 
       // Reset tabs to Matches
       let tabs = document.querySelectorAll('.profile-tab-btn');
@@ -14022,48 +14171,90 @@
         document.getElementById("profileAvatar").innerHTML = '<img src="' + profilePhoto + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">';
       }
 
-      // Robust role lookup: Prioritize passed role, then fetch from DB
-      try {
-        const rRes = await fetch(API + "/player-role/" + encodeURIComponent(playerName));
-        const rData = await rRes.json();
-
-        let displayRole = role || rData.role || "Player";
-        let batStyle = rData.batting_style || "";
-        let bowlStyle = rData.bowling_style || "";
-
-        document.getElementById("profileRoleBadge").innerText = displayRole.toUpperCase();
-
-        let roleMap = {
-          'bat': 'Batsman', 'batsman': 'Batsman',
-          'bowl': 'Bowler', 'bowler': 'Bowler',
-          'ar': 'All Rounder', 'all rounder': 'All Rounder', 'allrounder': 'All Rounder',
-          'all-rounder': 'All-Rounder', 'all_rounder': 'All-Rounder',
-          'wk': 'Wicket Keeper', 'wicket keeper': 'Wicket Keeper', 'wicketkeeper': 'Wicket Keeper',
-          'wicket-keeper': 'Wicket-Keeper',
-          'player': 'Player', '': 'Player'
-        };
-        let roleKey = (displayRole || '').toLowerCase().trim();
-        document.getElementById("profileRoleLabel").innerText = roleMap[roleKey] || (displayRole ? displayRole.charAt(0).toUpperCase() + displayRole.slice(1) : 'Player');
-
-        let batEl = document.getElementById("profileBatStyle");
-        let bowlEl = document.getElementById("profileBowlStyle");
-        let batSep = document.getElementById("profileBatStyleSep");
-        let bowlSep = document.getElementById("profileBowlStyleSep");
-        if (batEl) { batEl.innerText = batStyle || ''; batEl.style.display = batStyle ? '' : 'none'; }
-        if (batSep) batSep.style.display = batStyle ? '' : 'none';
-        if (bowlEl) { bowlEl.innerText = bowlStyle || ''; bowlEl.style.display = bowlStyle ? '' : 'none'; }
-        if (bowlSep) bowlSep.style.display = bowlStyle ? '' : 'none';
-
-        if (!profilePhoto) {
-          document.getElementById("profileAvatar").innerHTML = '<span style="font-size:40px;">' + roleEmoji(displayRole) + '</span>';
+      let fbProfile = null;
+      if (!isLocal && window.fbDb && window.fbGetDoc) {
+        try {
+          const docRef = window.fbDoc(window.fbDb, "player_profiles", playerName.trim().toLowerCase());
+          const snap = await window.fbGetDoc(docRef);
+          if (snap.exists()) {
+            fbProfile = snap.data();
+          }
+        } catch (e) {
+          console.warn("Failed to fetch player profile from Firebase", e);
         }
-      } catch (e) { console.error("Profile data fetch error:", e); }
+      }
+
+      let displayRole = role || "Player";
+      let batStyle = "";
+      let bowlStyle = "";
+      let photoUrl = "";
+      let rows = [];
+      window.registeredProfileTeams = [];
+
+      if (fbProfile) {
+        displayRole = role || fbProfile.role || "Player";
+        batStyle = fbProfile.batting_style || "";
+        bowlStyle = fbProfile.bowling_style || "";
+        photoUrl = fbProfile.photo_url || "";
+        rows = fbProfile.matchHistory || [];
+        window.registeredProfileTeams = fbProfile.teams || [];
+      } else {
+        try {
+          const rRes = await fetch(API + "/player-role/" + encodeURIComponent(playerName));
+          const rData = await rRes.json();
+          displayRole = role || rData.role || "Player";
+          batStyle = rData.batting_style || "";
+          bowlStyle = rData.bowling_style || "";
+        } catch (e) { console.error("Profile role fetch error:", e); }
+
+        try {
+          const photoRes = await fetch(API + "/player-photo/" + encodeURIComponent(playerName));
+          const photoData = await photoRes.json();
+          photoUrl = photoData.photo_url || "";
+        } catch (e) {}
+
+        try {
+          const teamsRes = await fetch(API + "/player-teams/" + encodeURIComponent(playerName));
+          window.registeredProfileTeams = await teamsRes.json();
+        } catch (e) { console.warn("Failed to fetch player teams", e); }
+      }
+
+      document.getElementById("profileRoleBadge").innerText = displayRole.toUpperCase();
+
+      let roleMap = {
+        'bat': 'Batsman', 'batsman': 'Batsman',
+        'bowl': 'Bowler', 'bowler': 'Bowler',
+        'ar': 'All Rounder', 'all rounder': 'All Rounder', 'allrounder': 'All Rounder',
+        'all-rounder': 'All-Rounder', 'all_rounder': 'All-Rounder',
+        'wk': 'Wicket Keeper', 'wicket keeper': 'Wicket Keeper', 'wicketkeeper': 'Wicket Keeper',
+        'wicket-keeper': 'Wicket-Keeper',
+        'player': 'Player', '': 'Player'
+      };
+      let roleKey = (displayRole || '').toLowerCase().trim();
+      document.getElementById("profileRoleLabel").innerText = roleMap[roleKey] || (displayRole ? displayRole.charAt(0).toUpperCase() + displayRole.slice(1) : 'Player');
+
+      let batEl = document.getElementById("profileBatStyle");
+      let bowlEl = document.getElementById("profileBowlStyle");
+      let batSep = document.getElementById("profileBatStyleSep");
+      let bowlSep = document.getElementById("profileBowlStyleSep");
+      if (batEl) { batEl.innerText = batStyle || ''; batEl.style.display = batStyle ? '' : 'none'; }
+      if (batSep) batSep.style.display = batStyle ? '' : 'none';
+      if (bowlEl) { bowlEl.innerText = bowlStyle || ''; bowlEl.style.display = bowlStyle ? '' : 'none'; }
+      if (bowlSep) bowlSep.style.display = bowlStyle ? '' : 'none';
+
+      let profBatTab = document.getElementById("profBatTab");
+      let profBowlTab = document.getElementById("profBowlTab");
+      if (profBatTab) profBatTab.innerText = batStyle || 'Not Specified';
+      if (profBowlTab) profBowlTab.innerText = bowlStyle || 'Not Specified';
+
+      if (photoUrl) {
+        document.getElementById("profileAvatar").innerHTML = '<img src="' + photoUrl + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">';
+      } else if (!profilePhoto) {
+        document.getElementById("profileAvatar").innerHTML = '<span style="font-size:40px;">' + roleEmoji(displayRole) + '</span>';
+      }
+
       let pTeamEl = document.getElementById("profileTeam");
       if (pTeamEl) pTeamEl.innerText = teamName ? ("🏏 " + teamName) : "";
-
-      fetch(API + "/player-photo/" + encodeURIComponent(playerName)).then(r => r.json()).then(d => {
-        if (d.photo_url) { document.getElementById("profileAvatar").innerHTML = '<img src="' + d.photo_url + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">'; }
-      }).catch(() => { });
 
       ["pRuns", "pBalls", "pSR", "pFours", "pSixes", "pHS", "pWickets", "pOvers", "pEco", "pCatches", "pRunOuts", "pStumpings", "profileTotalMatches", "profileTotalRuns", "profileTotalWickets"].forEach(id => {
         let el = document.getElementById(id);
@@ -14072,28 +14263,21 @@
 
       document.getElementById("profileMatchHistory").innerHTML = "<div style='grid-column:1/-1; text-align:center; padding:30px; color:#94a3b8;'>⏳ Loading...</div>";
       document.getElementById("profileMatchLoadMore").style.display = "none";
-      window.registeredProfileTeams = [];
 
-      try {
-        const teamsRes = await fetch(API + "/player-teams/" + encodeURIComponent(playerName));
-        window.registeredProfileTeams = await teamsRes.json();
-      } catch (e) { console.warn("Failed to fetch player teams", e); }
-
-      // --- INJECT CURRENT TEAM IF NOT IN DB ---
       if (teamName && teamName.trim() !== '') {
         let existingTeam = window.registeredProfileTeams.find(t => t.team_name === teamName);
         if (!existingTeam) {
           window.registeredProfileTeams.push({ team_name: teamName });
         }
       }
-      // ----------------------------------------
 
       try {
-        await fetch(API + "/player-profile", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ player_name: playerName, team_name: teamName, role: role, runs: 0 }) });
-        const res = await fetch(API + "/player-match-history/" + encodeURIComponent(playerName), { cache: "no-store" });
-        const rows = await res.json();
+        if (!fbProfile) {
+          await fetch(API + "/player-profile", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ player_name: playerName, team_name: teamName, role: role, runs: 0 }) });
+          const res = await fetch(API + "/player-match-history/" + encodeURIComponent(playerName), { cache: "no-store" });
+          rows = await res.json();
+        }
 
-        // --- INJECT CURRENT LIVE MATCH STATS IF NOT IN DB ---
         if (typeof previousLiveMatchState !== 'undefined' && previousLiveMatchState) {
           let cm = previousLiveMatchState;
           let pNameSearch = playerName.toLowerCase().trim();
@@ -14112,7 +14296,7 @@
 
           if (cm.innings1 && cm.innings2) {
             extractStats(cm.innings1.batsmen, cm.innings1.bowlers, 1, cm.innings1.batTeam, cm.innings1.bowlTeam);
-            extractStats(cm.innings2.batsmen, cm.innings2.bowlers, 2, cm.innings2.batTeam, cm.innings2.bowlTeam);
+            extractStats(cm.innings2.batsmen, cm.innings2.bowlTeam, 2, cm.innings2.batTeam, cm.innings2.bowlTeam);
           } else {
             extractStats(cm.batsmen, cm.bowlers, 1, cm.batTeam, cm.bowlTeam);
           }
@@ -14142,12 +14326,7 @@
             }
           }
         }
-        // ----------------------------------------------------
 
-        // Top Banner Stats (Calculated from aggregated performance data)
-        // Note: For banner stats, we need individual performance rows.
-        // I will fetch them separately or calculate from rows.
-        // Actually, rows now has match result data + player stats array.
         let performanceRows = [];
         rows.forEach(m => {
           m.player_stats.forEach(ps => {
@@ -14203,12 +14382,14 @@
         document.getElementById("pRunOuts").innerText = totalRunOuts;
         document.getElementById("pStumpings").innerText = totalStumpings;
 
-
-        // Setup Match History Cards
         currentProfileMatches = rows;
         profileMatchesLoaded = 0;
         renderProfileMatchCards();
         renderProfileTeamsList();
+
+        if (isLocal) {
+          syncPlayerProfileToFirebase(playerName).catch(e => console.error("Auto sync profile error:", e));
+        }
 
       } catch (err) {
         ["pRuns", "pBalls", "pSR", "pFours", "pSixes", "pHS", "pWickets", "pOvers", "pEco", "profileTotalMatches", "profileTotalRuns", "profileTotalWickets"].forEach(id => {
@@ -14235,6 +14416,7 @@
         if (data.success) {
           document.getElementById("profileAvatar").innerHTML = '<img src="' + data.url + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
           document.getElementById("photoUploadStatus").innerText = "✅ Uploaded!";
+          syncPlayerProfileToFirebase(currentProfilePlayerName).catch(e => console.error("Sync uploaded photo error:", e));
         } else {
           document.getElementById("photoUploadStatus").innerText = "❌ Failed";
         }
