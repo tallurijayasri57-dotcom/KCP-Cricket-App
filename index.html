@@ -11445,6 +11445,12 @@
     }
 
     async function openTournamentMatchScorecard(tournamentId, matchId, status) {
+      if (typeof previousLiveMatchState !== 'undefined' && previousLiveMatchState && (previousLiveMatchState.id == matchId || previousLiveMatchState.tournament_match_id == matchId)) {
+         showPage('matchDetailsPage');
+         renderPremiumMatchView(previousLiveMatchState);
+         return;
+      }
+
       currentTournamentMatchIdx = matchId;
       localStorage.setItem("currentTournamentMatchIdx", matchId);
       currentTournamentId = tournamentId; // Ensure tournament ID is also tracked
@@ -11668,6 +11674,11 @@
     }
 
     async function openMatchScorecardByMatchId(matchId, status) {
+      if (typeof previousLiveMatchState !== 'undefined' && previousLiveMatchState && (previousLiveMatchState.id == matchId || previousLiveMatchState.tournament_match_id == matchId)) {
+         showPage('matchDetailsPage');
+         renderPremiumMatchView(previousLiveMatchState);
+         return;
+      }
 
       showPage('matchDetailsPage');
 
