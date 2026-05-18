@@ -9697,7 +9697,7 @@
           sr: batsmanStats[name].balls > 0 ? ((batsmanStats[name].runs / batsmanStats[name].balls) * 100).toFixed(2) : "0.00",
           isStrike: name === document.getElementById('strike').value,
           isOut: outBatsmen.includes(name),
-          outDesc: batsmanStats[name].dismissal_type ? (batsmanStats[name].dismissal_type + (batsmanStats[name].dismissed_by ? ' ' + batsmanStats[name].dismissed_by : '')) : (outBatsmen.includes(name) ? 'out' : 'not out'),
+          outDesc: batsmanStats[name].dismissal_type ? (batsmanStats[name].dismissal_type + (batsmanStats[name].dismissed_by && batsmanStats[name].dismissed_by_bowler ? ' ' + batsmanStats[name].dismissed_by + ' b ' + batsmanStats[name].dismissed_by_bowler : (batsmanStats[name].dismissed_by ? ' ' + batsmanStats[name].dismissed_by : ''))) : (outBatsmen.includes(name) ? 'out' : 'not out'),
           dismissal_type: batsmanStats[name].dismissal_type || (outBatsmen.includes(name) ? 'out' : ''),
           shot_types: batsmanStats[name].shot_types || [],
           wagon_wheel: batsmanStats[name].wagon_wheel || []
@@ -9748,7 +9748,7 @@
             return {
               name: name, runs: s.runs, balls: s.balls, fours: s.fours, sixes: s.sixes,
               sr: s.balls > 0 ? ((s.runs / s.balls) * 100).toFixed(2) : "0.00",
-              outDesc: s.dismissal_type ? s.dismissal_type + (s.dismissed_by ? ' ' + s.dismissed_by : '') : 'not out',
+              outDesc: s.dismissal_type ? s.dismissal_type + (s.dismissed_by && s.dismissed_by_bowler ? ' ' + s.dismissed_by + ' b ' + s.dismissed_by_bowler : (s.dismissed_by ? ' ' + s.dismissed_by : '')) : 'not out',
               isOut: !!s.dismissal_type
             };
           }),
@@ -9772,7 +9772,7 @@
           batsmen: Object.keys(batsmanStats).map(name => ({
             name: name, runs: batsmanStats[name].runs, balls: batsmanStats[name].balls, fours: batsmanStats[name].fours, sixes: batsmanStats[name].sixes,
             sr: batsmanStats[name].balls > 0 ? ((batsmanStats[name].runs / batsmanStats[name].balls) * 100).toFixed(2) : "0.00",
-            outDesc: batsmanStats[name].dismissal_type ? (batsmanStats[name].dismissal_type + (batsmanStats[name].dismissed_by ? ' ' + batsmanStats[name].dismissed_by : '')) : (outBatsmen.includes(name) ? 'out' : 'not out'),
+            outDesc: batsmanStats[name].dismissal_type ? (batsmanStats[name].dismissal_type + (batsmanStats[name].dismissed_by && batsmanStats[name].dismissed_by_bowler ? ' ' + batsmanStats[name].dismissed_by + ' b ' + batsmanStats[name].dismissed_by_bowler : (batsmanStats[name].dismissed_by ? ' ' + batsmanStats[name].dismissed_by : ''))) : (outBatsmen.includes(name) ? 'out' : 'not out'),
             isOut: outBatsmen.includes(name)
           })),
           bowlers: Object.keys(bowlerStats).map(name => ({
