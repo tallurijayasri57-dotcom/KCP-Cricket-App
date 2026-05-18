@@ -3,8 +3,8 @@ const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/kcp_logo_new.jpg',
-  '/founder_splash.png?v=2'
+  '/images/kcp_logo_new.jpg',
+  '/images/founder_splash.png?v=2'
 ];
 
 self.addEventListener('install', event => {
