@@ -1231,7 +1231,10 @@ app.get("/player-match-history/:playerName", async (req, res) => {
                     overs_bowled: row.overs_bowled,
                     runs_conceded: row.runs_conceded,
                     innings: row.innings,
-                    team_name: row.team_name
+                    team_name: row.team_name,
+                    catches: row.catches || 0,
+                    run_outs: row.run_outs || 0,
+                    stumpings: row.stumpings || 0
                 });
             });
             return res.json(Object.values(grouped));
@@ -1245,6 +1248,7 @@ app.get("/player-match-history/:playerName", async (req, res) => {
                     ps.player_name, ps.match_type, ps.runs, ps.balls_faced, ps.fours, ps.sixes,
                     ps.wickets, ps.overs_bowled, ps.runs_conceded, ps.innings as player_innings,
                     ps.team_name as player_team,
+                    ps.catches, ps.run_outs, ps.stumpings,
                     t.name as tournament_name
                 FROM player_stats ps
                 LEFT JOIN match_results mr ON ps.match_id = mr.id
@@ -1289,7 +1293,10 @@ app.get("/player-match-history/:playerName", async (req, res) => {
                 overs_bowled: row.overs_bowled,
                 runs_conceded: row.runs_conceded,
                 innings: row.player_innings,
-                team_name: row.player_team
+                team_name: row.player_team,
+                catches: row.catches || 0,
+                run_outs: row.run_outs || 0,
+                stumpings: row.stumpings || 0
             });
         });
 
