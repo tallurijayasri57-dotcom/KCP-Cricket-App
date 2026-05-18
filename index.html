@@ -5671,6 +5671,13 @@
         <div id="tdHeroesContainer"></div>
       </div>
 
+      <!-- GALLERY VIEW -->
+      <div id="tdView-gallery" style="display:none;">
+        <div id="tdGalleryContainer">
+          <div style="text-align:center;padding:40px;color:rgba(255,255,255,0.4);font-size:14px;">Loading gallery...</div>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -7024,10 +7031,10 @@
       <div class="wicket-label" style="margin-top:12px;">Dismissal Type:</div><select id="dismissalTypeSelect"
         onchange="onDismissalTypeChange()"
         style="width:100%;padding:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(220,38,38,0.4);border-radius:8px;color:#e5e7eb;margin-bottom:12px;box-sizing:border-box;">
-        <option value="Bowled">🏏 Bowled</option>
-        <option value="Caught">🤲 Caught Out</option>
-        <option value="Run Out">🏃 Run Out</option>
-        <option value="Stumped">🧤 Stumped</option>
+        <option value="Bowled" style="background:#1e1e2e;color:#f8fafc;">🏏 Bowled</option>
+        <option value="Caught" style="background:#1e1e2e;color:#f8fafc;">🤲 Caught Out</option>
+        <option value="Run Out" style="background:#1e1e2e;color:#f8fafc;">🏃 Run Out</option>
+        <option value="Stumped" style="background:#1e1e2e;color:#f8fafc;">🧤 Stumped</option>
       </select>
       <div id="dismissedBySection">
         <div class="wicket-label" id="dismissedByLabel">Fielder Name:</div><select id="dismissedBySelect"
@@ -12972,7 +12979,7 @@
       if (tabEl) tabEl.classList.add('active');
 
       // Update View UI - show only the selected view
-      ['matches', 'points', 'leaderboard', 'teams', 'heroes'].forEach(id => {
+      ['matches', 'points', 'leaderboard', 'teams', 'heroes', 'gallery'].forEach(id => {
         let el = document.getElementById('tdView-' + id);
         if (el) el.style.display = (id === tabId) ? 'block' : 'none';
       });
@@ -12997,6 +13004,12 @@
         await renderTdTeams();
       } else if (tabId === 'heroes') {
         await renderTdHeroes();
+      } else if (tabId === 'gallery') {
+        let t = currentViewingTournament;
+        let currentUser = (localStorage.getItem('currentUser') || '').toLowerCase().trim();
+        let organiser = (t && (t.created_by || t.organiser) || '').toLowerCase().trim();
+        let isOrganiser = currentUser && organiser && currentUser === organiser;
+        if (t && t.id) await renderTdGallery(t.id, isOrganiser);
       }
     }
 
@@ -13302,7 +13315,36 @@
       return Math.floor(totalBalls / 6) + (totalBalls % 6) / 10;
     }
 
+    async function renderTdGallery(tournamentId, isOrganiser) {
+      let container = document.getElementById('tdGalleryContainer');
+      if (!container) return;
+      container.innerHTML = `<div style="text-align:center;padding:40px;color:#6ee7b7;font-family:'Rajdhani',sans-serif;letter-spacing:1px;">🖼️ Loading Gallery...</div>`;
+
+      let photos = [];
+      try {
+        const r = await fetch(API + '/tournament-gallery/' + tournamentId + '?_t=' + Date.now());
+        if (r.ok) photos = await r.json();
+      } catch (e) { console.warn('Gallery fetch error:', e); }
+
+      if (!photos || photos.length === 0) {
+        container.innerHTML = `<div style="text-align:center;padding:60px 20px;color:rgba(255,255,255,0.4);font-size:14px;">📷 No photos uploaded yet.</div>`;
+        return;
+      }
+
+      let html = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;padding:4px;">`;
+      photos.forEach(p => {
+        html += `
+          <div style="aspect-ratio:1;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);position:relative;cursor:pointer;background:rgba(0,0,0,0.3);" onclick="window.open('${p.photo_url}','_blank')">
+            <img src="${p.photo_url}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
+            ${p.caption ? `<div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.65);color:#fff;font-size:11px;padding:5px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.caption}</div>` : ''}
+          </div>`;
+      });
+      html += '</div>';
+      container.innerHTML = html;
+    }
+
     async function renderTdLeaderboard(category = 'bat') {
+
       // Update pills UI
       document.querySelectorAll('#tdLeaderboardPills .td-pill').forEach(p => {
         p.classList.toggle('active', p.innerText.toLowerCase() === category.toLowerCase());
@@ -13564,10 +13606,19 @@
           if (isNaN(dt)) return d;
           return dt.getDate().toString().padStart(2, '0') + '-' + dt.toLocaleString('en-US', { month: 'short' }) + '-' + dt.getFullYear().toString().substr(-2);
         };
+        // Organiser photo from localStorage
+        let organiserName = (t.created_by || t.organiser || '').trim();
+        let orgPhoto = organiserName ? localStorage.getItem('userPhoto_' + organiserName) : null;
+        let orgPhotoHtml = orgPhoto
+          ? `<img src="${orgPhoto}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid rgba(110,231,183,0.5);" alt="Organiser">`
+          : `<div style="width:36px;height:36px;border-radius:50%;background:rgba(110,231,183,0.15);display:flex;align-items:center;justify-content:center;font-size:16px;">👤</div>`;
         return `
-      <div class="my-card" onclick="openTournamentDetailsBySQL(${t.id})" style="cursor:pointer;">
+      <div class="my-card" onclick="openTournamentDetailsBySQL(${t.id})" style="cursor:pointer; position:relative;">
 
         <div class="tourney-badge-premium">Premium</div>
+        <div style="position:absolute;top:12px;right:12px;display:flex;align-items:center;gap:8px;z-index:2;">
+          ${orgPhotoHtml}
+        </div>
         <div class="tourney-card">
           <div class="tourney-img">
             ${t.logo
@@ -13584,6 +13635,7 @@
         </div>
       </div>
     `;
+
       }).join('');
     }
 
