@@ -42,7 +42,7 @@ const dbConfig = {
 let pool = null;
 let useJSON = false; // Forced to always attempt SSMS
 const DB_FILE = path.join(__dirname, "db.json");
-let MEMORY_DB = { users: [], teams: [], players: [], match_results: [], upcoming_matches: [], player_stats: [], points_table: [], tournaments: [], live_matches: [] };
+let MEMORY_DB = { users: [], teams: [], players: [], match_results: [], upcoming_matches: [], player_stats: [], points_table: [], tournaments: [], live_matches: [], player_profiles: [] };
 
 // ✅ JSON Storage Logic
 function loadDB() {
@@ -52,6 +52,7 @@ function loadDB() {
             if (data) {
                 const parsedDB = JSON.parse(data);
                 MEMORY_DB = { ...MEMORY_DB, ...parsedDB };
+                MEMORY_DB.player_profiles = MEMORY_DB.player_profiles || MEMORY_DB.player_profile || [];
             }
         }
     } catch (e) { console.error("Load Error", e); }
@@ -737,7 +738,11 @@ app.post("/players", async (req, res) => {
 // --- PLAYER PROFILE MASTER ROUTES ---
 app.get("/player-photo/:name", async (req, res) => {
     try {
-        if (!pool) return res.json({ photo_url: null });
+        if (useJSON || !pool) {
+            const profiles = MEMORY_DB.player_profiles || [];
+            const p = profiles.find(x => x.player_name === req.params.name);
+            return res.json({ photo_url: p ? p.photo_url : null });
+        }
         const r = await pool.request()
             .input("n", sql.NVarChar, req.params.name)
             .query("SELECT photo_url FROM player_profiles WHERE player_name = @n");
@@ -747,7 +752,26 @@ app.get("/player-photo/:name", async (req, res) => {
 
 app.get("/player-role/:name", async (req, res) => {
     try {
-        if (!pool) return res.json({ role: null });
+        if (useJSON || !pool) {
+            const profiles = MEMORY_DB.player_profiles || [];
+            const p = profiles.find(x => x.player_name === req.params.name);
+            if (p) {
+                let { role, batting_style, bowling_style } = p;
+                if (!batting_style && !bowling_style) {
+                    const tp = (MEMORY_DB.players || []).concat(MEMORY_DB.tournament_players || []).find(x => x.player_name === req.params.name && (x.batting_style || x.bowling_style));
+                    if (tp) {
+                        batting_style = tp.batting_style || null;
+                        bowling_style = tp.bowling_style || null;
+                        p.batting_style = batting_style;
+                        p.bowling_style = bowling_style;
+                        saveDB();
+                    }
+                }
+                return res.json({ role, batting_style, bowling_style });
+            } else {
+                return res.json({ role: null });
+            }
+        }
         const r = await pool.request()
             .input("n", sql.NVarChar, req.params.name)
             .query("SELECT role, batting_style, bowling_style FROM player_profiles WHERE player_name = @n");
@@ -781,7 +805,30 @@ app.get("/player-role/:name", async (req, res) => {
 app.post("/player-profile", async (req, res) => {
     try {
         const { player_name, team_name, role, photo_url } = req.body;
-        if (!pool) return res.status(500).json({ message: "No SQL connection" });
+        if (useJSON || !pool) {
+            MEMORY_DB.player_profiles = MEMORY_DB.player_profiles || [];
+            let p = MEMORY_DB.player_profiles.find(x => x.player_name === player_name);
+            if (p) {
+                p.team_name = team_name || p.team_name;
+                p.role = role || p.role;
+                p.photo_url = photo_url || p.photo_url;
+                p.batting_style = req.body.batting_style || p.batting_style;
+                p.bowling_style = req.body.bowling_style || p.bowling_style;
+                p.updated_at = new Date();
+            } else {
+                MEMORY_DB.player_profiles.push({
+                    player_name,
+                    team_name: team_name || null,
+                    role: role || null,
+                    photo_url: photo_url || null,
+                    batting_style: req.body.batting_style || null,
+                    bowling_style: req.body.bowling_style || null,
+                    created_at: new Date()
+                });
+            }
+            saveDB();
+            return res.json({ success: true });
+        }
 
         await pool.request()
             .input("pn", sql.NVarChar, player_name)
@@ -1141,7 +1188,54 @@ app.get("/player-stats/:playerName", async (req, res) => {
 app.get("/player-match-history/:playerName", async (req, res) => {
     try {
         const { playerName } = req.params;
-        if (!pool) return res.json([]);
+        if (useJSON || !pool) {
+            const pStats = (MEMORY_DB.player_stats || []).filter(s => s.player_name === playerName);
+            const grouped = {};
+            pStats.forEach(row => {
+                const mr = (MEMORY_DB.match_results || []).find(r => r.id == row.match_id || r.match_id == row.match_id);
+                let tournamentName = "LEAGUE MATCH";
+                if (mr && mr.tournament_id) {
+                    const t = (MEMORY_DB.tournaments || []).find(x => x.id == mr.tournament_id);
+                    if (t) tournamentName = t.name;
+                }
+                const mid = row.match_id || (mr ? mr.id : null) || ('legacy_' + (row.match_date || '') + (row.team_name || ''));
+                if (!grouped[mid]) {
+                    grouped[mid] = {
+                        match_id: mid,
+                        tournament_id: mr ? mr.tournament_id : null,
+                        tournament_match_id: row.match_id,
+                        tournament_name: tournamentName,
+                        match_date: mr ? mr.played_on : row.match_date,
+                        winner: mr ? mr.winner : null,
+                        loser: mr ? mr.loser : null,
+                        margin: mr ? mr.margin : null,
+                        win_type: mr ? mr.win_type : null,
+                        t1_name: mr ? (mr.t1_name || mr.winner || mr.loser) : null,
+                        t1_score: mr ? mr.t1_score : null,
+                        t1_overs: mr ? mr.t1_overs : null,
+                        t1_wickets: mr ? mr.t1_wickets : null,
+                        t2_name: mr ? (mr.t2_name || (mr.winner === mr.t1_name ? mr.loser : mr.winner)) : null,
+                        t2_score: mr ? mr.t2_score : null,
+                        t2_overs: mr ? mr.t2_overs : null,
+                        t2_wickets: mr ? mr.t2_wickets : null,
+                        player_stats: []
+                    };
+                }
+                grouped[mid].player_stats.push({
+                    match_type: row.match_type,
+                    runs: row.runs,
+                    balls_faced: row.balls_faced,
+                    fours: row.fours,
+                    sixes: row.sixes,
+                    wickets: row.wickets,
+                    overs_bowled: row.overs_bowled,
+                    runs_conceded: row.runs_conceded,
+                    innings: row.innings,
+                    team_name: row.team_name
+                });
+            });
+            return res.json(Object.values(grouped));
+        }
 
         const result = await pool.request()
             .input("pn", sql.NVarChar, playerName)
@@ -1346,7 +1440,11 @@ app.delete("/points-table/:teamName", async (req, res) => {
 app.get("/player-teams/:player_name", async (req, res) => {
     try {
         const { player_name } = req.params;
-        if (!pool) return res.json([]);
+        if (useJSON || !pool) {
+            const players = MEMORY_DB.tournament_players || [];
+            const teams = [...new Set(players.filter(p => p.player_name === player_name).map(p => p.team_name))];
+            return res.json(teams.map(t => ({ team_name: t })));
+        }
         const r = await pool.request()
             .input("pn", sql.NVarChar, player_name)
             .query("SELECT DISTINCT team_name FROM tournament_players WHERE player_name = @pn");
@@ -1367,7 +1465,23 @@ app.get("/player-teams/:player_name", async (req, res) => {
 app.get("/my-tournaments/:username", async (req, res) => {
     try {
         const { username } = req.params;
-        if (!pool) return res.json([]);
+        if (useJSON || !pool) {
+            const tpList = MEMORY_DB.tournament_players || [];
+            const tIds = [...new Set(tpList.filter(p => p.player_name.toLowerCase() === username.toLowerCase()).map(p => p.tournament_id))];
+            const result = (MEMORY_DB.tournaments || []).filter(t => tIds.includes(t.id));
+            const formatted = result.map(t => ({
+                id: t.id,
+                name: t.name,
+                created_by: t.created_by,
+                status: t.status,
+                created_at: t.created_at,
+                ball: t.ball_type || t.ball,
+                startDate: t.start_date || t.startDate,
+                endDate: t.end_date || t.endDate,
+                logo: t.logo
+            }));
+            return res.json(formatted);
+        }
 
         const result = await pool.request()
             .input("pn", sql.NVarChar, username)
@@ -1395,7 +1509,46 @@ app.get("/my-tournaments/:username", async (req, res) => {
 app.get("/my-matches/:username", async (req, res) => {
     try {
         const { username } = req.params;
-        if (!pool) return res.json([]);
+        if (useJSON || !pool) {
+            const tpList = MEMORY_DB.tournament_players || [];
+            const userTeams = tpList.filter(p => p.player_name.toLowerCase() === username.toLowerCase());
+            if (userTeams.length === 0) return res.json([]);
+
+            let allMatches = [];
+            for (const teamRow of userTeams) {
+                const tName = (teamRow.team_name || '').toLowerCase();
+                const tid = teamRow.tournament_id;
+                const tournament = (MEMORY_DB.tournaments || []).find(t => t.id == tid);
+                const tNameDisplay = tournament ? tournament.name : 'Tournament';
+
+                const matches = (MEMORY_DB.tournament_matches || []).filter(m => 
+                    m.tournament_id == tid &&
+                    ((m.team1 || '').toLowerCase() === tName || (m.team2 || '').toLowerCase() === tName)
+                );
+
+                matches.forEach(m => {
+                    const mr = (MEMORY_DB.match_results || []).find(r => r.id == m.id || r.match_id == m.id);
+                    allMatches.push({
+                        ...m,
+                        t1_score: mr ? mr.t1_score : null,
+                        t2_score: mr ? mr.t2_score : null,
+                        t1_overs: mr ? mr.t1_overs : null,
+                        t2_overs: mr ? mr.t2_overs : null,
+                        result_winner: mr ? mr.winner : null,
+                        tournament_name: tNameDisplay
+                    });
+                });
+            }
+
+            const seen = new Set();
+            allMatches = allMatches.filter(m => {
+                if (seen.has(m.id)) return false;
+                seen.add(m.id);
+                return true;
+            });
+
+            return res.json(allMatches);
+        }
 
         // Step 1: Find all teams + tournaments the player belongs to
         const teamsResult = await pool.request()
