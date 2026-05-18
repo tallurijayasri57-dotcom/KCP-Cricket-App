@@ -9879,11 +9879,48 @@
         console.warn('loadAllTournamentsForHome error:', e);
       }
 
-      // Restore logos from localStorage if SQL doesn't have them
+      // Restore logos from localStorage and auto-migrate old base64 logos to Cloudinary!
       let localTs = loadTournaments();
-      allTourneys.forEach(sqlT => {
+      allTourneys.forEach(async (sqlT) => {
         let localMatch = localTs.find(lt => lt.name === sqlT.name);
-        if (localMatch && localMatch.logo && !sqlT.logo) sqlT.logo = localMatch.logo;
+        if (localMatch && localMatch.logo) {
+          if (!sqlT.logo) {
+            sqlT.logo = localMatch.logo;
+          }
+          // If the logo in SQL is null or base64, and we have base64 locally, auto-sync it to Cloudinary!
+          if (localMatch.logo.startsWith("data:") && (!sqlT.logo || sqlT.logo.startsWith("data:"))) {
+            try {
+              let arr = localMatch.logo.split(','), mime = arr[0].match(/:(.*?);/)[1];
+              let bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+              while(n--) u8arr[n] = bstr.charCodeAt(n);
+              let file = new File([u8arr], "logo.png", {type:mime});
+
+              let formData = new FormData();
+              formData.append("photo", file);
+              let uploadRes = await fetch(API + "/upload-photo", { method: "POST", body: formData });
+              let uploadData = await uploadRes.json();
+              if (uploadData.success) {
+                // Update local storage so we don't repeat this
+                localMatch.logo = uploadData.url;
+                localStorage.setItem(getTournamentsKey(), JSON.stringify(localTs));
+
+                // Update SQL Database
+                await fetch(API + "/tournaments/" + sqlT.id + "/logo", {
+                  method: "PATCH",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ logo: uploadData.url })
+                });
+
+                // Update UI state
+                sqlT.logo = uploadData.url;
+                if (typeof renderHomeBanner === 'function') renderHomeBanner();
+                console.log("Auto-repaired logo for tournament:", sqlT.name);
+              }
+            } catch (err) {
+              console.warn("Auto-repair logo failed for:", sqlT.name, err);
+            }
+          }
+        }
       });
 
       if (allTourneys.length === 0) {
