@@ -4510,7 +4510,7 @@
       z-index: 150;
       opacity: 0;
       background: linear-gradient(to bottom, #ffffff 50%, #1b2f5e 50%);
-      animation: spFdrBg 3s 5s both;
+      animation: spFdrBg 4s 5s both;
     }
 
     @keyframes spFdrBg {
@@ -4531,7 +4531,7 @@
       transform: translate(-50%, -50%);
       z-index: 160;
       opacity: 0;
-      animation: spFdrPhoto 3s 5s both;
+      animation: spFdrPhoto 4s 5s both;
     }
 
     @keyframes spFdrPhoto {
@@ -7523,7 +7523,7 @@
         splash.style.opacity = '0';
         setTimeout(() => { splash.style.display = 'none'; }, 700);
       }
-    }, 8000);
+    }, 9000);
 
     function toggleDotsMenu() {
       let dd = document.getElementById('dotsDropdown');
@@ -15883,11 +15883,11 @@
         } catch (e) { console.error("Link parse error", e); }
 
         if (matchId) {
-          // Hide splash after 4.5 seconds (1.5s branding + 3s founder portrait)
+          // Hide splash after 9.0 seconds (5s branding + 4s founder portrait)
           setTimeout(() => {
             let splash = document.getElementById('splashScreen');
             if (splash) splash.style.display = 'none';
-          }, 4500);
+          }, 9000);
 
           function tryViewMatch() {
             if (window.fbDb && window.fbOnSnapshot) {
@@ -15997,7 +15997,7 @@
         setTimeout(() => {
           splash.style.display = 'none';
           showPage('loginPage');
-        }, 4500); // Show full sequence: 1.5s branding + 3s founder
+        }, 9000); // Show full sequence: 5s branding + 4s founder
       }
     });
 
