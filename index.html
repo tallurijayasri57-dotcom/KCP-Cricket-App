@@ -903,6 +903,12 @@
       cursor: pointer;
     }
 
+    .player-name-truncate {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     /* ── Mobile scorecard alignment fix ── */
     @media (max-width: 680px) {
       .sc-table {
@@ -924,11 +930,20 @@
 
       /* Truncate long player names with ellipsis */
       .sc-table .name-cell {
+        display: inline-block;
         max-width: 140px;
         min-width: 90px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        vertical-align: middle;
+      }
+
+      .player-name-truncate {
+        display: inline-block;
+        max-width: 140px;
+        min-width: 90px;
+        vertical-align: middle;
       }
 
       /* Hide the dismissal description column on mobile — saves space */
@@ -11400,7 +11415,7 @@
               <tbody>
                 ${activeBatsmen.map((b, idx) => `
                   <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-                    <td class="name-cell" style="padding:10px; color:#6ee7b7; font-weight:700; text-align:left !important;">${b.name}${b.name === m.strike || (idx === 0 && !m.strike) ? '*' : ''}</td>
+                    <td style="padding:10px; text-align:left !important;"><span class="name-cell" style="color:#6ee7b7; font-weight:700;">${b.name}</span>${b.name === m.strike || (idx === 0 && !m.strike) ? '*' : ''}</td>
                     <td style="padding:10px; text-align:center;">${b.runs || 0}</td>
                     <td style="padding:10px; text-align:center;">${b.balls || 0}</td>
                     <td style="padding:10px; text-align:center;">${b.fours || 0}</td>
@@ -11419,7 +11434,7 @@
               <tbody>
                 ${activeBowlers.map((b, idx) => `
                   <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-                    <td class="name-cell" style="padding:10px; color:#6ee7b7; font-weight:700; text-align:left !important;">${b.name}${b.name === m.bowler || (idx === activeBowlers.length - 1 && !m.bowler) ? '*' : ''}</td>
+                    <td style="padding:10px; text-align:left !important;"><span class="name-cell" style="color:#6ee7b7; font-weight:700;">${b.name}</span>${b.name === m.bowler || (idx === activeBowlers.length - 1 && !m.bowler) ? '*' : ''}</td>
                     <td style="padding:10px; text-align:center;">${Math.floor((b.balls || 0) / 6)}.${(b.balls || 0) % 6}</td>
                     <td style="padding:10px; text-align:center;">${b.maidens || 0}</td>
                     <td style="padding:10px; text-align:center;">${b.runs || 0}</td>
@@ -11500,7 +11515,7 @@
           let srVal = p.batData.sr != null && !isNaN(p.batData.sr) ? parseFloat(p.batData.sr).toFixed(1) : (parseInt(p.batData.balls) > 0 ? ((parseInt(p.batData.runs) / parseInt(p.batData.balls)) * 100).toFixed(1) : '0.0');
           return `
                     <tr>
-                      <td class="name-cell" style="text-align:left;">${p.name}<span style="color:rgba(255,255,255,0.4); font-weight:400; margin-left:4px;">(${p.team})</span></td>
+                      <td style="text-align:left;"><span class="name-cell">${p.name}</span><span style="color:rgba(255,255,255,0.4); font-weight:400; margin-left:4px; vertical-align:middle;">(${p.team})</span></td>
                       <td style="text-align:center;">${p.batData.runs}</td><td style="text-align:center;">${p.batData.balls}</td><td style="text-align:center;">${p.batData.fours || 0}</td><td style="text-align:center;">${p.batData.sixes || 0}</td><td style="text-align:center;">${srVal}</td>
                     </tr>`;
         }).join('')}
@@ -11514,7 +11529,7 @@
                   ${bestBowlers.map(p => {
           let ecoVal = p.bowlData.eco != null && !isNaN(parseFloat(p.bowlData.eco)) ? parseFloat(p.bowlData.eco).toFixed(2) : (() => { let ov = parseFloat(p.bowlData.overs) || 0; let totalB = Math.floor(ov) * 6 + Math.round((ov - Math.floor(ov)) * 10); return totalB > 0 ? ((parseInt(p.bowlData.runs) || 0) / (totalB / 6)).toFixed(2) : '0.00'; })();
           return `<tr>
-                      <td class="name-cell" style="text-align:left;">${p.name}<span style="color:rgba(255,255,255,0.4); font-weight:400; margin-left:4px;">(${p.team})</span></td>
+                      <td style="text-align:left;"><span class="name-cell">${p.name}</span><span style="color:rgba(255,255,255,0.4); font-weight:400; margin-left:4px; vertical-align:middle;">(${p.team})</span></td>
                       <td style="text-align:center;">${parseFloat(p.bowlData.overs).toFixed(1)}</td><td style="text-align:center;">${p.bowlData.maidens || 0}</td><td style="text-align:center;">${p.bowlData.runs}</td><td style="text-align:center;">${p.bowlData.wickets}</td><td style="text-align:center;">${ecoVal}</td>
                     </tr>`;
         }).join('')}
@@ -11555,7 +11570,7 @@
                   <tbody>
                     ${(inn.batsmen || []).map(b => `
                       <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-                        <td style="padding:10px; text-align:left !important;"><div style="color:#f8fafc; font-weight:600;">${b.name}</div><div style="font-size:11px; color:#94a3b8; margin-top:2px; line-height:1.2;">${b.outDesc || 'not out'}</div></td>
+                        <td style="padding:10px; text-align:left !important;"><div class="player-name-truncate" style="color:#f8fafc; font-weight:600;">${b.name}</div><div style="font-size:11px; color:#94a3b8; margin-top:2px; line-height:1.2;">${b.outDesc || 'not out'}</div></td>
                         <td style="text-align:center; color:#f8fafc;">${b.runs}</td>
                         <td style="text-align:center; color:#94a3b8;">${b.balls}</td>
                         <td style="text-align:center; color:#94a3b8;">${b.fours}</td>
@@ -11582,7 +11597,7 @@
                   <tbody>
                     ${(inn.bowlers || []).map(b => `
                       <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-                        <td style="padding:10px; color:#f8fafc; font-weight:600; text-align:left !important;">${b.name}</td>
+                        <td style="padding:10px; text-align:left !important;"><div class="player-name-truncate" style="color:#f8fafc; font-weight:600;">${b.name}</div></td>
                         <td style="text-align:center; color:#f8fafc;">${b.overs}</td>
                         <td style="text-align:center; color:#94a3b8;">${b.maidens || 0}</td>
                         <td style="text-align:center; color:#94a3b8;">${b.runs}</td>
@@ -14413,10 +14428,12 @@
 
       try {
         try {
-          const res = await fetch(API + "/player-match-history/" + encodeURIComponent(playerName), { cache: "no-store" });
-          if (res.ok) {
-            const apiRows = await res.json();
-            if (apiRows) rows = apiRows;
+          if (!fbProfile || isLocal) {
+            const res = await fetch(API + "/player-match-history/" + encodeURIComponent(playerName), { cache: "no-store" });
+            if (res.ok) {
+              const apiRows = await res.json();
+              if (apiRows) rows = apiRows;
+            }
           }
         } catch (e) {
           console.warn("API match history fetch failed, using fallback.", e);
