@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kcp-cricket-v25';
+const CACHE_NAME = 'kcp-cricket-v26';
 const urlsToCache = [
   '/',
   '/index.html',
