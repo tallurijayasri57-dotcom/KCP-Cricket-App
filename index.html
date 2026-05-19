@@ -11679,7 +11679,7 @@
 
       try {
         // Step 1: Fetch the specific tournament's matches directly
-        const mRes = await fetch(API + "/tournament-matches/" + tournamentId);
+        const mRes = await fetch(API + "/tournament-matches/" + tournamentId, { cache: "no-store" });
         const mTxt = await mRes.text();
         const tMatches = (mTxt && mTxt.trim().startsWith('[')) ? JSON.parse(mTxt) : [];
         const found = tMatches.find(m => m.id == matchId);
@@ -11688,7 +11688,7 @@
         let matchResult = null;
         let allResults = [];
         try {
-          const rRes = await fetch(API + "/match-results");
+          const rRes = await fetch(API + "/match-results", { cache: "no-store" });
           const rTxt = await rRes.text();
           allResults = (rTxt && rTxt.trim().startsWith('[')) ? JSON.parse(rTxt) : [];
           // Primary: match via match_id foreign key or own id
@@ -11708,7 +11708,7 @@
         // Step 3: If we have a full live state stored, use it
         let fullState = null;
         try {
-          const liveRes = await fetch(API + "/live-matches/" + matchId);
+          const liveRes = await fetch(API + "/live-matches/" + matchId, { cache: "no-store" });
           if (liveRes.ok) {
             const liveData = await liveRes.json();
             if (liveData && liveData.match_state) {
@@ -11727,7 +11727,7 @@
         let stats = [];
         const tryFetchStats = async (id) => {
           try {
-            const sRes = await fetch(API + "/player-stats-by-match?match_id=" + id);
+            const sRes = await fetch(API + "/player-stats-by-match?match_id=" + id, { cache: "no-store" });
             const sTxt = await sRes.text();
             if (sTxt && sTxt.trim().startsWith('[')) return JSON.parse(sTxt);
           } catch (se) { }
@@ -11815,7 +11815,7 @@
         // Fetch real tournament name from tournaments list as fallback
         let tournamentName = 'Tournament';
         try {
-          const tRes = await fetch(API + "/all-tournaments");
+          const tRes = await fetch(API + "/all-tournaments", { cache: "no-store" });
           if (tRes.ok) {
             const tournaments = await tRes.json();
             const currentT = tournaments.find(t => t.id == tournamentId);
@@ -11915,7 +11915,7 @@
         // 1. Fetch match results summary
         let matches = [];
         try {
-          const res = await fetch(API + "/match-results");
+          const res = await fetch(API + "/match-results", { cache: "no-store" });
           const txt = await res.text();
           if (txt && txt.trim().startsWith('[')) matches = JSON.parse(txt);
         } catch (fe) { console.warn("match-results fetch failed:", fe); }
@@ -11925,12 +11925,12 @@
         if (!mSummary) {
           // If not in match results, try looking up in tournament_matches
           try {
-            const tRes = await fetch(API + "/tournaments");
+            const tRes = await fetch(API + "/tournaments", { cache: "no-store" });
             const tTxt = await tRes.text();
             const tourneys = (tTxt && tTxt.trim().startsWith('[')) ? JSON.parse(tTxt) : [];
             for (let t of tourneys) {
               try {
-                const mRes = await fetch(API + "/tournament-matches/" + t.id);
+                const mRes = await fetch(API + "/tournament-matches/" + t.id, { cache: "no-store" });
                 const mTxt = await mRes.text();
                 const tm = (mTxt && mTxt.trim().startsWith('[')) ? JSON.parse(mTxt) : [];
                 const found = tm.find(m => m.id == matchId);
@@ -11964,7 +11964,7 @@
         // 2. Fetch the full live state (JSON) if it exists in SQL for this match ID
         let fullState = null;
         try {
-          const liveRes = await fetch(API + "/live-matches/" + matchId);
+          const liveRes = await fetch(API + "/live-matches/" + matchId, { cache: "no-store" });
           if (liveRes.ok) {
             const liveData = await liveRes.json();
             if (liveData && liveData.match_state) {
@@ -11976,7 +11976,7 @@
         // 3. Fetch player stats for the match (as fallback or supplement)
         let stats = [];
         try {
-          const statsRes = await fetch(API + "/player-stats-by-match?match_id=" + matchId);
+          const statsRes = await fetch(API + "/player-stats-by-match?match_id=" + matchId, { cache: "no-store" });
           const statsText = await statsRes.text();
           if (statsText && statsText.trim().startsWith('[')) {
             stats = JSON.parse(statsText);
@@ -12130,7 +12130,7 @@
         let lookupTId = tId || (finalSummary ? finalSummary.tournament_id : null);
         if (lookupTId) {
           try {
-            const tRes = await fetch(API + "/all-tournaments");
+            const tRes = await fetch(API + "/all-tournaments", { cache: "no-store" });
             if (tRes.ok) {
               const tournaments = await tRes.json();
               const currentT = tournaments.find(t => t.id == lookupTId);
