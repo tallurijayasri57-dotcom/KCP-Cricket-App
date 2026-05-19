@@ -14043,21 +14043,40 @@
       let container = document.getElementById("ptab-teams");
       if (!container) return;
 
-      // Extract unique teams from currentProfileMatches (History)
       let teamsMap = {};
       currentProfileMatches.forEach(m => {
-        if (m.team_name && !teamsMap[m.team_name]) {
-          teamsMap[m.team_name] = { name: m.team_name, matches: 0, isRegistered: false };
+        let playerTeam = null;
+        if (m.player_stats && m.player_stats.length > 0) {
+          let stat = m.player_stats.find(ps => ps.team_name);
+          if (stat) playerTeam = stat.team_name;
         }
-        if (m.team_name) teamsMap[m.team_name].matches++;
+        let tName = playerTeam || m.team_name;
+
+        if (tName) {
+          if (!teamsMap[tName]) {
+            teamsMap[tName] = { name: tName, matches: 0, won: 0, lost: 0, sinceDate: null, isRegistered: false, logo: null };
+          }
+          let tm = teamsMap[tName];
+          tm.matches++;
+          if (m.winner === tName) tm.won++;
+          else if (m.loser === tName) tm.lost++;
+
+          if (m.match_date) {
+            let pDate = new Date(m.match_date);
+            if (!isNaN(pDate) && (!tm.sinceDate || pDate < tm.sinceDate)) {
+              tm.sinceDate = pDate;
+            }
+          }
+        }
       });
 
       // Merge with registeredProfileTeams
       window.registeredProfileTeams.forEach(t => {
         if (!teamsMap[t.team_name]) {
-          teamsMap[t.team_name] = { name: t.team_name, matches: 0, isRegistered: true };
+          teamsMap[t.team_name] = { name: t.team_name, matches: 0, won: 0, lost: 0, sinceDate: null, isRegistered: true, logo: t.logo };
         } else {
           teamsMap[t.team_name].isRegistered = true;
+          if (t.logo) teamsMap[t.team_name].logo = t.logo;
         }
       });
 
@@ -14068,16 +14087,46 @@
         return;
       }
 
-      let html = `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:16px; padding:10px;">`;
+      function getInitials(n) {
+        if(!n) return "T";
+        let parts = n.trim().split(' ');
+        if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+        if (parts.length === 1 && parts[0].length >= 2) return parts[0].substring(0, 2).toUpperCase();
+        return n.substring(0, 1).toUpperCase();
+      }
+
+      let html = `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:16px; padding:10px;">`;
       teams.forEach(t => {
-        let statusTag = t.isRegistered ? `<span style="background:rgba(16,185,129,0.1); color:#10b981; font-size:10px; padding:2px 8px; border-radius:10px; font-weight:600; margin-top:4px;">REGISTERED</span>` : "";
+        let sinceStr = "N/A";
+        if (t.sinceDate) {
+          let parts = t.sinceDate.toDateString().split(' '); // e.g. "Tue Mar 24 2026"
+          if (parts.length >= 4) {
+            sinceStr = `${parts[2]} ${parts[1]}, ${parts[3]}`; // "24 Mar, 2026"
+          } else {
+            sinceStr = t.sinceDate.toLocaleDateString();
+          }
+        }
+        
+        let logoHtml = "";
+        if (t.logo) {
+          logoHtml = `<img src="${t.logo}" style="width:70px; height:70px; object-fit:contain; border-radius:4px;">`;
+        } else {
+          logoHtml = `<div style="width:70px; height:70px; background:#ef4444; color:#ffffff; display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:400; border-radius:4px; font-family:'Inter',sans-serif;">${getInitials(t.name)}</div>`;
+        }
+
         html += `
-          <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:20px; display:flex; align-items:center; gap:16px; transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='rgba(255,255,255,0.03)'">
-            <div style="width:54px; height:54px; border-radius:14px; background:linear-gradient(135deg, #0d9488, #1e40af); display:flex; align-items:center; justify-content:center; font-size:24px; box-shadow:0 4px 12px rgba(0,0,0,0.2);">🏏</div>
-            <div style="display:flex; flex-direction:column;">
-              <div style="font-family:'Rajdhani',sans-serif; font-size:19px; font-weight:700; color:#f8fafc; line-height:1.2;">${t.name}</div>
-              <div style="font-size:12px; color:#94a3b8; margin-top:2px;">${t.matches} Matches played</div>
-              ${statusTag}
+          <div style="background:#ffffff; border:1px solid #e5e7eb; border-radius:8px; padding:12px; display:flex; align-items:center; gap:16px; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+            ${logoHtml}
+            <div style="display:flex; flex-direction:column; flex:1;">
+              <div style="font-family:'Inter',sans-serif; font-size:15px; font-weight:700; color:#111827; line-height:1.2;">${t.name}</div>
+              <div style="font-family:'Inter',sans-serif; font-size:13px; font-style:italic; color:#9ca3af; margin-top:4px; margin-bottom:8px;">Since ${sinceStr}</div>
+              <div style="display:flex; align-items:center; gap:14px; font-family:'Inter',sans-serif; font-size:13px; color:#9ca3af; border-top:1px solid #f3f4f6; padding-top:8px;">
+                <div>Played <span style="font-weight:700; color:#111827;">${t.matches}</span></div>
+                <div style="width:1px; height:12px; background:#e5e7eb;"></div>
+                <div>Won <span style="font-weight:700; color:#111827;">${t.won}</span></div>
+                <div style="width:1px; height:12px; background:#e5e7eb;"></div>
+                <div>Lost <span style="font-weight:700; color:#111827;">${t.lost}</span></div>
+              </div>
             </div>
           </div>
         `;
