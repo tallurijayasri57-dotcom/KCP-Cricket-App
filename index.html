@@ -9749,10 +9749,75 @@
 
     let currentLiveMatchId = null;
 
+    function formatDismissalText(type, dismissedBy, bowler) {
+      if (!type || type.toLowerCase() === 'not out') return 'not out';
+      let t = type.toLowerCase().trim();
+      let db = (dismissedBy || '').trim();
+      let b = (bowler || '').trim();
+
+      if (t === 'bowled') {
+        return 'b ' + (db || b);
+      }
+      if (t === 'caught') {
+        if (db.includes(' b ')) return 'c ' + db;
+        return 'c ' + db + (b ? ' b ' + b : '');
+      }
+      if (t === 'stumped') {
+        if (db.includes(' b ')) return 'st ' + db;
+        return 'st ' + db + (b ? ' b ' + b : '');
+      }
+      if (t === 'run out') {
+        let cleanDb = db.replace(/\s*&\s*/g, ' / ');
+        return 'run out ' + cleanDb;
+      }
+      if (t === 'lbw') {
+        if (db.includes(' b ')) return 'lbw ' + db;
+        return 'lbw b ' + (db || b);
+      }
+      if (t === 'retired hurt') {
+        return 'retired hurt';
+      }
+      return type + (db ? ' ' + db : '') + (b ? ' b ' + b : '');
+    }
+
     // ---- Home banner: show welcome-tournament if user has tournaments, else default ----
     // ---- Home banner: show welcome-tournament if user has tournaments, else default ----
     async function updateLiveScore(forcedStatus, forcedResult) {
       if (!currentLiveMatchId || !window.fbSetDoc) return;
+
+      // Ensure active batsmen have sequence numbers
+      let currentStrike = document.getElementById('strike') ? document.getElementById('strike').value : '';
+      let currentNonStrike = document.getElementById('nonstrike') ? document.getElementById('nonstrike').value : '';
+      let currentBowler = document.getElementById('bowler') ? document.getElementById('bowler').value : '';
+
+      if (currentStrike && batsmanStats[currentStrike] && !batsmanStats[currentStrike].batOrder) {
+        let maxOrder = 0;
+        for (let p in batsmanStats) {
+          if (batsmanStats[p].batOrder && batsmanStats[p].batOrder > maxOrder) {
+            maxOrder = batsmanStats[p].batOrder;
+          }
+        }
+        batsmanStats[currentStrike].batOrder = maxOrder + 1;
+      }
+      if (currentNonStrike && batsmanStats[currentNonStrike] && !batsmanStats[currentNonStrike].batOrder) {
+        let maxOrder = 0;
+        for (let p in batsmanStats) {
+          if (batsmanStats[p].batOrder && batsmanStats[p].batOrder > maxOrder) {
+            maxOrder = batsmanStats[p].batOrder;
+          }
+        }
+        batsmanStats[currentNonStrike].batOrder = maxOrder + 1;
+      }
+      // Ensure active bowler has sequence number
+      if (currentBowler && bowlerStats[currentBowler] && !bowlerStats[currentBowler].bowlOrder) {
+        let maxOrder = 0;
+        for (let p in bowlerStats) {
+          if (bowlerStats[p].bowlOrder && bowlerStats[p].bowlOrder > maxOrder) {
+            maxOrder = bowlerStats[p].bowlOrder;
+          }
+        }
+        bowlerStats[currentBowler].bowlOrder = maxOrder + 1;
+      }
 
       // Use cached player photos if available to avoid heavy loops
       let playerPhotos = window._matchPlayerPhotos || {};
@@ -9834,11 +9899,15 @@
           sr: batsmanStats[name].balls > 0 ? ((batsmanStats[name].runs / batsmanStats[name].balls) * 100).toFixed(2) : "0.00",
           isStrike: name === document.getElementById('strike').value,
           isOut: outBatsmen.includes(name),
-          outDesc: batsmanStats[name].dismissal_type ? (batsmanStats[name].dismissal_type + (batsmanStats[name].dismissed_by && batsmanStats[name].dismissed_by_bowler ? ' ' + batsmanStats[name].dismissed_by + ' b ' + batsmanStats[name].dismissed_by_bowler : (batsmanStats[name].dismissed_by ? ' ' + batsmanStats[name].dismissed_by : ''))) : (outBatsmen.includes(name) ? 'out' : 'not out'),
+          outDesc: formatDismissalText(batsmanStats[name].dismissal_type, batsmanStats[name].dismissed_by, batsmanStats[name].dismissed_by_bowler || document.getElementById('bowler').value),
           dismissal_type: batsmanStats[name].dismissal_type || (outBatsmen.includes(name) ? 'out' : ''),
           shot_types: batsmanStats[name].shot_types || [],
-          wagon_wheel: batsmanStats[name].wagon_wheel || []
-        })),
+          wagon_wheel: batsmanStats[name].wagon_wheel || [],
+          batOrder: batsmanStats[name].batOrder || Infinity
+        })).sort((a, b) => {
+          if (a.batOrder !== b.batOrder) return a.batOrder - b.batOrder;
+          return a.name.localeCompare(b.name);
+        }),
         bowlers: Object.keys(bowlerStats).map(name => ({
           name: name,
           overs: Math.floor(bowlerStats[name].balls / 6) + "." + (bowlerStats[name].balls % 6),
@@ -9854,8 +9923,12 @@
           run_outs: bowlerStats[name].run_outs || 0,
           stumpings: bowlerStats[name].stumpings || 0,
           eco: bowlerStats[name].balls > 0 ? ((bowlerStats[name].runs / (bowlerStats[name].balls / 6))).toFixed(2) : "0.00",
-          isCurrent: name === document.getElementById('bowler').value
-        })),
+          isCurrent: name === document.getElementById('bowler').value,
+          bowlOrder: bowlerStats[name].bowlOrder || Infinity
+        })).sort((a, b) => {
+          if (a.bowlOrder !== b.bowlOrder) return a.bowlOrder - b.bowlOrder;
+          return a.name.localeCompare(b.name);
+        }),
         commentary: matchCommentary,
         yetToBat: batPlayers.filter(p => !Object.keys(batsmanStats).includes(p)).join(", "),
         extras: totalRuns - Object.values(batsmanStats).reduce((acc, b) => acc + b.runs, 0),
@@ -9885,9 +9958,13 @@
             return {
               name: name, runs: s.runs, balls: s.balls, fours: s.fours, sixes: s.sixes,
               sr: s.balls > 0 ? ((s.runs / s.balls) * 100).toFixed(2) : "0.00",
-              outDesc: s.dismissal_type ? s.dismissal_type + (s.dismissed_by && s.dismissed_by_bowler ? ' ' + s.dismissed_by + ' b ' + s.dismissed_by_bowler : (s.dismissed_by ? ' ' + s.dismissed_by : '')) : 'not out',
-              isOut: !!s.dismissal_type
+              outDesc: formatDismissalText(s.dismissal_type, s.dismissed_by, s.dismissed_by_bowler),
+              isOut: !!s.dismissal_type,
+              batOrder: s.batOrder || Infinity
             };
+          }).sort((a, b) => {
+            if (a.batOrder !== b.batOrder) return a.batOrder - b.batOrder;
+            return a.name.localeCompare(b.name);
           }),
           bowlers: Object.keys(innings1BowlStats).map(name => {
             let s = innings1BowlStats[name];
@@ -9895,8 +9972,12 @@
               name: name, overs: formatOvers(s.balls || 0),
               maidens: s.maidens || 0, runs: s.runs, wickets: s.wickets,
               catches: s.catches || 0, run_outs: s.run_outs || 0, stumpings: s.stumpings || 0,
-              eco: s.balls > 0 ? ((s.runs / (s.balls / 6))).toFixed(2) : "0.00"
+              eco: s.balls > 0 ? ((s.runs / (s.balls / 6))).toFixed(2) : "0.00",
+              bowlOrder: s.bowlOrder || Infinity
             };
+          }).sort((a, b) => {
+            if (a.bowlOrder !== b.bowlOrder) return a.bowlOrder - b.bowlOrder;
+            return a.name.localeCompare(b.name);
           }),
           extras: (target > 0 ? target - 1 : 0) - Object.values(innings1BatStats).reduce((acc, b) => acc + b.runs, 0)
         } : null,
@@ -9909,14 +9990,22 @@
           batsmen: Object.keys(batsmanStats).map(name => ({
             name: name, runs: batsmanStats[name].runs, balls: batsmanStats[name].balls, fours: batsmanStats[name].fours, sixes: batsmanStats[name].sixes,
             sr: batsmanStats[name].balls > 0 ? ((batsmanStats[name].runs / batsmanStats[name].balls) * 100).toFixed(2) : "0.00",
-            outDesc: batsmanStats[name].dismissal_type ? (batsmanStats[name].dismissal_type + (batsmanStats[name].dismissed_by && batsmanStats[name].dismissed_by_bowler ? ' ' + batsmanStats[name].dismissed_by + ' b ' + batsmanStats[name].dismissed_by_bowler : (batsmanStats[name].dismissed_by ? ' ' + batsmanStats[name].dismissed_by : ''))) : (outBatsmen.includes(name) ? 'out' : 'not out'),
-            isOut: outBatsmen.includes(name)
-          })),
+            outDesc: formatDismissalText(batsmanStats[name].dismissal_type, batsmanStats[name].dismissed_by, batsmanStats[name].dismissed_by_bowler || document.getElementById('bowler').value),
+            isOut: outBatsmen.includes(name),
+            batOrder: batsmanStats[name].batOrder || Infinity
+          })).sort((a, b) => {
+            if (a.batOrder !== b.batOrder) return a.batOrder - b.batOrder;
+            return a.name.localeCompare(b.name);
+          }),
           bowlers: Object.keys(bowlerStats).map(name => ({
             name: name, overs: formatOvers(bowlerStats[name].balls || 0),
             maidens: bowlerStats[name].maidens || 0, runs: bowlerStats[name].runs, wickets: bowlerStats[name].wickets,
-            eco: bowlerStats[name].balls > 0 ? ((bowlerStats[name].runs / (bowlerStats[name].balls / 6))).toFixed(2) : "0.00"
-          })),
+            eco: bowlerStats[name].balls > 0 ? ((bowlerStats[name].runs / (bowlerStats[name].balls / 6))).toFixed(2) : "0.00",
+            bowlOrder: bowlerStats[name].bowlOrder || Infinity
+          })).sort((a, b) => {
+            if (a.bowlOrder !== b.bowlOrder) return a.bowlOrder - b.bowlOrder;
+            return a.name.localeCompare(b.name);
+          }),
           extras: totalRuns - Object.values(batsmanStats).reduce((acc, b) => acc + b.runs, 0)
         } : null
       };
@@ -11920,7 +12009,7 @@
               name: p.player_name, runs: p.runs, balls: p.balls_faced,
               fours: p.fours, sixes: p.sixes,
               sr: (p.strike_rate && parseFloat(p.strike_rate) > 0) ? parseFloat(p.strike_rate).toFixed(2) : (p.balls_faced > 0 ? ((p.runs / p.balls_faced) * 100).toFixed(2) : '0.00'),
-              outDesc: p.dismissal_type ? (p.dismissal_type === 'Bowled' ? 'b ' + p.dismissed_by : p.dismissal_type) : 'not out',
+              outDesc: formatDismissalText(p.dismissal_type, p.dismissed_by),
               isOut: !!(p.dismissal_type && p.dismissal_type !== 'not out')
             })),
             bowlers: bowl.map(p => ({
@@ -12215,7 +12304,7 @@
             fours: p.fours,
             sixes: p.sixes,
             sr: (p.strike_rate && parseFloat(p.strike_rate) > 0) ? parseFloat(p.strike_rate).toFixed(2) : (p.balls_faced > 0 ? ((p.runs / p.balls_faced) * 100).toFixed(2) : '0.00'),
-            outDesc: p.dismissal_type ? (p.dismissal_type === 'Bowled' ? 'b ' + p.dismissed_by : p.dismissal_type + (p.dismissed_by ? ' ' + p.dismissed_by : '')) : 'not out',
+            outDesc: formatDismissalText(p.dismissal_type, p.dismissed_by),
             isOut: p.dismissal_type && p.dismissal_type !== 'not out',
             shot_types: p.shot_types ? p.shot_types.split(',') : [],
             wagon_wheel: p.wagon_wheel ? p.wagon_wheel.split(',') : []
@@ -14141,27 +14230,98 @@
 
     async function updateAllPlayerStatsAfterMatch(inningsNum) {
       const today = new Date().toISOString().split("T")[0];
-      const saves = [];
       if (inningsNum === 2 && Object.keys(innings1BatStats).length > 0) {
-        for (let p in innings1BatStats) {
+        const sortedI1BatKeys = Object.keys(innings1BatStats).sort((a, b) => {
+          let orderA = innings1BatStats[a].batOrder || Infinity;
+          let orderB = innings1BatStats[b].batOrder || Infinity;
+          if (orderA !== orderB) return orderA - orderB;
+          return a.localeCompare(b);
+        });
+        for (let p of sortedI1BatKeys) {
           let s = innings1BatStats[p];
-          saves.push(fetch(API + "/player-stats", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ player_name: p, team_name: innings1BatTeam, opponent_team: innings1BowlTeam, match_date: today, match_type: "bat", runs: s.runs, balls_faced: s.balls, fours: s.fours, sixes: s.sixes, dismissal_type: s.dismissal_type || null, dismissed_by: (s.dismissed_by && s.dismissed_by_bowler ? s.dismissed_by + " b " + s.dismissed_by_bowler : s.dismissed_by) || null, match_id: currentMatchId, innings: 1 }) }).catch(e => console.error(e)));
+          try {
+            await fetch(API + "/player-stats", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                player_name: p, team_name: innings1BatTeam, opponent_team: innings1BowlTeam,
+                match_date: today, match_type: "bat", runs: s.runs, balls_faced: s.balls,
+                fours: s.fours, sixes: s.sixes, dismissal_type: s.dismissal_type || null,
+                dismissed_by: (s.dismissed_by && s.dismissed_by_bowler ? s.dismissed_by + " b " + s.dismissed_by_bowler : s.dismissed_by) || null,
+                match_id: currentMatchId, innings: 1
+              })
+            });
+          } catch(e) { console.error(e); }
         }
-        for (let p in innings1BowlStats) {
+        const sortedI1BowlKeys = Object.keys(innings1BowlStats).sort((a, b) => {
+          let orderA = innings1BowlStats[a].bowlOrder || Infinity;
+          let orderB = innings1BowlStats[b].bowlOrder || Infinity;
+          if (orderA !== orderB) return orderA - orderB;
+          return a.localeCompare(b);
+        });
+        for (let p of sortedI1BowlKeys) {
           let s = innings1BowlStats[p];
-          saves.push(fetch(API + "/player-stats", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ player_name: p, team_name: innings1BowlTeam, opponent_team: innings1BatTeam, match_date: today, match_type: "bowl", wickets: s.wickets, overs_bowled: Math.floor(s.balls / 6) + "." + (s.balls % 6), runs_conceded: s.runs, catches: s.catches || 0, run_outs: s.run_outs || 0, stumpings: s.stumpings || 0, match_id: currentMatchId, innings: 1 }) }).catch(e => console.error(e)));
+          try {
+            await fetch(API + "/player-stats", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                player_name: p, team_name: innings1BowlTeam, opponent_team: innings1BatTeam,
+                match_date: today, match_type: "bowl", wickets: s.wickets,
+                overs_bowled: Math.floor(s.balls / 6) + "." + (s.balls % 6), runs_conceded: s.runs,
+                catches: s.catches || 0, run_outs: s.run_outs || 0, stumpings: s.stumpings || 0,
+                match_id: currentMatchId, innings: 1
+              })
+            });
+          } catch(e) { console.error(e); }
         }
       }
-      for (let p in batsmanStats) {
+      const sortedBatKeys = Object.keys(batsmanStats).sort((a, b) => {
+        let orderA = batsmanStats[a].batOrder || Infinity;
+        let orderB = batsmanStats[b].batOrder || Infinity;
+        if (orderA !== orderB) return orderA - orderB;
+        return a.localeCompare(b);
+      });
+      for (let p of sortedBatKeys) {
         let s = batsmanStats[p];
-        saves.push(fetch(API + "/player-stats", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ player_name: p, team_name: matchBatTeam, opponent_team: matchBowlTeam, match_date: today, match_type: "bat", runs: s.runs, balls_faced: s.balls, fours: s.fours, sixes: s.sixes, dismissal_type: s.dismissal_type || null, dismissed_by: (s.dismissed_by && s.dismissed_by_bowler ? s.dismissed_by + " b " + s.dismissed_by_bowler : s.dismissed_by) || null, match_id: currentMatchId, innings: inningsNum, shot_types: s.shot_types ? s.shot_types.join(",") : null, wagon_wheel: s.wagon_wheel ? s.wagon_wheel.join(",") : null }) }).catch(e => console.error(e)));
+        try {
+          await fetch(API + "/player-stats", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              player_name: p, team_name: matchBatTeam, opponent_team: matchBowlTeam,
+              match_date: today, match_type: "bat", runs: s.runs, balls_faced: s.balls,
+              fours: s.fours, sixes: s.sixes, dismissal_type: s.dismissal_type || null,
+              dismissed_by: (s.dismissed_by && s.dismissed_by_bowler ? s.dismissed_by + " b " + s.dismissed_by_bowler : s.dismissed_by) || null,
+              match_id: currentMatchId, innings: inningsNum,
+              shot_types: s.shot_types ? s.shot_types.join(",") : null,
+              wagon_wheel: s.wagon_wheel ? s.wagon_wheel.join(",") : null
+            })
+          });
+        } catch(e) { console.error(e); }
       }
-      for (let p in bowlerStats) {
+      const sortedBowlKeys = Object.keys(bowlerStats).sort((a, b) => {
+        let orderA = bowlerStats[a].bowlOrder || Infinity;
+        let orderB = bowlerStats[b].bowlOrder || Infinity;
+        if (orderA !== orderB) return orderA - orderB;
+        return a.localeCompare(b);
+      });
+      for (let p of sortedBowlKeys) {
         let s = bowlerStats[p];
-        saves.push(fetch(API + "/player-stats", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ player_name: p, team_name: matchBowlTeam, opponent_team: matchBatTeam, match_date: today, match_type: "bowl", wickets: s.wickets, overs_bowled: Math.floor(s.balls / 6) + "." + (s.balls % 6), runs_conceded: s.runs, catches: s.catches || 0, run_outs: s.run_outs || 0, stumpings: s.stumpings || 0, match_id: currentMatchId, innings: inningsNum }) }).catch(e => console.error(e)));
+        try {
+          await fetch(API + "/player-stats", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              player_name: p, team_name: matchBowlTeam, opponent_team: matchBatTeam,
+              match_date: today, match_type: "bowl", wickets: s.wickets,
+              overs_bowled: Math.floor(s.balls / 6) + "." + (s.balls % 6), runs_conceded: s.runs,
+              catches: s.catches || 0, run_outs: s.run_outs || 0, stumpings: s.stumpings || 0,
+              match_id: currentMatchId, innings: inningsNum
+            })
+          });
+        } catch(e) { console.error(e); }
       }
-
-      await Promise.all(saves);
 
       // Trigger background sync to Firebase for all participating players!
       let playersToSync = new Set();
