@@ -11141,9 +11141,12 @@
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
             <div style="font-family:'Rajdhani',sans-serif; font-size:22px; font-weight:700; color:#f8fafc;">Tournament Gallery</div>
             <div style="display:flex; gap:10px; align-items:center;">
+              <button onclick="document.getElementById('premiumGalleryUploadInput').click()" style="background:#3b82f6; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-weight:600; cursor:pointer; font-size:12px;">+ Upload</button>
+              <input type="file" id="premiumGalleryUploadInput" accept="image/*" style="display:none;" onchange="uploadPremiumGalleryPhoto(this, '${tid}')">
               <div style="color:#6ee7b7; font-size:12px; cursor:pointer; display:flex; align-items:center;" onclick="renderPremiumGalleryTab(previousLiveMatchState, document.getElementById('matchMainContent'))">Refresh</div>
             </div>
           </div>
+          <div id="premiumGalleryUploadProgress" style="display:none; color:#fbbf24; font-size:12px; text-align:right; margin-bottom:10px;"></div>
           <div id="premiumGalleryGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:12px;">
              <div style="grid-column:1/-1; text-align:center; padding:40px; color:rgba(255,255,255,0.4);">Loading photos...</div>
           </div>
