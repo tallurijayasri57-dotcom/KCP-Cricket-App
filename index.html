@@ -13976,9 +13976,9 @@
 
         let onClickAction = "";
         if (tId && tId !== 'null' && tmId) {
-          onClickAction = `onclick="openTournamentMatchScorecard('${tId}', '${tmId}', 'finished')"`;
+          onClickAction = `onclick="closePlayerProfile(); openTournamentMatchScorecard('${tId}', '${tmId}', 'finished')"`;
         } else if (mId) {
-          onClickAction = `onclick="openMatchScorecardByMatchId('${mId}', 'finished')"`;
+          onClickAction = `onclick="closePlayerProfile(); openMatchScorecardByMatchId('${mId}', 'finished')"`;
         }
 
         // Summarize player's own contribution
