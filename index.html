@@ -13559,8 +13559,9 @@
         let ov1 = parseFloat(m.t1_overs) || 0;
         let ov2 = parseFloat(m.t2_overs) || 0;
 
-        // Map runs to correct teams
-        if (mWinner === (m.team1 || "").toLowerCase().trim()) {
+        // Map runs to correct teams based on batting order (t1_name is the team that batted first)
+        let t1NameLower = (m.t1_name || "").toLowerCase().trim();
+        if (mWinner === t1NameLower) {
           teamStats[winnerKey].runsScored += r1; teamStats[winnerKey].oversFaced += ov1;
           teamStats[winnerKey].runsConceded += r2; teamStats[winnerKey].oversBowled += ov2;
           teamStats[loserKey].runsScored += r2; teamStats[loserKey].oversFaced += ov2;
@@ -15570,7 +15571,7 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             winner, loser, win_type: winType, margin, played_on: today, organiser,
-            series_name: typeof seriesName !== 'undefined' ? seriesName : null,
+            series_name: (typeof currentViewingTournament !== 'undefined' && currentViewingTournament && currentViewingTournament.name) ? currentViewingTournament.name : null,
             commentary: JSON.stringify(matchCommentary),
             match_id: tournamentMatchId || null,
             tournament_id: tournamentId || (currentViewingTournament ? currentViewingTournament.id : null),
