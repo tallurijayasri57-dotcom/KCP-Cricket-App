@@ -10201,7 +10201,7 @@
         }
       };
 
-      liveViewUnsubscribe = window.fbOnSnapshot(window.fbDoc(window.fbDb, "live_matches", matchId.toString().trim()), (doc) => {
+      liveViewUnsubscribe = window.fbOnSnapshot(window.fbDoc(window.fbDb, "live_matches", matchId.toString().trim()), async (doc) => {
         if (!doc.exists()) {
           // Document doesn't exist yet — keep waiting or show error after timeout
           return;
@@ -10211,6 +10211,25 @@
         let mData = doc.data();
         if (!mData) return;
         mData.id = matchId.toString().trim();
+
+        if (!mData.tournamentId) {
+          try {
+            const tRes = await fetch(API + "/tournaments");
+            const tTxt = await tRes.text();
+            const tourneys = (tTxt && tTxt.trim().startsWith('[')) ? JSON.parse(tTxt) : [];
+            for (let t of tourneys) {
+              try {
+                const mRes = await fetch(API + "/tournament-matches/" + t.id);
+                const mTxt = await mRes.text();
+                const tm = (mTxt && mTxt.trim().startsWith('[')) ? JSON.parse(mTxt) : [];
+                if (tm.some(m => m.id == matchId || m.liveMatchId == matchId)) {
+                  mData.tournamentId = t.id;
+                  break;
+                }
+              } catch (ie) { }
+            }
+          } catch (e) { }
+        }
 
         // Ensure we are on the match page and hide any loading overlays
         showPage('matchDetailsPage');
@@ -11093,8 +11112,13 @@
         <div class="premium-card" style="padding:20px;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
             <div style="font-family:'Rajdhani',sans-serif; font-size:22px; font-weight:700; color:#f8fafc;">Tournament Gallery</div>
-            <div style="color:#6ee7b7; font-size:12px; cursor:pointer;" onclick="renderPremiumGalleryTab(previousLiveMatchState, document.getElementById('matchMainContent'))">Refresh</div>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <button onclick="document.getElementById('premiumGalleryUploadInput').click()" style="background:#3b82f6; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-weight:600; cursor:pointer; font-size:12px;">+ Upload</button>
+              <input type="file" id="premiumGalleryUploadInput" accept="image/*" style="display:none;" onchange="uploadPremiumGalleryPhoto(this, '${tid}')">
+              <div style="color:#6ee7b7; font-size:12px; cursor:pointer; display:flex; align-items:center;" onclick="renderPremiumGalleryTab(previousLiveMatchState, document.getElementById('matchMainContent'))">Refresh</div>
+            </div>
           </div>
+          <div id="premiumGalleryUploadProgress" style="display:none; color:#fbbf24; font-size:12px; text-align:right; margin-bottom:10px;"></div>
           <div id="premiumGalleryGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:12px;">
              <div style="grid-column:1/-1; text-align:center; padding:40px; color:rgba(255,255,255,0.4);">Loading photos...</div>
           </div>
@@ -11117,6 +11141,37 @@
         }
       } catch (err) {
         document.getElementById('premiumGalleryGrid').innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:40px; color:#ef4444;">Error loading photos.</div>`;
+      }
+    }
+
+    async function uploadPremiumGalleryPhoto(input, tid) {
+      if (!input.files || input.files.length === 0) return;
+      let file = input.files[0];
+      if (file.size > 5 * 1024 * 1024) return alert('File is too large (max 5MB)');
+      
+      let progress = document.getElementById('premiumGalleryUploadProgress');
+      if (progress) { progress.style.display = 'block'; progress.style.color = '#fbbf24'; progress.innerText = 'Uploading...'; }
+      
+      let formData = new FormData();
+      formData.append('photo', file);
+      formData.append('tournament_id', tid);
+      formData.append('uploaded_by', (typeof currentUser !== 'undefined' && currentUser ? currentUser : 'spectator'));
+      formData.append('caption', 'Match Photo');
+      
+      try {
+        const res = await fetch(API + '/tournament-gallery', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (data.success) {
+          if (progress) { progress.style.color = '#10b981'; progress.innerText = 'Uploaded successfully!'; }
+          setTimeout(() => {
+            renderPremiumGalleryTab(previousLiveMatchState || { tournamentId: tid, tournament_id: tid }, document.getElementById('matchMainContent'));
+          }, 1000);
+        } else {
+          if (progress) { progress.innerText = 'Upload failed.'; progress.style.color = '#ef4444'; }
+        }
+      } catch (e) {
+        console.error(e);
+        if (progress) { progress.innerText = 'Upload error.'; progress.style.color = '#ef4444'; }
       }
     }
 
@@ -11609,6 +11664,7 @@
       localStorage.setItem("currentTournamentMatchIdx", matchId);
       currentTournamentId = tournamentId; // Ensure tournament ID is also tracked
 
+      currentMatchActiveTab = 'summary';
       showPage('matchDetailsPage');
       if (liveViewUnsubscribe) liveViewUnsubscribe();
       previousLiveMatchState = null;
@@ -11834,6 +11890,7 @@
         return;
       }
 
+      currentMatchActiveTab = 'summary';
       showPage('matchDetailsPage');
 
       // Clear previous state
@@ -13976,9 +14033,9 @@
 
         let onClickAction = "";
         if (tId && tId !== 'null' && tmId) {
-          onClickAction = `onclick="closePlayerProfile(); openTournamentMatchScorecard('${tId}', '${tmId}', 'finished')"`;
+          onClickAction = `onclick="openTournamentMatchScorecard('${tId}', '${tmId}', 'finished')"`;
         } else if (mId) {
-          onClickAction = `onclick="closePlayerProfile(); openMatchScorecardByMatchId('${mId}', 'finished')"`;
+          onClickAction = `onclick="openMatchScorecardByMatchId('${mId}', 'finished')"`;
         }
 
         // Summarize player's own contribution
