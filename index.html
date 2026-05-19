@@ -14396,10 +14396,18 @@
       }
 
       try {
-        if (!fbProfile) {
-          await fetch(API + "/player-profile", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ player_name: playerName, team_name: teamName, role: role, runs: 0 }) });
+        try {
           const res = await fetch(API + "/player-match-history/" + encodeURIComponent(playerName), { cache: "no-store" });
-          rows = await res.json();
+          if (res.ok) {
+            const apiRows = await res.json();
+            if (apiRows) rows = apiRows;
+          }
+        } catch (e) {
+          console.warn("API match history fetch failed, using fallback.", e);
+        }
+
+        if (!fbProfile) {
+          fetch(API + "/player-profile", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ player_name: playerName, team_name: teamName, role: role, runs: 0 }) }).catch(e => {});
         }
 
         if (typeof previousLiveMatchState !== 'undefined' && previousLiveMatchState) {
