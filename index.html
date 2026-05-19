@@ -7448,15 +7448,15 @@
     </div>
     <div class="section">
       <h3>Batting Scorecard</h3>
-      <table>
+      <table style="width:100%; table-layout:fixed; border-collapse:collapse;">
         <thead>
           <tr>
-            <th style="text-align:left;">Batter</th>
-            <th>R</th>
-            <th>B</th>
-            <th>4s</th>
-            <th>6s</th>
-            <th>SR</th>
+            <th style="text-align:left; width:32%;">Batter</th>
+            <th style="text-align:center; width:12%;">R</th>
+            <th style="text-align:center; width:12%;">B</th>
+            <th style="text-align:center; width:11%;">4s</th>
+            <th style="text-align:center; width:11%;">6s</th>
+            <th style="text-align:center; width:22%;">SR</th>
           </tr>
         </thead>
         <tbody id="batTable"></tbody>
@@ -7464,14 +7464,14 @@
     </div>
     <div class="section">
       <h3>Bowling</h3>
-      <table>
+      <table style="width:100%; table-layout:fixed; border-collapse:collapse;">
         <thead>
           <tr>
-            <th style="text-align:left;">Bowler</th>
-            <th>O</th>
-            <th>R</th>
-            <th>W</th>
-            <th>Eco</th>
+            <th style="text-align:left; width:32%;">Bowler</th>
+            <th style="text-align:center; width:17%;">O</th>
+            <th style="text-align:center; width:17%;">R</th>
+            <th style="text-align:center; width:17%;">W</th>
+            <th style="text-align:center; width:17%;">Eco</th>
           </tr>
         </thead>
         <tbody id="bowlTable"></tbody>
@@ -9800,10 +9800,6 @@
         }
       } catch (e) { console.warn("Save state captain resolve failed:", e); }
 
-      let res = getMatchResult();
-      let matchFinished = (forcedStatus === "finished") || 
-                           (innings === 2 && (totalRuns >= target || totalWickets >= 10 || (totalOvers > 0 && ballCount >= totalOvers * 6)));
-
       let matchState = {
         id: currentLiveMatchId,
         tournamentId: actualTournamentId,
@@ -9820,9 +9816,6 @@
         matchTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
         target: target,
         innings: innings,
-        winner: matchFinished ? res.winner : null,
-        loser: matchFinished ? res.loser : null,
-        margin: matchFinished ? res.margin : null,
         strike: document.getElementById('strike').value,
         nonstrike: document.getElementById('nonstrike').value,
         bowler: document.getElementById('bowler').value,
@@ -10414,15 +10407,8 @@
         else if (wicketDiff > 0) showEventPopup('WICKET');
         else if ((m.status === 'finished' || m.status === 'Finished') && (old.status !== 'finished' && old.status !== 'Finished')) {
           let awards = calculateMatchAwards(m);
-          let resolvedWinner = m.winner;
-          if (!resolvedWinner && m.matchStatus) {
-            let wm = m.matchStatus.match(/^(.+?) won/);
-            if (wm) resolvedWinner = wm[1].trim();
-          }
-          if (!resolvedWinner) resolvedWinner = m.batTeam;
-
           showEventPopup('WINNER', {
-            winner: resolvedWinner,
+            winner: m.winner || m.batTeam,
             margin: m.matchStatus || m.margin,
             momName: awards.mvp ? awards.mvp.name : 'N/A',
             momStats: awards.mvp ? (awards.mvp.batData ? awards.mvp.batData.runs + '(' + awards.mvp.batData.balls + ')' : '') + (awards.mvp.bowlData ? ' • ' + awards.mvp.bowlData.wickets + ' wkts' : '') : ''
@@ -11665,78 +11651,55 @@
         let extras = Math.max(0, (parseInt(inn.runs) || 0) - batRunsSum);
 
         return `
-          <div class="premium-card" style="margin-bottom: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; width: 100%; box-sizing: border-box;">
+          <div class="premium-card" style="margin-bottom: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px;">
             <div onclick="const d = document.getElementById('innDetails_${title.replace(/\s+/g, '')}'); d.style.display = d.style.display === 'none' ? 'block' : 'none'" 
-                 style="padding:12px 16px; background:rgba(255,255,255,0.05); display:flex; justify-content:space-between; align-items:center; cursor:pointer; width: 100%; box-sizing: border-box;">
+                 style="padding:12px 16px; background:rgba(255,255,255,0.05); display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
               <div style="font-weight:700; color:#f8fafc; text-transform:uppercase;">${inn.batTeam || title}</div>
               <div style="display:flex; align-items:center; gap:8px;">
                 <div style="font-weight:700; color:#f8fafc;">${inn.runs}/${inn.wickets} <span style="font-weight:500; font-size:12px; color:rgba(255,255,255,0.5);">(${oversStr} Ov)</span></div>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
               </div>
             </div>
-            <div id="innDetails_${title.replace(/\s+/g, '')}" style="display:${isOpen ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
-              <div style="overflow-x: hidden; padding: 0 16px 16px 16px; width: 100%; box-sizing: border-box;">
-                <table class="sc-table" style="width:100%; border-collapse:collapse; table-layout:fixed;">
-                  <thead>
-                    <tr style="border-bottom:1px solid rgba(255,255,255,0.1);">
-                      <th style="text-align:left; padding:8px 4px; color:#94a3b8; width:38%; font-size:12px;">Batters</th>
-                      <th style="padding:8px 4px; text-align:center; color:#94a3b8; width:11%; font-size:12px;">R</th>
-                      <th style="padding:8px 4px; text-align:center; color:#94a3b8; width:11%; font-size:12px;">B</th>
-                      <th style="padding:8px 4px; text-align:center; color:#94a3b8; width:10%; font-size:12px;">4s</th>
-                      <th style="padding:8px 4px; text-align:center; color:#94a3b8; width:10%; font-size:12px;">6s</th>
-                      <th style="padding:8px 4px; text-align:center; color:#94a3b8; width:20%; font-size:12px;">SR</th>
-                    </tr>
-                  </thead>
+            <div id="innDetails_${title.replace(/\s+/g, '')}" style="display:${isOpen ? 'block' : 'none'};">
+              <div style="overflow-x: auto; padding: 0 16px 16px 16px; width: 100%; box-sizing: border-box; -webkit-overflow-scrolling: touch;">
+                <table class="sc-table" style="width:100%; min-width:480px; border-collapse:collapse;">
+                  <thead><tr style="border-bottom:1px solid rgba(255,255,255,0.1);"><th style="text-align:left; padding:10px; color:#94a3b8; width:40%;">Batters</th><th style="padding:10px; text-align:center;">R</th><th style="padding:10px; text-align:center;">B</th><th style="padding:10px; text-align:center;">4s</th><th style="padding:10px; text-align:center;">6s</th><th style="padding:10px; text-align:center;">SR</th></tr></thead>
                   <tbody>
                     ${(inn.batsmen || []).map(b => `
                       <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-                        <td style="padding:8px 4px; text-align:left !important; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-                          <div class="player-name-truncate" style="color:#f8fafc; font-weight:600; font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${b.name}</div>
-                          <div style="font-size:10px; color:#94a3b8; margin-top:2px; line-height:1.2; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${b.outDesc || 'not out'}</div>
-                        </td>
-                        <td style="text-align:center; color:#f8fafc; font-size:13px; padding:8px 4px;">${b.runs}</td>
-                        <td style="text-align:center; color:#94a3b8; font-size:13px; padding:8px 4px;">${b.balls}</td>
-                        <td style="text-align:center; color:#94a3b8; font-size:13px; padding:8px 4px;">${b.fours}</td>
-                        <td style="text-align:center; color:#94a3b8; font-size:13px; padding:8px 4px;">${b.sixes}</td>
-                        <td style="text-align:center; color:#94a3b8; font-size:13px; padding:8px 4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${b.sr}</td>
+                        <td style="padding:10px; text-align:left !important;"><div class="player-name-truncate" style="color:#f8fafc; font-weight:600;">${b.name}</div><div style="font-size:11px; color:#94a3b8; margin-top:2px; line-height:1.2;">${b.outDesc || 'not out'}</div></td>
+                        <td style="text-align:center; color:#f8fafc;">${b.runs}</td>
+                        <td style="text-align:center; color:#94a3b8;">${b.balls}</td>
+                        <td style="text-align:center; color:#94a3b8;">${b.fours}</td>
+                        <td style="text-align:center; color:#94a3b8;">${b.sixes}</td>
+                        <td style="text-align:center; color:#94a3b8; padding-right:10px;">${b.sr}</td>
                       </tr>
                     `).join('')}
                     <!-- Extras Row -->
                     <tr style="border-bottom:1px solid rgba(255,255,255,0.05); background:rgba(255,255,255,0.02);">
-                      <td style="padding:8px 4px; color:#94a3b8; font-weight:600; text-align:left !important; font-size:13px;">Extras</td>
-                      <td colspan="5" style="text-align:right; color:#f8fafc; font-weight:700; padding-right:8px; font-size:13px;">${extras}</td>
+                      <td style="padding:10px; color:#94a3b8; font-weight:600; text-align:left !important;">Extras</td>
+                      <td colspan="5" style="text-align:right; color:#f8fafc; font-weight:700; padding-right:10px;">${extras}</td>
                     </tr>
                     <!-- Total Row -->
                     <tr style="border-bottom:1px solid rgba(255,255,255,0.1); background:rgba(110,231,183,0.05);">
-                      <td style="padding:8px 4px; color:#6ee7b7; font-weight:700; text-align:left !important; font-size:13px;">Total</td>
-                      <td colspan="5" style="text-align:right; color:#6ee7b7; font-weight:800; padding-right:8px; font-size:13px;">${inn.runs}/${inn.wickets} <span style="font-weight:500; font-size:11px; color:rgba(255,255,255,0.6);">(${oversStr} Ov)</span></td>
+                      <td style="padding:10px; color:#6ee7b7; font-weight:700; text-align:left !important;">Total</td>
+                      <td colspan="5" style="text-align:right; color:#6ee7b7; font-weight:800; padding-right:10px;">${inn.runs}/${inn.wickets} <span style="font-weight:500; font-size:12px; color:rgba(255,255,255,0.6);">(${oversStr} Ov)</span></td>
                     </tr>
                   </tbody>
                 </table>
               </div>
-              <div style="overflow-x: hidden; padding: 0 16px 16px 16px; width: 100%; box-sizing: border-box;">
-                <table class="sc-table" style="width:100%; border-collapse:collapse; margin-top:15px; table-layout:fixed;">
-                  <thead>
-                    <tr style="border-bottom:1px solid rgba(255,255,255,0.1);">
-                      <th style="text-align:left; padding:8px 4px; color:#94a3b8; width:38%; font-size:12px;">Bowlers</th>
-                      <th style="padding:8px 4px; text-align:center; color:#94a3b8; width:11%; font-size:12px;">O</th>
-                      <th style="padding:8px 4px; text-align:center; color:#94a3b8; width:11%; font-size:12px;">M</th>
-                      <th style="padding:8px 4px; text-align:center; color:#94a3b8; width:10%; font-size:12px;">R</th>
-                      <th style="padding:8px 4px; text-align:center; color:#94a3b8; width:10%; font-size:12px;">W</th>
-                      <th style="padding:8px 4px; text-align:center; color:#94a3b8; width:20%; font-size:12px;">Eco</th>
-                    </tr>
-                  </thead>
+              <div style="overflow-x: auto; padding: 0 16px 16px 16px; width: 100%; box-sizing: border-box; -webkit-overflow-scrolling: touch;">
+                <table class="sc-table" style="width:100%; min-width:480px; border-collapse:collapse; margin-top:15px;">
+                  <thead><tr style="border-bottom:1px solid rgba(255,255,255,0.1);"><th style="text-align:left; padding:10px; color:#94a3b8; width:40%;">Bowlers</th><th style="padding:10px; text-align:center;">O</th><th style="padding:10px; text-align:center;">M</th><th style="padding:10px; text-align:center;">R</th><th style="padding:10px; text-align:center;">W</th><th style="padding:10px; text-align:center;">Eco</th></tr></thead>
                   <tbody>
                     ${(inn.bowlers || []).map(b => `
                       <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-                        <td style="padding:8px 4px; text-align:left !important; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-                          <div class="player-name-truncate" style="color:#f8fafc; font-weight:600; font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${b.name}</div>
-                        </td>
-                        <td style="text-align:center; color:#f8fafc; font-size:13px; padding:8px 4px;">${b.overs}</td>
-                        <td style="text-align:center; color:#94a3b8; font-size:13px; padding:8px 4px;">${b.maidens || 0}</td>
-                        <td style="text-align:center; color:#94a3b8; font-size:13px; padding:8px 4px;">${b.runs}</td>
-                        <td style="text-align:center; color:#6ee7b7; font-weight:700; font-size:13px; padding:8px 4px;">${b.wickets}</td>
-                        <td style="text-align:center; color:#94a3b8; font-size:13px; padding:8px 4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${b.eco}</td>
+                        <td style="padding:10px; text-align:left !important;"><div class="player-name-truncate" style="color:#f8fafc; font-weight:600;">${b.name}</div></td>
+                        <td style="text-align:center; color:#f8fafc;">${b.overs}</td>
+                        <td style="text-align:center; color:#94a3b8;">${b.maidens || 0}</td>
+                        <td style="text-align:center; color:#94a3b8;">${b.runs}</td>
+                        <td style="text-align:center; color:#6ee7b7; font-weight:700;">${b.wickets}</td>
+                        <td style="text-align:center; color:#94a3b8; padding-right:10px;">${b.eco}</td>
                       </tr>
                     `).join('')}
                   </tbody>
@@ -14128,7 +14091,10 @@
       fetch(API + "/match-results", { cache: "no-store" }).then(res => res.json()).then(data => {
         if (data.length === 0) { content.innerHTML = "<div class='no-results'>No matches played yet.</div>"; return; }
         let html = "";
-        data.forEach(m => { html += '<div class="match-result-card"><div class="winner-row">🏆 ' + m.winner + ' won</div><div class="detail-row">vs ' + m.loser + ' &nbsp;·&nbsp; ' + m.win_type + ' by ' + m.margin + ' &nbsp;·&nbsp; ' + m.played_on + '</div></div>'; });
+        data.forEach(m => {
+          let resultText = m.winner === "Match Tied" ? "Match Tied" : `${m.winner} won by ${m.margin}`;
+          html += '<div class="match-result-card"><div class="winner-row">🏆 ' + resultText + '</div><div class="detail-row">' + m.played_on + '</div></div>';
+        });
         content.innerHTML = html;
       }).catch(() => { content.innerHTML = "<div class='no-results'>Could not load results.</div>"; });
     }
@@ -15517,9 +15483,9 @@
         }
         batTable.innerHTML += '<tr' + (isOut ? ' style="opacity:0.6;"' : '') + '>' +
           '<td style="text-align:left;"><div style="display:flex;align-items:center;gap:6px;"><button class="btn-view-profile" onclick="openPlayerProfile(\'' + escapeQ(p) + '\',\'' + escapeQ(matchBatTeam) + '\',\'' + escapeQ(roleForProfile) + '\')">👤</button><div><div style="font-weight:600;">' + p + '</div>' + dismissalText + '</div></div></td>' +
-          '<td style="font-weight:700;color:' + (isOut ? '#e5e7eb' : '#6ee7b7') + ';">' + s.runs + '</td>' +
-          '<td>' + s.balls + '</td><td>' + s.fours + '</td><td>' + s.sixes + '</td>' +
-          '<td style="color:#93c5fd;">' + sr + '</td></tr>';
+          '<td style="font-weight:700;color:' + (isOut ? '#e5e7eb' : '#6ee7b7') + '; text-align:center;">' + s.runs + '</td>' +
+          '<td style="text-align:center;">' + s.balls + '</td><td style="text-align:center;">' + s.fours + '</td><td style="text-align:center;">' + s.sixes + '</td>' +
+          '<td style="color:#93c5fd; text-align:center;">' + sr + '</td></tr>';
       }
       for (let p in bowlerStats) {
         let s = bowlerStats[p];
@@ -15528,9 +15494,9 @@
         let roleForProfile = bowlPlayerRoles[p] || "Bowler";
         bowlTable.innerHTML += '<tr>' +
           '<td style="text-align:left;"><div style="display:flex;align-items:center;gap:6px;"><button class="btn-view-profile" onclick="openPlayerProfile(\'' + escapeQ(p) + '\',\'' + escapeQ(matchBowlTeam) + '\',\'' + escapeQ(roleForProfile) + '\')">👤</button><span style="font-weight:600;">' + p + '</span></div></td>' +
-          '<td>' + ov + '</td><td>' + s.runs + '</td>' +
-          '<td style="font-weight:700;color:' + (s.wickets > 0 ? '#6ee7b7' : '#e5e7eb') + ';">' + s.wickets + '</td>' +
-          '<td style="color:#93c5fd;">' + eco + '</td></tr>';
+          '<td style="text-align:center;">' + ov + '</td><td style="text-align:center;">' + s.runs + '</td>' +
+          '<td style="font-weight:700;color:' + (s.wickets > 0 ? '#6ee7b7' : '#e5e7eb') + '; text-align:center;">' + s.wickets + '</td>' +
+          '<td style="color:#93c5fd; text-align:center;">' + eco + '</td></tr>';
       }
     }
     function switchInnings() {
@@ -15608,11 +15574,12 @@
           if (matches.length === 0) { container.innerHTML = "<div class='no-results'>No finished matches yet.</div>"; return; }
           let html = "";
           matches.forEach((m, i) => {
+            let resultText = m.winner === "Match Tied" ? "Match Tied" : `${m.winner} won by ${m.margin}`;
             html += `<div class="finished-match-card">
         <div class="finished-match-header">
           <div>
-            <div class="finished-match-winner">🏆 ${m.winner} won</div>
-            <div class="finished-match-detail">vs ${m.loser} &nbsp;·&nbsp; ${m.win_type} by ${m.margin} &nbsp;·&nbsp; ${m.played_on}</div>
+            <div class="finished-match-winner">🏆 ${resultText}</div>
+            <div class="finished-match-detail">${m.played_on}</div>
           </div>
           <div style="display:flex; gap:8px; align-items:center;">
             <button class="finished-match-toggle" onclick="toggleScorecard(${i}, '${escapeQ(m.winner)}', '${escapeQ(m.loser)}', ${m.id})">View Scorecard</button>
