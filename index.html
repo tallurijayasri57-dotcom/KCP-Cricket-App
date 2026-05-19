@@ -6841,7 +6841,10 @@
             ball_type: t.ball || null,
             start_date: t.startDate || null,
             end_date: t.endDate || null,
-            logo: t.logo || null
+            logo: t.logo || null,
+            city: t.city || null,
+            ground: t.ground || null,
+            location: t.location || null
           })
         });
 
@@ -7690,7 +7693,10 @@
             ball_type: t.ball || t.ballType || null,
             start_date: t.startDate || null,
             end_date: t.endDate || null,
-            logo: t.logo || null
+            logo: t.logo || null,
+            city: t.city || null,
+            ground: t.ground || null,
+            location: t.location || null
           })
         });
         const tData = await tRes.json();
