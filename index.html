@@ -11444,18 +11444,18 @@
 
       let html = `
         <div class="premium-card" style="margin-bottom: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; background: rgba(255, 255, 255, 0.03);">
-          <div style="overflow-x: auto; padding: 16px 16px 0 16px; width: 100%; box-sizing: border-box; -webkit-overflow-scrolling: touch;">
-            <table class="sc-table" style="width:100%; min-width:480px; border-collapse:collapse;">
-              <thead><tr style="background:rgba(255,255,255,0.03);"><th style="text-align:left; padding:10px; width:40%;">Batters</th><th style="padding:10px; text-align:center;">R</th><th style="padding:10px; text-align:center;">B</th><th style="padding:10px; text-align:center;">4s</th><th style="padding:10px; text-align:center;">6s</th><th style="padding:10px; text-align:center;">SR</th></tr></thead>
+          <div style="overflow-x: hidden; padding: 16px 16px 0 16px; width: 100%; box-sizing: border-box;">
+            <table class="sc-table" style="width:100%; min-width:100% !important; border-collapse:collapse;">
+              <thead><tr style="background:rgba(255,255,255,0.03);"><th style="text-align:left; width:40%;">Batters</th><th style="text-align:center;">R</th><th style="text-align:center;">B</th><th style="text-align:center;">4s</th><th style="text-align:center;">6s</th><th style="text-align:center;">SR</th></tr></thead>
               <tbody>
                 ${activeBatsmen.map((b, idx) => `
                   <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-                    <td style="padding:10px; text-align:left !important;"><span class="name-cell" style="color:#6ee7b7; font-weight:700;">${b.name}</span>${b.name === m.strike || (idx === 0 && !m.strike) ? '*' : ''}</td>
-                    <td style="padding:10px; text-align:center;">${b.runs || 0}</td>
-                    <td style="padding:10px; text-align:center;">${b.balls || 0}</td>
-                    <td style="padding:10px; text-align:center;">${b.fours || 0}</td>
-                    <td style="padding:10px; text-align:center;">${b.sixes || 0}</td>
-                    <td style="padding:10px; text-align:center;">${(b.balls || 0) > 0 ? ((b.runs / b.balls) * 100).toFixed(1) : 0}</td>
+                    <td style="text-align:left !important;"><span class="name-cell" style="color:#6ee7b7; font-weight:700;">${b.name}</span>${b.name === m.strike || (idx === 0 && !m.strike) ? '*' : ''}</td>
+                    <td style="text-align:center;">${b.runs || 0}</td>
+                    <td style="text-align:center;">${b.balls || 0}</td>
+                    <td style="text-align:center;">${b.fours || 0}</td>
+                    <td style="text-align:center;">${b.sixes || 0}</td>
+                    <td style="text-align:center;">${(b.balls || 0) > 0 ? ((b.runs / b.balls) * 100).toFixed(1) : 0}</td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -11463,18 +11463,18 @@
           </div>
 
           ${activeBowlers.length > 0 ? `
-          <div style="overflow-x: auto; padding: 0 16px 16px 16px; margin-top: 16px; width: 100%; box-sizing: border-box; -webkit-overflow-scrolling: touch;">
-            <table class="sc-table" style="width:100%; min-width:480px; border-collapse:collapse;">
-              <thead><tr style="background:rgba(255,255,255,0.03);"><th style="text-align:left; padding:10px; width:40%;">Bowlers</th><th style="padding:10px; text-align:center;">O</th><th style="padding:10px; text-align:center;">M</th><th style="padding:10px; text-align:center;">R</th><th style="padding:10px; text-align:center;">W</th><th style="padding:10px; text-align:center;">Eco</th></tr></thead>
+          <div style="overflow-x: hidden; padding: 0 16px 16px 16px; margin-top: 16px; width: 100%; box-sizing: border-box;">
+            <table class="sc-table" style="width:100%; min-width:100% !important; border-collapse:collapse;">
+              <thead><tr style="background:rgba(255,255,255,0.03);"><th style="text-align:left; width:40%;">Bowlers</th><th style="text-align:center;">O</th><th style="text-align:center;">M</th><th style="text-align:center;">R</th><th style="text-align:center;">W</th><th style="text-align:center;">Eco</th></tr></thead>
               <tbody>
                 ${activeBowlers.map((b, idx) => `
                   <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-                    <td style="padding:10px; text-align:left !important;"><span class="name-cell" style="color:#6ee7b7; font-weight:700;">${b.name}</span>${b.name === m.bowler || (idx === activeBowlers.length - 1 && !m.bowler) ? '*' : ''}</td>
-                    <td style="padding:10px; text-align:center;">${Math.floor((b.balls || 0) / 6)}.${(b.balls || 0) % 6}</td>
-                    <td style="padding:10px; text-align:center;">${b.maidens || 0}</td>
-                    <td style="padding:10px; text-align:center;">${b.runs || 0}</td>
-                    <td style="padding:10px; text-align:center;">${b.wickets || 0}</td>
-                    <td style="padding:10px; text-align:center;">${(b.balls || 0) > 0 ? ((b.runs / (b.balls / 6)).toFixed(1)) : 0}</td>
+                    <td style="text-align:left !important;"><span class="name-cell" style="color:#6ee7b7; font-weight:700;">${b.name}</span>${b.name === m.bowler || (idx === activeBowlers.length - 1 && !m.bowler) ? '*' : ''}</td>
+                    <td style="text-align:center;">${Math.floor((b.balls || 0) / 6)}.${(b.balls || 0) % 6}</td>
+                    <td style="text-align:center;">${b.maidens || 0}</td>
+                    <td style="text-align:center;">${b.runs || 0}</td>
+                    <td style="text-align:center;">${b.wickets || 0}</td>
+                    <td style="text-align:center;">${(b.balls || 0) > 0 ? ((b.runs / (b.balls / 6)).toFixed(1)) : 0}</td>
                   </tr>
                 `).join('')}
               </tbody>
