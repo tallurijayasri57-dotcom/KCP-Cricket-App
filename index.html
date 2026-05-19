@@ -8134,7 +8134,10 @@
     function getCurrentTournament() {
       // Find by ID in the global tournaments array
       if (currentTournamentId !== null) {
-        return tournaments.find(x => x.id == currentTournamentId);
+        let t = tournaments.find(x => x.id == currentTournamentId);
+        if (t) return t;
+        let localName = localStorage.getItem('currentTournamentName') || 'Tournament';
+        return { id: currentTournamentId, name: localName };
       }
       return null;
     }
@@ -9405,12 +9408,11 @@
     }
 
     async function deleteTournamentTeam(teamIdx) {
-      tournaments = loadTournaments();
       let tIdx = (typeof currentTournamentId !== 'undefined' && currentTournamentId !== null)
         ? currentTournamentId
         : (typeof currentTeamsTournamentIdx !== 'undefined' ? currentTeamsTournamentIdx : null);
 
-      if (tIdx === null || !tournaments[tIdx]) {
+      if (tIdx === null) {
         console.error("No active tournament found for deletion");
         return;
       }
@@ -9444,21 +9446,20 @@
 
         closeTeamDeleteReasonModal();
 
-        tournaments = loadTournaments();
-        let t = getCurrentTournament();
-        if (!t || !t.teams || !t.teams[teamIdx]) {
+        let teamName = "";
+        let isSQLMode = (tIdx !== null && tIdx > 0 && typeof sqlTeamsList !== 'undefined' && sqlTeamsList[teamIdx]);
 
-          alert("Error: Team not found in data.");
-          return;
+        if (isSQLMode) {
+          teamName = sqlTeamsList[teamIdx].name;
+        } else {
+          tournaments = loadTournaments();
+          let t = getCurrentTournament();
+          if (!t || !t.teams || !t.teams[teamIdx]) {
+            alert("Error: Team not found in data.");
+            return;
+          }
+          teamName = t.teams[teamIdx].name;
         }
-
-        let teamName = t.teams[teamIdx].name;
-
-
-        // Update local list
-        t.teams.splice(teamIdx, 1);
-        t.lastModified = Date.now();
-
 
         let btn = document.getElementById("confirmDeleteTeamBtn");
         let originalText = btn ? btn.innerText : "DELETE";
@@ -9467,9 +9468,24 @@
           btn.disabled = true;
         }
 
-        const syncSuccess = await saveTournamentsData(tournaments);
+        if (isSQLMode) {
+          try {
+            const delRes = await fetch(API + "/tournament-teams/" + tIdx + "/" + encodeURIComponent(teamName), { method: "DELETE" });
+            const delData = await delRes.json();
+            if (!delData.success) throw new Error(delData.error || "Failed to delete team from SQL");
+          } catch (e) {
+            console.warn("SQL Tournament Team delete failed:", e);
+          }
+        } else {
+          let t = getCurrentTournament();
+          if (t && t.teams) {
+            t.teams.splice(teamIdx, 1);
+            t.lastModified = Date.now();
+            await saveTournamentsData(tournaments);
+          }
+        }
 
-        // Sync individual deletion with server if needed
+        // Generic cleanup
         fetch(API + "/teams/" + encodeURIComponent(teamName), { method: "DELETE" }).catch(() => { });
         fetch(API + "/players/" + encodeURIComponent(teamName), { method: "DELETE" }).catch(() => { });
 
