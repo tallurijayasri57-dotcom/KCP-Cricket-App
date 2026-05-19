@@ -7119,9 +7119,7 @@
             <div id="profileRoleBadge" style="display:none;"></div>
             <h2 class="profile-name" id="profileName" style="font-size:28px;margin:2px 0; text-align:left;">Player Name
             </h2>
-            <div class="profile-sub-info" style="font-size:13px; color:#94a3b8; margin:0; text-align:left;">
-              <span id="profileLocation">Jaggayyapeta</span>
-            </div>
+
             <div style="border-top:1px dashed rgba(255,255,255,0.15); width:100%; margin:8px 0 6px;"></div>
             <div class="profile-styles"
               style="font-size:13px; color:#e2e8f0; font-weight:600; display:flex; align-items:center; white-space:nowrap; flex-wrap:nowrap; justify-content:flex-start; width:100%;">
@@ -7246,10 +7244,7 @@
         <!-- Profile Detail Tab -->
         <div id="ptab-profile" class="profile-tab-pane">
           <div style="background:#fff; border:1px solid #e2e8f0; border-radius:8px;">
-            <div style="padding:15px; border-bottom:1px solid #e2e8f0;">
-              <div style="font-size:11px; font-weight:700; color:#1e293b; margin-bottom:4px;">LOCATION</div>
-              <div style="font-size:14px; color:#475569;" id="profLocTab">Jaggayyapeta</div>
-            </div>
+
             <div style="padding:15px; border-bottom:1px solid #e2e8f0;">
               <div style="font-size:11px; font-weight:700; color:#1e293b; margin-bottom:4px;">BATTING STYLE</div>
               <div style="font-size:14px; color:#475569;" id="profBatTab">RHB</div>
@@ -10856,61 +10851,63 @@
       const i1Summaries = comms.filter(c => c.type === 'over_summary' && (c.innings === 1 || !c.innings)).sort((a, b) => a.over - b.over);
       const i2Summaries = comms.filter(c => c.type === 'over_summary' && c.innings === 2).sort((a, b) => a.over - b.over);
 
-      // UI Template - Professional Long Dashboard
       container.innerHTML = `
-        <div class="analysis-scroll-container" style="padding: 0; background: transparent; border-radius: 0;">
-           
-           <!-- 1. Manhattan Chart Section -->
-           <div class="premium-card-v2">
-              <div class="card-title-v2">Manhattan (Runs per Over)</div>
-              <div class="chart-box-v2">
-                 ${comms.length === 0 ? '<div class="no-data-v2">Over-by-over data available for new matches only</div>' : '<canvas id="manhattanChart"></canvas>'}
-              </div>
-           </div>
+        <div class="premium-card" style="padding:16px; background:rgba(30, 41, 59, 0.5); border-radius:16px;">
+          <div style="font-family:'Rajdhani',sans-serif; font-size:18px; font-weight:700; color:#6ee7b7; text-transform:uppercase; margin-bottom:20px; border-left:4px solid #6ee7b7; padding-left:12px;">Match Analysis</div>
+          <div class="analysis-scroll-container" style="padding: 0; background: transparent; border-radius: 0;">
+             
+             <!-- 1. Manhattan Chart Section -->
+             <div class="premium-card-v2">
+                <div class="card-title-v2">Manhattan (Runs per Over)</div>
+                <div class="chart-box-v2">
+                   ${comms.length === 0 ? '<div class="no-data-v2">Over-by-over data available for new matches only</div>' : '<canvas id="manhattanChart"></canvas>'}
+                </div>
+             </div>
 
-           <!-- 2. Worm Chart Section -->
-           <div class="premium-card-v2">
-              <div class="card-title-v2">Match Worm (Progression)</div>
-              <div class="chart-box-v2">
-                 ${comms.length === 0 ? '<div class="no-data-v2">Match progression data available for new matches only</div>' : '<canvas id="wormChart"></canvas>'}
-              </div>
-           </div>
+             <!-- 2. Worm Chart Section -->
+             <div class="premium-card-v2">
+                <div class="card-title-v2">Match Worm (Progression)</div>
+                <div class="chart-box-v2">
+                   ${comms.length === 0 ? '<div class="no-data-v2">Match progression data available for new matches only</div>' : '<canvas id="wormChart"></canvas>'}
+                </div>
+             </div>
 
-           <!-- 3. Scoring Breakdown (Grid) -->
-           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
-              <div class="premium-card-v2">
-                 <div class="card-title-v2">Run Breakdown</div>
-                 <div class="chart-box-v2"><canvas id="scoringBreakdownChart"></canvas></div>
-              </div>
-              <div class="premium-card-v2">
-                 <div class="card-title-v2">Top 5 Performers</div>
-                 <div class="chart-box-v2"><canvas id="topPerformersChart"></canvas></div>
-              </div>
-           </div>
+             <!-- 3. Scoring Breakdown (Grid) -->
+             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
+                <div class="premium-card-v2">
+                   <div class="card-title-v2">Run Breakdown</div>
+                   <div class="chart-box-v2"><canvas id="scoringBreakdownChart"></canvas></div>
+                </div>
+                <div class="premium-card-v2">
+                   <div class="card-title-v2">Top 5 Performers</div>
+                   <div class="chart-box-v2"><canvas id="topPerformersChart"></canvas></div>
+                </div>
+             </div>
 
-           <!-- 4. Wickets Section -->
-           <div class="premium-card-v2" id="dismissalAnalysisCard" style="display:none;">
-              <div class="card-title-v2">Dismissal Analysis</div>
-              <div class="chart-box-v2" style="height: 300px;"><canvas id="wicketsPieChart"></canvas></div>
-           </div>
+             <!-- 4. Wickets Section -->
+             <div class="premium-card-v2" id="dismissalAnalysisCard" style="display:none;">
+                <div class="card-title-v2">Dismissal Analysis</div>
+                <div class="chart-box-v2" style="height: 300px;"><canvas id="wicketsPieChart"></canvas></div>
+             </div>
 
-           <!-- 5. Advanced Stats (Grid) -->
-           <div style="display: grid; grid-template-columns: 1fr; gap: 15px;">
-              <div class="premium-card-v2" style="display:none;" id="shotDistCard">
-                 <div class="card-title-v2">Shot Distribution</div>
-                 <div class="chart-box-v2"><canvas id="shotDistChart"></canvas></div>
-              </div>
-              <div class="premium-card-v2" style="display:none;" id="fieldZoneCard">
-                 <div class="card-title-v2">Fielding Zones</div>
-                 <div class="chart-box-v2"><canvas id="fieldZoneChart"></canvas></div>
-              </div>
-           </div>
+             <!-- 5. Advanced Stats (Grid) -->
+             <div style="display: grid; grid-template-columns: 1fr; gap: 15px;">
+                <div class="premium-card-v2" style="display:none;" id="shotDistCard">
+                   <div class="card-title-v2">Shot Distribution</div>
+                   <div class="chart-box-v2"><canvas id="shotDistChart"></canvas></div>
+                </div>
+                <div class="premium-card-v2" style="display:none;" id="fieldZoneCard">
+                   <div class="card-title-v2">Fielding Zones</div>
+                   <div class="chart-box-v2"><canvas id="fieldZoneChart"></canvas></div>
+                </div>
+             </div>
 
+          </div>
         </div>
 
         <style>
            .premium-card-v2 {
-              background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+              background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
            }
            .card-title-v2 {
               font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 700; color: #6ee7b7; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; border-left: 4px solid #6ee7b7; padding-left: 12px;
@@ -11144,12 +11141,9 @@
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
             <div style="font-family:'Rajdhani',sans-serif; font-size:22px; font-weight:700; color:#f8fafc;">Tournament Gallery</div>
             <div style="display:flex; gap:10px; align-items:center;">
-              <button onclick="document.getElementById('premiumGalleryUploadInput').click()" style="background:#3b82f6; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-weight:600; cursor:pointer; font-size:12px;">+ Upload</button>
-              <input type="file" id="premiumGalleryUploadInput" accept="image/*" style="display:none;" onchange="uploadPremiumGalleryPhoto(this, '${tid}')">
               <div style="color:#6ee7b7; font-size:12px; cursor:pointer; display:flex; align-items:center;" onclick="renderPremiumGalleryTab(previousLiveMatchState, document.getElementById('matchMainContent'))">Refresh</div>
             </div>
           </div>
-          <div id="premiumGalleryUploadProgress" style="display:none; color:#fbbf24; font-size:12px; text-align:right; margin-bottom:10px;"></div>
           <div id="premiumGalleryGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:12px;">
              <div style="grid-column:1/-1; text-align:center; padding:40px; color:rgba(255,255,255,0.4);">Loading photos...</div>
           </div>
@@ -11209,10 +11203,29 @@
     async function renderPremiumTeamsTab(m, container) {
       container.innerHTML = `<div style="text-align:center; padding:40px; color:#6ee7b7;">⏳ Loading Rosters...</div>`;
 
+      let isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname) || window.location.hostname.startsWith('192.168.');
+      let tid = m.tournament_id || m.tournamentId || (typeof currentViewingTournament !== 'undefined' && currentViewingTournament ? currentViewingTournament.id : null);
+
       async function fetchPlayers(teamName) {
         try {
-          const res = await fetch(API + "/players/" + encodeURIComponent(teamName));
-          return await res.json();
+          let res;
+          if (tid) {
+            res = await fetch(API + "/tournament-players/" + tid + "/" + encodeURIComponent(teamName));
+          } else {
+            res = await fetch(API + "/players/" + encodeURIComponent(teamName));
+          }
+          let data = await res.json();
+          if (Array.isArray(data)) {
+            return data.map(p => ({
+              ...p,
+              player_name: p.player_name || p.name,
+              role: p.role || 'Player',
+              batting_style: p.batting_style || '',
+              bowling_style: p.bowling_style || '',
+              photo_url: p.photo_url || p.photo || ''
+            }));
+          }
+          return [];
         } catch (e) { return []; }
       }
 
@@ -11318,7 +11331,7 @@
           let photoHtml = photoSrc ? `<img src="${photoSrc}" style="width:100%; height:100%; object-fit:cover;">` : '';
 
           html += `
-            <div class="team-player-card" style="background:rgba(30, 41, 59, 0.4); border:1px solid rgba(255,255,255,0.05); border-radius:12px; padding:12px; text-align:center; position:relative; transition:all 0.3s ease; cursor:pointer;" onclick="openPlayerProfile('${escapeQ(pName)}', '${escapeQ(teamName)}', '${escapeQ(p.role)}')" onmouseover="this.style.background='rgba(30, 41, 59, 0.8)';this.style.transform='translateY(-2px)'" onmouseout="this.style.background='rgba(30, 41, 59, 0.4)';this.style.transform='translateY(0)'">
+            <div class="team-player-card" style="background:rgba(30, 41, 59, 0.4); border:1px solid rgba(255,255,255,0.05); border-radius:12px; padding:12px; text-align:center; position:relative; transition:all 0.3s ease; cursor:${isLocal ? 'pointer' : 'default'};" ${isLocal ? `onclick="openPlayerProfile('${escapeQ(pName)}', '${escapeQ(teamName)}', '${escapeQ(p.role)}')" onmouseover="this.style.background='rgba(30, 41, 59, 0.8)';this.style.transform='translateY(-2px)'" onmouseout="this.style.background='rgba(30, 41, 59, 0.4)';this.style.transform='translateY(0)'"` : ''}>
               ${isCaptain ? `<div style="position:absolute; top:-2px; right:-2px; background:linear-gradient(135deg, #f59e0b, #d97706); color:#000; font-size:10px; font-weight:900; width:18px; height:18px; display:flex; align-items:center; justify-content:center; border-radius:50%; z-index:2; box-shadow:0 2px 4px rgba(0,0,0,0.3); border:1.5px solid #111827;">C</div>` : ''}
               <div style="width:54px; height:54px; border-radius:50%; overflow:hidden; margin:0 auto 10px auto; border:2px solid ${isCaptain ? '#f59e0b' : 'rgba(110,231,183,0.2)'}; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#1e3a5f,#0d9488); box-shadow:0 4px 12px rgba(0,0,0,0.3);">
                 ${photoHtml || `<div style="font-size:20px; font-weight:800; color:#fff;">${pName.charAt(0).toUpperCase()}</div>`}
@@ -11408,7 +11421,7 @@
       }).filter(html => html.length > 0).join(`<span style="margin: 0 6px; color: #cbd5e1; font-weight: 800; font-size: 16px;">|</span>`);
 
       let html = `
-        <div class="premium-card" style="margin-bottom: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;">
+        <div class="premium-card" style="margin-bottom: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; background: rgba(255, 255, 255, 0.03);">
           <div style="overflow-x: auto; padding: 16px 16px 0 16px; width: 100%; box-sizing: border-box; -webkit-overflow-scrolling: touch;">
             <table class="sc-table" style="width:100%; min-width:480px; border-collapse:collapse;">
               <thead><tr style="background:rgba(255,255,255,0.03);"><th style="text-align:left; padding:10px; width:40%;">Batters</th><th style="padding:10px; text-align:center;">R</th><th style="padding:10px; text-align:center;">B</th><th style="padding:10px; text-align:center;">4s</th><th style="padding:10px; text-align:center;">6s</th><th style="padding:10px; text-align:center;">SR</th></tr></thead>
@@ -11464,12 +11477,17 @@
           </div>
         </div>
 
-        <div class="premium-card" style="padding:16px;">
-          <div style="font-weight:700; color:#f8fafc; margin-bottom:16px;">Commentary</div>
+        <div class="premium-card" style="padding:16px; margin-top: 16px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;">
+          <div style="font-family:'Rajdhani',sans-serif; font-size:18px; font-weight:700; color:#6ee7b7; text-transform:uppercase; margin-bottom:20px; border-left:4px solid #6ee7b7; padding-left:12px;">Commentary</div>
           ${getCommentaryHtml(m, 15)}
         </div>
       `;
-      container.innerHTML = html;
+      container.innerHTML = `
+        <div class="premium-card" style="padding:16px; background:rgba(30, 41, 59, 0.5); border-radius:16px;">
+          <div style="font-family:'Rajdhani',sans-serif; font-size:18px; font-weight:700; color:#6ee7b7; text-transform:uppercase; margin-bottom:20px; border-left:4px solid #6ee7b7; padding-left:12px;">Live Match</div>
+          ${html}
+        </div>
+      `;
     }
 
     function renderPremiumLiveTab(m, container) {
@@ -11482,7 +11500,7 @@
 
       // Progress/Summary for Matches
       contentHtml += `
-          <div class="premium-card" style="margin-bottom:16px; padding:24px; text-align:center;">
+          <div class="premium-card" style="margin-bottom:16px; padding:24px; text-align:center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
             <div style="font-size:16px; color:#6ee7b7; font-weight:800; text-transform:uppercase; margin-bottom:8px;">${isFinished ? 'Match Result' : 'Current Status'}</div>
             <div style="font-size:24px; font-weight:800; color:#f8fafc; margin-bottom:20px;">${m.matchStatus || (m.innings === 1 ? 'In Progress' : 'Run Chase')}</div>
             
@@ -11505,7 +11523,7 @@
 
       if (bestBatsmen.length > 0 || bestBowlers.length > 0) {
         contentHtml += `
-          <div class="premium-card" style="margin-bottom:16px;">
+          <div class="premium-card" style="margin-bottom:16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
             <div style="font-weight:700; color:#f8fafc; padding:16px; font-size:18px; border-bottom:1px solid rgba(255,255,255,0.08);">Match Key Performances</div>
             <div style="overflow-x: auto; padding: 0 16px 16px 16px; width: 100%; box-sizing: border-box; -webkit-overflow-scrolling: touch;">
               <table class="sc-table" style="width:100%; min-width:480px;">
@@ -11540,7 +11558,12 @@
         `;
       }
 
-      container.innerHTML = contentHtml || `<div class="premium-card" style="padding:40px; text-align:center; color:#64748b;">No summary data available.</div>`;
+      container.innerHTML = contentHtml ? `
+        <div class="premium-card" style="padding:16px; background:rgba(30, 41, 59, 0.5); border-radius:16px;">
+          <div style="font-family:'Rajdhani',sans-serif; font-size:18px; font-weight:700; color:#6ee7b7; text-transform:uppercase; margin-bottom:20px; border-left:4px solid #6ee7b7; padding-left:12px;">Match Summary</div>
+          ${contentHtml}
+        </div>
+      ` : `<div class="premium-card" style="padding:40px; text-align:center; color:#64748b;">No summary data available.</div>`;
     }
 
     function renderPremiumScorecardTab(m, container) {
@@ -11633,10 +11656,15 @@
           extras: m.extras || 0
         }, "Innings " + (m.innings || 1), true);
       } else if (!m.innings1 && !m.innings2) {
-        html = `<div class="premium-card" style="padding:40px; text-align:center; color:#94a3b8;">No scorecard data available yet.</div>`;
+        html = `<div style="text-align:center; padding:40px; color:#94a3b8;">No scorecard data available yet.</div>`;
       }
 
-      container.innerHTML = html;
+      container.innerHTML = `
+        <div class="premium-card" style="padding:16px; background:rgba(30, 41, 59, 0.5); border-radius:16px;">
+          <div style="font-family:'Rajdhani',sans-serif; font-size:18px; font-weight:700; color:#6ee7b7; text-transform:uppercase; margin-bottom:20px; border-left:4px solid #6ee7b7; padding-left:12px;">Scorecard</div>
+          ${html}
+        </div>
+      `;
     }
 
     function downloadScorecard() {
@@ -13067,7 +13095,7 @@
           </div>
           <div class="td-info">
             <h1>${t.name}</h1>
-            <p>${t.city || 'Jaggayyapeta'}</p>
+            <p>${[t.city, t.ground].filter(Boolean).join(' - ')}</p>
             <p>${startDateStr} to ${endDateStr}</p>
           </div>
         </div>
@@ -13143,7 +13171,7 @@
               <span class="${badgeClass}">${badgeText}</span>
             </div>
             <div class="my-card-meta">
-              ${t.ground || 'KCP CRICKET GROUND'}, ${t.city || 'Jaggayyapeta'}, ${m.date ? new Date(m.date).toLocaleDateString('en-GB') : ''}, ${t.overs || 20} Ov.
+              ${[t.ground, t.city].filter(Boolean).join(', ')}, ${m.date ? new Date(m.date).toLocaleDateString('en-GB') : ''}, ${t.overs || 20} Ov.
             </div>
             <div class="my-card-bold">League Match</div>
             <div class="my-card-teams">
