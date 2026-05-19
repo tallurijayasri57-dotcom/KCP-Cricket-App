@@ -11125,6 +11125,24 @@
 
     async function renderPremiumGalleryTab(m, container) {
       let tid = m.tournament_id || m.tournamentId || (typeof currentViewingTournament !== 'undefined' && currentViewingTournament ? currentViewingTournament.id : null);
+      
+      // Foolproof async fallback to fetch tournament ID dynamically if missing
+      if (!tid && m.id) {
+        try {
+          const tRes = await fetch(API + "/tournaments");
+          const tourneys = await tRes.json();
+          for (let t of tourneys) {
+            const mRes = await fetch(API + "/tournament-matches/" + t.id);
+            const tm = await mRes.json();
+            if (tm.some(x => x.id == m.id || x.liveMatchId == m.id)) {
+              tid = t.id;
+              m.tournamentId = t.id;
+              break;
+            }
+          }
+        } catch (e) { console.warn("Fallback tid lookup failed:", e); }
+      }
+
       if (!tid) {
         container.innerHTML = `
           <div class="premium-card" style="padding:40px; text-align:center;">
@@ -11154,7 +11172,8 @@
       `;
 
       try {
-        const res = await fetch(API + '/tournament-gallery/' + tid);
+        // Appended cache-busting timestamp to prevent mobile browser cache issues
+        const res = await fetch(API + '/tournament-gallery/' + tid + '?_t=' + Date.now());
         const photos = await res.json();
         const grid = document.getElementById('premiumGalleryGrid');
         if (photos.length === 0) {
