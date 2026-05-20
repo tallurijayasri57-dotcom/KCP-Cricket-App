@@ -9018,11 +9018,13 @@
       if (!t || !t.id) { alert('Tournament not found!'); return; }
       let currentUser = localStorage.getItem('currentUser') || '';
 
+      let caption = prompt("Enter a caption or title for this photo (optional):") || '';
+
       let formData = new FormData();
       formData.append('photo', file);
       formData.append('tournament_id', t.id);
       formData.append('uploaded_by', currentUser);
-      formData.append('caption', '');
+      formData.append('caption', caption);
 
       try {
         const res = await fetch(API + '/tournament-gallery', { method: 'POST', body: formData });
@@ -14378,6 +14380,40 @@
       document.querySelectorAll('.profile-tab-pane').forEach(pane => pane.classList.remove('active'));
       el.classList.add('active');
       document.getElementById('ptab-' + tabId).classList.add('active');
+      if (tabId === 'photos') {
+        loadPlayerProfilePhotos(currentProfilePlayerName);
+      }
+    }
+
+    async function loadPlayerProfilePhotos(playerName) {
+      let container = document.getElementById("ptab-photos");
+      if (!container) return;
+      container.innerHTML = `<div style="text-align:center; padding:40px; color:#6ee7b7; font-family:'Rajdhani',sans-serif; letter-spacing:1px;">🖼️ Loading Photos...</div>`;
+      
+      try {
+        const res = await fetch(API + '/player-photos/' + encodeURIComponent(playerName) + '?_t=' + Date.now());
+        const photos = await res.json();
+        
+        if (!photos || photos.length === 0) {
+          container.innerHTML = `<div style="text-align:center; padding:60px 20px; color:rgba(255,255,255,0.4); font-size:14px;">📸 No photos found for this player's tournaments.</div>`;
+          return;
+        }
+
+        let html = `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:14px; padding:10px;">`;
+        photos.forEach(p => {
+          html += `
+            <div style="aspect-ratio:1; border-radius:10px; overflow:hidden; border:1px solid rgba(255,255,255,0.1); position:relative; cursor:pointer; background:rgba(0,0,0,0.3); box-shadow:0 4px 12px rgba(0,0,0,0.3);" onclick="window.open('${p.photo_url}','_blank')">
+              <img src="${p.photo_url}" style="width:100%; height:100%; object-fit:cover;" loading="lazy">
+              <div style="position:absolute; top:8px; left:8px; background:rgba(110,231,183,0.9); color:#020617; font-size:10px; font-weight:800; padding:4px 8px; border-radius:4px; text-transform:uppercase; letter-spacing:0.5px; box-shadow:0 2px 4px rgba(0,0,0,0.5);">${p.tournament_name || 'Tournament'}</div>
+              ${p.caption ? `<div style="position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,0.75); color:#fff; font-size:11px; padding:6px 8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.caption}</div>` : ''}
+            </div>`;
+        });
+        html += `</div>`;
+        container.innerHTML = html;
+      } catch (err) {
+        console.error("Error loading player photos:", err);
+        container.innerHTML = `<div style="text-align:center; padding:40px; color:#ef4444;">Failed to load photos.</div>`;
+      }
     }
 
     function renderProfileMatchCards() {

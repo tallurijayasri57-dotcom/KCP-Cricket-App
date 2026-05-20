@@ -99,6 +99,7 @@ async function startServer() {
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_players' AND COLUMN_NAME='bowling_style') ALTER TABLE tournament_players ADD bowling_style NVARCHAR(50) NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='player_profiles' AND COLUMN_NAME='batting_style') ALTER TABLE player_profiles ADD batting_style NVARCHAR(50) NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='player_profiles' AND COLUMN_NAME='bowling_style') ALTER TABLE player_profiles ADD bowling_style NVARCHAR(50) NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_gallery' AND COLUMN_NAME='caption') ALTER TABLE tournament_gallery ADD caption NVARCHAR(MAX) NULL`,
             ];
             for (const mig of migrations) {
                 try { await pool.request().query(mig); } catch (e) { console.warn("Migration warning:", e.message); }
@@ -1625,7 +1626,8 @@ app.get("/tournament-gallery/:tournament_id", async (req, res) => {
                 .query('SELECT * FROM tournament_gallery WHERE tournament_id=@tid ORDER BY uploaded_at DESC');
             res.json(r.recordset);
         } else {
-            res.json([]);
+            const gallery = (MEMORY_DB.tournament_gallery || []).filter(g => g.tournament_id == tournament_id);
+            res.json(gallery);
         }
     } catch (err) {
         console.error('GET gallery error:', err);
@@ -1649,6 +1651,17 @@ app.post("/tournament-gallery", upload.single('photo'), async (req, res) => {
                         .input('by', sql.NVarChar, uploaded_by || '')
                         .input('cap', sql.NVarChar, caption || '')
                         .query('INSERT INTO tournament_gallery (tournament_id, photo_url, uploaded_by, caption) VALUES (@tid, @url, @by, @cap)');
+                } else {
+                    MEMORY_DB.tournament_gallery = MEMORY_DB.tournament_gallery || [];
+                    MEMORY_DB.tournament_gallery.push({
+                        id: Date.now(),
+                        tournament_id: parseInt(tournament_id),
+                        photo_url: result.secure_url,
+                        uploaded_by: uploaded_by || '',
+                        caption: caption || '',
+                        uploaded_at: new Date().toISOString()
+                    });
+                    saveDB();
                 }
                 res.json({ success: true, url: result.secure_url });
             }
@@ -1664,10 +1677,54 @@ app.delete("/tournament-gallery/:id", async (req, res) => {
         const { id } = req.params;
         if (pool) {
             await pool.request().input('id', sql.Int, id).query('DELETE FROM tournament_gallery WHERE id=@id');
+        } else {
+            MEMORY_DB.tournament_gallery = (MEMORY_DB.tournament_gallery || []).filter(g => g.id != id);
+            saveDB();
         }
         res.json({ success: true });
     } catch (err) {
         console.error("DELETE gallery error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ================= PLAYER PHOTOS =================
+app.get("/player-photos/:playerName", async (req, res) => {
+    try {
+        const { playerName } = req.params;
+        if (pool) {
+            const r = await pool.request()
+                .input('pName', sql.NVarChar, playerName)
+                .query(`
+                    SELECT DISTINCT tg.*, t.name as tournament_name
+                    FROM tournament_gallery tg
+                    JOIN tournaments t ON tg.tournament_id = t.id
+                    WHERE tg.tournament_id IN (
+                        SELECT DISTINCT tournament_id 
+                        FROM tournament_players 
+                        WHERE LOWER(player_name) = LOWER(@pName)
+                    )
+                    ORDER BY tg.uploaded_at DESC
+                `);
+            res.json(r.recordset);
+        } else {
+            const playerTournaments = (MEMORY_DB.tournament_players || [])
+                .filter(tp => (tp.player_name || '').toLowerCase().trim() === playerName.toLowerCase().trim())
+                .map(tp => parseInt(tp.tournament_id));
+            const playerPhotos = (MEMORY_DB.tournament_gallery || [])
+                .filter(tg => playerTournaments.includes(parseInt(tg.tournament_id)))
+                .map(tg => {
+                    const t = (MEMORY_DB.tournaments || []).find(x => x.id == tg.tournament_id);
+                    return {
+                        ...tg,
+                        tournament_name: t ? t.name : 'Tournament'
+                    };
+                })
+                .sort((a, b) => new Date(b.uploaded_at) - new Date(a.uploaded_at));
+            res.json(playerPhotos);
+        }
+    } catch (err) {
+        console.error("GET player-photos error:", err);
         res.status(500).json({ error: err.message });
     }
 });

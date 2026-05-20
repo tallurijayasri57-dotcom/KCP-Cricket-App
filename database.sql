@@ -72,6 +72,7 @@ CREATE TABLE tournament_gallery (
     tournament_id INT NOT NULL,
     photo_url NVARCHAR(MAX) NOT NULL,
     uploaded_by NVARCHAR(150),
+    caption NVARCHAR(MAX) NULL,
     uploaded_at DATETIME DEFAULT GETDATE(),
     CONSTRAINT FK_TG_Tournament FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE
 );
