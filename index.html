@@ -4386,6 +4386,86 @@
       transform: scale(0.98);
     }
 
+    .premium-event-card {
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-radius: 24px;
+      padding: 40px 60px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .premium-event-card.four-card {
+      border: 2px solid rgba(59, 130, 246, 0.4);
+      box-shadow: 0 0 40px rgba(59, 130, 246, 0.25), inset 0 0 20px rgba(59, 130, 246, 0.15);
+    }
+
+    .premium-event-card.six-card {
+      border: 2px solid rgba(245, 158, 11, 0.4);
+      box-shadow: 0 0 40px rgba(245, 158, 11, 0.25), inset 0 0 20px rgba(245, 158, 11, 0.15);
+    }
+
+    .premium-event-card.wicket-card {
+      border: 2px solid rgba(239, 68, 68, 0.4);
+      box-shadow: 0 0 40px rgba(239, 68, 68, 0.25), inset 0 0 20px rgba(239, 68, 68, 0.15);
+    }
+
+    .premium-event-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 84px;
+      font-weight: 900;
+      font-style: italic;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      line-height: 1;
+      margin: 0;
+      animation: premiumPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .four-card .premium-event-title {
+      color: #3b82f6;
+      text-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+    }
+
+    .six-card .premium-event-title {
+      color: #f59e0b;
+      text-shadow: 0 0 20px rgba(245, 158, 11, 0.6);
+    }
+
+    .wicket-card .premium-event-title {
+      color: #ef4444;
+      text-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+    }
+
+    .premium-event-subtitle {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-top: 15px;
+      color: #cbd5e1;
+      opacity: 0.9;
+    }
+
+    @keyframes premiumPop {
+      0% {
+        transform: scale(0.6);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
     .event-confetti {
       font-size: 52px;
       margin-bottom: 25px;
@@ -10363,27 +10443,30 @@
       const eventType = (type || "").toUpperCase();
 
       if (eventType === 'FOUR' || (eventType === 'BOUNDARY' && data.runs === 4)) {
-        modal.style.background = 'radial-gradient(circle, rgba(37, 99, 235, 0.2) 0%, rgba(11, 15, 26, 0.9) 100%)';
+        modal.style.background = 'radial-gradient(circle, rgba(15, 23, 42, 0.8) 0%, rgba(11, 15, 26, 0.98) 100%)';
         html = `
-          <div class="event-confetti">🎉 🎊 🎉</div>
-          <div class="boundary-animation" style="color:#3b82f6; text-shadow:0 0 40px rgba(59,130,246,0.8);">FOUR</div>
-          <div class="event-highlight-text">4 RUNS!</div>
+          <div class="premium-event-card four-card">
+            <div class="premium-event-title">FOUR</div>
+            <div class="premium-event-subtitle">4 Runs</div>
+          </div>
         `;
         setTimeout(closeEventPopup, 3000);
       } else if (eventType === 'SIX' || (eventType === 'BOUNDARY' && data.runs === 6)) {
-        modal.style.background = 'radial-gradient(circle, rgba(245, 158, 11, 0.2) 0%, rgba(11, 15, 26, 0.9) 100%)';
+        modal.style.background = 'radial-gradient(circle, rgba(15, 23, 42, 0.8) 0%, rgba(11, 15, 26, 0.98) 100%)';
         html = `
-          <div class="event-confetti">🚀 🔥 🚀</div>
-          <div class="boundary-animation" style="color:#f59e0b; text-shadow:0 0 40px rgba(245,158,11,0.8);">SIX</div>
-          <div class="event-highlight-text">6 RUNS!</div>
+          <div class="premium-event-card six-card">
+            <div class="premium-event-title">SIX</div>
+            <div class="premium-event-subtitle">6 Runs</div>
+          </div>
         `;
         setTimeout(closeEventPopup, 3000);
       } else if (eventType === 'WICKET') {
-        modal.style.background = 'radial-gradient(circle, rgba(239, 68, 68, 0.2) 0%, rgba(11, 15, 26, 0.9) 100%)';
+        modal.style.background = 'radial-gradient(circle, rgba(15, 23, 42, 0.8) 0%, rgba(11, 15, 26, 0.98) 100%)';
         html = `
-          <div class="event-confetti">☝️ 🏏 ☝️</div>
-          <div class="boundary-animation" style="color:#ef4444; text-shadow:0 0 40px rgba(239,68,68,0.8);">OUT</div>
-          <div class="event-highlight-text">WICKET!</div>
+          <div class="premium-event-card wicket-card">
+            <div class="premium-event-title">WICKET</div>
+            <div class="premium-event-subtitle">Out</div>
+          </div>
         `;
         setTimeout(closeEventPopup, 3000);
       } else if (eventType === 'TOSS') {
