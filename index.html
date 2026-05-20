@@ -9014,7 +9014,7 @@
       let progress = document.getElementById('galleryUploadProgress');
       if (progress) { progress.style.display = 'block'; progress.innerText = 'Uploading...'; }
 
-      let t = currentViewingTournament;
+      let t = currentViewingTournament || (typeof currentGalleryTournamentId !== 'undefined' ? getCurrentTournamentById(currentGalleryTournamentId) : null);
       if (!t || !t.id) { alert('Tournament not found!'); return; }
       let currentUser = localStorage.getItem('currentUser') || '';
 
@@ -9032,6 +9032,15 @@
         if (data.success) {
           if (progress) progress.innerText = 'Uploaded! ✓';
           setTimeout(() => { if (progress) progress.style.display = 'none'; }, 2000);
+          
+          try {
+            if (window.fbDb && window.fbSetDoc && window.fbDoc && t && t.id) {
+               const photosRes = await fetch(API + '/tournament-gallery/' + t.id + '?_t=' + Date.now());
+               const allPhotos = await photosRes.json();
+               await window.fbSetDoc(window.fbDoc(window.fbDb, "tournament_galleries", t.id.toString()), { photos: allPhotos });
+            }
+          } catch(e) { console.warn("Firebase sync failed", e); }
+
           // Refresh gallery
           let currentUser2 = (localStorage.getItem('currentUser') || '').toLowerCase().trim();
           let organiser = (t.created_by || t.organiser || '').toLowerCase().trim();
@@ -9050,11 +9059,21 @@
       if (!confirm('Delete this photo?')) return;
       try {
         await fetch(API + '/tournament-gallery/' + photoId, { method: 'DELETE' });
-        let t = getCurrentTournamentByIdx(currentGalleryTournamentIdx);
-        let currentUser = (localStorage.getItem('currentUser') || '').toLowerCase().trim();
-        let organiser = (t && (t.created_by || t.organiser) || '').toLowerCase().trim();
-        let isOrganiser = currentUser && organiser && currentUser === organiser;
-        if (t && t.id) await renderGalleryPhotos(t.id, isOrganiser);
+        let t = currentViewingTournament || (typeof currentGalleryTournamentId !== 'undefined' ? getCurrentTournamentById(currentGalleryTournamentId) : null);
+        if (t && t.id) {
+          try {
+            if (window.fbDb && window.fbSetDoc && window.fbDoc) {
+               const photosRes = await fetch(API + '/tournament-gallery/' + t.id + '?_t=' + Date.now());
+               const allPhotos = await photosRes.json();
+               await window.fbSetDoc(window.fbDoc(window.fbDb, "tournament_galleries", t.id.toString()), { photos: allPhotos });
+            }
+          } catch(e) { console.warn("Firebase sync failed", e); }
+
+          let currentUser = (localStorage.getItem('currentUser') || '').toLowerCase().trim();
+          let organiser = (t.created_by || t.organiser) ? (t.created_by || t.organiser).toLowerCase().trim() : '';
+          let isOrganiser = currentUser && organiser && currentUser === organiser;
+          await renderGalleryPhotos(t.id, isOrganiser);
+        }
       } catch (e) { alert('Error deleting photo: ' + e.message); }
     }
 
@@ -11333,9 +11352,18 @@
       `;
 
       try {
-        // Appended cache-busting timestamp to prevent mobile browser cache issues
-        const res = await fetch(API + '/tournament-gallery/' + tid + '?_t=' + Date.now());
-        const photos = await res.json();
+        let photos = [];
+        if (window.fbDb && window.fbGetDoc && tid) {
+          try {
+            const snap = await window.fbGetDoc(window.fbDoc(window.fbDb, "tournament_galleries", tid.toString()));
+            if (snap.exists()) photos = snap.data().photos || [];
+          } catch(e){}
+        }
+
+        if (photos.length === 0) {
+          const res = await fetch(API + '/tournament-gallery/' + tid + '?_t=' + Date.now());
+          photos = await res.json();
+        }
         const grid = document.getElementById('premiumGalleryGrid');
         if (photos.length === 0) {
           grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:40px; color:rgba(255,255,255,0.4);">No photos uploaded yet for this tournament.</div>`;
@@ -14391,8 +14419,29 @@
       container.innerHTML = `<div style="text-align:center; padding:40px; color:#6ee7b7; font-family:'Rajdhani',sans-serif; letter-spacing:1px;">🖼️ Loading Photos...</div>`;
       
       try {
+        let photos = [];
         const res = await fetch(API + '/player-photos/' + encodeURIComponent(playerName) + '?_t=' + Date.now());
-        const photos = await res.json();
+        photos = await res.json();
+
+        // If empty (live link without backend data), try Firebase using player's match history
+        if ((!photos || photos.length === 0) && window.fbDb && window.fbGetDoc) {
+           try {
+             const pSnap = await window.fbGetDoc(window.fbDoc(window.fbDb, "player_profiles", playerName.trim().toLowerCase()));
+             if (pSnap.exists()) {
+               const pData = pSnap.data();
+               const tIds = [...new Set((pData.matchHistory || []).map(m => m.tournament_id).filter(Boolean))];
+               for (let tid of tIds) {
+                 const gSnap = await window.fbGetDoc(window.fbDoc(window.fbDb, "tournament_galleries", tid.toString()));
+                 if (gSnap.exists()) {
+                   let tPhotos = gSnap.data().photos || [];
+                   tPhotos = tPhotos.map(p => ({ ...p, tournament_name: p.tournament_name || 'Tournament' }));
+                   photos = photos.concat(tPhotos);
+                 }
+               }
+               photos.sort((a,b) => new Date(b.uploaded_at).getTime() - new Date(a.uploaded_at).getTime());
+             }
+           } catch(e){}
+        }
         
         if (!photos || photos.length === 0) {
           container.innerHTML = `<div style="text-align:center; padding:60px 20px; color:rgba(255,255,255,0.4); font-size:14px;">📸 No photos found for this player's tournaments.</div>`;
