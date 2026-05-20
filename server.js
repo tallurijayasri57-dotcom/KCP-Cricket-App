@@ -74,7 +74,6 @@ async function startServer() {
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournaments'       AND COLUMN_NAME='organiser') ALTER TABLE tournaments       ADD organiser NVARCHAR(200) NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournaments'       AND COLUMN_NAME='city')      ALTER TABLE tournaments       ADD city      NVARCHAR(200) NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournaments'       AND COLUMN_NAME='ground')    ALTER TABLE tournaments       ADD ground    NVARCHAR(200) NULL`,
-                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournaments'       AND COLUMN_NAME='location')  ALTER TABLE tournaments       ADD location  NVARCHAR(MAX) NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_teams'  AND COLUMN_NAME='captain')  ALTER TABLE tournament_teams  ADD captain  NVARCHAR(100) NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_teams'  AND COLUMN_NAME='city')     ALTER TABLE tournament_teams  ADD city     NVARCHAR(100) NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_teams'  AND COLUMN_NAME='logo')     ALTER TABLE tournament_teams  ADD logo     NVARCHAR(MAX) NULL`,
@@ -196,7 +195,7 @@ app.get("/all-tournaments", async (req, res) => {
                     ball_type AS ball, 
                     start_date AS startDate, 
                     end_date AS endDate,
-                    logo, city, ground, location
+                    logo, city, ground
                 FROM tournaments 
                 ORDER BY id DESC
             `);
@@ -223,7 +222,7 @@ app.get("/tournaments/:username", async (req, res) => {
                         ball_type AS ball, 
                         start_date AS startDate, 
                         end_date AS endDate,
-                        logo, city, ground, location
+                        logo, city, ground
                     FROM tournaments 
                     WHERE LOWER(created_by) = @u 
                     ORDER BY id DESC
@@ -241,7 +240,7 @@ app.get("/tournaments/:username", async (req, res) => {
 
 app.post("/tournaments", async (req, res) => {
     try {
-        const { name, created_by, organiser, ball_type, start_date, end_date, logo, city, ground, location } = req.body;
+        const { name, created_by, organiser, ball_type, start_date, end_date, logo, city, ground } = req.body;
         if (!name || !created_by) return res.status(400).json({ message: "Name and created_by required" });
         if (pool) {
             const result = await pool.request()
@@ -254,11 +253,10 @@ app.post("/tournaments", async (req, res) => {
                 .input("logo", sql.NVarChar(sql.MAX), logo || null)
                 .input("city", sql.NVarChar, city || null)
                 .input("ground", sql.NVarChar, ground || null)
-                .input("loc", sql.NVarChar(sql.MAX), location || null)
                 .query(`
-                    INSERT INTO tournaments (name, created_by, organiser, ball_type, start_date, end_date, logo, city, ground, location) 
+                    INSERT INTO tournaments (name, created_by, organiser, ball_type, start_date, end_date, logo, city, ground) 
                     OUTPUT INSERTED.id 
-                    VALUES (@n, @c, @org, @b, @sd, @ed, @logo, @city, @ground, @loc)
+                    VALUES (@n, @c, @org, @b, @sd, @ed, @logo, @city, @ground)
                 `);
             res.json({ success: true, id: result.recordset[0].id });
         } else {
@@ -1493,8 +1491,7 @@ app.get("/my-tournaments/:username", async (req, res) => {
                 endDate: t.end_date || t.endDate,
                 logo: t.logo,
                 city: t.city || null,
-                ground: t.ground || null,
-                location: t.location || null
+                ground: t.ground || null
             }));
             return res.json(formatted);
         }
@@ -1506,7 +1503,7 @@ app.get("/my-tournaments/:username", async (req, res) => {
                        t.ball_type AS ball,
                        t.start_date AS startDate,
                        t.end_date AS endDate,
-                       t.logo, t.city, t.ground, t.location
+                       t.logo, t.city, t.ground
                 FROM tournament_players tp
                 JOIN tournaments t ON tp.tournament_id = t.id
                 WHERE LOWER(tp.player_name) = LOWER(@pn)

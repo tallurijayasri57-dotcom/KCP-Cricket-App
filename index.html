@@ -6699,46 +6699,10 @@
       if (!e.target.closest('.at-field-new')) {
         document.getElementById('cityList').style.display = 'none';
         document.getElementById('groundList').style.display = 'none';
-        let ls = document.getElementById('locationSuggestions');
-        if (ls) ls.style.display = 'none';
       }
     });
 
-    let _locationTimer = null;
-    function onLocationInput() {
-      clearTimeout(_locationTimer);
-      let q = document.getElementById('tLocationSearch').value.trim();
-      let box = document.getElementById('locationSuggestions');
-      document.getElementById('tLocationVal').value = '';
-      if (q.length < 2) { box.style.display = 'none'; return; }
-      box.innerHTML = '<div style="padding:10px; color:rgba(255,255,255,0.5); font-size:13px;">Searching...</div>';
-      box.style.display = 'block';
-      _locationTimer = setTimeout(() => {
-        fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&countrycodes=in&format=json&limit=8&addressdetails=1`, {
-          headers: { 'Accept-Language': 'en', 'User-Agent': 'KCP-Cricket-App' }
-        })
-          .then(r => r.json())
-          .then(results => {
-            if (!results.length) {
-              box.innerHTML = '<div style="padding:10px; color:rgba(255,255,255,0.4); font-size:13px;">No results found in India</div>';
-              return;
-            }
-            box.innerHTML = results.map(r => {
-              let label = r.display_name;
-              return `<div onclick="selectLocation('${label.replace(/'/g, "\\'").replace(/"/g, '&quot;')}')" style="padding:10px 12px; font-size:13px; color:#ffffff; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.07); font-family:'Inter',sans-serif;" onmouseover="this.style.background='rgba(16,185,129,0.15)'" onmouseout="this.style.background='transparent'">${label}</div>`;
-            }).join('');
-          })
-          .catch(() => {
-            box.innerHTML = '<div style="padding:10px; color:#f87171; font-size:13px;">Search failed. Check internet.</div>';
-          });
-      }, 500);
-    }
-
-    function selectLocation(label) {
-      document.getElementById('tLocationSearch').value = label;
-      document.getElementById('tLocationVal').value = label;
-      document.getElementById('locationSuggestions').style.display = 'none';
-    }
+    // Location helpers removed
 
     function saveTournamentNew() {
       let name = document.getElementById('tNameNew').value.trim();
@@ -6748,13 +6712,6 @@
       let contact = document.getElementById('tContactNew').value.trim();
       let startDate = document.getElementById('tStartDateNew').value;
       let endDate = document.getElementById('tEndDateNew').value;
-      let locationEl = document.getElementById('tLocationVal');
-      let location = locationEl ? locationEl.value.trim() : '';
-      // fallback: if user typed but didn't pick from suggestions, use the typed value
-      if (!location) {
-        let ls = document.getElementById('tLocationSearch');
-        if (ls) location = ls.value.trim();
-      }
 
       let categoryEl = document.querySelector('#tCategoryNew .chip-new.selected');
       let matchTypeEl = document.querySelector('#tMatchTypeNew .chip-new.selected');
@@ -6771,7 +6728,6 @@
       window.tempTournamentData = {
         id: Date.now(),
         name, city, ground, organiser, contact, startDate, endDate,
-        location,
         category: categoryEl.innerText,
         matchType: matchTypeEl.innerText,
         pitch: pitchEl ? pitchEl.innerText : '',
@@ -6843,8 +6799,7 @@
             end_date: t.endDate || null,
             logo: t.logo || null,
             city: t.city || null,
-            ground: t.ground || null,
-            location: t.location || null
+            ground: t.ground || null
           })
         });
 
@@ -7695,8 +7650,7 @@
             end_date: t.endDate || null,
             logo: t.logo || null,
             city: t.city || null,
-            ground: t.ground || null,
-            location: t.location || null
+            ground: t.ground || null
           })
         });
         const tData = await tRes.json();
@@ -10635,7 +10589,7 @@
         if (document.getElementById('sbProjected')) document.getElementById('sbProjected').innerText = projScore;
         if (document.getElementById('sbSeriesName')) document.getElementById('sbSeriesName').innerText = m.seriesName || 'Friendly Match';
         if (document.getElementById('sbMatchDate')) document.getElementById('sbMatchDate').innerText = m.matchDate || m.date || new Date().toLocaleDateString('en-IN');
-        if (document.getElementById('sbLocation')) document.getElementById('sbLocation').innerText = m.ground || m.location || 'KCP CRICKET GROUND';
+        if (document.getElementById('sbLocation')) document.getElementById('sbLocation').innerText = m.ground || 'KCP CRICKET GROUND';
         if (document.getElementById('sbLastUpdated')) {
           let statusText = isFinished ? 'Match Finished' : 'Live';
           document.getElementById('sbLastUpdated').innerText = m.organiser ? `${m.organiser} (${statusText})` : statusText;
