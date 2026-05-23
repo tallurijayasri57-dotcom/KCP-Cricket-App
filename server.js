@@ -460,7 +460,17 @@ app.get("/tournament-players/:tournament_id/:team_name", async (req, res) => {
             const r = await pool.request()
                 .input('tid', sql.Int, tournament_id)
                 .input('tn', sql.NVarChar, team_name)
-                .query('SELECT * FROM tournament_players WHERE tournament_id=@tid AND team_name=@tn');
+                .query(`
+                    SELECT
+                        tp.id, tp.tournament_id, tp.team_name, tp.player_name,
+                        COALESCE(NULLIF(tp.role, ''), NULLIF(pp.role, ''), 'Player') AS role,
+                        COALESCE(NULLIF(tp.batting_style, ''), NULLIF(pp.batting_style, '')) AS batting_style,
+                        COALESCE(NULLIF(tp.bowling_style, ''), NULLIF(pp.bowling_style, '')) AS bowling_style,
+                        COALESCE(NULLIF(tp.photo_url, ''), NULLIF(pp.photo_url, '')) AS photo_url
+                    FROM tournament_players tp
+                    LEFT JOIN player_profiles pp ON tp.player_name = pp.player_name
+                    WHERE tp.tournament_id = @tid AND tp.team_name = @tn
+                `);
             res.json(r.recordset);
         } else {
             res.json([]);
