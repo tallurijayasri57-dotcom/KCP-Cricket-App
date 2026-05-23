@@ -11035,6 +11035,7 @@
       // Calculate Stats-based data
       let shotCounts = {};
       let runBreakdown = { 'Sixes': 0, 'Fours': 0, 'Others': 0 };
+      let runBreakdownCount = { 'Sixes': 0, 'Fours': 0 };
       let dismissals = { 'Bowled': 0, 'Caught': 0, 'LBW': 0, 'Run Out': 0, 'Stumped': 0, 'Others': 0 };
       let wagonRuns = {};
       let topBatsmen = [];
@@ -11048,6 +11049,8 @@
 
           runBreakdown['Sixes'] += sixes * 6;
           runBreakdown['Fours'] += fours * 4;
+          runBreakdownCount['Sixes'] += sixes;
+          runBreakdownCount['Fours'] += fours;
           // 'Others' is calculated globally later to include extras
 
           (p.shot_types || []).forEach(s => { if (s) shotCounts[s] = (shotCounts[s] || 0) + 1; });
@@ -11192,7 +11195,25 @@
                   borderWidth: 0
                 }]
               },
-              options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#f8fafc', padding: 20 } } }, cutout: '75%' }
+              options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { 
+                  legend: { position: 'bottom', labels: { color: '#f8fafc', padding: 20 } },
+                  tooltip: {
+                    callbacks: {
+                      label: function(context) {
+                        let label = context.label || '';
+                        let value = context.parsed;
+                        if (label === 'Sixes') return `Sixes: ${runBreakdownCount['Sixes']} (${value} Runs)`;
+                        if (label === 'Fours') return `Fours: ${runBreakdownCount['Fours']} (${value} Runs)`;
+                        return `Others: ${value} Runs`;
+                      }
+                    }
+                  }
+                }, 
+                cutout: '75%' 
+              }
             });
           }
         } catch (e) { }
