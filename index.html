@@ -13778,7 +13778,6 @@
         if (t && t.id) await renderTdGallery(t.id, isOrganiser);
       }
     }
-
     async function renderTdTeams() {
       let t = currentViewingTournament;
       if (!t) return;
@@ -13795,6 +13794,9 @@
           return;
         }
 
+        let localTours = loadTournaments();
+        let localT = localTours.find(x => x.id == t.id);
+
         // Fetch players + captain for each team in parallel
         const teamData = await Promise.all(teams.map(async team => {
           const [playersRes, captainRes] = await Promise.all([
@@ -13802,9 +13804,14 @@
             fetch(API + '/tournament-teams/' + t.id + '/' + encodeURIComponent(team.team_name) + '/captain')
           ]);
           const players = await playersRes.json();
-          const captainData = await captainRes.json();
+          let captainData = await captainRes.json();
 
-          // Enrich each player with their photo
+          let localTeam = localT && localT.teams ? localT.teams.find(tm => tm.name === team.team_name) : null;
+          if (!captainData.captain && localTeam && localTeam.captain) {
+            captainData.captain = localTeam.captain;
+          }
+
+          // Enrich each player with their photo and local styles
           const enriched = await Promise.all(players.map(async p => {
             let photo = p.photo_url || localStorage.getItem('userPhoto_' + p.player_name) || '';
             if (!photo) {
@@ -13813,7 +13820,7 @@
                 if (pr.ok) { const pd = await pr.json(); photo = pd.photo_url || ''; }
               } catch (e) { }
             }
-            return { ...p, photo };
+            let batStyle = p.batting_style; let bowlStyle = p.bowling_style; if ((!batStyle || !bowlStyle) && localTeam && localTeam.players) { let localP = localTeam.players.find(lp => lp.name === p.player_name || lp.player_name === p.player_name); if (localP) { batStyle = batStyle || localP.batting_style; bowlStyle = bowlStyle || localP.bowling_style; } } return { ...p, photo, batting_style: batStyle, bowling_style: bowlStyle };
           }));
 
           return { name: team.team_name, players: enriched, captain: captainData.captain };
