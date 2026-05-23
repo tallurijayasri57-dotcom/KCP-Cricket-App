@@ -15402,6 +15402,7 @@
       if (ballCount % 6 == 0) {
         // Over summary
         matchCommentary.unshift({
+          innings: innings,
           type: "over_summary",
           over: Math.floor(ballCount / 6),
           runs: totalRuns,
@@ -15454,6 +15455,7 @@
       if (runs % 2 === 1) changeStrike();
       if (ballCount % 6 === 0) {
         matchCommentary.unshift({
+          innings: innings,
           type: 'over_summary',
           over: Math.floor(ballCount / 6),
           runs: totalRuns, wkts: totalWickets,
@@ -15746,6 +15748,7 @@
       if (ballCount % 6 === 0) {
         // Over summary add cheskodam
         matchCommentary.unshift({
+          innings: innings,
           type: "over_summary",
           over: Math.floor(ballCount / 6),
           runs: totalRuns,
