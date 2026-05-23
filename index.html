@@ -11627,7 +11627,7 @@
           if (b == 4) { bg = '#3b82f6'; c = '#fff'; border = 'none'; }
           else if (b == 6) { bg = '#10b981'; c = '#fff'; border = 'none'; }
           else if (b == 'W' || String(b).includes('W')) { bg = '#000'; c = '#fff'; border = '1px solid #ef4444'; }
-          return `<span style="display:inline-flex; width:26px; height:26px; align-items:center; justify-content:center; border-radius:50%; background:${bg}; border:${border}; color:${c}; font-size:12px; font-weight:700; margin-right:4px; flex-shrink:0;">${b}</span>`;
+          return `<span style="display:inline-flex; min-width:26px; height:26px; padding:0 4px; box-sizing:border-box; align-items:center; justify-content:center; border-radius:13px; background:${bg}; border:${border}; color:${c}; font-size:12px; font-weight:700; margin-right:4px; flex-shrink:0;">${b}</span>`;
         }).join('');
       }).filter(html => html.length > 0).join(`<span style="margin: 0 6px; color: #cbd5e1; font-weight: 800; font-size: 16px;">|</span>`);
 
@@ -11718,7 +11718,7 @@
 
         <div class="premium-card" style="padding:16px; margin-top: 16px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;">
           <div style="font-family:'Rajdhani',sans-serif; font-size:18px; font-weight:700; color:#6ee7b7; text-transform:uppercase; margin-bottom:20px; border-left:4px solid #6ee7b7; padding-left:12px;">Commentary</div>
-          ${getCommentaryHtml(m, 15)}
+          ${getCommentaryHtml(m.commentary || [], 15)}
         </div>
       `;
       container.innerHTML = `
@@ -11930,16 +11930,65 @@
     }
 
     function renderPremiumCommentaryTab(m, container) {
+      let comms = m.commentary || [];
+      let inn2 = [], inn1 = [];
+      let isInn2 = (m.innings === 2 || m.t2_score !== undefined || m.innings2 !== undefined);
+      let onInn2 = isInn2;
+      let prevOverFloat = -1;
+      
+      comms.forEach(c => {
+         if (c.innings) {
+            if (c.innings === 2) inn2.push(c);
+            else inn1.push(c);
+         } else {
+            let overVal = parseFloat(c.over);
+            if(!isNaN(overVal)) {
+               if (prevOverFloat !== -1 && overVal > prevOverFloat + 1.0) {
+                  onInn2 = false;
+               }
+               prevOverFloat = overVal;
+            }
+            if (onInn2) inn2.push(c);
+            else inn1.push(c);
+         }
+      });
+
+      let inn2Name = m.innings2 ? m.innings2.batTeam : (m.innings===2 ? m.batTeam : (m.t2_name || 'Innings 2'));
+      let inn1Name = m.innings1 ? m.innings1.batTeam : (m.innings===1 ? m.batTeam : (m.t1_name || 'Innings 1'));
+
       container.innerHTML = `
         <div class="premium-card" style="padding:16px; background:rgba(30, 41, 59, 0.5); border-radius:16px;">
           <div style="font-family:'Rajdhani',sans-serif; font-size:18px; font-weight:700; color:#6ee7b7; text-transform:uppercase; margin-bottom:20px; border-left:4px solid #6ee7b7; padding-left:12px;">Full Commentary</div>
-          ${getCommentaryHtml(m)}
+          
+          ${inn2.length > 0 ? `
+          <div class="innings-accordion" style="margin-bottom:16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:12px; overflow:hidden;">
+            <div class="accordion-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'" style="background:rgba(255,255,255,0.05); padding:14px 16px; cursor:pointer; font-weight:700; color:#f8fafc; display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-family:'Rajdhani',sans-serif; font-size:16px; letter-spacing:1px; text-transform:uppercase;">${inn2Name} Commentary</span>
+              <span style="font-size:12px; color:#94a3b8;">▼</span>
+            </div>
+            <div class="accordion-content" style="display:block; padding:0 16px;">
+              ${getCommentaryHtml(inn2)}
+            </div>
+          </div>
+          ` : ''}
+
+          ${inn1.length > 0 ? `
+          <div class="innings-accordion" style="margin-bottom:16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:12px; overflow:hidden;">
+            <div class="accordion-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'" style="background:rgba(255,255,255,0.05); padding:14px 16px; cursor:pointer; font-weight:700; color:#f8fafc; display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-family:'Rajdhani',sans-serif; font-size:16px; letter-spacing:1px; text-transform:uppercase;">${inn1Name} Commentary</span>
+              <span style="font-size:12px; color:#94a3b8;">▼</span>
+            </div>
+            <div class="accordion-content" style="display:${inn2.length > 0 ? 'none' : 'block'}; padding:0 16px;">
+              ${getCommentaryHtml(inn1)}
+            </div>
+          </div>
+          ` : ''}
         </div>
       `;
     }
 
-    function getCommentaryHtml(m, limit = null) {
-      let comms = m.commentary || [];
+    function getCommentaryHtml(commsArray, limit = null) {
+      let comms = commsArray || [];
       if (limit) comms = comms.slice(0, limit);
 
       return comms.map(c => {
@@ -15344,7 +15393,7 @@
       // Commentary
       let over = Math.floor((ballCount - 1) / 6) + "." + ((ballCount - 1) % 6 + 1);
       matchCommentary.unshift({
-        over: over, ball: r,
+        innings: innings, over: over, ball: r,
         text: `${b} to ${s}, ${r} run${r == 1 ? '' : 's'}${shotType ? ', ' + shotType : ''}`
       });
 
@@ -15394,9 +15443,10 @@
       extrasByes += runs;
       bowlerStats[bowler.value].balls++;
       ballCount++;
-      let ballStr = 'B+' + runs;
+      let ballStr = 'B' + runs;
       addBall(ballStr);
       matchCommentary.unshift({
+        innings: innings,
         over: Math.floor((ballCount - 1) / 6) + '.' + ((ballCount - 1) % 6 + 1),
         ball: ballStr,
         text: `${bowler.value} to ${strike.value}, Bye ${runs} run${runs !== 1 ? 's' : ''}`
@@ -15453,7 +15503,8 @@
       let ballStr = runs === 0 ? "Wd" : "Wd+" + runs;
       addBall(ballStr);
       matchCommentary.unshift({
-        over: ballCount % 6 === 0 && ballCount > 0 ? Math.floor(ballCount / 6) - 1 : Math.floor(ballCount / 6),
+        innings: innings,
+        over: Math.floor(ballCount / 6) + "." + ((ballCount % 6) + 1),
         ball: ballStr,
         text: `${bowler.value} to ${strike.value}, Wide${runs > 0 ? ' plus ' + runs + ' runs' : ''}`
       });
@@ -15479,7 +15530,8 @@
       let ballStr = runs === 0 ? "NB" : "NB+" + runs;
       addBall(ballStr);
       matchCommentary.unshift({
-        over: ballCount % 6 === 0 && ballCount > 0 ? Math.floor(ballCount / 6) - 1 : Math.floor(ballCount / 6),
+        innings: innings,
+        over: Math.floor(ballCount / 6) + "." + ((ballCount % 6) + 1),
         ball: ballStr,
         text: `${bowler.value} to ${strike.value}, No Ball${runs > 0 ? ' plus ' + runs + ' runs' : ''}`
       });
@@ -15685,7 +15737,7 @@
       let over = Math.floor((ballCount - 1) / 6) + "." + ((ballCount - 1) % 6 + 1);
       let outDesc = dismissalType === "Bowled" || dismissalType === "LBW" ? dismissalType : `${dismissalType} (${dismissedBy})`;
       matchCommentary.unshift({
-        over: over, ball: ballStr,
+        innings: innings, over: over, ball: ballStr,
         text: `${bowler.value} to ${outPlayer}, OUT, ${outDesc}`,
         subText: `${outPlayer} ${outDesc} b ${bowler.value} (${batsmanStats[outPlayer].runs}r ${batsmanStats[outPlayer].balls}b)`
       });
