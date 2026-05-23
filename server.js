@@ -551,6 +551,23 @@ app.put("/tournament-players/:tournament_id/:team_name/:old_player_name", async 
                     .input("npn", sql.NVarChar, player_name)
                     .query("UPDATE tournament_teams SET captain = @npn WHERE tournament_id = @tid AND team_name = @tn");
             }
+            // 3. Also update player_profiles so live link always has latest styles
+            await pool.request()
+                .input("pn", sql.NVarChar, player_name)
+                .input("r", sql.NVarChar, role || null)
+                .input("bs", sql.NVarChar, req.body.batting_style || null)
+                .input("bows", sql.NVarChar, req.body.bowling_style || null)
+                .query(`
+                    IF EXISTS (SELECT 1 FROM player_profiles WHERE player_name = @pn)
+                        UPDATE player_profiles
+                        SET role = COALESCE(@r, role),
+                            batting_style = COALESCE(@bs, batting_style),
+                            bowling_style = COALESCE(@bows, bowling_style)
+                        WHERE player_name = @pn
+                    ELSE
+                        INSERT INTO player_profiles (player_name, role, batting_style, bowling_style)
+                        VALUES (@pn, @r, @bs, @bows)
+                `);
             res.json({ success: true, message: "Player updated successfully" });
         } else {
             res.status(500).json({ message: "Database not connected" });
@@ -707,7 +724,19 @@ app.get("/players/:team", async (req, res) => {
                 .map((p, i) => ({ id: p.id || i + 1, ...p }));
             return res.json(filtered);
         }
-        const r = await pool.request().input("t", sql.NVarChar, req.params.team).query("SELECT * FROM players WHERE team_name=@t");
+        const r = await pool.request()
+            .input("t", sql.NVarChar, req.params.team)
+            .query(`
+                SELECT
+                    pl.id, pl.team_name, pl.player_name,
+                    COALESCE(NULLIF(pl.role, ''), NULLIF(pp.role, ''), 'Player') AS role,
+                    COALESCE(NULLIF(pl.batting_style, ''), NULLIF(pp.batting_style, '')) AS batting_style,
+                    COALESCE(NULLIF(pl.bowling_style, ''), NULLIF(pp.bowling_style, '')) AS bowling_style,
+                    COALESCE(NULLIF(pl.photo_url, ''), NULLIF(pp.photo_url, '')) AS photo_url
+                FROM players pl
+                LEFT JOIN player_profiles pp ON pl.player_name = pp.player_name
+                WHERE pl.team_name = @t
+            `);
         res.json(r.recordset);
     } catch (err) {
         res.status(500).json({ error: err.message });
