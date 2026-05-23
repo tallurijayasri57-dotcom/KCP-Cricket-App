@@ -10560,12 +10560,7 @@
         else if (wicketDiff > 0) showEventPopup('WICKET');
         else if ((m.status === 'finished' || m.status === 'Finished') && (old.status !== 'finished' && old.status !== 'Finished')) {
           let awards = calculateMatchAwards(m);
-          showEventPopup('WINNER', {
-            winner: m.winner || m.batTeam,
-            margin: m.matchStatus || m.margin,
-            momName: awards.mvp ? awards.mvp.name : 'N/A',
-            momStats: awards.mvp ? (awards.mvp.batData ? awards.mvp.batData.runs + '(' + awards.mvp.batData.balls + ')' : '') + (awards.mvp.bowlData ? ' • ' + awards.mvp.bowlData.wickets + ' wkts' : '') : ''
-          });
+          // WINNER popup removed as per requirement for live link
         }
       }
       celebrationOldState = JSON.parse(JSON.stringify(m));
@@ -11053,7 +11048,7 @@
 
           runBreakdown['Sixes'] += sixes * 6;
           runBreakdown['Fours'] += fours * 4;
-          runBreakdown['Others'] += (runs - (sixes * 6) - (fours * 4));
+          // 'Others' is calculated globally later to include extras
 
           (p.shot_types || []).forEach(s => { if (s) shotCounts[s] = (shotCounts[s] || 0) + 1; });
           (p.wagon_wheel || []).forEach(w => {
@@ -11089,6 +11084,14 @@
         processInnings({ batsmen: m.batsmen, batTeam: m.batTeam });
       }
 
+      let totalMatchRuns = 0;
+      if (m.innings1) totalMatchRuns += parseInt(m.innings1.runs) || 0;
+      if (m.innings2) totalMatchRuns += parseInt(m.innings2.runs) || 0;
+      if (!m.innings1 && !m.innings2) {
+        totalMatchRuns = parseInt(m.runs) || parseInt(m.t1_score) || 0;
+      }
+      runBreakdown['Others'] = Math.max(0, totalMatchRuns - runBreakdown['Sixes'] - runBreakdown['Fours']);
+
       topBatsmen.sort((a, b) => b.runs - a.runs);
       const top5 = topBatsmen.slice(0, 5);
 
@@ -11103,7 +11106,7 @@
              
              <!-- 1. Manhattan Chart Section -->
              <div class="premium-card-v2">
-                <div class="card-title-v2">Manhattan (Runs per Over)</div>
+                <div class="card-title-v2">RUNS PER OVER</div>
                 <div class="chart-box-v2">
                    ${comms.length === 0 ? '<div class="no-data-v2">Over-by-over data available for new matches only</div>' : '<canvas id="manhattanChart"></canvas>'}
                 </div>
@@ -15769,7 +15772,9 @@
       totalWickets++; ballCount++;
       let ballStr = extraRuns > 0 ? extraRuns + "+W" : "W";
       addBall(ballStr);
-      bowlerStats[bowler.value].wickets++;
+      if (dismissalType !== "Run Out") {
+        bowlerStats[bowler.value].wickets++;
+      }
       bowlerStats[bowler.value].balls++;
       if (extraRuns === 0) bowlerStats[bowler.value].dots = (bowlerStats[bowler.value].dots || 0) + 1;
       if (batsmanStats[outPlayer]) {
