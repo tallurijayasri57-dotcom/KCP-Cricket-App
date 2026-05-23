@@ -7437,8 +7437,8 @@
     <h3 id="targetBox"></h3>
     <div class="score"><span id="scoreRuns">0</span>/<span id="scoreWkts">0</span> (<span id="overs">0.0</span>)</div>
     <div class="section">
-      Strike <select id="strike"></select>
-      Non Strike <select id="nonstrike"></select>
+      Strike <select id="strike" onchange="handleBatsmanSelection()"></select>
+      Non Strike <select id="nonstrike" onchange="handleBatsmanSelection()"></select>
       Bowler <select id="bowler"></select>
     </div>
     <div class="section">
@@ -15266,6 +15266,23 @@
       // Force initial sync to make it visible on home page instantly
       updateLiveScore();
     }
+    function handleBatsmanSelection() {
+      let strikeSel = document.getElementById("strike");
+      let nonStrikeSel = document.getElementById("nonstrike");
+      if(strikeSel && nonStrikeSel) {
+        let sVal = strikeSel.value;
+        let nVal = nonStrikeSel.value;
+        for(let i=0; i<strikeSel.options.length; i++) {
+          let opt = strikeSel.options[i];
+          opt.disabled = (opt.value !== "" && opt.value === nVal);
+        }
+        for(let i=0; i<nonStrikeSel.options.length; i++) {
+          let opt = nonStrikeSel.options[i];
+          opt.disabled = (opt.value !== "" && opt.value === sVal);
+        }
+      }
+    }
+
     function loadScorePlayers() {
       strike.innerHTML = '<option value="">Select Striker</option>';
       nonstrike.innerHTML = '<option value="">Select Non-Striker</option>';
@@ -15285,12 +15302,16 @@
       if (batPlayers.length >= 1) strike.value = batPlayers[0];
       if (batPlayers.length >= 2) nonstrike.value = batPlayers[1];
       if (bowlPlayers.length >= 1) bowler.value = bowlPlayers[0];
+      handleBatsmanSelection();
       updateTables(); updateScore();
     }
 
     function run(r) {
       if (winShown) return;
       if (totalOvers > 0 && ballCount >= totalOvers * 6) { alert("Innings over! Switch innings."); return; }
+      let s = strike.value, n = nonstrike.value;
+      if (!s || s === "") { alert("Please select a Striker first!"); return; }
+      if (!n || n === "") { alert("Please select a Non-Striker first!"); return; }
       pendingRun = r;
       document.getElementById('shotRunLabel').innerText = r + ' Run' + (r !== 1 ? 's' : '') + ' — ' + strike.value;
       document.querySelectorAll('.shot-btn').forEach(b => b.classList.remove('selected'));
@@ -15300,8 +15321,9 @@
     }
     function processRun(r, shotType, wagonZone) {
       if (r === 4 || r === 6) showEventPopup('boundary', { runs: r });
-      let s = strike.value, b = bowler.value;
-      if (!s || s === "") { alert("Please select a striker first!"); return; }
+      let s = strike.value, n = nonstrike.value, b = bowler.value;
+      if (!s || s === "") { alert("Please select a Striker first!"); return; }
+      if (!n || n === "") { alert("Please select a Non-Striker first!"); return; }
       if (!batsmanStats[s]) batsmanStats[s] = { runs: 0, balls: 0, fours: 0, sixes: 0 };
       if (!bowlerStats[b]) bowlerStats[b] = { runs: 0, balls: 0, wickets: 0, dots: 0, fours: 0, sixes: 0, wides: 0, noballs: 0 };
 
@@ -15364,6 +15386,9 @@
       document.getElementById('byePopupOverlay').classList.remove('open');
       if (winShown) return;
       if (totalOvers > 0 && ballCount >= totalOvers * 6) { alert("Innings over! Switch innings."); return; }
+      let s = strike.value, n = nonstrike.value;
+      if (!s || s === "") { alert("Please select a Striker first!"); return; }
+      if (!n || n === "") { alert("Please select a Non-Striker first!"); return; }
       saveSnapshot();
       totalRuns += runs;
       extrasByes += runs;
@@ -15416,6 +15441,9 @@
     function processWide(runs) {
       document.getElementById('widePopupOverlay').classList.remove('open');
       if (winShown) return;
+      let s = strike.value, n = nonstrike.value;
+      if (!s || s === "") { alert("Please select a Striker first!"); return; }
+      if (!n || n === "") { alert("Please select a Non-Striker first!"); return; }
       saveSnapshot();
       let wideRuns = runs + 1;
       totalRuns += wideRuns;
@@ -15438,6 +15466,9 @@
     function processNoBall(runs) {
       document.getElementById('noballPopupOverlay').classList.remove('open');
       if (winShown) return;
+      let s = strike.value, n = nonstrike.value;
+      if (!s || s === "") { alert("Please select a Striker first!"); return; }
+      if (!n || n === "") { alert("Please select a Non-Striker first!"); return; }
       saveSnapshot();
       let totalAdd = runs + 1;
       totalRuns += totalAdd;
@@ -15452,6 +15483,7 @@
         ball: ballStr,
         text: `${bowler.value} to ${strike.value}, No Ball${runs > 0 ? ' plus ' + runs + ' runs' : ''}`
       });
+      if (runs % 2 === 1) changeStrike();
       updateScore();
       updateExtras();
       updateLiveScore();
@@ -15495,6 +15527,7 @@
       });
       if (s.strikePlayer) strikeEl.value = s.strikePlayer;
       if (s.nonStrikePlayer) nonStrikeEl.value = s.nonStrikePlayer;
+      handleBatsmanSelection();
       updateScore();
       updateTables();
       updateExtras();
@@ -15555,6 +15588,9 @@
     function noball() { }
     function wicket() {
       if (winShown) return;
+      let s = strike.value, n = nonstrike.value;
+      if (!s || s === "") { alert("Please select a Striker first!"); return; }
+      if (!n || n === "") { alert("Please select a Non-Striker first!"); return; }
       // First show wk-runs popup (wk+0/+1/+2/+3)
       document.getElementById('wicketRunsOverlay').classList.add('open');
     }
@@ -16718,13 +16754,13 @@
       <div class="extra-popup-subtitle">Select Bye Runs (extras only - won't be added to batsman's run count)</div>
       <div class="extra-btns-grid">
         <button class="extra-opt-btn" style="background:rgba(13,148,136,0.25);border-color:#0d9488;"
-          onclick="processBye(1)">B+1</button>
+          onclick="processBye(1)">B1</button>
         <button class="extra-opt-btn" style="background:rgba(13,148,136,0.25);border-color:#0d9488;"
-          onclick="processBye(2)">B+2</button>
+          onclick="processBye(2)">B2</button>
         <button class="extra-opt-btn" style="background:rgba(13,148,136,0.25);border-color:#0d9488;"
-          onclick="processBye(3)">B+3</button>
+          onclick="processBye(3)">B3</button>
         <button class="extra-opt-btn" style="background:rgba(13,148,136,0.25);border-color:#0d9488;"
-          onclick="processBye(4)">B+4</button>
+          onclick="processBye(4)">B4</button>
       </div>
       <button onclick="document.getElementById('byePopupOverlay').classList.remove('open')"
         style="width:100%;margin-top:14px;padding:11px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#6b7280;font-family:'Rajdhani',sans-serif;font-size:14px;cursor:pointer;">Cancel</button>
