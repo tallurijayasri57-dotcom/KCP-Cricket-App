@@ -10829,15 +10829,77 @@
 
       let allPlayers = {};
       allBatsmen.forEach(b => {
-        if (!allPlayers[b.name]) allPlayers[b.name] = { name: b.name, team: b.team, pts: 0 };
+        if (!allPlayers[b.name]) allPlayers[b.name] = { name: b.name, team: b.team, pts: 0, totalBatPts: 0, totalBowlPts: 0, totalFieldPts: 0 };
         allPlayers[b.name].pts += b.battingPoints;
+        allPlayers[b.name].totalBatPts += b.battingPoints;
         allPlayers[b.name].batData = b;
       });
       allBowlers.forEach(b => {
-        if (!allPlayers[b.name]) allPlayers[b.name] = { name: b.name, team: b.team, pts: 0 };
+        if (!allPlayers[b.name]) allPlayers[b.name] = { name: b.name, team: b.team, pts: 0, totalBatPts: 0, totalBowlPts: 0, totalFieldPts: 0 };
         allPlayers[b.name].pts += b.bowlingPoints;
+        allPlayers[b.name].totalBowlPts += b.bowlingPoints;
         allPlayers[b.name].bowlData = b;
       });
+
+      // FIELDING POINTS CALCULATION
+      allBatsmen.forEach(bat => {
+        let fielderName = null;
+        let points = 1.0; 
+
+        if (bat.outDesc && bat.outDesc.toLowerCase() !== 'not out') {
+            let desc = bat.outDesc.trim();
+            let descLower = desc.toLowerCase();
+            
+            if (descLower.startsWith('c & b ')) {
+                 let bMatch = desc.match(/c\s*&\s*b\s+(.+)$/i);
+                 if (bMatch && bMatch[1]) fielderName = bMatch[1].trim();
+            } else if (descLower.startsWith('c ') || descLower.startsWith('caught ')) {
+                let match = desc.match(/^(?:c|caught)\s+([^b]+)(?:\s+b\s+|$)/i);
+                if (match && match[1]) {
+                    fielderName = match[1].trim();
+                    if (fielderName === '&') {
+                         let bMatch = desc.match(/b\s+(.+)$/i);
+                         if (bMatch && bMatch[1]) fielderName = bMatch[1].trim();
+                    }
+                }
+            } else if (descLower.startsWith('st ') || descLower.startsWith('stumped ')) {
+                let match = desc.match(/^(?:st|stumped)\s+([^b]+)(?:\s+b\s+|$)/i);
+                if (match && match[1]) fielderName = match[1].trim();
+            } else if (descLower.includes('run out')) {
+                let match = desc.match(/run out\s*\(([^)]+)\)/i);
+                if (match && match[1]) {
+                    fielderName = match[1].trim();
+                } else {
+                    let match2 = desc.match(/run out\s+(.+)$/i);
+                    if (match2 && match2[1]) fielderName = match2[1].trim();
+                }
+            }
+        }
+        
+        if (!fielderName && bat.dismissal_type && bat.dismissed_by) {
+            let type = bat.dismissal_type.toLowerCase();
+            if (['caught', 'run out', 'stumped', 'caught and bowled'].includes(type)) {
+                fielderName = bat.dismissed_by.trim();
+            }
+        }
+
+        if (fielderName) {
+            let fieldingTeam = "";
+            if (m.innings1 && m.innings2) {
+                 fieldingTeam = bat.team === m.innings1.batTeam ? m.innings2.batTeam : m.innings1.batTeam;
+            } else {
+                 fieldingTeam = bat.team === m.batTeam ? m.bowlTeam : m.batTeam;
+            }
+            
+            let fielders = fielderName.split(/[\/\,]/).map(s => s.trim()).filter(s => s);
+            fielders.forEach(f => {
+                 if (!allPlayers[f]) allPlayers[f] = { name: f, team: fieldingTeam, pts: 0, totalBatPts: 0, totalBowlPts: 0, totalFieldPts: 0 };
+                 allPlayers[f].pts += points;
+                 allPlayers[f].totalFieldPts += points;
+            });
+        }
+      });
+
 
       let mvp = null;
       let maxMvpPts = -1000;
@@ -10874,9 +10936,9 @@
         let photoSrc = localStorage.getItem("userPhoto_" + p.name);
         let photoHtml = photoSrc ? `<img src="${photoSrc}" style="width:100%; height:100%; object-fit:cover; border-radius:4px;">` : `<div style="width:100%; height:100%; background:rgba(255,255,255,0.05); border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:24px;">👤</div>`;
 
-        let batPts = p.batData ? p.batData.battingPoints : 0;
-        let bowlPts = p.bowlData ? p.bowlData.bowlingPoints : 0;
-        let fieldPts = 0; // Fielding points not currently tracked, but matching layout
+        let batPts = p.totalBatPts || 0;
+        let bowlPts = p.totalBowlPts || 0;
+        let fieldPts = p.totalFieldPts || 0;
 
         html += `
           <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
