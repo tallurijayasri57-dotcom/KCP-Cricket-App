@@ -366,59 +366,23 @@
       padding: 0;
     }
 
-    .role-badge {
+    .role-badge, .style-badge {
       display: inline-block;
-      font-size: 11px;
-      font-weight: 600;
-      color: #6b7280;
-      letter-spacing: 0.3px;
-    }
-
-    .role-BAT {
-      color: #6b7280;
-    }
-
-    .role-BOWL {
-      color: #6b7280;
-    }
-
-    .role-AR {
-      color: #6b7280;
-    }
-
-    .role-WK {
-      color: #6b7280;
-    }
-
-    /* Style Badges */
-    .style-badge {
-      display: inline-block;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 10px;
-      font-weight: 700;
-      margin-left: 4px;
+      white-space: nowrap;
       text-transform: uppercase;
-      letter-spacing: 0.3px;
+      margin: 0 3px;
+      padding: 0;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      color: inherit;
+      font-family: inherit;
+      font-size: inherit;
+      font-weight: inherit;
+      letter-spacing: inherit;
     }
 
-    .style-RHB {
-      background: rgba(71, 85, 105, 0.15);
-      color: #cbd5e1;
-      border: 1px solid rgba(71, 85, 105, 0.3);
-    }
 
-    .style-LHB {
-      background: rgba(71, 85, 105, 0.15);
-      color: #cbd5e1;
-      border: 1px solid rgba(71, 85, 105, 0.3);
-    }
-
-    .style-BOWL {
-      background: rgba(71, 85, 105, 0.15);
-      color: #cbd5e1;
-      border: 1px solid rgba(71, 85, 105, 0.3);
-    }
 
 
     /* HOME BANNER - WELCOME TO TOURNAMENT (shown after tournament created) */
@@ -4205,6 +4169,7 @@
       background: #065f46;
     }
 
+    .standard-back-btn { color: #94a3b8; font-size: 14px; cursor: pointer; font-weight: 500; font-family: 'Inter', sans-serif; display: inline-flex; align-items: center; transition: color 0.2s; } .standard-back-btn:hover { color: #cbd5e1; } 
     .page-top-back-btn {
       background: transparent;
       border: none;
@@ -5619,13 +5584,15 @@
   </style>
 
   <!-- MY MATCHES PAGE -->
-  <div id="myMatchesPage" class="page" style="display:none; min-height:100vh; padding-bottom:30px;">
+  <div id="myMatchesPage" class="page" style="display:none; min-height:100vh; padding-bottom:30px; position:relative;">
+    <div style="position:absolute; top:12px; left:16px; color:#94a3b8; font-size:14px; cursor:pointer; font-weight:500;" onclick="globalGoBack()">← Back</div>
     <div class="my-page-title">My Matches</div>
     <div id="myMatchesContainer"></div>
   </div>
 
   <!-- MY TOURNAMENTS PAGE -->
-  <div id="myTournamentsPage" class="page" style="display:none; min-height:100vh; padding-bottom:30px;">
+  <div id="myTournamentsPage" class="page" style="display:none; min-height:100vh; padding-bottom:30px; position:relative;">
+    <div style="position:absolute; top:12px; left:16px; color:#94a3b8; font-size:14px; cursor:pointer; font-weight:500;" onclick="globalGoBack()">← Back</div>
     <div class="my-page-title">My Tournaments</div>
     <div id="myTournamentsContainer"></div>
   </div>
@@ -5914,10 +5881,7 @@
     style="display:none; background:linear-gradient(135deg,#0d1117 0%,#0f1a2e 40%,#091221 70%,#0d1117 100%); min-height:100vh; position:relative; overflow-y:auto; padding-bottom:100px;">
     <div class="page-top-back"
       style="background:rgba(0,0,0,0.3); border-bottom:1px solid rgba(255,255,255,0.1); padding:16px 20px; backdrop-filter:blur(6px); position:sticky; top:0; z-index:100;">
-      <button class="page-top-back-btn" onclick="globalGoBack()" style="color:#ffffff;">
-        <span class="page-top-back-arrow" style="color:#ffffff;">←</span> <span style="font-size:18px;">Match
-          Details</span>
-      </button>
+      <div class="standard-back-btn" onclick="globalGoBack()">← Match Details</div>
     </div>
     <div id="globalScorecardContainer" style="max-width:900px; margin:0 auto; padding:20px;">
       <!-- Scorecard injected here -->
@@ -6159,7 +6123,8 @@
   </div>
 
   <!-- ORGANISER ADMIN PAGE -->
-  <div id="organiserAdmin" class="page" style="padding:0; min-height:100vh; display:none; flex-direction:column;">
+  <div id="organiserAdmin" class="page" style="padding:0; min-height:100vh; display:none; flex-direction:column; position:relative;">
+    <div style="position:absolute; top:12px; left:16px; color:#94a3b8; font-size:14px; cursor:pointer; font-weight:500;" onclick="globalGoBack()">← Back</div>
     <div
       style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; text-align:center; height:calc(100vh - 60px);">
       <h2 style="font-family:'Inter',sans-serif; font-size:28px; font-weight:700; color:#ffffff; margin-bottom:12px;">
@@ -6184,9 +6149,7 @@
   <div id="tournamentsTablePage" class="page" style="padding:0; min-height:100vh; display:none; flex-direction:column;">
     <div class="page-top-back"
       style="background:rgba(2,6,23,0.85); backdrop-filter:blur(12px); border-bottom:1px solid rgba(45,212,191,0.12); padding:16px 20px;">
-      <button class="page-top-back-btn" onclick="globalGoBack()" style="color:#fff;">
-        <span class="page-top-back-arrow" style="color:#2dd4bf;">←</span> <span style="font-size:18px;">Back</span>
-      </button>
+      <div class="standard-back-btn" onclick="globalGoBack()">← Back</div>
     </div>
 
     <div style="max-width:1100px; margin:0 auto; padding:30px 20px; width:100%; box-sizing:border-box;">
@@ -6255,10 +6218,7 @@
     style="padding:0; min-height:100vh; display:none; flex-direction:column;">
     <div class="page-top-back"
       style="background:rgba(2,6,23,0.85); backdrop-filter:blur(12px); border-bottom:1px solid rgba(45,212,191,0.12); padding:16px 20px; display:flex; align-items:center; justify-content:space-between;">
-      <button class="page-top-back-btn" onclick="openTournamentsTable()"
-        style="color:#fff; background:none; border:none; cursor:pointer; font-family:'Inter',sans-serif; display:inline-flex; align-items:center; gap:8px; padding:0;">
-        <span class="page-top-back-arrow" style="color:#2dd4bf;">←</span> <span style="font-size:18px;">Back</span>
-      </button>
+      <div class="standard-back-btn" onclick="globalGoBack()">← Back</div>
       <span id="galleryTournamentName"
         style="color:#fff; font-family:'Rajdhani',sans-serif; font-size:18px; font-weight:700; letter-spacing:1px;"></span>
     </div>
@@ -6298,10 +6258,7 @@
   <div id="tournamentTeamsPage" class="page" style="padding:0; min-height:100vh; display:none; flex-direction:column;">
     <div class="page-top-back"
       style="background:rgba(2,6,23,0.85); backdrop-filter:blur(12px); border-bottom:1px solid rgba(45,212,191,0.12); padding:16px 20px;">
-      <button class="page-top-back-btn" onclick="openTournamentsTable()"
-        style="color:#fff; background:none; border:none; cursor:pointer; font-family:'Inter',sans-serif; display:inline-flex; align-items:center; gap:8px; padding:0;">
-        <span class="page-top-back-arrow" style="color:#2dd4bf;">←</span> <span style="font-size:18px;">Back</span>
-      </button>
+      <div class="standard-back-btn" onclick="globalGoBack()">← Back</div>
     </div>
 
     <div style="max-width:1100px; margin:0 auto; padding:30px 20px; width:100%; box-sizing:border-box;">
@@ -6578,9 +6535,7 @@
     style="padding:0; background:linear-gradient(135deg,rgba(2,14,28,0.92) 0%,rgba(10,40,25,0.88) 100%), url('https://images.unsplash.com/photo-1540747913346-19212a4b423a?w=1400&q=80') center/cover no-repeat; min-height:100vh; padding-bottom:50px;">
     <div class="page-top-back"
       style="background:rgba(0,0,0,0.3); border-bottom:1px solid rgba(255,255,255,0.1); padding:16px 20px; backdrop-filter:blur(6px);">
-      <button class="page-top-back-btn" onclick="globalGoBack()" style="color:#ffffff;">
-        <span class="page-top-back-arrow" style="color:#ffffff;">←</span> <span style="font-size:18px;">Back</span>
-      </button>
+      <div class="standard-back-btn" onclick="globalGoBack()">← Back</div>
     </div>
     <div style="max-width:900px; margin:0 auto; padding:20px;">
       <h2 class="at-title-new">ADD A NEW TOURNAMENT</h2>
@@ -6932,9 +6887,7 @@
       showPage('addTournamentLogo');
     }
 
-    function goBackToTournamentDetails() {
-      showPage('addTournament');
-    }
+
 
     function handleTournamentLogo(event) {
       let file = event.target.files[0];
@@ -7080,9 +7033,7 @@
   <div id="addTournamentLogo" class="page"
     style="padding:0; background:#ffffff; min-height:100vh; padding-bottom:50px; display:none;">
     <div class="page-top-back" style="background:#ffffff; border-bottom:1px solid #e5e7eb; padding:16px 20px;">
-      <button class="page-top-back-btn" onclick="globalGoBack()" style="color:#4b5563;">
-        <span class="page-top-back-arrow" style="color:#4b5563;">←</span> <span style="font-size:18px;">Back</span>
-      </button>
+      <div class="standard-back-btn" onclick="globalGoBack()">← Back</div>
     </div>
     <div style="max-width:900px; margin:0 auto; padding:20px;">
       <div class="at-title-new" style="margin-top:20px; margin-bottom:40px;">ADD A NEW TOURNAMENT</div>
@@ -7115,7 +7066,7 @@
       </div>
 
       <div style="display:flex; justify-content:center; gap:16px; margin-top:40px;">
-        <button class="btn-outline" onclick="goBackToTournamentDetails()">BACK</button>
+        <button class="btn-outline" onclick="globalGoBack()">BACK</button>
         <button class="btn-solid" onclick="publishTournament()">PUBLISH</button>
       </div>
     </div>
@@ -7164,9 +7115,7 @@
   <!-- MANAGE TOURNAMENT PAGE -->
   <div id="manageTournament" class="page" style="padding:0;">
     <div class="page-top-back" style="justify-content:space-between;">
-      <button class="page-top-back-btn" onclick="globalGoBack()">
-        <span class="page-top-back-arrow">←</span>
-      </button>
+      <div class="standard-back-btn" onclick="globalGoBack()">← Back</div>
       <span id="mtTournamentName"
         style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#fff;letter-spacing:2px;"></span>
     </div>
@@ -7292,9 +7241,7 @@
       <!-- Top Banner -->
       <div class="profile-banner">
         <div class="profile-header-left">
-          <button class="profile-close-btn"
-            style="background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.8); border:1px solid rgba(255,255,255,0.15); padding:8px 14px; border-radius:6px; cursor:pointer; margin-right:20px; font-weight:600; font-size:13px; letter-spacing:0.5px;"
-            onclick="globalGoBack()">❮ Back</button>
+          <div class="standard-back-btn" style="margin-right:20px; color:rgba(255,255,255,0.8); font-size:13px;" onclick="globalGoBack()">← Back</div>
           <div class="profile-avatar" id="profileAvatar"
             style="width:110px;height:110px;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,0.4);border:2px solid rgba(255,255,255,0.15);">
             🏏</div>
@@ -7541,7 +7488,8 @@
     </div>
   </div>
 
-  <div id="score" class="page">
+  <div id="score" class="page" style="position:relative;">
+    <div class="standard-back-btn" style="position:absolute; top:12px; left:16px; margin-bottom:12px;" onclick="globalGoBack()">← Back</div>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
       <div class="overs-info-badge" id="oversInfoBadge" style="display:none; margin: 0;">⏱️ Match: <span
           id="oversInfoText">— overs</span></div>
@@ -7734,14 +7682,7 @@
 
     let pageHistory = [];
 
-    function goBack() {
-      if (pageHistory.length > 1) {
-        pageHistory.pop();
-        let prevPage = pageHistory[pageHistory.length - 1];
-        document.querySelectorAll(".page").forEach(p => p.style.display = "none");
-        document.getElementById(prevPage).style.display = "block";
-      }
-    }
+
 
     setTimeout(function () {
       let splash = document.getElementById('splashScreen');
@@ -7877,7 +7818,9 @@
                     team_name: team.name,
                     player_name: p.name || p.player_name,
                     role: p.role || null,
-                    photo_url: p.photo_url || p.photo || null
+                    photo_url: p.photo_url || p.photo || null,
+                    batting_style: p.batting_style || null,
+                    bowling_style: p.bowling_style || null
                   })
                 });
               }
@@ -8536,11 +8479,16 @@
       }
       container.innerHTML = players.map(function (p, pi) {
         let photoHtml = p.photo ? '<img src="' + p.photo + '" style="width:24px;height:24px;border-radius:50%;object-fit:cover;margin-right:8px;">' : '<span style="margin-right:8px;">🧑</span>';
-        return '<div style="display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f3f4f6;">' +
-          '<div style="display:flex;align-items:center;font-size:14px; color:#1f2937;">' + photoHtml + p.name + ' <span style="font-size:11px; color:#6b7280;margin-left:4px;">(' + (p.role || '') + ')</span></div>' +
-          '<div style="display:flex; gap:8px; align-items:center;">' +
-          '<span onclick="openEditPlayerInTeam(' + pi + ')" style="cursor:pointer; color:#0d9488; font-size:12px; border:1px solid #0d9488; padding:3px 8px; border-radius:4px;">Edit</span>' +
-          '<span onclick="deletePlayerInEditModal(' + pi + ')" style="cursor:pointer; color:#dc2626; font-size:12px; border:1px solid #dc2626; padding:3px 8px; border-radius:4px;">Delete</span>' +
+        let roleLabel = roleBadge(p.role, p.batting_style, p.bowling_style);
+        return '<div style="display:flex; flex-direction:column; align-items:center; width:calc(50% - 6px); background:#ffffff; border:1px solid #e5e7eb; border-radius:10px; padding:10px 8px 12px; box-shadow:0 2px 8px rgba(0,0,0,0.05); min-width:140px; flex-grow:1;">' +
+          '<div style="position:relative;width:64px;height:64px;margin-bottom:8px;">' +
+          '<div style="width:100%;height:100%;background:#e5e7eb;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;">' + photoHtml + '</div>' +
+          '</div>' +
+          '<div style="font-size:13px; font-family:Inter,sans-serif; color:#1f2937; font-weight:600; text-align:center; width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + p.name + '</div>' +
+          '<div style="margin-top:5px;text-align:center;min-height:42px;display:flex;flex-wrap:wrap;justify-content:center;align-content:flex-start;gap:4px;width:100%;">' + roleLabel + '</div>' +
+          '<div style="display:flex; width:100%; gap:8px; margin-top:10px;">' +
+          '<button onclick="event.stopPropagation(); openEditPlayerInTeam(' + pi + ')" style="flex:1; background:#f0fdf4; color:#15803d; border:1px solid #bbf7d0; border-radius:6px; padding:6px; font-size:11px; font-weight:700; cursor:pointer; font-family:\'Rajdhani\',sans-serif;">Edit</button>' +
+          '<button onclick="event.stopPropagation(); deletePlayerInEditModal(' + pi + ')" style="flex:1; background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; border-radius:6px; padding:6px; font-size:11px; font-weight:700; cursor:pointer; font-family:\'Rajdhani\',sans-serif;">Delete</button>' +
           '</div>' +
           '</div>';
       }).join('');
@@ -8678,6 +8626,21 @@
     }
 
     async function confirmUpdateTeam() {
+      let chkBox = document.getElementById('updateTeamMatchesCheck');
+      if (!chkBox || !chkBox.checked) {
+        let container = document.getElementById('updateTeamMatchesContainer');
+        if (container) {
+          container.animate([
+            { transform: 'scale(1)', color: '#4b5563' },
+            { transform: 'scale(1.03)', color: '#ef4444' },
+            { transform: 'scale(0.97)', color: '#ef4444' },
+            { transform: 'scale(1.01)', color: '#ef4444' },
+            { transform: 'scale(1)', color: '#4b5563' }
+          ], { duration: 400, easing: 'ease-in-out' });
+        }
+        return;
+      }
+
       let newName = document.getElementById('editTeamNameInput').value.trim();
       if (!newName) { alert('Enter team name'); return; }
       let t = getCurrentTournament();
@@ -8905,7 +8868,7 @@
           ? 'ondblclick="setSQLTeamCaptain(\'' + escapeQ(p.player_name) + '\',\'' + escapeQ(teamName) + '\')" title="Double-click to set as captain"'
           : 'title="' + p.player_name + '"';
 
-        let roleLabel = roleBadge(p.role);
+        let roleLabel = roleBadge(p.role, p.batting_style, p.bowling_style);
         let cursorStyle = isOrganiser ? 'cursor:pointer;' : '';
 
         return '<div ' + dblClickAttr + ' style="display:flex;flex-direction:column;align-items:center;width:100%;background:#ffffff;' + borderStyle + 'border-radius:10px;padding:10px 8px 12px;user-select:none;transition:box-shadow 0.2s;box-sizing:border-box;' + cursorStyle + '">' +
@@ -8915,7 +8878,7 @@
           avatarHtml + '</div>' +
           '</div>' +
           '<div style="margin-top:8px;font-size:12px;font-family:Inter,sans-serif;' + nameColor + 'text-align:center;line-height:1.3;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px;box-sizing:border-box;">' + p.player_name + '</div>' +
-          '<div style="margin-top:5px;text-align:center;">' + roleLabel + '</div>' +
+          '<div style="margin-top:5px;text-align:center;min-height:42px;display:flex;flex-wrap:wrap;justify-content:center;align-content:flex-start;gap:4px;width:100%;">' + roleLabel + '</div>' +
           '</div>';
       }).join('');
 
@@ -8976,7 +8939,9 @@
 
         let badgeHtml = isCaptain
           ? '<div style="position:absolute; top:-8px; right:-8px; width:22px; height:22px; border-radius:50%; background:#0d9488; color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:12px; box-shadow:0 2px 4px rgba(0,0,0,0.2);">C</div>'
-          : '<div style="position:absolute; top:-8px; right:-8px; width:22px; height:22px; border-radius:50%; background:#10b981; color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:12px; box-shadow:0 2px 4px rgba(0,0,0,0.2);">✔</div>';
+          : '<div style="position:absolute; top:-8px; right:-8px; width:22px; height:22px; border-radius:50%; background:#10b981; color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:12px; box-shadow:0 2px 4px rgba(0,0,0,0.2);">✔️</div>';
+
+        let roleLabel = roleBadge(p.role, p.batting_style, p.bowling_style);
 
         return '<div style="' + cardStyle + '" onclick="setTeamCaptain(\'' + escapeQ(p.name) + '\')">' +
           badgeHtml +
@@ -8984,7 +8949,7 @@
           avatarHtml +
           '</div>' +
           '<div style="' + nameStyle + '">' + p.name + '</div>' +
-          '<div style="font-size:11px;color:#6b7280;font-family:Inter,sans-serif;margin-top:2px;">' + (p.role || '') + '</div>' +
+          '<div style="margin-top:5px;text-align:center;min-height:42px;display:flex;flex-wrap:wrap;justify-content:center;align-content:flex-start;gap:4px;width:100%;">' + roleLabel + '</div>' +
           '</div>';
       }).join('');
       // Update captain display in banner
@@ -9046,7 +9011,7 @@
 
         let borderStyle = isCaptain ? 'border:2px solid #0d9488;' : 'border:1px solid #e5e7eb;box-shadow:0 2px 8px rgba(0,0,0,0.05);';
         let nameColor = isCaptain ? 'color:#0d9488;font-weight:700;' : 'color:#1f2937;font-weight:600;';
-        let roleLabel = roleBadge(p.role);
+        let roleLabel = roleBadge(p.role, p.batting_style, p.bowling_style);
 
         let editBtn = '<button onclick="event.stopPropagation(); openEditPlayerInTeamSQL(\'' + pName.replace(/'/g, "\\'") + '\', \'' + (p.role || '') + '\', \'' + (p.batting_style || '') + '\', \'' + (p.bowling_style || '') + '\')" style="flex:1; background:#f0fdf4; color:#15803d; border:1px solid #bbf7d0; border-radius:6px; padding:6px; font-size:11px; font-weight:700; cursor:pointer; font-family:\'Rajdhani\',sans-serif; display:flex; align-items:center; justify-content:center; gap:4px;">✏️ Edit</button>';
         let deleteBtn = '<button onclick="event.stopPropagation(); deletePlayerInEditModalSQL(\'' + pName.replace(/'/g, "\\'") + '\')" style="flex:1; background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; border-radius:6px; padding:6px; font-size:11px; font-weight:700; cursor:pointer; font-family:\'Rajdhani\',sans-serif; display:flex; align-items:center; justify-content:center; gap:4px;">🗑️ Delete</button>';
@@ -9058,7 +9023,7 @@
           avatarHtml + '</div>' +
           '</div>' +
           '<div style="margin-top:8px;font-size:13px;font-family:Inter,sans-serif;' + nameColor + 'text-align:center;line-height:1.3;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + pName + '</div>' +
-          '<div style="margin-top:5px;text-align:center;">' + roleLabel + '</div>' +
+          '<div style="margin-top:5px;text-align:center;min-height:42px;display:flex;flex-wrap:wrap;justify-content:center;align-content:flex-start;gap:4px;width:100%;">' + roleLabel + '</div>' +
           '<div style="display:flex; width:100%; gap:8px; margin-top:10px;">' + editBtn + deleteBtn + '</div>' +
           '</div>';
       }).join('');
@@ -9570,6 +9535,23 @@
 
       // Sync with SSMS
       syncPlayerToSSMS(teamName, pname, role, batStyle, bowlStyle);
+
+      // Sync with SSMS (tournament specific)
+      if (t.id) {
+        fetch(API + '/tournament-players', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tournament_id: t.id,
+            team_name: teamName,
+            player_name: pname,
+            role: role,
+            photo_url: photo,
+            batting_style: batStyle,
+            bowling_style: bowlStyle
+          })
+        }).catch(err => console.error("SSMS Tournament Player Sync Error:", err));
+      }
 
       // Sync player profile to Firebase in background automatically
       if (typeof syncPlayerProfileToFirebase === 'function') {
@@ -10760,7 +10742,7 @@
           <div class="match-header-v3" style="position:relative; padding:16px; background:rgba(2, 6, 23, 0.4); border-bottom:1px solid rgba(255,255,255,0.05);">
             <div style="margin-bottom:12px; display:flex; justify-content:space-between; align-items:flex-start;">
               <div>
-                <div style="color:#94a3b8; font-size:13px; cursor:pointer; margin-bottom:10px; font-weight:600;" onclick="goBack()">← BACK</div>
+                <div style="color:#94a3b8; font-size:13px; cursor:pointer; margin-bottom:10px; font-weight:600;" onclick="globalGoBack()">← BACK</div>
                 <div style="font-family:'Rajdhani', sans-serif; font-size:15px; color:#6ee7b7; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">${m.seriesName || 'KCPL_26'} <span style="color:rgba(255,255,255,0.4); font-size:11px; font-weight:500;">(${m.matchType || 'Limited Overs'})</span></div>
                 <div style="color:rgba(255,255,255,0.5); font-size:11px; margin-top:2px;">${m.ground || 'KCP CRICKET GROUND'}, ${m.matchDate || ''}</div>
               </div>
@@ -11773,13 +11755,13 @@
           let photoHtml = photoSrc ? `<img src="${photoSrc}" style="width:100%; height:100%; object-fit:cover;">` : '';
 
           html += `
-            <div class="team-player-card" style="background:rgba(30, 41, 59, 0.4); border:1px solid rgba(255,255,255,0.05); border-radius:12px; padding:12px; text-align:center; position:relative; transition:all 0.3s ease; cursor:${isLocal ? 'pointer' : 'default'};" ${isLocal ? `onclick="openPlayerProfile('${escapeQ(pName)}', '${escapeQ(teamName)}', '${escapeQ(p.role)}')" onmouseover="this.style.background='rgba(30, 41, 59, 0.8)';this.style.transform='translateY(-2px)'" onmouseout="this.style.background='rgba(30, 41, 59, 0.4)';this.style.transform='translateY(0)'"` : ''}>
+            <div class="team-player-card" style="background:rgba(30, 41, 59, 0.4); border:1px solid rgba(255,255,255,0.05); border-radius:12px; padding:12px; text-align:center; position:relative; transition:all 0.3s ease; display:flex; flex-direction:column; align-items:center; height:100%; box-sizing:border-box; width:100%; cursor:${isLocal ? 'pointer' : 'default'};" ${isLocal ? `onclick="openPlayerProfile('${escapeQ(pName)}', '${escapeQ(teamName)}', '${escapeQ(p.role)}')" onmouseover="this.style.background='rgba(30, 41, 59, 0.8)';this.style.transform='translateY(-2px)'" onmouseout="this.style.background='rgba(30, 41, 59, 0.4)';this.style.transform='translateY(0)'"` : ''}>
               ${isCaptain ? `<div style="position:absolute; top:-2px; right:-2px; background:linear-gradient(135deg, #f59e0b, #d97706); color:#000; font-size:10px; font-weight:900; width:18px; height:18px; display:flex; align-items:center; justify-content:center; border-radius:50%; z-index:2; box-shadow:0 2px 4px rgba(0,0,0,0.3); border:1.5px solid #111827;">C</div>` : ''}
-              <div style="width:54px; height:54px; border-radius:50%; overflow:hidden; margin:0 auto 10px auto; border:2px solid ${isCaptain ? '#f59e0b' : 'rgba(110,231,183,0.2)'}; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#1e3a5f,#0d9488); box-shadow:0 4px 12px rgba(0,0,0,0.3);">
+              <div style="width:54px; height:54px; border-radius:50%; overflow:hidden; margin:0 auto 10px auto; border:2px solid ${isCaptain ? '#f59e0b' : 'rgba(110,231,183,0.2)'}; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#1e3a5f,#0d9488); box-shadow:0 4px 12px rgba(0,0,0,0.3); flex-shrink:0;">
                 ${photoHtml || `<div style="font-size:20px; font-weight:800; color:#fff;">${pName.charAt(0).toUpperCase()}</div>`}
               </div>
-              <div style="font-size:12px; font-weight:700; color:#f8fafc; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${pName}</div>
-              <div style="font-size:10px; color:#9ca3af; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-top:4px;">
+              <div style="font-size:12px; font-weight:700; color:#f8fafc; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%;">${pName}</div>
+              <div style="font-size:10px; color:#9ca3af; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-top:auto; height:32px; display:flex; flex-wrap:wrap; justify-content:center; align-content:flex-start; gap:3px; overflow:hidden; width:100%;">
                 ${roleBadge(p.role, p.batting_style, p.bowling_style)}
               </div>
             </div>
@@ -13073,8 +13055,23 @@
                   await fetch(API + "/players", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ team_name: team.name, player_name: p.name, role: p.role })
+                    body: JSON.stringify({ team_name: team.name, player_name: p.name, role: p.role, batting_style: p.batting_style, bowling_style: p.bowling_style })
                   });
+                  if (t.id) { 
+                    await fetch(API + "/tournament-players", { 
+                      method: "POST", 
+                      headers: { "Content-Type": "application/json" }, 
+                      body: JSON.stringify({ 
+                        tournament_id: t.id, 
+                        team_name: team.name, 
+                        player_name: p.name, 
+                        role: p.role, 
+                        photo_url: p.photo_url || p.photo || null, 
+                        batting_style: p.batting_style || null, 
+                        bowling_style: p.bowling_style || null 
+                      }) 
+                    }).catch(e => {}); 
+                  }
                   playerCount++;
                 }
               }
@@ -13117,16 +13114,15 @@
 
     function roleBadge(role, batStyle = '', bowlStyle = '') {
       let html = "";
-      if (role === "Batsman") html = '<span class="role-badge role-BAT"> Batsman</span>';
-      else if (role === "Bowler") html = '<span class="role-badge role-BOWL"> Bowler</span>';
-      else if (role === "All-Rounder") html = '<span class="role-badge role-AR"> All-Rounder</span>';
-      else if (role === "Wicket-Keeper") html = '<span class="role-badge role-WK"> Wicket-Keeper</span>';
+      if (role === "Batsman") html = '<div style="width:100%; text-align:center; line-height:1; margin-top:5px; margin-bottom:3px;"><span class="role-badge role-BAT">Batsman</span></div>';
+      else if (role === "Bowler") html = '<div style="width:100%; text-align:center; line-height:1; margin-top:5px; margin-bottom:3px;"><span class="role-badge role-BOWL">Bowler</span></div>';
+      else if (role === "All-Rounder") html = '<div style="width:100%; text-align:center; line-height:1; margin-top:5px; margin-bottom:3px;"><span class="role-badge role-AR">All-Rounder</span></div>';
+      else if (role === "Wicket-Keeper") html = '<div style="width:100%; text-align:center; line-height:1; margin-top:5px; margin-bottom:3px;"><span class="role-badge role-WK">Wicket-Keeper</span></div>';
 
       if (batStyle) {
         html += `<span class="style-badge style-${batStyle}">${batStyle}</span>`;
       }
       if (bowlStyle) {
-        // Use a generic bowl class if specific RAS/RAF/etc not defined in CSS yet
         let styleClass = bowlStyle.includes('RAS') || bowlStyle.includes('RAF') ? 'BOWL' : 'BOWL';
         html += `<span class="style-badge style-${styleClass}">${bowlStyle}</span>`;
       }
@@ -13489,7 +13485,16 @@
       if (!id || !document.getElementById(id)) return;
       document.querySelectorAll(".page").forEach(p => p.style.display = "none");
       document.getElementById(id).style.display = (id === 'loginPage') ? 'flex' : 'block';
-      pageHistory.push(id);
+      
+      let rootPages = ['home', 'matches', 'points', 'myMatchesPage', 'myTournamentsPage', 'organiserAdmin', 'loginPage'];
+      if (rootPages.includes(id)) {
+        pageHistory = [id];
+      } else {
+        if (pageHistory[pageHistory.length - 1] !== id) {
+          pageHistory.push(id);
+        }
+      }
+
       if (id !== "loginPage") localStorage.setItem("lastPage", id);
 
       if (id === "home") { renderHomeBanner(); }
@@ -13623,7 +13628,7 @@
       let endDateStr = fmtTdDate(t.endDate);
 
       let headerHtml = `
-        <div style="position:absolute; top:12px; left:16px; color:#94a3b8; font-size:14px; cursor:pointer; font-weight:500;" onclick="goBack()">← Back</div>
+        <div style="position:absolute; top:12px; left:16px; color:#94a3b8; font-size:14px; cursor:pointer; font-weight:500;" onclick="globalGoBack()">← Back</div>
         <div class="td-header-left" style="margin-top:16px;">
           <div class="td-logo">
             ${t.logo
@@ -13835,13 +13840,13 @@
                   ? `<img src="${photoSrc}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
                   : '';
                 return `
-                        <div style="text-align:center;position:relative;cursor:pointer;padding:8px 4px;border-radius:12px;transition:all 0.3s ease;" onclick="openPlayerProfile('${escapeQ(p.player_name)}','${escapeQ(team.name)}','${escapeQ(p.role)}')" onmouseover="this.style.background='rgba(255,255,255,0.05)';this.style.transform='translateY(-2px)'" onmouseout="this.style.background='transparent';this.style.transform='translateY(0)'">
+                        <div style="display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;cursor:pointer;padding:8px 4px;border-radius:12px;transition:all 0.3s ease;height:100%;box-sizing:border-box;width:100%;" onclick="openPlayerProfile('${escapeQ(p.player_name)}','${escapeQ(team.name)}','${escapeQ(p.role)}')" onmouseover="this.style.background='rgba(255,255,255,0.05)';this.style.transform='translateY(-2px)'" onmouseout="this.style.background='transparent';this.style.transform='translateY(0)'">
                           ${isCaptain ? `<div style="position:absolute;top:-2px;right:6px;background:linear-gradient(135deg, #f59e0b, #d97706);color:#000;font-size:10px;font-weight:900;width:18px;height:18px;display:flex;align-items:center;justify-content:center;border-radius:50%;z-index:2;box-shadow:0 2px 4px rgba(0,0,0,0.3);border:1.5px solid #0d1428;">C</div>` : ''}
-                          <div style="width:68px;height:68px;border-radius:50%;overflow:hidden;margin:0 auto 10px;border:2.5px solid ${isCaptain ? '#f59e0b' : 'rgba(110,231,183,0.25)'};background:linear-gradient(135deg,#1e3a5f,#0d9488);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,0.3);">
+                          <div style="width:68px;height:68px;border-radius:50%;overflow:hidden;margin:0 auto 10px;border:2.5px solid ${isCaptain ? '#f59e0b' : 'rgba(110,231,183,0.25)'};background:linear-gradient(135deg,#1e3a5f,#0d9488);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,0.3);flex-shrink:0;">
                             ${photoHtml || `<div style="font-size:24px;font-weight:800;color:#fff;">${p.player_name.charAt(0).toUpperCase()}</div>`}
                           </div>
-                          <div style="font-size:12.5px;font-weight:700;color:#f8fafc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:85px;margin:0 auto 2px;">${p.player_name}</div>
-                          <div style="font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;">${roleBadge(p.role, p.batting_style, p.bowling_style)}</div>
+                          <div style="font-size:12.5px;font-weight:700;color:#f8fafc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;margin:0 auto 2px;">${p.player_name}</div>
+                          <div style="font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;min-height:42px;display:flex;flex-wrap:wrap;justify-content:center;align-content:flex-start;gap:4px;width:100%;margin-top:auto;">${roleBadge(p.role, p.batting_style, p.bowling_style)}</div>
                         </div>`;
               }).join('')
             }
@@ -14408,10 +14413,17 @@
         pageHistory.pop();
         let prev = pageHistory[pageHistory.length - 1];
         document.querySelectorAll(".page").forEach(p => p.style.display = "none");
-        document.getElementById(prev).style.display = "block";
+        document.getElementById(prev).style.display = (prev === 'loginPage') ? 'flex' : 'block';
+        if (prev !== "loginPage") localStorage.setItem("lastPage", prev);
+
         if (prev === "home") renderHomeBanner();
         if (prev === "matches") { loadMatchTeamDropdowns(); loadUpcomingTeamDropdowns(); loadUpcomingMatches(); }
         if (prev === "points") loadPointsTable();
+        if (prev === "myMatchesPage") loadMyMatches();
+        if (prev === "myTournamentsPage") loadMyTournaments();
+        if (prev === "tournamentsTablePage") { if (typeof refreshTournamentsFromServer === 'function') refreshTournamentsFromServer(); }
+      } else {
+        showPage('home');
       }
     }
 
@@ -14530,12 +14542,12 @@
                 const photoSrc = p.photo || localStorage.getItem("userPhoto_" + p.player_name) || '';
                 const photoHtml = photoSrc ? `<img src="${photoSrc}" style="width:100%; height:100%; object-fit:cover;">` : '';
                 html += `
-                <div style="text-align:center; position:relative; cursor:pointer;" onclick="openPlayerProfile('${escapeQ(p.player_name)}', '${escapeQ(r.team)}', '${escapeQ(p.role)}')">
-                  <div style="width:58px; height:58px; border-radius:50%; overflow:hidden; margin:0 auto 8px; border:2px solid rgba(110,231,183,0.2); background:linear-gradient(135deg,#1e3a5f,#0d9488); display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(0,0,0,0.3);">
+                <div style="display:flex; flex-direction:column; align-items:center; text-align:center; position:relative; cursor:pointer; width:100%; box-sizing:border-box;" onclick="openPlayerProfile('${escapeQ(p.player_name)}', '${escapeQ(r.team)}', '${escapeQ(p.role)}')">
+                  <div style="width:58px; height:58px; border-radius:50%; overflow:hidden; margin:0 auto 8px; border:2px solid rgba(110,231,183,0.2); background:linear-gradient(135deg,#1e3a5f,#0d9488); display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(0,0,0,0.3); flex-shrink:0;">
                     ${photoHtml || `<div style="font-size:20px; font-weight:800; color:#fff;">${p.player_name.charAt(0).toUpperCase()}</div>`}
                   </div>
-                  <div style="font-size:12px; font-weight:700; color:#f8fafc; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.player_name}</div>
-                  <div style="font-size:9px; color:#94a3b8; font-weight:600; text-transform:uppercase;">${p.role || 'Player'}</div>
+                  <div style="font-size:12px; font-weight:700; color:#f8fafc; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%;">${p.player_name}</div>
+                  <div style="font-size:9px; color:#94a3b8; font-weight:600; text-transform:uppercase; height:32px; display:flex; flex-wrap:wrap; justify-content:center; align-content:flex-start; gap:3px; overflow:hidden; width:100%; margin-top:auto;">${roleBadge(p.role, p.batting_style, p.bowling_style)}</div>
                 </div>`;
               });
               html += `</div>`;
@@ -16483,12 +16495,12 @@
             const photoSrc = p.photo || localStorage.getItem("userPhoto_" + pName) || '';
             const photoHtml = photoSrc ? `<img src="${photoSrc}" style="width:100%; height:100%; object-fit:cover;">` : '';
             html += `
-              <div style="text-align:center; position:relative; cursor:pointer;" onclick="openPlayerProfile('${escapeQ(pName)}', '${escapeQ(team.name)}', '${escapeQ(p.role)}')">
-                <div style="width:58px; height:58px; border-radius:50%; overflow:hidden; margin:0 auto 8px; border:2px solid rgba(110,231,183,0.2); background:linear-gradient(135deg,#1e3a5f,#0d9488); display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(0,0,0,0.3);">
+              <div style="display:flex; flex-direction:column; align-items:center; text-align:center; position:relative; cursor:pointer; width:100%; box-sizing:border-box;" onclick="openPlayerProfile('${escapeQ(pName)}', '${escapeQ(team.name)}', '${escapeQ(p.role)}')">
+                <div style="width:58px; height:58px; border-radius:50%; overflow:hidden; margin:0 auto 8px; border:2px solid rgba(110,231,183,0.2); background:linear-gradient(135deg,#1e3a5f,#0d9488); display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(0,0,0,0.3); flex-shrink:0;">
                   ${photoHtml || `<div style="font-size:20px; font-weight:800; color:#fff;">${pName.charAt(0).toUpperCase()}</div>`}
                 </div>
-                <div style="font-size:12px; font-weight:700; color:#f8fafc; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${pName}</div>
-                <div style="font-size:9px; color:#94a3b8; font-weight:600; text-transform:uppercase;">${p.role || 'Player'}</div>
+                <div style="font-size:12px; font-weight:700; color:#f8fafc; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%;">${pName}</div>
+                <div style="font-size:9px; color:#94a3b8; font-weight:600; text-transform:uppercase; height:32px; display:flex; flex-wrap:wrap; justify-content:center; align-content:flex-start; gap:3px; overflow:hidden; width:100%; margin-top:auto;">${roleBadge(p.role, p.batting_style, p.bowling_style)}</div>
               </div>`;
           });
           html += `</div></div>`;
@@ -17288,49 +17300,14 @@
           <input id="editTeamNameInput"
             style="width:100%; border:none; border-bottom:1px solid #d1d5db; padding:8px 0; font-size:15px; color:#1f2937; outline:none; background:transparent; box-sizing:border-box;">
         </div>
-        <div style="display:flex; align-items:center; gap:10px;">
-          <input type="checkbox" id="updateTeamMatchesCheck" style="width:16px; height:16px; accent-color:#0d9488;"
-            checked>
-          <label for="updateTeamMatchesCheck" style="font-size:14px; color:#4b5563;">Update team name in past
-            matches</label>
+        <div id="updateTeamMatchesContainer" style="display:flex; align-items:center; gap:10px; transition:all 0.3s ease; padding:4px; border-radius:4px;">
+          <input type="checkbox" id="updateTeamMatchesCheck" style="width:16px; height:16px; accent-color:#0d9488;" checked>
+          <label for="updateTeamMatchesCheck" style="font-size:14px; color:#4b5563; cursor:pointer; user-select:none; transition:color 0.3s ease;">Update team name in past matches</label>
         </div>
         <div style="display:flex; gap:12px; justify-content:flex-end;">
-          <button onclick="closeEditTeamModal()"
-            style="background:#fff; color:#6b7280; border:1px solid #d1d5db; padding:8px 16px; border-radius:4px; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; cursor:pointer;">CANCEL</button>
           <button onclick="confirmUpdateTeam()"
             style="background:#10b981; color:#fff; border:none; padding:8px 20px; border-radius:4px; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; cursor:pointer; text-transform:uppercase;">UPDATE
             TEAM NAME</button>
-        </div>
-
-        <hr style="border:none; border-top:1px solid #e5e7eb; margin:10px 0;">
-
-        <!-- Add Player Section Inside Edit Team Modal -->
-        <div>
-          <h4 style="margin:0 0 14px; font-size:16px; font-weight:700; color:#1f2937;">➕ Add Player to Team
-          </h4>
-          <div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
-            <div style="flex:1; min-width:180px;">
-              <div style="font-size:11px; color:#9ca3af; margin-bottom:4px;">Player Name</div>
-              <input id="newPlayerNameInEdit" placeholder="Enter player name"
-                style="width:100%; border:none; border-bottom:1px solid #d1d5db; padding:6px 0; font-size:14px; color:#1f2937; outline:none; background:transparent; box-sizing:border-box;">
-            </div>
-            <div style="width:140px;">
-              <div style="font-size:11px; color:#9ca3af; margin-bottom:4px;">Role</div>
-              <select id="newPlayerRoleInEdit"
-                style="width:100%; border:none; border-bottom:1px solid #d1d5db; padding:6px 0; font-size:14px; color:#1f2937; outline:none; background:transparent;">
-                <option value="">-- Select Role --</option>
-                <option value="Batsman">🏏 Batsman</option>
-                <option value="Bowler">🎳 Bowler</option>
-                <option value="All-Rounder">⭐ All-Rounder</option>
-                <option value="Wicket-Keeper">🧤 Wicket-Keeper</option>
-              </select>
-            </div>
-            <div style="display:flex; align-items:flex-end;">
-              <button onclick="addPlayerFromEditTeamModal()"
-                style="background:#0d9488; color:#fff; border:none; padding:8px 16px; border-radius:4px; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; cursor:pointer; height:32px;">+
-                ADD PLAYER</button>
-            </div>
-          </div>
         </div>
 
         <hr style="border:none; border-top:1px solid #e5e7eb; margin:10px 0;">
@@ -17791,6 +17768,37 @@
       <!-- Content filled by JS -->
     </div>
   </div>
+
+  <script>
+    // Global Hover Tooltips logic
+    document.addEventListener('mouseover', function(e) {
+      let el = e.target.closest('button, span, div, a, i');
+      if (!el) return;
+      
+      // If it's a cursor:pointer element or a button, and doesn't have a title
+      if (!el.hasAttribute('title') && (el.tagName === 'BUTTON' || window.getComputedStyle(el).cursor === 'pointer')) {
+        let html = el.innerHTML || '';
+        let text = el.innerText ? el.innerText.trim() : '';
+        let onclick = el.getAttribute('onclick') || '';
+        let cls = el.className || '';
+
+        // Avoid adding title to large containers
+        if (el.offsetWidth > 300 || el.offsetHeight > 100) return;
+
+        // Check for specific actions
+        if (cls.includes('delete') || html.includes('❌') || html.includes('🗑️') || onclick.toLowerCase().includes('delete') || text.toLowerCase() === 'delete') {
+          el.setAttribute('title', 'Delete');
+        } else if (html.includes('✏️') || html.includes('✎') || html.includes('Edit') || onclick.toLowerCase().includes('edit') || text.toLowerCase() === 'edit') {
+          el.setAttribute('title', 'Edit');
+        } else if (html.includes('+ Player') || html.includes('👥') || text.toLowerCase().includes('add player')) {
+          el.setAttribute('title', 'Add Player');
+        } else if (text && text.length < 25 && !text.includes('\n')) {
+          // Fallback to text content if it's short
+          el.setAttribute('title', text);
+        }
+      }
+    });
+  </script>
 </body>
 
 </html>
