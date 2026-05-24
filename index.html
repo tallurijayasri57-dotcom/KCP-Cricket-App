@@ -12136,7 +12136,7 @@
     }
 
     function renderPremiumScorecardTab(m, container) {
-      function renderInnings(inn, title, isOpen = false) {
+      function renderInnings(inn, title, isOpen = false, bowlTeam = "") {
         if (!inn) return '';
         let oversStr = inn.overs;
         if (typeof inn.overs === 'number') oversStr = Math.floor(inn.overs / 6) + "." + (inn.overs % 6);
@@ -12165,7 +12165,7 @@
           let srVal = bBalls > 0 ? ((b.runs / bBalls) * 100).toFixed(1) : "0.0";
           return `
                         <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-                          <td style="padding:10px; text-align:left !important; width:30%;"><div class="player-name-truncate" style="color:#f8fafc; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${b.name}</div><div style="font-size:11px; color:#94a3b8; margin-top:2px; line-height:1.2; word-wrap:break-word; white-space:normal;">${b.outDesc || 'not out'}</div></td>
+                          <td style="padding:10px; text-align:left !important; width:30%;"><div class="player-name-truncate" style="color:#f8fafc; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${b.name} <span style="font-size:10px; color:#64748b; font-weight:400;">(${inn.batTeam || ''})</span></div><div style="font-size:11px; color:#94a3b8; margin-top:2px; line-height:1.2; word-wrap:break-word; white-space:normal;">${b.outDesc || 'not out'}</div></td>
                           <td style="text-align:center; color:#f8fafc; width:12%;">${b.runs}</td>
                           <td style="text-align:center; color:#94a3b8; width:12%;">${b.balls}</td>
                           <td style="text-align:center; color:#94a3b8; width:10%;">${b.fours}</td>
@@ -12198,7 +12198,7 @@
           let ecoVal = bBalls > 0 ? ((b.runs / (bBalls / 6)).toFixed(2)) : "0.00";
           return `
                         <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-                          <td style="padding:10px; text-align:left !important; width:30%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"><div class="player-name-truncate" style="color:#f8fafc; font-weight:600;">${b.name}</div></td>
+                          <td style="padding:10px; text-align:left !important; width:30%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"><div class="player-name-truncate" style="color:#f8fafc; font-weight:600;">${b.name} <span style="font-size:10px; color:#64748b; font-weight:400;">(${bowlTeam})</span></div></td>
                           <td style="text-align:center; color:#f8fafc; width:14%;">${b.overs}</td>
                           <td style="text-align:center; color:#94a3b8; width:10%;">${b.maidens || 0}</td>
                           <td style="text-align:center; color:#94a3b8; width:12%;">${b.runs}</td>
@@ -12217,10 +12217,10 @@
 
       let html = '';
       if (m.innings1) {
-        html += renderInnings(m.innings1, "Innings 1", m.innings === 1);
+        html += renderInnings(m.innings1, "Innings 1", m.innings === 1, m.innings2 ? m.innings2.batTeam : (m.bowlTeam || ""));
       }
       if (m.innings2) {
-        html += renderInnings(m.innings2, "Innings 2", m.innings === 2);
+        html += renderInnings(m.innings2, "Innings 2", m.innings === 2, m.innings1 ? m.innings1.batTeam : (m.batTeam || ""));
       }
 
       // Fix: Handle live match scorecard where data is in top-level but not innings1/2
