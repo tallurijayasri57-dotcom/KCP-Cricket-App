@@ -8756,13 +8756,76 @@
     function closeAddTeamPlayerModal() {
       document.getElementById('addTeamPlayerModal').style.display = 'none';
     }
+
+    function handleTeamPlayerRoleChange() {
+      const role = document.getElementById('addTeamPlayerRoleInput').value;
+      const batStyle = document.getElementById('addTeamPlayerBattingStyleInput');
+      const bowlStyle = document.getElementById('addTeamPlayerBowlingStyleInput');
+
+      // Reset styles
+      batStyle.disabled = false;
+      bowlStyle.disabled = false;
+      batStyle.style.opacity = '1';
+      bowlStyle.style.opacity = '1';
+      batStyle.style.transform = 'scale(1)';
+      bowlStyle.style.transform = 'scale(1)';
+      batStyle.style.transition = 'all 0.3s ease';
+      bowlStyle.style.transition = 'all 0.3s ease';
+      batStyle.style.border = 'none';
+      batStyle.style.borderBottom = '1px solid #d1d5db';
+      bowlStyle.style.border = 'none';
+      bowlStyle.style.borderBottom = '1px solid #d1d5db';
+      batStyle.style.boxShadow = 'none';
+      bowlStyle.style.boxShadow = 'none';
+
+      if (role === 'Batsman') {
+        bowlStyle.disabled = true;
+        bowlStyle.style.opacity = '0.5';
+        bowlStyle.value = '';
+        
+        batStyle.style.transform = 'scale(1.05)';
+        batStyle.style.border = '2px solid #10b981';
+        batStyle.style.borderRadius = '4px';
+        batStyle.style.padding = '8px';
+        batStyle.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.3)';
+      } else if (role === 'Bowler') {
+        batStyle.disabled = true;
+        batStyle.style.opacity = '0.5';
+        batStyle.value = '';
+        
+        bowlStyle.style.transform = 'scale(1.05)';
+        bowlStyle.style.border = '2px solid #10b981';
+        bowlStyle.style.borderRadius = '4px';
+        bowlStyle.style.padding = '8px';
+        bowlStyle.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.3)';
+      } else if (role === 'All-Rounder' || role === 'Wicket-Keeper') {
+        batStyle.style.transform = 'scale(1.05)';
+        batStyle.style.border = '2px solid #10b981';
+        batStyle.style.borderRadius = '4px';
+        batStyle.style.padding = '8px';
+        batStyle.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.3)';
+        
+        bowlStyle.style.transform = 'scale(1.05)';
+        bowlStyle.style.border = '2px solid #10b981';
+        bowlStyle.style.borderRadius = '4px';
+        bowlStyle.style.padding = '8px';
+        bowlStyle.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.3)';
+      }
+    }
+
     async function confirmAddTeamPlayer() {
       let name = document.getElementById('addTeamPlayerNameInput').value.trim();
-      if (!name) { alert('Enter player name'); return; }
       let role = document.getElementById('addTeamPlayerRoleInput').value;
       let batStyle = document.getElementById('addTeamPlayerBattingStyleInput').value;
       let bowlStyle = document.getElementById('addTeamPlayerBowlingStyleInput').value;
+      if (!name) { alert('Enter player name'); return; }
       if (!role) { alert('Select player role'); return; }
+      if (role === 'Batsman' && !batStyle) { alert('Select Batting Style'); return; }
+      if (role === 'Bowler' && !bowlStyle) { alert('Select Bowling Style'); return; }
+      if ((role === 'All-Rounder' || role === 'Wicket-Keeper') && (!batStyle || !bowlStyle)) {
+        alert('Select both Batting and Bowling Styles');
+        return;
+      }
 
       let photo = localStorage.getItem("userPhoto_" + name) || "";
       if (!photo) {
@@ -8817,7 +8880,8 @@
       document.getElementById('addTeamPlayerBattingStyleInput').value = '';
       document.getElementById('addTeamPlayerBowlingStyleInput').value = '';
 
-      showPlayerAddedToast(tName);
+      let currentCount = document.getElementById('editTeamPlayersList') ? document.getElementById('editTeamPlayersList').children.length : 0;
+      showPlayerAddedToast(tName, currentCount + 1);
       renderEditTeamPlayersListFromSQL(tName);
       // Refresh members modal if open
       if (document.getElementById('teamMembersModal').style.display === 'flex') {
@@ -17624,7 +17688,7 @@
         </div>
         <div>
           <div style="font-size:13px; color:#9ca3af; margin-bottom:6px;">Role</div>
-          <select id="addTeamPlayerRoleInput"
+          <select id="addTeamPlayerRoleInput" onchange="handleTeamPlayerRoleChange()"
             style="width:100%; border:none; border-bottom:1px solid #d1d5db; padding:8px 0; font-size:15px; color:#1f2937; outline:none; background:transparent; font-family:'Inter',sans-serif;">
             <option value="">-- Select Role --</option>
             <option value="Batsman">&#127951; Batsman</option>
