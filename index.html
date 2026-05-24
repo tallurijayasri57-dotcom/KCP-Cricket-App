@@ -13008,7 +13008,7 @@
         let sr = s.balls > 0 ? ((s.runs / s.balls) * 100).toFixed(2) : "0.00";
 
         batHtml += `<div style="padding:12px 16px; border-bottom:1px solid #f3f4f6; display:flex; justify-content:space-between; align-items:center; font-family:'Inter',sans-serif; font-size:14px; ${isOut ? 'opacity:0.5' : ''}">
-          <div style="flex:2; color:#0d9488; font-weight:600;">${p}${p === m.strike ? '*' : ''}</div>
+          <div style="flex:2; color:#0d9488; font-weight:600;">${p}${p === m.strike ? '*' : ''} <span style="font-size:10px; color:#9ca3af; font-weight:400;">(${m.batTeam})</span></div>
           <div style="width:40px; text-align:center; color:#374151;">${s.runs}</div>
           <div style="width:40px; text-align:center; color:#6b7280;">${s.balls}</div>
           <div style="width:40px; text-align:center; color:#6b7280;">${s.fours}</div>
@@ -13056,7 +13056,7 @@
         let pAvatar = pPhoto
           ? `<img src="${pPhoto}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:12px;">`
           : `<div style="width:32px; height:32px; background:#f3f4f6; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-right:12px; font-size:12px; font-weight:bold; color:#9ca3af;">${p.charAt(0)}</div>`;
-        teamsBatHtml += `<li style="padding:12px 0; border-bottom:1px solid #f3f4f6; display:flex; align-items:center; font-family:'Inter',sans-serif;">${pAvatar} <span style="font-weight:500; color:#111827;">${p}</span></li>`;
+        teamsBatHtml += `<li style="padding:12px 0; border-bottom:1px solid #f3f4f6; display:flex; align-items:center; font-family:'Inter',sans-serif;">${pAvatar} <div><span style="font-weight:500; color:#111827;">${p}</span><br><span style="font-size:11px; color:#6b7280;">${m.batTeam}</span></div></li>`;
       }
       document.getElementById('lvTeamsBatList').innerHTML = teamsBatHtml;
 
@@ -13066,7 +13066,7 @@
         let pAvatar = pPhoto
           ? `<img src="${pPhoto}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:12px;">`
           : `<div style="width:32px; height:32px; background:#f3f4f6; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-right:12px; font-size:12px; font-weight:bold; color:#9ca3af;">${p.charAt(0)}</div>`;
-        teamsBowlHtml += `<li style="padding:12px 0; border-bottom:1px solid #f3f4f6; display:flex; align-items:center; font-family:'Inter',sans-serif;">${pAvatar} <span style="font-weight:500; color:#111827;">${p}</span></li>`;
+        teamsBowlHtml += `<li style="padding:12px 0; border-bottom:1px solid #f3f4f6; display:flex; align-items:center; font-family:'Inter',sans-serif;">${pAvatar} <div><span style="font-weight:500; color:#111827;">${p}</span><br><span style="font-size:11px; color:#6b7280;">${m.bowlTeam}</span></div></li>`;
       }
       document.getElementById('lvTeamsBowlList').innerHTML = teamsBowlHtml;
     }
