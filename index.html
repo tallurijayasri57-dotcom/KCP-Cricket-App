@@ -13526,6 +13526,7 @@
             if (data.success) {
               localStorage.setItem("currentUser", data.display_name);
               localStorage.setItem("isRegistered", "true");
+              sessionStorage.setItem("isLoggedInThisSession", "true");
 
               btn.innerText = oldText;
               btn.disabled = false;
@@ -13623,6 +13624,7 @@
     }
 
     function logout() {
+      sessionStorage.removeItem("isLoggedInThisSession");
       localStorage.removeItem("currentUser");
       localStorage.removeItem("lastPage");
       localStorage.removeItem("currentTournamentId");
@@ -17212,7 +17214,7 @@
           let storedUser = localStorage.getItem("currentUser");
           let lastPage = localStorage.getItem("lastPage");
           
-          if (storedUser) {
+          if (storedUser && sessionStorage.getItem("isLoggedInThisSession") === "true") {
             isLogin = false; // Bypass login
             
             let nav = document.getElementById('nav');
