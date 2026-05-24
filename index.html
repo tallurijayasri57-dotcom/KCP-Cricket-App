@@ -11669,6 +11669,34 @@
       let isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname) || window.location.hostname.startsWith('192.168.');
       let tid = m.tournament_id || m.tournamentId || (typeof currentViewingTournament !== 'undefined' && currentViewingTournament ? currentViewingTournament.id : null);
 
+      // Build a role lookup map from all available player data sources
+      let playerRoleMap = {};
+
+      // Try to pre-fetch all tournament players to build role map
+      if (tid) {
+        try {
+          const allRes = await fetch(API + "/tournament-players/" + tid);
+          const allData = await allRes.json();
+          if (Array.isArray(allData)) {
+            allData.forEach(p => {
+              const key = (p.player_name || p.name || '').toLowerCase().trim();
+              if (key) playerRoleMap[key] = { role: p.role || 'Player', batting_style: p.batting_style || '', bowling_style: p.bowling_style || '', photo_url: p.photo_url || p.photo || '' };
+            });
+          }
+        } catch (e) { }
+      }
+      // Also try /players endpoint as backup for role map
+      try {
+        const plRes = await fetch(API + "/players");
+        const plData = await plRes.json();
+        if (Array.isArray(plData)) {
+          plData.forEach(p => {
+            const key = (p.player_name || p.name || '').toLowerCase().trim();
+            if (key && !playerRoleMap[key]) playerRoleMap[key] = { role: p.role || 'Player', batting_style: p.batting_style || '', bowling_style: p.bowling_style || '', photo_url: p.photo_url || p.photo || '' };
+          });
+        }
+      } catch (e) { }
+
       async function fetchPlayers(teamName) {
         try {
           let res;
@@ -11678,15 +11706,19 @@
             res = await fetch(API + "/players/" + encodeURIComponent(teamName));
           }
           let data = await res.json();
-          if (Array.isArray(data)) {
-            return data.map(p => ({
-              ...p,
-              player_name: p.player_name || p.name,
-              role: p.role || 'Player',
-              batting_style: p.batting_style || '',
-              bowling_style: p.bowling_style || '',
-              photo_url: p.photo_url || p.photo || ''
-            }));
+          if (Array.isArray(data) && data.length > 0) {
+            return data.map(p => {
+              const key = (p.player_name || p.name || '').toLowerCase().trim();
+              const roleInfo = playerRoleMap[key] || {};
+              return {
+                ...p,
+                player_name: p.player_name || p.name,
+                role: p.role || roleInfo.role || 'Player',
+                batting_style: p.batting_style || roleInfo.batting_style || '',
+                bowling_style: p.bowling_style || roleInfo.bowling_style || '',
+                photo_url: p.photo_url || p.photo || roleInfo.photo_url || ''
+              };
+            });
           }
           return [];
         } catch (e) { return []; }
@@ -11695,29 +11727,43 @@
       let team1Players = await fetchPlayers(m.batTeam);
       let team2Players = await fetchPlayers(m.bowlTeam);
 
-      // Fallback: If SQL returns nothing, extract from the match object itself
+      // Fallback: If SQL returns nothing, extract player names from match object
+      // but use playerRoleMap to get REAL roles instead of hardcoding 'Batsman'/'Bowler'
       function getFallbackPlayers(tName) {
         let players = [];
         let seen = new Set();
-
-        // Check current innings batsmen/bowlers
         let searchName = (tName || '').toLowerCase().trim();
 
-        (m.batsmen || []).forEach(b => {
-          if ((m.batTeam || '').toLowerCase().trim() === searchName && !seen.has(b.name)) { players.push({ player_name: b.name, role: 'Batsman' }); seen.add(b.name); }
-        });
-        (m.bowlers || []).forEach(b => {
-          if ((m.bowlTeam || '').toLowerCase().trim() === searchName && !seen.has(b.name)) { players.push({ player_name: b.name, role: 'Bowler' }); seen.add(b.name); }
-        });
+        function addPlayer(name) {
+          if (!name || seen.has(name)) return;
+          const key = name.toLowerCase().trim();
+          const roleInfo = playerRoleMap[key] || {};
+          players.push({
+            player_name: name,
+            role: roleInfo.role || 'Player',
+            batting_style: roleInfo.batting_style || '',
+            bowling_style: roleInfo.bowling_style || '',
+            photo_url: roleInfo.photo_url || ''
+          });
+          seen.add(name);
+        }
+
+        // Collect all unique player names from match scoring arrays
+        if ((m.batTeam || '').toLowerCase().trim() === searchName) {
+          (m.batsmen || []).forEach(b => addPlayer(b.name));
+        }
+        if ((m.bowlTeam || '').toLowerCase().trim() === searchName) {
+          (m.bowlers || []).forEach(b => addPlayer(b.name));
+        }
 
         // Check innings 1 & 2 summaries (for finished matches)
         [m.innings1, m.innings2].forEach(inn => {
           if (!inn) return;
           if ((inn.batTeam || '').toLowerCase().trim() === searchName) {
-            (inn.batsmen || []).forEach(b => { if (!seen.has(b.name)) { players.push({ player_name: b.name, role: 'Batsman' }); seen.add(b.name); } });
+            (inn.batsmen || []).forEach(b => addPlayer(b.name));
           }
           if ((inn.bowlTeam || '').toLowerCase().trim() === searchName) {
-            (inn.bowlers || []).forEach(b => { if (!seen.has(b.name)) { players.push({ player_name: b.name, role: 'Bowler' }); seen.add(b.name); } });
+            (inn.bowlers || []).forEach(b => addPlayer(b.name));
           }
         });
         return players;

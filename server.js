@@ -453,6 +453,35 @@ app.get("/tournament-teams/:tournament_id/:team_name/captain", async (req, res) 
     }
 });
 
+// Get ALL players for a tournament (no team filter) - used by live link for role lookup
+app.get("/tournament-players/:tournament_id", async (req, res) => {
+    try {
+        const { tournament_id } = req.params;
+        // Check if there's a team_name param - if URL has 3 parts, this should not match
+        if (pool) {
+            const r = await pool.request()
+                .input('tid', sql.Int, tournament_id)
+                .query(`
+                    SELECT
+                        tp.id, tp.tournament_id, tp.team_name, tp.player_name,
+                        COALESCE(NULLIF(tp.role, ''), NULLIF(pp.role, ''), 'Player') AS role,
+                        COALESCE(NULLIF(tp.batting_style, ''), NULLIF(pp.batting_style, '')) AS batting_style,
+                        COALESCE(NULLIF(tp.bowling_style, ''), NULLIF(pp.bowling_style, '')) AS bowling_style,
+                        COALESCE(NULLIF(tp.photo_url, ''), NULLIF(pp.photo_url, '')) AS photo_url
+                    FROM tournament_players tp
+                    LEFT JOIN player_profiles pp ON tp.player_name = pp.player_name
+                    WHERE tp.tournament_id = @tid
+                `);
+            res.json(r.recordset);
+        } else {
+            res.json([]);
+        }
+    } catch (err) {
+        console.error('GET all tournament players error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.get("/tournament-players/:tournament_id/:team_name", async (req, res) => {
     try {
         const { tournament_id, team_name } = req.params;
