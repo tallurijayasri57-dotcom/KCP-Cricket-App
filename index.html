@@ -17214,8 +17214,16 @@
           
           if (storedUser) {
             isLogin = false; // Bypass login
-            let userNameEl = document.getElementById('userNameDisplay');
+            
+            let nav = document.getElementById('nav');
+            if (nav) nav.style.display = 'flex';
+            
+            let userNameEl = document.getElementById('dotsMenuUsername');
             if(userNameEl) userNameEl.innerText = storedUser;
+            
+            let navPic = document.getElementById('navProfilePic');
+            let savedPhoto = localStorage.getItem('userPhoto_' + storedUser);
+            if (savedPhoto && navPic) navPic.src = savedPhoto;
             
             let storedTournamentId = localStorage.getItem("currentTournamentId");
             if (storedTournamentId) {
