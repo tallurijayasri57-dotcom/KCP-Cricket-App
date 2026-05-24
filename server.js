@@ -478,6 +478,11 @@ app.delete("/tournament-teams/:tournament_id/:team_name", async (req, res) => {
                 .input('tid', sql.Int, tournament_id)
                 .input('tn', sql.NVarChar, team_name)
                 .query('DELETE FROM tournament_teams WHERE tournament_id=@tid AND team_name=@tn');
+            // Also delete players in this team for this tournament
+            await pool.request()
+                .input('tid', sql.Int, tournament_id)
+                .input('tn', sql.NVarChar, team_name)
+                .query('DELETE FROM tournament_players WHERE tournament_id=@tid AND team_name=@tn');
         }
         res.json({ success: true });
     } catch (err) {
