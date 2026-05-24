@@ -5936,11 +5936,11 @@
         <h1>KCP CREX HUB</h1>
         <p>Scoring Management</p>
       </div>
-      <h2 id="authTitle">Welcome Back</h2>
-      <div class="auth-field"><span class="field-icon">👤</span><input id="username" placeholder="Enter username" autocapitalize="none" autocorrect="off" spellcheck="false">
-      </div>
-      <div class="auth-field" style="margin-bottom: 8px;"><span class="field-icon">🔒</span><input id="password"
-          type="password" placeholder="Enter password" autocapitalize="none" autocorrect="off" spellcheck="false"></div>
+            <h2 id="authTitle">Welcome Back</h2>
+      <div class="auth-field" id="nameField" style="display:none; margin-bottom: 8px;"><span class="field-icon">👤</span><input id="display_name" placeholder="Full Name (For Scorecard)" autocapitalize="words" autocorrect="off" spellcheck="false"></div>
+      <div class="auth-field" style="margin-bottom: 8px;"><span class="field-icon">📱</span><input id="phone_number" type="tel" placeholder="10-digit Phone Number (Login ID)" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="10"></div>
+      <div class="auth-field" id="securityQuestionField" style="display:none; margin-bottom: 8px;"><span class="field-icon">🏫</span><input id="security_answer" placeholder="Security: First school name?" autocapitalize="words" autocorrect="off" spellcheck="false"></div>
+      <div class="auth-field" style="margin-bottom: 8px;"><span class="field-icon">🔒</span><input id="password" type="password" placeholder="Enter password" autocapitalize="none" autocorrect="off" spellcheck="false"></div>
       <div style="text-align:right; margin-bottom:16px;">
         <span onclick="openForgotPassword()"
           style="font-family:'Inter',sans-serif; font-size:13px; color:#60a5fa; cursor:pointer; font-weight:500;">Forgot
@@ -5964,7 +5964,13 @@
       <div style="margin-bottom:14px;">
         <label
           style="color:rgba(255,255,255,0.6); font-size:12px; text-transform:uppercase; letter-spacing:0.5px;">Username</label>
-        <input id="fpUsername" placeholder="Enter your username"
+        <input id="fpUsername" placeholder="Enter your 10-digit Phone Number" type="tel" maxlength="10"
+          style="width:100%; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15); border-radius:8px; padding:10px 12px; color:#fff; font-size:14px; outline:none; margin-top:6px; box-sizing:border-box;">
+      </div>
+      <div style="margin-bottom:14px;">
+        <label
+          style="color:rgba(255,255,255,0.6); font-size:12px; text-transform:uppercase; letter-spacing:0.5px;">Security Answer</label>
+        <input id="fpSecurityAnswer" placeholder="What is your first school name?"
           style="width:100%; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15); border-radius:8px; padding:10px 12px; color:#fff; font-size:14px; outline:none; margin-top:6px; box-sizing:border-box;">
       </div>
       <div style="margin-bottom:14px;">
@@ -13357,15 +13363,23 @@
       // Show security question field only during registration
       let sqField = document.getElementById('securityQuestionField');
       if (sqField) sqField.style.display = isLogin ? 'none' : 'flex';
+      let nameField = document.getElementById('nameField');
+      if (nameField) nameField.style.display = isLogin ? 'none' : 'flex';
       // Show/hide forgot password link
       let fpLink = document.querySelector('[onclick="openForgotPassword()"]');
       if (fpLink) fpLink.parentElement.style.display = isLogin ? 'block' : 'none';
     }
 
     function authenticate() {
-      let u = document.getElementById('username').value.trim();
+      let phone = document.getElementById('phone_number').value.trim();
+      let dname = document.getElementById('display_name').value.trim();
+      let sa = document.getElementById('security_answer').value.trim();
       let p = document.getElementById('password').value.trim();
-      if (!u || !p) return alert("enter username & password");
+      if (isLogin) {
+        if (!phone || !p) return alert("Enter Phone Number & Password");
+      } else {
+        if (!phone || !dname || !p || !sa) return alert("All fields are required");
+      }
 
       let btn = document.getElementById("authBtn");
       let oldText = btn.innerText;
@@ -13377,12 +13391,12 @@
         fetch(API + "/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username: u, password: p })
+          body: JSON.stringify({ phone_number: phone, password: p })
         })
           .then(res => res.json())
           .then(data => {
             if (data.success) {
-              localStorage.setItem("currentUser", u);
+              localStorage.setItem("currentUser", data.display_name);
               localStorage.setItem("isRegistered", "true");
 
               btn.innerText = oldText;
@@ -13402,7 +13416,7 @@
           });
       } else {
         // Registration logic
-        fetch(API + "/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: u, password: p }) })
+        fetch(API + "/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone_number: phone, display_name: dname, password: p, security_question: "What is your first school name?", security_answer: sa }) })
           .then(res => res.json())
           .then(data => {
             if (data.message === "Already Registered") {
@@ -13416,7 +13430,9 @@
               isLogin = true;
               document.getElementById("authTitle").innerText = "Welcome Back";
               document.getElementById("switchText").innerText = "Don't have an account? Register";
-              document.getElementById("username").value = u;
+              document.getElementById("phone_number").value = phone;
+              document.getElementById("display_name").value = "";
+              document.getElementById("security_answer").value = "";
               document.getElementById("password").value = "";
               document.getElementById("password").focus();
               btn.innerText = "LOGIN";
@@ -13434,6 +13450,7 @@
 
     function openForgotPassword() {
       document.getElementById('fpUsername').value = '';
+      document.getElementById('fpSecurityAnswer').value = '';
       document.getElementById('fpNewPassword').value = '';
       document.getElementById('fpConfirmPassword').value = '';
       document.getElementById('fpResult').style.display = 'none';
@@ -13443,11 +13460,12 @@
       document.getElementById('forgotPasswordModal').style.display = 'none';
     }
     function submitForgotPassword() {
-      let u = document.getElementById('fpUsername').value.trim();
+      let phone = document.getElementById('fpUsername').value.trim();
+      let sa = document.getElementById('fpSecurityAnswer').value.trim();
       let newPass = document.getElementById('fpNewPassword').value.trim();
       let confirmPass = document.getElementById('fpConfirmPassword').value.trim();
       let resultEl = document.getElementById('fpResult');
-      if (!u || !newPass || !confirmPass) { alert('Please fill in all fields.'); return; }
+      if (!phone || !sa || !newPass || !confirmPass) { alert('Please fill in all fields.'); return; }
       if (newPass !== confirmPass) {
         resultEl.style.cssText = 'display:block; background:rgba(239,68,68,0.15); border:1px solid #ef4444; border-radius:8px; padding:12px; margin-bottom:16px; color:#fca5a5; font-size:14px;';
         resultEl.innerText = 'Passwords do not match. Please try again.';
@@ -13462,7 +13480,7 @@
       fetch(API + "/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: u, newPassword: newPass })
+        body: JSON.stringify({ phone_number: phone, security_answer: sa, newPassword: newPass })
       })
         .then(res => res.json())
         .then(data => {

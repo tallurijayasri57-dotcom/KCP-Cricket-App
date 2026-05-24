@@ -114,6 +114,12 @@ async function startServer() {
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='player_stats' AND COLUMN_NAME='team_id') ALTER TABLE player_stats ADD team_id INT NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_matches' AND COLUMN_NAME='t1_id') ALTER TABLE tournament_matches ADD t1_id INT NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_matches' AND COLUMN_NAME='t2_id') ALTER TABLE tournament_matches ADD t2_id INT NULL`,
+                
+                // Auth & Security Migrations
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='users' AND COLUMN_NAME='phone_number') ALTER TABLE users ADD phone_number NVARCHAR(20) NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='users' AND COLUMN_NAME='display_name') ALTER TABLE users ADD display_name NVARCHAR(200) NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='users' AND COLUMN_NAME='security_question') ALTER TABLE users ADD security_question NVARCHAR(MAX) NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='users' AND COLUMN_NAME='security_answer') ALTER TABLE users ADD security_answer NVARCHAR(MAX) NULL`,
             ];
             for (const mig of migrations) {
                 try { await pool.request().query(mig); } catch (e) { console.warn("Migration warning:", e.message); }
@@ -142,22 +148,44 @@ app.get("/", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
 // ================= USERS =================
 app.post("/register", async (req, res) => {
     try {
-        const { username, password } = req.body;
+        const { phone_number, display_name, password, security_question, security_answer } = req.body;
+        
+        // Fallback for old requests during transition
+        const username = req.body.username || display_name;
         if (!username || !password) return res.status(400).json({ message: "Fields required" });
+
+        const crypto = require('crypto');
+        const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+        
+        // Capitalize name if provided
+        const capitalizedName = username.split(' ').filter(Boolean).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+        const finalPhone = phone_number || username; // If no phone, fallback to username
 
         if (useJSON || !pool) {
             const users = MEMORY_DB.users || [];
-            if (users.find(u => u.username === username)) return res.json({ message: "Already Registered" });
-            users.push({ username, password });
+            if (users.find(u => u.phone_number === finalPhone || u.username === username)) return res.json({ message: "Already Registered" });
+            users.push({ username: capitalizedName, display_name: capitalizedName, phone_number: finalPhone, password: hashedPassword, security_question, security_answer });
             MEMORY_DB.users = users;
             saveDB();
             return res.json({ message: "Registered Successfully" });
         }
 
-        const check = await pool.request().input("u", sql.NVarChar, username).query("SELECT * FROM users WHERE username=@u");
+        // Check if phone number or username already exists
+        const check = await pool.request()
+            .input("pn", sql.NVarChar, finalPhone)
+            .input("u", sql.NVarChar, username)
+            .query("SELECT * FROM users WHERE phone_number=@pn OR username=@u");
+            
         if (check.recordset.length > 0) return res.json({ message: "Already Registered" });
 
-        await pool.request().input("u", sql.NVarChar, username).input("p", sql.NVarChar, password).query("INSERT INTO users (username,password) VALUES (@u,@p)");
+        await pool.request()
+            .input("pn", sql.NVarChar, finalPhone)
+            .input("u", sql.NVarChar, capitalizedName)
+            .input("p", sql.NVarChar, hashedPassword)
+            .input("sq", sql.NVarChar, security_question || "")
+            .input("sa", sql.NVarChar, security_answer || "")
+            .query("INSERT INTO users (username, display_name, phone_number, password, security_question, security_answer) VALUES (@u, @u, @pn, @p, @sq, @sa)");
+            
         res.json({ message: "Registered Successfully" });
     } catch (err) {
         console.error("Register Error:", err);
@@ -173,7 +201,7 @@ app.post("/update-user-photo", async (req, res) => {
             await pool.request()
                 .input("u", sql.NVarChar, username)
                 .input("p", sql.NVarChar(sql.MAX), photo_url)
-                .query("UPDATE users SET photo_url = @p WHERE username = @u");
+                .query("UPDATE users SET photo_url = @p WHERE username = @u OR phone_number = @u");
         }
         res.json({ message: "Photo updated successfully" });
     } catch (err) {
@@ -184,14 +212,31 @@ app.post("/update-user-photo", async (req, res) => {
 
 app.post("/login", async (req, res) => {
     try {
-        const { username, password } = req.body;
+        const { phone_number, password } = req.body;
+        const loginId = phone_number || req.body.username; // Support old username param
+        if (!loginId || !password) return res.status(400).json({ success: false, message: "Credentials required" });
+
+        const crypto = require('crypto');
+        const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+
         if (useJSON || !pool) {
             const users = MEMORY_DB.users || [];
-            const user = users.find(u => u.username === username && u.password === password);
-            return res.json({ success: !!user });
+            const user = users.find(u => (u.phone_number === loginId || u.username === loginId) && (u.password === password || u.password === hashedPassword));
+            return res.json({ success: !!user, display_name: user ? user.display_name || user.username : null });
         }
-        const r = await pool.request().input("u", sql.NVarChar, username).query("SELECT * FROM users WHERE username=@u");
-        res.json({ success: r.recordset.length > 0 && r.recordset[0].password === password });
+        
+        const r = await pool.request()
+            .input("id", sql.NVarChar, loginId)
+            .query("SELECT * FROM users WHERE phone_number=@id OR username=@id");
+            
+        if (r.recordset.length > 0) {
+            const user = r.recordset[0];
+            // Support both old plain text passwords and new hashed passwords
+            if (user.password === password || user.password === hashedPassword) {
+                return res.json({ success: true, display_name: user.display_name || user.username });
+            }
+        }
+        res.json({ success: false, message: "Invalid credentials" });
     } catch (err) {
         console.error("Login Error:", err);
         res.status(500).json({ error: err.message });
@@ -729,20 +774,38 @@ app.get("/all-match-teams", async (req, res) => {
 // ================= TEAMS =================
 app.post("/reset-password", async (req, res) => {
     try {
-        const { username, newPassword } = req.body;
-        if (!username || !newPassword) return res.status(400).json({ message: "Username and new password required" });
+        const { username, phone_number, security_answer, newPassword } = req.body;
+        const loginId = phone_number || username;
+        
+        if (!loginId || !newPassword || !security_answer) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
+
+        const crypto = require('crypto');
+        const hashedPassword = crypto.createHash('sha256').update(newPassword).digest('hex');
+
         if (pool) {
-            const result = await pool.request()
-                .input("u", sql.NVarChar, username)
-                .input("p", sql.NVarChar, newPassword)
-                .query("UPDATE users SET password = @p WHERE username = @u");
-            if (result.rowsAffected[0] === 0) {
-                // If user doesn't exist in SQL, insert them so old localStorage users can migrate
-                await pool.request()
-                    .input("u", sql.NVarChar, username)
-                    .input("p", sql.NVarChar, newPassword)
-                    .query("INSERT INTO users (username, password) VALUES (@u, @p)");
+            // Verify security answer
+            const check = await pool.request()
+                .input("id", sql.NVarChar, loginId)
+                .query("SELECT * FROM users WHERE phone_number=@id OR username=@id");
+                
+            if (check.recordset.length === 0) {
+                return res.status(404).json({ message: "User not found" });
             }
+            
+            const user = check.recordset[0];
+            const dbAnswer = (user.security_answer || "").trim().toLowerCase();
+            const inputAnswer = (security_answer || "").trim().toLowerCase();
+            
+            if (!dbAnswer || dbAnswer !== inputAnswer) {
+                return res.status(401).json({ message: "Incorrect security answer" });
+            }
+
+            await pool.request()
+                .input("id", sql.NVarChar, loginId)
+                .input("p", sql.NVarChar, hashedPassword)
+                .query("UPDATE users SET password = @p WHERE phone_number = @id OR username = @id");
         }
         res.json({ message: "Password updated successfully" });
     } catch (err) {
