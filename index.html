@@ -6163,8 +6163,7 @@
     <div
       style="width:20px; height:20px; background:#10b981; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px; font-weight:bold;">
       ✓</div>
-    <span style="font-family:'Inter',sans-serif; font-size:14px; color:#4b5563; flex:1;">Tournament deleted
-      successfully.</span>
+    <span id="deleteSuccessToastMsg" style="font-family:'Inter',sans-serif; font-size:14px; color:#4b5563; flex:1;">Tournament deleted successfully.</span>
     <span style="color:#9ca3af; cursor:pointer; font-size:18px; line-height:1;"
       onclick="document.getElementById('deleteSuccessToast').style.display='none'">×</span>
     <div id="deleteSuccessProgressBar"
@@ -8267,7 +8266,7 @@
 
         // 3. Refresh UI
         await refreshTournamentsFromServer();
-        showDeleteSuccessToast();
+        showDeleteSuccessToast('Tournament deleted successfully.');
 
       } catch (err) {
         console.error("Delete tournament error:", err);
@@ -8282,8 +8281,10 @@
 
     }
 
-    function showDeleteSuccessToast() {
+    function showDeleteSuccessToast(msg) {
       let toast = document.getElementById('deleteSuccessToast');
+      let msgEl = document.getElementById('deleteSuccessToastMsg');
+      if(msgEl && msg) msgEl.innerText = msg;
       let bar = document.getElementById('deleteSuccessProgressBar');
       toast.style.display = 'flex';
       if (bar) {
@@ -9950,7 +9951,7 @@
         if (typeof renderTeamsList === 'function') renderTeamsList();
         if (typeof renderTournamentList === 'function') renderTournamentList();
 
-        showDeleteSuccessToast();
+        showDeleteSuccessToast('Team deleted successfully.');
       } catch (err) {
         console.error("Deletion crash:", err);
         alert("Deletion failed: " + err.message);
