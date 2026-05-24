@@ -6090,7 +6090,7 @@
         <script>
           function toggleDeleteReasonDesc() {
             const othersRadio = document.querySelector('input[name="deleteReason"][value="Others"]');
-            const descInput = document.getElementById('deleteReasonDesc');
+            var descInput = document.getElementById('deleteReasonDesc');
             if (othersRadio && othersRadio.checked) {
               descInput.disabled = false;
               descInput.style.opacity = '1';
@@ -9812,7 +9812,7 @@
     let teamToDeleteIdx = null;
 
     function handleTeamDeleteReasonChange(radio) {
-      const descInput = document.getElementById('teamDeleteReasonDesc');
+      var descInput = document.getElementById('teamDeleteReasonDesc');
       if (radio.value === 'Others') {
         descInput.disabled = false;
         descInput.style.opacity = '1';
@@ -9830,7 +9830,7 @@
 
     function closeTeamDeleteReasonModal() {
       document.getElementById('teamDeleteReasonModal').style.display = 'none';
-      const descInput = document.getElementById('teamDeleteReasonDesc');
+      var descInput = document.getElementById('teamDeleteReasonDesc');
       if (descInput) {
         descInput.value = '';
         descInput.disabled = true;
@@ -9857,14 +9857,14 @@
       // Reset modal
       document.querySelectorAll('input[name="teamDeleteReason"]').forEach(el => el.checked = false);
       document.getElementById('teamDeleteReasonDesc').value = '';
-      const descInput = document.getElementById('teamDeleteReasonDesc');
+      var descInput = document.getElementById('teamDeleteReasonDesc');
       descInput.value = '';
       descInput.disabled = true;
       descInput.style.opacity = '0.5';
       descInput.style.pointerEvents = 'none';
       descInput.style.backgroundColor = '#f3f4f6';
       document.getElementById('teamDeleteReasonModal').style.display = 'flex';
-      const descInput = document.getElementById('teamDeleteReasonDesc');
+      var descInput = document.getElementById('teamDeleteReasonDesc');
       if (descInput) {
         descInput.value = '';
         descInput.disabled = true;
