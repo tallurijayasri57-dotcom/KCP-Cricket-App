@@ -9550,7 +9550,7 @@
       `;
     }
 
-    function addTournamentTeam() {
+    function addTournamentTeam() {
       let name = document.getElementById('mtTeamName').value.trim();
       if (!name) return alert('Enter team name');
       tournaments = loadTournaments();
@@ -9569,10 +9569,12 @@
       addPlayerTargetTeamIdx = teamIdx;
       document.getElementById('addPlayerNameInput').value = '';
       document.getElementById('addPlayerRoleInput').value = '';
+      document.getElementById('addPlayerBattingStyleInput').value = '';
+      document.getElementById('addPlayerBowlingStyleInput').value = '';
+      if(typeof handleAddPlayerRoleChange === 'function') handleAddPlayerRoleChange();
       document.getElementById('addPlayerModalOverlay').classList.add('open');
       setTimeout(() => document.getElementById('addPlayerNameInput').focus(), 100);
     }
-
 
     function handleAddPlayerRoleChange() {
       const role = document.getElementById('addPlayerRoleInput').value;
