@@ -9810,8 +9810,35 @@
 
     let teamToDeleteIdx = null;
 
+    function handleTeamDeleteReasonChange(radio) {
+      const descInput = document.getElementById('teamDeleteReasonDesc');
+      if (radio.value === 'Others') {
+        descInput.disabled = false;
+        descInput.style.opacity = '1';
+        descInput.style.pointerEvents = 'auto';
+        descInput.style.backgroundColor = 'transparent';
+        descInput.focus();
+      } else {
+        descInput.disabled = true;
+        descInput.value = '';
+        descInput.style.opacity = '0.5';
+        descInput.style.pointerEvents = 'none';
+        descInput.style.backgroundColor = '#f3f4f6';
+      }
+    }
+
     function closeTeamDeleteReasonModal() {
       document.getElementById('teamDeleteReasonModal').style.display = 'none';
+      const descInput = document.getElementById('teamDeleteReasonDesc');
+      if (descInput) {
+        descInput.value = '';
+        descInput.disabled = true;
+        descInput.style.opacity = '0.5';
+        descInput.style.pointerEvents = 'none';
+        descInput.style.backgroundColor = '#f3f4f6';
+        const radios = document.querySelectorAll('input[name="teamDeleteReason"]');
+        radios.forEach(r => r.checked = false);
+      }
       teamToDeleteIdx = null;
     }
 
@@ -9829,6 +9856,12 @@
       // Reset modal
       document.querySelectorAll('input[name="teamDeleteReason"]').forEach(el => el.checked = false);
       document.getElementById('teamDeleteReasonDesc').value = '';
+      const descInput = document.getElementById('teamDeleteReasonDesc');
+      descInput.value = '';
+      descInput.disabled = true;
+      descInput.style.opacity = '0.5';
+      descInput.style.pointerEvents = 'none';
+      descInput.style.backgroundColor = '#f3f4f6';
       document.getElementById('teamDeleteReasonModal').style.display = 'flex';
       const descInput = document.getElementById('teamDeleteReasonDesc');
       if (descInput) {
