@@ -5,11 +5,15 @@ GO
 GO
 
 CREATE TABLE users (
-    user_id    INT IDENTITY(1,1) PRIMARY KEY,
-    username   NVARCHAR(100) NOT NULL UNIQUE,
-    password   NVARCHAR(255) NOT NULL,
-    photo_url  NVARCHAR(MAX) NULL,
-    created_at DATETIME DEFAULT GETDATE()
+    user_id           INT IDENTITY(1,1) PRIMARY KEY,
+    username          NVARCHAR(100) NOT NULL UNIQUE,
+    password          NVARCHAR(255) NOT NULL,
+    photo_url         NVARCHAR(MAX) NULL,
+    created_at        DATETIME DEFAULT GETDATE(),
+    phone_number      NVARCHAR(15)  NULL,
+    display_name      NVARCHAR(150) NULL,
+    security_question NVARCHAR(255) NULL,
+    security_answer   NVARCHAR(255) NULL
 );
 GO
 
