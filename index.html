@@ -17198,7 +17198,31 @@
       if (splash) {
         setTimeout(() => {
           splash.style.display = 'none';
-          showPage('loginPage');
+          
+          let storedUser = localStorage.getItem("currentUser");
+          let lastPage = localStorage.getItem("lastPage");
+          
+          if (storedUser) {
+            isLogin = false; // Bypass login
+            let userNameEl = document.getElementById('userNameDisplay');
+            if(userNameEl) userNameEl.innerText = storedUser;
+            
+            let storedTournamentId = localStorage.getItem("currentTournamentId");
+            if (storedTournamentId) {
+              currentTournamentId = parseInt(storedTournamentId) || storedTournamentId;
+            }
+            
+            if (lastPage && document.getElementById(lastPage)) {
+              showPage(lastPage);
+              if (lastPage === 'tournamentTeamsPage' && typeof renderTeamsList === 'function') renderTeamsList();
+              if (lastPage === 'home' && typeof renderHomeBanner === 'function') renderHomeBanner();
+              if (lastPage === 'myTournamentsPage' && typeof renderMyTournaments === 'function') renderMyTournaments();
+            } else {
+              showPage('home');
+            }
+          } else {
+            showPage('loginPage');
+          }
         }, 9000); // Show full sequence: 5s branding + 4s founder
       }
     });
