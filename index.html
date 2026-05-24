@@ -376,11 +376,11 @@
       background: transparent;
       border: none;
       box-shadow: none;
-      color: inherit;
-      font-family: inherit;
-      font-size: inherit;
-      font-weight: inherit;
-      letter-spacing: inherit;
+      color: #6b7280;
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
     }
 
 
@@ -13215,17 +13215,19 @@
 
     function roleBadge(role, batStyle = '', bowlStyle = '') {
       let html = "";
-      if (role === "Batsman") html = '<div style="width:100%; text-align:center; line-height:1; margin-top:5px; margin-bottom:3px;"><span class="role-badge role-BAT">Batsman</span></div>';
-      else if (role === "Bowler") html = '<div style="width:100%; text-align:center; line-height:1; margin-top:5px; margin-bottom:3px;"><span class="role-badge role-BOWL">Bowler</span></div>';
-      else if (role === "All-Rounder") html = '<div style="width:100%; text-align:center; line-height:1; margin-top:5px; margin-bottom:3px;"><span class="role-badge role-AR">All-Rounder</span></div>';
-      else if (role === "Wicket-Keeper") html = '<div style="width:100%; text-align:center; line-height:1; margin-top:5px; margin-bottom:3px;"><span class="role-badge role-WK">Wicket-Keeper</span></div>';
 
+      // Subtle text style for role, pill style for styles
+      const textStyle = `display:inline-block;font-size:11px;font-weight:700;font-family:'Inter',sans-serif;letter-spacing:0.4px;color:#334155;margin:2px 4px 2px 2px;white-space:nowrap;`;
+      const grayPill = `display:inline-block;padding:2px 6px;border-radius:12px;font-size:9px;font-weight:600;font-family:'Inter',sans-serif;letter-spacing:0.4px;background:#f8fafc;color:#64748b;border:1px solid #e2e8f0;margin:2px;white-space:nowrap;`;
+
+      if (role) {
+        html += `<span style="${textStyle}">${role}</span>`;
+      }
       if (batStyle) {
-        html += `<span class="style-badge style-${batStyle}">${batStyle}</span>`;
+        html += `<span style="${grayPill}">${batStyle}</span>`;
       }
       if (bowlStyle) {
-        let styleClass = bowlStyle.includes('RAS') || bowlStyle.includes('RAF') ? 'BOWL' : 'BOWL';
-        html += `<span class="style-badge style-${styleClass}">${bowlStyle}</span>`;
+        html += `<span style="${grayPill}">${bowlStyle}</span>`;
       }
       return html;
     }
@@ -15219,9 +15221,14 @@
       if (profBowlTab) profBowlTab.innerText = bowlStyle || 'Not Specified';
 
       if (photoUrl) {
-        document.getElementById("profileAvatar").innerHTML = '<img src="' + photoUrl + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">';
+        document.getElementById("profileAvatar").style.background = "transparent";
+        document.getElementById("profileAvatar").style.borderRadius = "10px";
+        document.getElementById("profileAvatar").innerHTML = '<img src="' + photoUrl + '" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">';
       } else if (!profilePhoto) {
-        document.getElementById("profileAvatar").innerHTML = '<span style="font-size:40px;">' + roleEmoji(displayRole) + '</span>';
+        const initials = (playerName || 'P').charAt(0).toUpperCase();
+        document.getElementById("profileAvatar").style.background = "linear-gradient(135deg,#1e3a5f,#0d9488)";
+        document.getElementById("profileAvatar").style.borderRadius = "50%";
+        document.getElementById("profileAvatar").innerHTML = '<span style="font-size:40px;font-weight:800;color:#ffffff;font-family:Inter,sans-serif;letter-spacing:1px;">' + initials + '</span>';
       }
 
       let pTeamEl = document.getElementById("profileTeam");

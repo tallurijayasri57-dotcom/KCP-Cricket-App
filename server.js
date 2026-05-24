@@ -489,7 +489,7 @@ app.get("/tournament-players/:tournament_id", async (req, res) => {
                 .input('tid', sql.Int, tournament_id)
                 .query(`
                     SELECT
-                        tp.id, tp.tournament_id, tp.team_name, tp.player_name, tp.user_id, tp.team_id,
+                        tp.player_id AS id, tp.tournament_id, tp.team_name, tp.player_name, tp.user_id, tp.team_id,
                         COALESCE(NULLIF(tp.role, ''), NULLIF(pp.role, ''), 'Player') AS role,
                         COALESCE(NULLIF(tp.batting_style, ''), NULLIF(pp.batting_style, '')) AS batting_style,
                         COALESCE(NULLIF(tp.bowling_style, ''), NULLIF(pp.bowling_style, '')) AS bowling_style,
@@ -519,7 +519,7 @@ app.get("/tournament-players/:tournament_id/:team_name", async (req, res) => {
                 .input('tn', sql.NVarChar, team_name)
                 .query(`
                     SELECT
-                        tp.id, tp.tournament_id, tp.team_name, tp.player_name, tp.user_id, tp.team_id,
+                        tp.player_id AS id, tp.tournament_id, tp.team_name, tp.player_name, tp.user_id, tp.team_id,
                         COALESCE(NULLIF(tp.role, ''), NULLIF(pp.role, ''), 'Player') AS role,
                         COALESCE(NULLIF(tp.batting_style, ''), NULLIF(pp.batting_style, '')) AS batting_style,
                         COALESCE(NULLIF(tp.bowling_style, ''), NULLIF(pp.bowling_style, '')) AS bowling_style,
@@ -842,7 +842,7 @@ app.get("/players/:team", async (req, res) => {
             .input("t", sql.NVarChar, req.params.team)
             .query(`
                 SELECT
-                    pl.id, pl.team_name, pl.player_name, pl.user_id, pl.team_id,
+                    pl.player_id AS id, pl.team_name, pl.player_name, pl.user_id, pl.team_id,
                     COALESCE(NULLIF(pl.role, ''), NULLIF(pp.role, ''), 'Player') AS role,
                     COALESCE(NULLIF(pl.batting_style, ''), NULLIF(pp.batting_style, '')) AS batting_style,
                     COALESCE(NULLIF(pl.bowling_style, ''), NULLIF(pp.bowling_style, '')) AS bowling_style,
@@ -956,7 +956,7 @@ app.get("/player-role/:name", async (req, res) => {
             if (!batting_style && !bowling_style) {
                 const tp = await pool.request()
                     .input("n", sql.NVarChar, req.params.name)
-                    .query("SELECT TOP 1 batting_style, bowling_style FROM tournament_players WHERE player_name = @n AND (batting_style IS NOT NULL OR bowling_style IS NOT NULL) ORDER BY id DESC");
+                    .query("SELECT TOP 1 batting_style, bowling_style FROM tournament_players WHERE player_name = @n AND (batting_style IS NOT NULL OR bowling_style IS NOT NULL) ORDER BY player_id DESC");
                 if (tp.recordset[0]) {
                     batting_style = tp.recordset[0].batting_style || null;
                     bowling_style = tp.recordset[0].bowling_style || null;
@@ -1058,7 +1058,7 @@ app.delete("/players/:id", async (req, res) => {
         }
         let reqId = req.params.id;
         if (!isNaN(reqId)) {
-            await pool.request().input("id", sql.Int, reqId).query("DELETE FROM players WHERE id=@id");
+            await pool.request().input("id", sql.Int, reqId).query("DELETE FROM players WHERE player_id=@id");
         } else {
             await pool.request().input("t", sql.NVarChar, reqId).query("DELETE FROM players WHERE team_name=@t");
         }
@@ -1427,7 +1427,7 @@ app.get("/player-match-history/:playerName", async (req, res) => {
                     t.name as tournament_name
                 FROM player_stats ps
                 LEFT JOIN match_results mr ON ps.match_id = mr.id
-                LEFT JOIN tournaments t ON mr.tournament_id = CAST(t.id AS NVARCHAR(100))
+                LEFT JOIN tournaments t ON mr.tournament_id = CAST(t.tournament_id AS NVARCHAR(100))
                 WHERE ps.player_name = @pn
                 ORDER BY ps.match_date DESC, ps.id DESC
             `);
@@ -1741,7 +1741,7 @@ app.get("/my-matches/:username", async (req, res) => {
                 SELECT DISTINCT tp.team_name, tp.tournament_id, tp.role,
                        t.name AS tournament_name
                 FROM tournament_players tp
-                LEFT JOIN tournaments t ON tp.tournament_id = t.id
+                LEFT JOIN tournaments t ON tp.tournament_id = t.tournament_id
                 WHERE LOWER(tp.player_name) = LOWER(@pn)
             `);
 
@@ -1868,7 +1868,7 @@ app.get("/player-photos/:playerName", async (req, res) => {
                 .query(`
                     SELECT DISTINCT tg.*, t.name as tournament_name
                     FROM tournament_gallery tg
-                    JOIN tournaments t ON tg.tournament_id = t.id
+                    JOIN tournaments t ON tg.tournament_id = t.tournament_id
                     WHERE tg.tournament_id IN (
                         SELECT DISTINCT tournament_id 
                         FROM tournament_players 
