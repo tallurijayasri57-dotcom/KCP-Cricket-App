@@ -15771,7 +15771,7 @@
       let over = Math.floor((ballCount - 1) / 6) + "." + ((ballCount - 1) % 6 + 1);
       matchCommentary.unshift({
         innings: innings, over: over, ball: r,
-        text: `${b} to ${s}, ${r} run${r == 1 ? '' : 's'}${shotType ? ', ' + shotType : ''}`
+        text: `${b} (${matchBowlTeam}) to ${s} (${matchBatTeam}), ${r} run${r == 1 ? '' : 's'}${shotType ? ', ' + shotType : ''}`
       });
 
       addBall(r);
@@ -15827,7 +15827,7 @@
         innings: innings,
         over: Math.floor((ballCount - 1) / 6) + '.' + ((ballCount - 1) % 6 + 1),
         ball: ballStr,
-        text: `${bowler.value} to ${strike.value}, Bye ${runs} run${runs !== 1 ? 's' : ''}`
+        text: `${bowler.value} (${matchBowlTeam}) to ${strike.value} (${matchBatTeam}), Bye ${runs} run${runs !== 1 ? 's' : ''}`
       });
       if (runs % 2 === 1) changeStrike();
       if (ballCount % 6 === 0) {
@@ -15885,7 +15885,7 @@
         innings: innings,
         over: Math.floor(ballCount / 6) + "." + ((ballCount % 6) + 1),
         ball: ballStr,
-        text: `${bowler.value} to ${strike.value}, Wide${runs > 0 ? ' plus ' + runs + ' runs' : ''}`
+        text: `${bowler.value} (${matchBowlTeam}) to ${strike.value} (${matchBatTeam}), Wide${runs > 0 ? ' plus ' + runs + ' runs' : ''}`
       });
       // If odd runs are scored on Wide, striker should change
       if (runs % 2 === 1) changeStrike();
@@ -15912,7 +15912,7 @@
         innings: innings,
         over: Math.floor(ballCount / 6) + "." + ((ballCount % 6) + 1),
         ball: ballStr,
-        text: `${bowler.value} to ${strike.value}, No Ball${runs > 0 ? ' plus ' + runs + ' runs' : ''}`
+        text: `${bowler.value} (${matchBowlTeam}) to ${strike.value} (${matchBatTeam}), No Ball${runs > 0 ? ' plus ' + runs + ' runs' : ''}`
       });
       if (runs % 2 === 1) changeStrike();
       updateScore();
@@ -16119,8 +16119,8 @@
       let outDesc = dismissalType === "Bowled" || dismissalType === "LBW" ? dismissalType : `${dismissalType} (${dismissedBy})`;
       matchCommentary.unshift({
         innings: innings, over: over, ball: ballStr,
-        text: `${bowler.value} to ${outPlayer}, OUT, ${outDesc}`,
-        subText: `${outPlayer} ${outDesc} b ${bowler.value} (${batsmanStats[outPlayer].runs}r ${batsmanStats[outPlayer].balls}b)`
+        text: `${bowler.value} (${matchBowlTeam}) to ${outPlayer} (${matchBatTeam}), OUT, ${outDesc}`,
+        subText: `${outPlayer} (${matchBatTeam}) ${outDesc} b ${bowler.value} (${matchBowlTeam}) (${batsmanStats[outPlayer].runs}r ${batsmanStats[outPlayer].balls}b)`
       });
 
       // Over complete check — wicket on last ball
