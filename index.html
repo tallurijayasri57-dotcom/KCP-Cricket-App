@@ -6128,27 +6128,27 @@
         <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px;">
           <label
             style="display:flex; align-items:center; gap:12px; cursor:pointer; font-family:'Inter',sans-serif; font-size:14px; color:#1f2937;">
-            <input type="radio" name="teamDeleteReason" value="Duplicate Team"
+            <input type="radio" name="teamDeleteReason" value="Duplicate Team" onchange="handleTeamDeleteReasonChange(this)"
               style="width:18px; height:18px; accent-color:#f97316;"> Duplicate Team
           </label>
           <label
             style="display:flex; align-items:center; gap:12px; cursor:pointer; font-family:'Inter',sans-serif; font-size:14px; color:#1f2937;">
-            <input type="radio" name="teamDeleteReason" value="Wrong Tournament"
+            <input type="radio" name="teamDeleteReason" value="Wrong Tournament" onchange="handleTeamDeleteReasonChange(this)"
               style="width:18px; height:18px; accent-color:#f97316;"> Wrong Tournament
           </label>
           <label
             style="display:flex; align-items:center; gap:12px; cursor:pointer; font-family:'Inter',sans-serif; font-size:14px; color:#1f2937;">
-            <input type="radio" name="teamDeleteReason" value="Players not available"
+            <input type="radio" name="teamDeleteReason" value="Players not available" onchange="handleTeamDeleteReasonChange(this)"
               style="width:18px; height:18px; accent-color:#f97316;"> Players not available
           </label>
           <label
             style="display:flex; align-items:center; gap:12px; cursor:pointer; font-family:'Inter',sans-serif; font-size:14px; color:#1f2937;">
-            <input type="radio" name="teamDeleteReason" value="Others"
+            <input type="radio" name="teamDeleteReason" value="Others" onchange="handleTeamDeleteReasonChange(this)"
               style="width:18px; height:18px; accent-color:#f97316;"> Others
           </label>
         </div>
-        <input type="text" id="teamDeleteReasonDesc" placeholder="Enter Reason description"
-          style="width:100%; border:none; border-bottom:1px solid #d1d5db; padding:8px 0; font-family:'Inter',sans-serif; font-size:14px; color:#4b5563; outline:none; margin-bottom:20px;">
+        <input type="text" id="teamDeleteReasonDesc" placeholder="Enter Reason description" disabled
+          style="width:100%; border:none; border-bottom:1px solid #d1d5db; padding:8px 8px; font-family:'Inter',sans-serif; font-size:14px; color:#4b5563; outline:none; margin-bottom:20px; opacity:0.5; pointer-events:none; background-color:#f3f4f6; transition:all 0.3s; border-radius:4px; box-sizing:border-box;">
         <div style="display:flex; justify-content:flex-end;">
           <button id="confirmDeleteTeamBtn" onclick="confirmDeleteTeam()"
             style="background:#ff5722; color:#ffffff; border:none; padding:10px 24px; border-radius:4px; font-family:'Inter',sans-serif; font-size:14px; font-weight:600; cursor:pointer; text-transform:uppercase;">DELETE</button>
@@ -9830,6 +9830,16 @@
       document.querySelectorAll('input[name="teamDeleteReason"]').forEach(el => el.checked = false);
       document.getElementById('teamDeleteReasonDesc').value = '';
       document.getElementById('teamDeleteReasonModal').style.display = 'flex';
+      const descInput = document.getElementById('teamDeleteReasonDesc');
+      if (descInput) {
+        descInput.value = '';
+        descInput.disabled = true;
+        descInput.style.opacity = '0.5';
+        descInput.style.pointerEvents = 'none';
+        descInput.style.backgroundColor = '#f3f4f6';
+      }
+      const radios = document.querySelectorAll('input[name="teamDeleteReason"]');
+      radios.forEach(r => r.checked = false);
     }
 
     async function confirmDeleteTeam() {
