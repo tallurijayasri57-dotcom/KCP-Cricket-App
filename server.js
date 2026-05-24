@@ -457,7 +457,6 @@ app.get("/tournament-teams/:tournament_id/:team_name/captain", async (req, res) 
 app.get("/tournament-players/:tournament_id", async (req, res) => {
     try {
         const { tournament_id } = req.params;
-        // Check if there's a team_name param - if URL has 3 parts, this should not match
         if (pool) {
             const r = await pool.request()
                 .input('tid', sql.Int, tournament_id)
@@ -474,7 +473,9 @@ app.get("/tournament-players/:tournament_id", async (req, res) => {
                 `);
             res.json(r.recordset);
         } else {
-            res.json([]);
+            // JSON fallback - read from db.json (used on render.com)
+            const tp = (MEMORY_DB.tournament_players || []).filter(p => String(p.tournament_id) === String(tournament_id));
+            res.json(tp);
         }
     } catch (err) {
         console.error('GET all tournament players error:', err);
@@ -502,7 +503,12 @@ app.get("/tournament-players/:tournament_id/:team_name", async (req, res) => {
                 `);
             res.json(r.recordset);
         } else {
-            res.json([]);
+            // JSON fallback - read from db.json (used on render.com)
+            const tp = (MEMORY_DB.tournament_players || []).filter(p =>
+                String(p.tournament_id) === String(tournament_id) &&
+                (p.team_name || '').toLowerCase() === (team_name || '').toLowerCase()
+            );
+            res.json(tp);
         }
     } catch (err) {
         console.error('GET tournament players error:', err);
