@@ -754,9 +754,25 @@ app.delete("/teams/:id", async (req, res) => {
 app.get("/players/:team", async (req, res) => {
     try {
         if (useJSON || !pool) {
-            const filtered = MEMORY_DB.players
-                .filter(p => p.team_name === req.params.team)
+            const teamName = req.params.team;
+            let filtered = MEMORY_DB.players
+                .filter(p => p.team_name === teamName)
                 .map((p, i) => ({ id: p.id || i + 1, ...p }));
+            // If players table empty, fallback to tournament_players (used on render.com)
+            if (filtered.length === 0) {
+                filtered = (MEMORY_DB.tournament_players || [])
+                    .filter(p => (p.team_name || '').toLowerCase() === (teamName || '').toLowerCase())
+                    .map((p, i) => ({
+                        id: p.id || i + 1,
+                        team_name: p.team_name,
+                        player_name: p.player_name,
+                        name: p.player_name,
+                        role: p.role || 'Player',
+                        batting_style: p.batting_style || '',
+                        bowling_style: p.bowling_style || '',
+                        photo_url: p.photo_url || ''
+                    }));
+            }
             return res.json(filtered);
         }
         const r = await pool.request()
