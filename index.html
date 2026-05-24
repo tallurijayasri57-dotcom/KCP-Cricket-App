@@ -6054,32 +6054,47 @@
         <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px;">
           <label
             style="display:flex; align-items:center; gap:12px; cursor:pointer; font-family:'Inter',sans-serif; font-size:14px; color:#1f2937;">
-            <input type="radio" name="deleteReason" value="Duplicate Tournament"
+            <input type="radio" name="deleteReason" value="Duplicate Tournament" onchange="toggleDeleteReasonDesc()"
               style="width:18px; height:18px; accent-color:#f97316;"> Duplicate Tournament
           </label>
           <label
             style="display:flex; align-items:center; gap:12px; cursor:pointer; font-family:'Inter',sans-serif; font-size:14px; color:#1f2937;">
-            <input type="radio" name="deleteReason" value="Created for testing"
+            <input type="radio" name="deleteReason" value="Created for testing" onchange="toggleDeleteReasonDesc()"
               style="width:18px; height:18px; accent-color:#f97316;"> Created for testing
           </label>
           <label
             style="display:flex; align-items:center; gap:12px; cursor:pointer; font-family:'Inter',sans-serif; font-size:14px; color:#1f2937;">
-            <input type="radio" name="deleteReason" value="Don't know the next steps"
+            <input type="radio" name="deleteReason" value="Don't know the next steps" onchange="toggleDeleteReasonDesc()"
               style="width:18px; height:18px; accent-color:#f97316;"> Don't know the next steps
           </label>
           <label
             style="display:flex; align-items:center; gap:12px; cursor:pointer; font-family:'Inter',sans-serif; font-size:14px; color:#1f2937;">
-            <input type="radio" name="deleteReason" value="Faced problems in adding details"
+            <input type="radio" name="deleteReason" value="Faced problems in adding details" onchange="toggleDeleteReasonDesc()"
               style="width:18px; height:18px; accent-color:#f97316;"> Faced problems in adding details
           </label>
           <label
             style="display:flex; align-items:center; gap:12px; cursor:pointer; font-family:'Inter',sans-serif; font-size:14px; color:#1f2937;">
-            <input type="radio" name="deleteReason" value="Others"
+            <input type="radio" name="deleteReason" value="Others" onchange="toggleDeleteReasonDesc()"
               style="width:18px; height:18px; accent-color:#f97316;"> Others
           </label>
         </div>
-        <input type="text" id="deleteReasonDesc" placeholder="Enter Reason description"
-          style="width:100%; border:none; border-bottom:1px solid #d1d5db; padding:8px 0; font-family:'Inter',sans-serif; font-size:14px; color:#4b5563; outline:none; margin-bottom:20px;">
+        <input type="text" id="deleteReasonDesc" placeholder="Enter Reason description" disabled
+          style="width:100%; border:none; border-bottom:1px solid #d1d5db; padding:8px 0; font-family:'Inter',sans-serif; font-size:14px; color:#1f2937; background:#ffffff; outline:none; margin-bottom:20px; transition: opacity 0.2s; opacity: 0.5;">
+        <script>
+          function toggleDeleteReasonDesc() {
+            const othersRadio = document.querySelector('input[name="deleteReason"][value="Others"]');
+            const descInput = document.getElementById('deleteReasonDesc');
+            if (othersRadio && othersRadio.checked) {
+              descInput.disabled = false;
+              descInput.style.opacity = '1';
+              descInput.focus();
+            } else {
+              descInput.disabled = true;
+              descInput.style.opacity = '0.5';
+              descInput.value = '';
+            }
+          }
+        </script>
         <div style="display:flex; justify-content:flex-end;">
           <button id="confirmDeleteTourBtn" onclick="confirmDeleteTournament()"
             style="background:#ff5722; color:#ffffff; border:none; padding:10px 24px; border-radius:4px; font-family:'Inter',sans-serif; font-size:14px; font-weight:600; cursor:pointer; text-transform:uppercase;">DELETE</button>
@@ -8718,7 +8733,7 @@
     let currentAddPlayerTeamName = '';
 
     let currentAddPlayerTeamIdx = -1;
-    function openAddTeamPlayerModal(teamIdx) {
+    async function openAddTeamPlayerModal(teamIdx) {
       document.getElementById('editTeamModal').style.display = 'none';
       document.getElementById('editTournamentModal').style.display = 'none';
       currentAddPlayerTeamIdx = teamIdx;
@@ -8727,6 +8742,7 @@
       document.getElementById('addTeamPlayerRoleInput').value = '';
       document.getElementById('addTeamPlayerBattingStyleInput').value = '';
       document.getElementById('addTeamPlayerBowlingStyleInput').value = '';
+      
       renderEditTeamPlayersListFromSQL(currentAddPlayerTeamName);
       document.getElementById('addTeamPlayerModal').style.display = 'flex';
     }

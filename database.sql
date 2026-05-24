@@ -1,8 +1,11 @@
 USE cricket_db;
 GO
 
+
+GO
+
 CREATE TABLE users (
-    id         INT IDENTITY(1,1) PRIMARY KEY,
+    user_id    INT IDENTITY(1,1) PRIMARY KEY,
     username   NVARCHAR(100) NOT NULL UNIQUE,
     password   NVARCHAR(255) NOT NULL,
     photo_url  NVARCHAR(MAX) NULL,
@@ -10,25 +13,8 @@ CREATE TABLE users (
 );
 GO
 
-CREATE TABLE teams (
-    id INT IDENTITY(1,1) PRIMARY KEY,
-    team_name NVARCHAR(100) NOT NULL UNIQUE
-);
-GO
-
-CREATE TABLE players (
-    id INT IDENTITY(1,1) PRIMARY KEY,
-    team_name NVARCHAR(100) NULL,
-    player_name NVARCHAR(100) NULL,
-    role NVARCHAR(50) NULL,
-    photo_url NVARCHAR(MAX) NULL,
-    batting_style NVARCHAR(50) NULL,
-    bowling_style NVARCHAR(50) NULL
-);
-GO
-
 CREATE TABLE tournaments (
-    id INT IDENTITY(1,1) PRIMARY KEY,
+    tournament_id INT IDENTITY(1,1) PRIMARY KEY,
     name NVARCHAR(200) NOT NULL,
     created_by NVARCHAR(100) NOT NULL,
     ball_type NVARCHAR(50) NULL,  
@@ -44,26 +30,30 @@ CREATE TABLE tournaments (
 GO
 
 CREATE TABLE tournament_teams (
-    id INT IDENTITY(1,1) PRIMARY KEY,
+    team_id INT IDENTITY(1,1) PRIMARY KEY,
     tournament_id INT NOT NULL,
     team_name NVARCHAR(100) NOT NULL,
     city NVARCHAR(100) NULL,
     logo NVARCHAR(MAX) NULL,
     captain NVARCHAR(150) NULL,
-    CONSTRAINT FK_TournTeams_Tourn FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE
+    CONSTRAINT FK_TournTeams_Tourn FOREIGN KEY (tournament_id) REFERENCES tournaments(tournament_id) ON DELETE CASCADE
 );
 GO
 
 CREATE TABLE tournament_players (
-    id INT IDENTITY(1,1) PRIMARY KEY,
-    tournament_id INT NOT NULL,
-    team_name NVARCHAR(100) NULL,
-    player_name NVARCHAR(150) NULL,
-    role NVARCHAR(100) NULL,
-    photo_url NVARCHAR(MAX) NULL,
-    batting_style NVARCHAR(50) NULL,
-    bowling_style NVARCHAR(50) NULL,
-    CONSTRAINT FK_TournPlayers_Tourn FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE
+    player_id     INT IDENTITY(1,1) PRIMARY KEY,  
+    user_id       INT           NULL,              
+    team_id       INT           NULL,              
+    tournament_id INT           NOT NULL,          
+    team_name     NVARCHAR(100) NULL,
+    player_name   NVARCHAR(150) NULL,
+    role          NVARCHAR(100) NULL,
+    photo_url     NVARCHAR(MAX) NULL,
+    batting_style NVARCHAR(50)  NULL,
+    bowling_style NVARCHAR(50)  NULL,
+    CONSTRAINT FK_TournPlayers_Tourn FOREIGN KEY (tournament_id) REFERENCES tournaments(tournament_id) ON DELETE CASCADE,
+    CONSTRAINT FK_TournPlayers_User  FOREIGN KEY (user_id)       REFERENCES users(user_id) ON DELETE SET NULL,
+    CONSTRAINT FK_TournPlayers_Team  FOREIGN KEY (team_id)       REFERENCES tournament_teams(team_id)
 );
 GO
 
@@ -72,10 +62,11 @@ CREATE TABLE tournament_gallery (
     tournament_id INT NOT NULL,
     photo_url NVARCHAR(MAX) NOT NULL,
     uploaded_by NVARCHAR(150),
-    caption NVARCHAR(MAX) NULL,
     uploaded_at DATETIME DEFAULT GETDATE(),
-    CONSTRAINT FK_TG_Tournament FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE
+	caption NVARCHAR(MAX) NULL,
+    CONSTRAINT FK_TG_Tournament FOREIGN KEY (tournament_id) REFERENCES tournaments(tournament_id) ON DELETE CASCADE
 );
+GO
 
 CREATE TABLE tournament_matches (
     id INT IDENTITY(1,1) PRIMARY KEY,
@@ -88,9 +79,9 @@ CREATE TABLE tournament_matches (
     toss_info NVARCHAR(255),
     status NVARCHAR(50) DEFAULT 'upcoming',
     created_at DATETIME DEFAULT GETDATE(),
-    CONSTRAINT FK_TM_Tournament FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE
+    CONSTRAINT FK_TM_Tournament FOREIGN KEY (tournament_id) REFERENCES tournaments(tournament_id) ON DELETE CASCADE
 );
-
+GO
 
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[player_stats]') AND type in (N'U'))
 BEGIN
@@ -107,6 +98,7 @@ BEGIN
         [wickets] [int] DEFAULT 0,
         [overs_bowled] [nvarchar](50) DEFAULT '0.0',
         [runs_conceded] [int] DEFAULT 0,
+		[strike_rate] [float] NULL,
         [catches] [int] DEFAULT 0,
         [run_outs] [int] DEFAULT 0,
         [stumpings] [int] DEFAULT 0,
@@ -147,21 +139,6 @@ BEGIN
     );
 END
 GO
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[player_profile]') AND type in (N'U'))
-BEGIN
-    CREATE TABLE [dbo].[player_profile](
-        [player_id] [int] IDENTITY(1,1) PRIMARY KEY,
-        [player_name] [nvarchar](100) NULL,
-        [team_name] [nvarchar](100) NULL,
-        [runs] [int] NULL,
-        [role] [nvarchar](50) NULL,
-        [photo_url] [nvarchar](max) NULL,
-        [updated_at] [datetime] DEFAULT GETDATE(),
-        [batting_style] [nvarchar](50) NULL,
-        [bowling_style] [nvarchar](50) NULL
-    );
-END
-GO
 
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[player_profiles]') AND type in (N'U'))
 BEGIN
@@ -188,10 +165,21 @@ BEGIN
 END
 GO
 
+CREATE TABLE points_table (
+    team_name NVARCHAR(150) PRIMARY KEY,
+    matches_played INT DEFAULT 0,
+    wins INT DEFAULT 0,
+    losses INT DEFAULT 0,
+    points INT DEFAULT 0,
+    runs_scored FLOAT DEFAULT 0.0,
+    runs_conceded FLOAT DEFAULT 0.0,
+    overs_faced FLOAT DEFAULT 0.0,
+    overs_bowled FLOAT DEFAULT 0.0,
+    net_run_rate FLOAT DEFAULT 0.0
+);
+GO
 
 SELECT * FROM users;
-SELECT * FROM teams;
-SELECT * FROM players;
 SELECT * FROM tournaments;
 SELECT * FROM tournament_teams;
 SELECT * FROM tournament_players;
@@ -199,7 +187,11 @@ SELECT * FROM tournament_matches;
 SELECT * FROM tournament_gallery;
 SELECT * FROM match_results;
 SELECT * FROM player_stats;
-SELECT * FROM player_profile;
 SELECT * FROM player_profiles;
 SELECT * FROM live_matches;
+SELECT * FROM points_table;
 
+select a.player_id, a.player_name, a.team_name, a.role from tournament_players a, player_profiles b
+where a.team_name = b.team_name
+  and a.player_name = b.player_name
+  and a.team_name = 'SRH';

@@ -50,7 +50,8 @@ function loadDB() {
         if (fs.existsSync(DB_FILE)) {
             const data = fs.readFileSync(DB_FILE, "utf8");
             if (data) {
-                const parsedDB = JSON.parse(data);
+                const cleanData = data.replace(/^\uFEFF/, '');
+                const parsedDB = JSON.parse(cleanData);
                 MEMORY_DB = { ...MEMORY_DB, ...parsedDB };
                 MEMORY_DB.player_profiles = MEMORY_DB.player_profiles || MEMORY_DB.player_profile || [];
             }
@@ -100,6 +101,19 @@ async function startServer() {
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='player_profiles' AND COLUMN_NAME='batting_style') ALTER TABLE player_profiles ADD batting_style NVARCHAR(50) NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='player_profiles' AND COLUMN_NAME='bowling_style') ALTER TABLE player_profiles ADD bowling_style NVARCHAR(50) NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_gallery' AND COLUMN_NAME='caption') ALTER TABLE tournament_gallery ADD caption NVARCHAR(MAX) NULL`,
+                
+                // User & Team ID Relationship Migrations
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='players' AND COLUMN_NAME='user_id') ALTER TABLE players ADD user_id INT NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_players' AND COLUMN_NAME='user_id') ALTER TABLE tournament_players ADD user_id INT NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='player_profiles' AND COLUMN_NAME='user_id') ALTER TABLE player_profiles ADD user_id INT NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='player_stats' AND COLUMN_NAME='user_id') ALTER TABLE player_stats ADD user_id INT NULL`,
+                
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='players' AND COLUMN_NAME='team_id') ALTER TABLE players ADD team_id INT NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_players' AND COLUMN_NAME='team_id') ALTER TABLE tournament_players ADD team_id INT NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='player_profiles' AND COLUMN_NAME='team_id') ALTER TABLE player_profiles ADD team_id INT NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='player_stats' AND COLUMN_NAME='team_id') ALTER TABLE player_stats ADD team_id INT NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_matches' AND COLUMN_NAME='t1_id') ALTER TABLE tournament_matches ADD t1_id INT NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_matches' AND COLUMN_NAME='t2_id') ALTER TABLE tournament_matches ADD t2_id INT NULL`,
             ];
             for (const mig of migrations) {
                 try { await pool.request().query(mig); } catch (e) { console.warn("Migration warning:", e.message); }
@@ -184,6 +198,19 @@ app.post("/login", async (req, res) => {
     }
 });
 
+app.get("/users", async (req, res) => {
+    try {
+        if (useJSON || !pool) {
+            return res.json(MEMORY_DB.users || []);
+        }
+        const r = await pool.request().query("SELECT user_id, username, photo_url FROM users");
+        res.json(r.recordset);
+    } catch (err) {
+        console.error("GET users Error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // ================= TOURNAMENTS =================
 
 // Get ALL tournaments from all users (for home page global display)
@@ -192,13 +219,13 @@ app.get("/all-tournaments", async (req, res) => {
         if (pool) {
             const result = await pool.request().query(`
                 SELECT 
-                    id, name, created_by, organiser, status, created_at,
+                    tournament_id AS id, name, created_by, organiser, status, created_at,
                     ball_type AS ball, 
                     start_date AS startDate, 
                     end_date AS endDate,
                     logo, city, ground
                 FROM tournaments 
-                ORDER BY id DESC
+                ORDER BY tournament_id DESC
             `);
             res.json(result.recordset);
         } else {
@@ -219,14 +246,14 @@ app.get("/tournaments/:username", async (req, res) => {
                 .input("u", sql.NVarChar, username.toLowerCase())
                 .query(`
                     SELECT 
-                        id, name, created_by, organiser, status, created_at,
+                        tournament_id AS id, name, created_by, organiser, status, created_at,
                         ball_type AS ball, 
                         start_date AS startDate, 
                         end_date AS endDate,
                         logo, city, ground
                     FROM tournaments 
                     WHERE LOWER(created_by) = @u 
-                    ORDER BY id DESC
+                    ORDER BY tournament_id DESC
                 `);
             console.log(`Found ${result.recordset.length} tournaments for ${username}`);
             res.json(result.recordset);
@@ -256,10 +283,10 @@ app.post("/tournaments", async (req, res) => {
                 .input("ground", sql.NVarChar, ground || null)
                 .query(`
                     INSERT INTO tournaments (name, created_by, organiser, ball_type, start_date, end_date, logo, city, ground) 
-                    OUTPUT INSERTED.id 
+                    OUTPUT INSERTED.tournament_id 
                     VALUES (@n, @c, @org, @b, @sd, @ed, @logo, @city, @ground)
                 `);
-            res.json({ success: true, id: result.recordset[0].id });
+            res.json({ success: true, id: result.recordset[0].tournament_id });
         } else {
             res.status(500).json({ message: "Database not connected" });
         }
@@ -278,7 +305,7 @@ app.patch("/tournaments/:id/logo", async (req, res) => {
             await pool.request()
                 .input("id", sql.Int, id)
                 .input("logo", sql.NVarChar(sql.MAX), logo)
-                .query("UPDATE tournaments SET logo = @logo WHERE id = @id");
+                .query("UPDATE tournaments SET logo = @logo WHERE tournament_id = @id");
         }
         res.json({ success: true });
     } catch (err) {
@@ -293,7 +320,7 @@ app.delete("/tournaments/:id", async (req, res) => {
         if (pool) {
             await pool.request()
                 .input("id", sql.Int, id)
-                .query("DELETE FROM tournaments WHERE id = @id");
+                .query("DELETE FROM tournaments WHERE tournament_id = @id");
         }
         res.json({ message: "Tournament deleted successfully" });
     } catch (err) {
@@ -348,8 +375,8 @@ app.post("/tournament-teams", async (req, res) => {
             const r = await pool.request()
                 .input("tid", sql.Int, tournament_id)
                 .input("tn", sql.NVarChar, team_name)
-                .query("INSERT INTO tournament_teams (tournament_id, team_name) OUTPUT INSERTED.id VALUES (@tid, @tn)");
-            const newId = r.recordset[0].id;
+                .query("INSERT INTO tournament_teams (tournament_id, team_name) OUTPUT INSERTED.team_id VALUES (@tid, @tn)");
+            const newId = r.recordset[0].team_id;
             // Optionally update city/logo if columns exist (added by migration)
             if (city || logo) {
                 try {
@@ -357,7 +384,7 @@ app.post("/tournament-teams", async (req, res) => {
                         .input("id", sql.Int, newId)
                         .input("city", sql.NVarChar, city || '')
                         .input("logo", sql.NVarChar(sql.MAX), logo || '')
-                        .query("UPDATE tournament_teams SET city=@city, logo=@logo WHERE id=@id");
+                        .query("UPDATE tournament_teams SET city=@city, logo=@logo WHERE team_id=@id");
                 } catch (e) { /* city/logo columns may not exist yet, ignore */ }
             }
             res.json({ success: true, id: newId });
@@ -462,7 +489,7 @@ app.get("/tournament-players/:tournament_id", async (req, res) => {
                 .input('tid', sql.Int, tournament_id)
                 .query(`
                     SELECT
-                        tp.id, tp.tournament_id, tp.team_name, tp.player_name,
+                        tp.id, tp.tournament_id, tp.team_name, tp.player_name, tp.user_id, tp.team_id,
                         COALESCE(NULLIF(tp.role, ''), NULLIF(pp.role, ''), 'Player') AS role,
                         COALESCE(NULLIF(tp.batting_style, ''), NULLIF(pp.batting_style, '')) AS batting_style,
                         COALESCE(NULLIF(tp.bowling_style, ''), NULLIF(pp.bowling_style, '')) AS bowling_style,
@@ -492,7 +519,7 @@ app.get("/tournament-players/:tournament_id/:team_name", async (req, res) => {
                 .input('tn', sql.NVarChar, team_name)
                 .query(`
                     SELECT
-                        tp.id, tp.tournament_id, tp.team_name, tp.player_name,
+                        tp.id, tp.tournament_id, tp.team_name, tp.player_name, tp.user_id, tp.team_id,
                         COALESCE(NULLIF(tp.role, ''), NULLIF(pp.role, ''), 'Player') AS role,
                         COALESCE(NULLIF(tp.batting_style, ''), NULLIF(pp.batting_style, '')) AS batting_style,
                         COALESCE(NULLIF(tp.bowling_style, ''), NULLIF(pp.bowling_style, '')) AS bowling_style,
@@ -520,7 +547,32 @@ app.post("/tournament-players", async (req, res) => {
     try {
         const { tournament_id, team_name, player_name, role, photo_url } = req.body;
         if (pool) {
-            // 1. Save to Tournament Players
+            // ── DYNAMIC AUTO-LOOKUP ──────────────────────────────────────────
+            // 1. Auto-find user_id: check if a registered user has same username as player_name
+            let resolvedUserId = req.body.user_id || null;
+            if (!resolvedUserId) {
+                const userLookup = await pool.request()
+                    .input("uname", sql.NVarChar, player_name)
+                    .query("SELECT user_id FROM users WHERE LOWER(username) = LOWER(@uname)");
+                if (userLookup.recordset.length > 0) {
+                    resolvedUserId = userLookup.recordset[0].user_id;
+                }
+            }
+
+            // 2. Auto-find team_id: look up tournament_teams by team_name + tournament_id
+            let resolvedTeamId = req.body.team_id || null;
+            if (!resolvedTeamId) {
+                const teamLookup = await pool.request()
+                    .input("tid", sql.Int, tournament_id)
+                    .input("tn", sql.NVarChar, team_name)
+                    .query("SELECT team_id FROM tournament_teams WHERE tournament_id = @tid AND LOWER(team_name) = LOWER(@tn)");
+                if (teamLookup.recordset.length > 0) {
+                    resolvedTeamId = teamLookup.recordset[0].team_id;
+                }
+            }
+            // ─────────────────────────────────────────────────────────────────
+
+            // 3. Save to Tournament Players (with resolved IDs)
             await pool.request()
                 .input("tid", sql.Int, tournament_id)
                 .input("tn", sql.NVarChar, team_name)
@@ -529,9 +581,11 @@ app.post("/tournament-players", async (req, res) => {
                 .input("p", sql.NVarChar, photo_url || null)
                 .input("bs", sql.NVarChar, req.body.batting_style || null)
                 .input("bows", sql.NVarChar, req.body.bowling_style || null)
-                .query("INSERT INTO tournament_players (tournament_id, team_name, player_name, role, photo_url, batting_style, bowling_style) VALUES (@tid, @tn, @pn, @r, @p, @bs, @bows)");
+                .input("uid", sql.Int, resolvedUserId)
+                .input("teamid", sql.Int, resolvedTeamId)
+                .query("INSERT INTO tournament_players (tournament_id, team_name, player_name, role, photo_url, batting_style, bowling_style, user_id, team_id) VALUES (@tid, @tn, @pn, @r, @p, @bs, @bows, @uid, @teamid)");
 
-            // 2. Auto-Sync to Player Profiles (Master Table)
+            // 4. Auto-Sync to Player Profiles (Master Table)
             await pool.request()
                 .input("pn", sql.NVarChar, player_name)
                 .input("tn", sql.NVarChar, team_name)
@@ -539,14 +593,16 @@ app.post("/tournament-players", async (req, res) => {
                 .input("p", sql.NVarChar, photo_url || null)
                 .input("bs", sql.NVarChar, req.body.batting_style || null)
                 .input("bows", sql.NVarChar, req.body.bowling_style || null)
+                .input("uid", sql.Int, resolvedUserId)
+                .input("teamid", sql.Int, resolvedTeamId)
                 .query(`
                     IF EXISTS (SELECT 1 FROM player_profiles WHERE player_name = @pn)
-                        UPDATE player_profiles SET team_name = @tn, role = @r, photo_url = COALESCE(@p, photo_url), batting_style = @bs, bowling_style = @bows, updated_at = GETDATE() WHERE player_name = @pn
+                        UPDATE player_profiles SET team_name = @tn, role = @r, photo_url = COALESCE(@p, photo_url), batting_style = @bs, bowling_style = @bows, user_id = COALESCE(@uid, user_id), team_id = COALESCE(@teamid, team_id), updated_at = GETDATE() WHERE player_name = @pn
                     ELSE
-                        INSERT INTO player_profiles (player_name, team_name, role, photo_url, batting_style, bowling_style) VALUES (@pn, @tn, @r, @p, @bs, @bows)
+                        INSERT INTO player_profiles (player_name, team_name, role, photo_url, batting_style, bowling_style, user_id, team_id) VALUES (@pn, @tn, @r, @p, @bs, @bows, @uid, @teamid)
                 `);
 
-            res.json({ success: true });
+            res.json({ success: true, user_id: resolvedUserId, team_id: resolvedTeamId });
         } else {
             res.status(500).json({ message: "Database not connected" });
         }
@@ -555,6 +611,7 @@ app.post("/tournament-players", async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+
 
 app.put("/tournament-players/:tournament_id/:team_name/:old_player_name", async (req, res) => {
     try {
@@ -572,7 +629,9 @@ app.put("/tournament-players/:tournament_id/:team_name/:old_player_name", async 
                 .input("r", sql.NVarChar, role || null)
                 .input("bs", sql.NVarChar, req.body.batting_style || null)
                 .input("bows", sql.NVarChar, req.body.bowling_style || null)
-                .query("UPDATE tournament_players SET player_name = @npn, role = @r, batting_style = @bs, bowling_style = @bows WHERE tournament_id = @tid AND team_name = @tn AND player_name = @opn");
+                .input("uid", sql.Int, req.body.user_id || null)
+                .input("teamid", sql.Int, req.body.team_id || null)
+                .query("UPDATE tournament_players SET player_name = @npn, role = @r, batting_style = @bs, bowling_style = @bows, user_id = COALESCE(@uid, user_id), team_id = COALESCE(@teamid, team_id) WHERE tournament_id = @tid AND team_name = @tn AND player_name = @opn");
 
             // 2. Check if this player was the captain, if so update the captain column in tournament_teams
             const checkCap = await pool.request()
@@ -592,16 +651,20 @@ app.put("/tournament-players/:tournament_id/:team_name/:old_player_name", async 
                 .input("r", sql.NVarChar, role || null)
                 .input("bs", sql.NVarChar, req.body.batting_style || null)
                 .input("bows", sql.NVarChar, req.body.bowling_style || null)
+                .input("uid", sql.Int, req.body.user_id || null)
+                .input("teamid", sql.Int, req.body.team_id || null)
                 .query(`
                     IF EXISTS (SELECT 1 FROM player_profiles WHERE player_name = @pn)
                         UPDATE player_profiles
                         SET role = COALESCE(@r, role),
                             batting_style = COALESCE(@bs, batting_style),
-                            bowling_style = COALESCE(@bows, bowling_style)
+                            bowling_style = COALESCE(@bows, bowling_style),
+                            user_id = COALESCE(@uid, user_id),
+                            team_id = COALESCE(@teamid, team_id)
                         WHERE player_name = @pn
                     ELSE
-                        INSERT INTO player_profiles (player_name, role, batting_style, bowling_style)
-                        VALUES (@pn, @r, @bs, @bows)
+                        INSERT INTO player_profiles (player_name, role, batting_style, bowling_style, user_id, team_id)
+                        VALUES (@pn, @r, @bs, @bows, @uid, @teamid)
                 `);
             res.json({ success: true, message: "Player updated successfully" });
         } else {
@@ -779,7 +842,7 @@ app.get("/players/:team", async (req, res) => {
             .input("t", sql.NVarChar, req.params.team)
             .query(`
                 SELECT
-                    pl.id, pl.team_name, pl.player_name,
+                    pl.id, pl.team_name, pl.player_name, pl.user_id, pl.team_id,
                     COALESCE(NULLIF(pl.role, ''), NULLIF(pp.role, ''), 'Player') AS role,
                     COALESCE(NULLIF(pl.batting_style, ''), NULLIF(pp.batting_style, '')) AS batting_style,
                     COALESCE(NULLIF(pl.bowling_style, ''), NULLIF(pp.bowling_style, '')) AS bowling_style,
@@ -802,13 +865,27 @@ app.post("/players", async (req, res) => {
             saveDB();
             return res.send("Player Added");
         }
+
+        // ── DYNAMIC AUTO-LOOKUP ──────────────────────────────────────────
+        // Auto-find user_id by matching username to player_name
+        let resolvedUserId = req.body.user_id || null;
+        if (!resolvedUserId) {
+            const userLookup = await pool.request()
+                .input("uname", sql.NVarChar, player_name)
+                .query("SELECT user_id FROM users WHERE LOWER(username) = LOWER(@uname)");
+            if (userLookup.recordset.length > 0) resolvedUserId = userLookup.recordset[0].user_id;
+        }
+        // ─────────────────────────────────────────────────────────────────
+
         await pool.request()
             .input("t", sql.NVarChar, team_name)
             .input("p", sql.NVarChar, player_name)
             .input("r", sql.NVarChar, role)
             .input("bs", sql.NVarChar, req.body.batting_style || null)
             .input("bows", sql.NVarChar, req.body.bowling_style || null)
-            .query("INSERT INTO players (team_name, player_name, role, batting_style, bowling_style) VALUES (@t, @p, @r, @bs, @bows)");
+            .input("uid", sql.Int, resolvedUserId)
+            .input("teamid", sql.Int, req.body.team_id || null)
+            .query("INSERT INTO players (team_name, player_name, role, batting_style, bowling_style, user_id, team_id) VALUES (@t, @p, @r, @bs, @bows, @uid, @teamid)");
 
         // Sync to profiles
         await pool.request()
@@ -817,11 +894,13 @@ app.post("/players", async (req, res) => {
             .input("r", sql.NVarChar, role || null)
             .input("bs", sql.NVarChar, req.body.batting_style || null)
             .input("bows", sql.NVarChar, req.body.bowling_style || null)
+            .input("uid", sql.Int, resolvedUserId)
+            .input("teamid", sql.Int, req.body.team_id || null)
             .query(`
                 IF EXISTS (SELECT 1 FROM player_profiles WHERE player_name = @pn)
-                    UPDATE player_profiles SET team_name = @tn, role = @r, batting_style = @bs, bowling_style = @bows, updated_at = GETDATE() WHERE player_name = @pn
+                    UPDATE player_profiles SET team_name = @tn, role = @r, batting_style = @bs, bowling_style = @bows, user_id = COALESCE(@uid, user_id), team_id = COALESCE(@teamid, team_id), updated_at = GETDATE() WHERE player_name = @pn
                 ELSE
-                    INSERT INTO player_profiles (player_name, team_name, role, batting_style, bowling_style) VALUES (@pn, @tn, @r, @bs, @bows)
+                    INSERT INTO player_profiles (player_name, team_name, role, batting_style, bowling_style, user_id, team_id) VALUES (@pn, @tn, @r, @bs, @bows, @uid, @teamid)
             `);
 
         res.send("Player Added");
@@ -829,6 +908,7 @@ app.post("/players", async (req, res) => {
         res.status(500).send(err.message);
     }
 });
+
 
 // --- PLAYER PROFILE MASTER ROUTES ---
 app.get("/player-photo/:name", async (req, res) => {
