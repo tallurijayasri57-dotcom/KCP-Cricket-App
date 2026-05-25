@@ -41,6 +41,10 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
+    input[type="text"] {
+      text-transform: capitalize;
+    }
+
     *,
     *::before,
     *::after {
@@ -18365,6 +18369,18 @@
 </div>`;
       }).join('');
     }
+
+    // Auto-capitalize first letter of all text inputs everywhere
+    document.addEventListener('blur', function (e) {
+      if (e.target.tagName === 'INPUT' && (e.target.type === 'text' || !e.target.type)) {
+        let id = e.target.id.toLowerCase();
+        if (id.includes('password') || id.includes('email') || id.includes('phone') || id.includes('username')) return;
+        let val = e.target.value;
+        if (val && val.length > 0) {
+          e.target.value = val.replace(/\b\w/g, char => char.toUpperCase());
+        }
+      }
+    }, true);
   </script>
 
 </body>
