@@ -1138,6 +1138,20 @@ app.delete("/players/:id", async (req, res) => {
 });
 
 // ================= MATCH RESULTS =================
+
+app.get("/players", async (req, res) => {
+    try {
+        if (pool) {
+            const r = await pool.request().query("SELECT player_name, role, batting_style, bowling_style, photo_url FROM player_profiles");
+            res.json(r.recordset || []);
+        } else {
+            res.json(MEMORY_DB.player_profiles || []);
+        }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.get("/match-results", async (req, res) => {
     try {
         if (useJSON || !pool) return res.json(MEMORY_DB.match_results);

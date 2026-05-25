@@ -11935,7 +11935,7 @@
           const roleInfo = playerRoleMap[key] || {};
           players.push({
             player_name: name,
-            role: roleInfo.role || 'Player',
+            role: roleInfo.role || (m.batsmen && m.batsmen.find(b=>b.name===name) ? 'Batsman' : (m.bowlers && m.bowlers.find(b=>b.name===name) ? 'Bowler' : 'Player')),
             batting_style: roleInfo.batting_style || '',
             bowling_style: roleInfo.bowling_style || '',
             photo_url: roleInfo.photo_url || ''
@@ -12041,7 +12041,7 @@
                 ${photoHtml || `<div style="font-size:20px; font-weight:800; color:#fff;">${pName.charAt(0).toUpperCase()}</div>`}
               </div>
               <div style="font-size:12px; font-weight:700; color:#f8fafc; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%;">${pName}</div>
-              <div style="font-size:10px; color:#9ca3af; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-top:auto; height:32px; display:flex; flex-wrap:wrap; justify-content:center; align-content:flex-start; gap:3px; overflow:hidden; width:100%;">
+              <div style="font-size:10px; color:#9ca3af; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-top:4px; height:32px; display:flex; flex-wrap:wrap; justify-content:center; align-content:flex-start; gap:3px; overflow:hidden; width:100%;">
                 ${roleBadge(p.role, p.batting_style, p.bowling_style)}
               </div>
             </div>
@@ -14179,7 +14179,7 @@
                             ${photoHtml || `<div style="font-size:24px;font-weight:800;color:#fff;">${p.player_name.charAt(0).toUpperCase()}</div>`}
                           </div>
                           <div style="font-size:12.5px;font-weight:700;color:#f8fafc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;margin:0 auto 2px;">${p.player_name}</div>
-                          <div style="font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;min-height:42px;display:flex;flex-wrap:wrap;justify-content:center;align-content:flex-start;gap:4px;width:100%;margin-top:auto;">${roleBadge(p.role, p.batting_style, p.bowling_style)}</div>
+                          <div style="font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;min-height:42px;display:flex;flex-wrap:wrap;justify-content:center;align-content:flex-start;gap:4px;width:100%;margin-top:4px;">${roleBadge(p.role, p.batting_style, p.bowling_style)}</div>
                         </div>`;
               }).join('')
             }
