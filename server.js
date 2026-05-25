@@ -623,6 +623,19 @@ app.post("/tournament-players", async (req, res) => {
             }
             // ─────────────────────────────────────────────────────────────────
 
+            
+            // Check if player is already in a different team in the same tournament
+            const existingPlayer = await pool.request()
+                .input("tid_check", sql.Int, tournament_id)
+                .input("pn_check", sql.NVarChar, player_name)
+                .query("SELECT team_name FROM tournament_players WHERE tournament_id = @tid_check AND LOWER(player_name) = LOWER(@pn_check)");
+            if (existingPlayer.recordset.length > 0) {
+                const existingTeam = existingPlayer.recordset[0].team_name;
+                if (existingTeam.toLowerCase() !== team_name.toLowerCase()) {
+                    return res.status(400).json({ error: "Player name '" + player_name + "' already exists in team '" + existingTeam + "'. Please change the player name (e.g. '" + player_name + " 1') to add them to this team." });
+                }
+            }
+
             // 3. Save to Tournament Players (with resolved IDs)
             await pool.request()
                 .input("tid", sql.Int, tournament_id)
@@ -655,6 +668,12 @@ app.post("/tournament-players", async (req, res) => {
 
             res.json({ success: true, user_id: resolvedUserId, team_id: resolvedTeamId });
         } else {
+            // MEMORY_DB duplicate check
+            const existingMemory = (MEMORY_DB.tournament_players || []).find(tp => tp.tournament_id == tournament_id && tp.player_name.toLowerCase() === player_name.toLowerCase());
+            if (existingMemory && existingMemory.team_name.toLowerCase() !== team_name.toLowerCase()) {
+                return res.status(400).json({ error: "Player name '" + player_name + "' already exists in team '" + existingMemory.team_name + "'. Please change the player name." });
+            }
+
             res.status(500).json({ message: "Database not connected" });
         }
     } catch (err) {
