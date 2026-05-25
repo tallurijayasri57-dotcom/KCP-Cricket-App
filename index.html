@@ -8881,7 +8881,15 @@
       document.getElementById('addTeamPlayerBattingStyleInput').value = '';
       document.getElementById('addTeamPlayerBowlingStyleInput').value = '';
 
-      let currentCount = document.getElementById('editTeamPlayersList') ? document.getElementById('editTeamPlayersList').children.length : 0;
+      let container = document.getElementById('editTeamPlayersList');
+      let currentCount = 0;
+      if (container) {
+        if (container.innerText.includes("No players") || container.innerText.includes("Loading")) {
+          currentCount = 0;
+        } else {
+          currentCount = container.children.length;
+        }
+      }
       showPlayerAddedToast(tName, currentCount + 1);
       renderEditTeamPlayersListFromSQL(tName);
       // Refresh members modal if open
@@ -9421,7 +9429,7 @@
       let upcoming = matches.filter(m => (!m.result || m.result === "" || m.result === "LIVE") && (m.status !== 'cancelled' && m.status !== 'finished' && m.status !== 'completed' && m.status !== 'live'));
       console.log("Upcoming matches found:", upcoming);
       if (upcoming.length === 0) {
-        el.innerHTML = `<div style="color:#4b5563;font-size:13px;padding:10px 0;">No upcoming matches (Total fetched: ${matches.length}). Check console for details.</div>`;
+        el.innerHTML = `<div style="color:#4b5563;font-size:13px;padding:10px 0;">No upcoming matches</div>`;
         return;
       }
 
@@ -13645,7 +13653,14 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone_number: phone, security_answer: sa, newPassword: newPass })
       })
-        .then(res => res.json())
+        .then(async res => {
+          const data = await res.json();
+          if (!res.ok) {
+            if (data.message === "Incorrect security answer") throw new Error("Enter correct school name");
+            throw new Error(data.message || "Error resetting password");
+          }
+          return data;
+        })
         .then(data => {
           resultEl.style.cssText = 'display:block; background:rgba(16,185,129,0.15); border:1px solid #10b981; border-radius:8px; padding:12px; margin-bottom:16px; color:#6ee7b7; font-size:14px;';
           resultEl.innerHTML = '✅ Password changed in Database! You can now login.';
@@ -13653,7 +13668,7 @@
         })
         .catch(err => {
           resultEl.style.cssText = 'display:block; background:rgba(239,68,68,0.15); border:1px solid #ef4444; border-radius:8px; padding:12px; margin-bottom:16px; color:#fca5a5; font-size:14px;';
-          resultEl.innerText = 'Server error. Could not connect to Database.';
+          resultEl.innerText = err.message || 'Server error. Could not connect to Database.';
         });
     }
 

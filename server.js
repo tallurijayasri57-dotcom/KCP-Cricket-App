@@ -474,15 +474,16 @@ app.delete("/tournament-teams/:tournament_id/:team_name", async (req, res) => {
     try {
         const { tournament_id, team_name } = req.params;
         if (pool) {
-            await pool.request()
-                .input('tid', sql.Int, tournament_id)
-                .input('tn', sql.NVarChar, team_name)
-                .query('DELETE FROM tournament_teams WHERE tournament_id=@tid AND team_name=@tn');
-            // Also delete players in this team for this tournament
+            // Delete players in this team for this tournament FIRST to satisfy FK constraints
             await pool.request()
                 .input('tid', sql.Int, tournament_id)
                 .input('tn', sql.NVarChar, team_name)
                 .query('DELETE FROM tournament_players WHERE tournament_id=@tid AND team_name=@tn');
+            // Then delete the team
+            await pool.request()
+                .input('tid', sql.Int, tournament_id)
+                .input('tn', sql.NVarChar, team_name)
+                .query('DELETE FROM tournament_teams WHERE tournament_id=@tid AND team_name=@tn');
         }
         res.json({ success: true });
     } catch (err) {

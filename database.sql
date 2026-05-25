@@ -2,8 +2,6 @@ USE cricket_db;
 GO
 
 
-GO
-
 CREATE TABLE users (
     user_id           INT IDENTITY(1,1) PRIMARY KEY,
     username          NVARCHAR(100) NOT NULL UNIQUE,
