@@ -13504,9 +13504,28 @@
         let sr = p.balls > 0 ? (p.runs / p.balls) * 100 : 0;
         let eco = p.bBalls > 0 ? (p.bRuns / (p.bBalls / 6)) : 99;
 
-        let score = (p.runs * 1) + (p.fours * 1) + (p.sixes * 2) + (p.wickets * 20) + (p.dots * 1) + (p.maidens * 10) + (p.catches * 10) + (p.run_outs * 10) + (p.stumpings * 10);
-        if (sr > 150) score += 15; else if (sr > 120) score += 5;
-        if (p.bBalls >= 12) { if (eco < 6) score += 15; else if (eco < 8) score += 5; }
+        // Unified MVP Logic with calculateMatchAwards
+        let pts = p.runs / 10;
+        pts += (p.fours * 0.012) + (p.sixes * 0.016);
+        if (p.balls >= 10) {
+            if (sr >= 200) pts += 0.05;
+            else if (sr >= 150) pts += 0.03;
+            else if (sr < 100) pts -= 0.05;
+        }
+        if (p.runs === 0 && p.balls > 0) pts -= 0.15;
+        pts += p.wickets * 1.33;
+        pts += p.maidens * 0.25;
+        if (p.bBalls >= 12) {
+            if (eco <= 4) pts += 0.05;
+            else if (eco <= 5) pts += 0.03;
+            else if (eco <= 6) pts += 0.01;
+            else if (eco >= 10) pts -= 0.03;
+            else if (eco >= 12) pts -= 0.05;
+        }
+        pts += p.catches * 0.25;
+        pts += p.run_outs * 0.25;
+        pts += p.stumpings * 0.25;
+        let score = parseFloat(pts.toFixed(3));
 
         if (score > momScore) {
           momScore = score;
@@ -16869,9 +16888,28 @@
         let p = players[n];
         let sr = p.balls > 0 ? (p.runs / p.balls) * 100 : 0;
         let eco = p.bBalls > 0 ? (p.bRuns / (p.bBalls / 6)) : 99;
-        let score = (p.runs * 1) + (p.fours * 1) + (p.sixes * 2) + (p.wickets * 20) + (p.dots * 1) + (p.maidens * 10) + (p.catches * 10) + (p.run_outs * 10) + (p.stumpings * 10);
-        if (sr > 150) score += 15; else if (sr > 120) score += 5;
-        if (p.bBalls >= 12) { if (eco < 6) score += 15; else if (eco < 8) score += 5; }
+        // Unified MVP Logic with calculateMatchAwards
+        let pts = p.runs / 10;
+        pts += (p.fours * 0.012) + (p.sixes * 0.016);
+        if (p.balls >= 10) {
+            if (sr >= 200) pts += 0.05;
+            else if (sr >= 150) pts += 0.03;
+            else if (sr < 100) pts -= 0.05;
+        }
+        if (p.runs === 0 && p.balls > 0) pts -= 0.15;
+        pts += p.wickets * 1.33;
+        pts += p.maidens * 0.25;
+        if (p.bBalls >= 12) {
+            if (eco <= 4) pts += 0.05;
+            else if (eco <= 5) pts += 0.03;
+            else if (eco <= 6) pts += 0.01;
+            else if (eco >= 10) pts -= 0.03;
+            else if (eco >= 12) pts -= 0.05;
+        }
+        pts += p.catches * 0.25;
+        pts += p.run_outs * 0.25;
+        pts += p.stumpings * 0.25;
+        let score = parseFloat(pts.toFixed(3));
 
         if (score > momScore) {
           momScore = score; mom = n;
