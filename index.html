@@ -15305,11 +15305,11 @@
         if (totalRuns >= target) {
           winner = matchBatTeam; loser = matchBowlTeam;
           margin = (10 - totalWickets) + " wickets";
+        } else if (totalRuns === target - 1 && (totalWickets >= 10 || (totalOvers > 0 && ballCount >= totalOvers * 6))) {
+          winner = "Match Tied"; margin = "Tied";
         } else if (totalWickets >= 10 || (totalOvers > 0 && ballCount >= totalOvers * 6)) {
           winner = matchBowlTeam; loser = matchBatTeam;
           margin = (target - 1 - totalRuns) + " runs";
-        } else if (totalRuns === target - 1 && (totalWickets >= 10 || (totalOvers > 0 && ballCount >= totalOvers * 6))) {
-          winner = "Match Tied"; margin = "Tied";
         }
       }
       return { winner, loser, margin, text: winner === "Match Tied" ? "Match Tied" : `${winner} won by ${margin}` };
