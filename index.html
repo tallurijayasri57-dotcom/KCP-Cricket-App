@@ -8881,12 +8881,13 @@
       document.getElementById('addTeamPlayerBattingStyleInput').value = '';
       document.getElementById('addTeamPlayerBowlingStyleInput').value = '';
 
-      let container = document.getElementById('editTeamPlayersList');
       let currentCount = 0;
-      if (container) {
-        if (container.innerText.includes("No players") || container.innerText.includes("Loading")) {
-          currentCount = 0;
-        } else {
+      if (typeof sqlTeamsList !== 'undefined' && Array.isArray(sqlTeamsList)) {
+        let tObj = sqlTeamsList.find(t => t.name === tName);
+        if (tObj) currentCount = parseInt(tObj.playerCount) || 0;
+      } else {
+        let container = document.getElementById('editTeamPlayersList');
+        if (container && !container.innerText.includes("No players") && !container.innerText.includes("Loading")) {
           currentCount = container.children.length;
         }
       }
