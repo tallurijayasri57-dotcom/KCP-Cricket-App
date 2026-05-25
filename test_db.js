@@ -8,7 +8,7 @@ const config = {
 };
 
 sql.connect(config).then(pool => {
-    return pool.request().query("SELECT TOP 5 id, match_id, tournament_id FROM match_results ORDER BY id DESC");
+    return pool.request().query("SELECT TOP 10 id, player_name, match_id FROM player_stats WHERE match_id IN ('7', '8')");
 }).then(r => {
     console.log(r.recordset);
     process.exit(0);

@@ -2034,7 +2034,8 @@ app.get("/tournament-leaderboard/:tournament_id", async (req, res) => {
             .query(`
                 SELECT ps.* 
                 FROM player_stats ps
-                JOIN tournament_matches tm ON ps.match_id = CAST(tm.id AS NVARCHAR(100))
+                JOIN match_results mr ON ps.match_id = CAST(mr.id AS NVARCHAR(100))
+                JOIN tournament_matches tm ON mr.match_id = CAST(tm.id AS NVARCHAR(100))
                 WHERE tm.tournament_id = @tid
             `);
         res.json(result.recordset);
