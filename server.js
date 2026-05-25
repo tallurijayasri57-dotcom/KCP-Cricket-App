@@ -2025,6 +2025,26 @@ app.get("/tournament-matches/:tournament_id", async (req, res) => {
     }
 });
 
+app.get("/tournament-leaderboard/:tournament_id", async (req, res) => {
+    try {
+        const { tournament_id } = req.params;
+        if (!pool) return res.json([]);
+        const result = await pool.request()
+            .input("tid", sql.NVarChar, tournament_id.toString())
+            .query(`
+                SELECT ps.* 
+                FROM player_stats ps
+                JOIN match_results mr ON ps.match_id = mr.match_id
+                WHERE mr.tournament_id = @tid
+            `);
+        res.json(result.recordset);
+    } catch (err) {
+        console.error("GET tournament-leaderboard error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
 app.post("/tournament-matches", async (req, res) => {
     try {
         const { tournament_id, team1, team2, match_date, match_time, result, status } = req.body;

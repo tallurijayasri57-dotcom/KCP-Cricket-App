@@ -9625,7 +9625,8 @@
       `;
     }
 
-    function addTournamentTeam() {
+
+    function addTournamentTeam() {
       let name = document.getElementById('mtTeamName').value.trim();
       if (!name) return alert('Enter team name');
       tournaments = loadTournaments();
@@ -14474,14 +14475,37 @@
         );
         try {
           const snap = await window.fbGetDocs(q);
-          snap.forEach(doc => tournamentMatches.push(doc.data()));
+          let tOrg = t.organiser || t.created_by; snap.forEach(doc => { let d = doc.data(); if (!tOrg || !d.organiser || d.organiser === tOrg) { tournamentMatches.push(d); } });
         } catch (e) { console.error("Firebase fetch error:", e); }
       }
 
-      // Fallback to local matches if Firebase empty (might not have full stats)
-      if (tournamentMatches.length === 0) {
-        tournamentMatches = (t.matches || []).filter(m => m.batsmen || m.innings1);
-      }
+      // Fetch completed match stats from SQL
+      try {
+        const sqlRes = await fetch(API + '/tournament-leaderboard/' + currentViewingTournamentId + '?_t=' + Date.now());
+        if (sqlRes.ok) {
+          const sqlStats = await sqlRes.json();
+          let sqlMatchesMap = {};
+          sqlStats.forEach(ps => {
+            let mid = ps.match_id + '_' + (ps.innings || 1); // Group by match and innings
+            if (!sqlMatchesMap[mid]) sqlMatchesMap[mid] = { batsmen: [], bowlers: [], batTeam: ps.team_name, bowlTeam: ps.opponent_team };
+            let m = sqlMatchesMap[mid];
+            
+            if (ps.runs > 0 || ps.balls_faced > 0 || ps.dismissal_type) {
+              m.batsmen.push({
+                name: ps.player_name, runs: ps.runs, balls: ps.balls_faced,
+                fours: ps.fours, sixes: ps.sixes, outDesc: ps.dismissal_type
+              });
+            }
+            if ((ps.overs_bowled && ps.overs_bowled !== '0' && ps.overs_bowled !== '0.0') || ps.catches > 0 || ps.run_outs > 0 || ps.stumpings > 0) {
+              m.bowlers.push({
+                name: ps.player_name, wickets: ps.wickets, runs: ps.runs_conceded,
+                overs: ps.overs_bowled, catches: ps.catches, run_outs: ps.run_outs, stumpings: ps.stumpings
+              });
+            }
+          });
+          Object.values(sqlMatchesMap).forEach(m => tournamentMatches.push(m));
+        }
+      } catch (e) { console.error("SQL fetch error:", e); }
 
       if (tournamentMatches.length === 0) {
         container.innerHTML = `<div class="td-empty-state"><div class="td-empty-text">No match data found for this tournament yet. Make sure matches are finished or live in the app.</div></div>`;
@@ -16848,6 +16872,102 @@
     async function finishMatch() {
       if (winShown) return;
       let res = getMatchResult();
+      
+      if (res.winner === "Match Tied") {
+        await Swal.fire({
+          title: 'Match Tied!',
+          text: 'Scores are level. Do you want to start a Super Over?',
+          icon: 'info',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, Start Super Over',
+          cancelButtonText: 'No, finish as Tie',
+          background: '#1e293b',
+          color: '#f8fafc',
+          customClass: { popup: 'swal-custom-dark', confirmButton: 'swal-btn-primary', cancelButton: 'swal-btn-secondary' }
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            const { value: formValues } = await Swal.fire({
+              title: 'Super Over Setup',
+              html:
+                '<div style="text-align:left; margin-bottom: 10px;"><label style="font-size:14px; font-weight:600; color:#9ca3af;">Number of Overs:</label><br>' +
+                '<select id="so-overs" style="width:100%; padding:10px; background:#334155; color:#f8fafc; border:1px solid #475569; border-radius:6px; margin-top:5px;">' +
+                '<option value="1" selected>1 Over</option>' +
+                '<option value="2">2 Overs</option>' +
+                '<option value="3">3 Overs</option>' +
+                '</select></div>' +
+                '<div style="text-align:left;"><label style="font-size:14px; font-weight:600; color:#9ca3af;">Batting First:</label><br>' +
+                '<select id="so-bat" style="width:100%; padding:10px; background:#334155; color:#f8fafc; border:1px solid #475569; border-radius:6px; margin-top:5px;">' +
+                `<option value="${matchBatTeam}">${matchBatTeam}</option>` +
+                `<option value="${matchBowlTeam}">${matchBowlTeam}</option>` +
+                '</select></div>',
+              focusConfirm: false,
+              background: '#1e293b',
+              color: '#f8fafc',
+              customClass: { popup: 'swal-custom-dark', confirmButton: 'swal-btn-primary' },
+              preConfirm: () => {
+                return {
+                  overs: document.getElementById('so-overs').value,
+                  bat: document.getElementById('so-bat').value
+                }
+              }
+            });
+            if (formValues) {
+               await processMatchFinish(res);
+               let bowlTeam = (formValues.bat === matchBatTeam) ? matchBowlTeam : matchBatTeam;
+               let tId = (currentViewingTournament ? currentViewingTournament.id : null);
+               let data = {
+                 tournament_id: tId,
+                 team1: formValues.bat,
+                 team2: bowlTeam,
+                 match_date: new Date().toISOString().split('T')[0],
+                 match_time: new Date().toTimeString().split(' ')[0].substring(0,5),
+                 status: 'upcoming'
+               };
+               try {
+                 let r = await fetch(API + "/tournament-matches", {
+                   method: "POST", headers: { "Content-Type": "application/json" },
+                   body: JSON.stringify(data)
+                 });
+                 let resultData = await r.json();
+                 if (resultData.id) {
+                    await fetch(API + "/tournament-matches/" + resultData.id, {
+                      method: "PATCH", headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ status: "live", toss_info: formValues.bat + " elected to bat (Super Over)" })
+                    });
+                    
+                    document.getElementById('mTitle').value = "Super Over";
+                    document.getElementById('mOvers').value = formValues.overs;
+                    document.getElementById('mBatTeam').value = formValues.bat;
+                    document.getElementById('mBowlTeam').value = bowlTeam;
+                    
+                    currentLiveMatchId = resultData.id;
+                    currentTournamentMatchIdx = resultData.id;
+                    
+                    Swal.fire({
+                      title: 'Super Over Ready!',
+                      text: 'Redirecting to Live Match...',
+                      icon: 'success',
+                      background: '#1e293b', color: '#f8fafc', timer: 2000, showConfirmButton: false
+                    }).then(() => {
+                      startMatch();
+                    });
+                 }
+               } catch (e) { console.error("Super over creation error", e); }
+               return;
+            } else {
+               await processMatchFinish(res);
+            }
+          } else {
+            await processMatchFinish(res);
+          }
+        });
+        return;
+      }
+      
+      await processMatchFinish(res);
+    }
+
+    async function processMatchFinish(res) {
       let winner = res.winner, loser = res.loser, margin = res.margin, finalResult = res.text;
       let inningsNum = innings;
       winShown = true;
