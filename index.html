@@ -4977,9 +4977,6 @@
           <button class="dots-menu-item nav-action"
             style="color:#374151; padding:12px 20px; font-size:15px; text-transform:none; text-align:left;"
             onclick="openOrganiserAdmin()">Organiser Admin</button>
-          <button class="dots-menu-item"
-            style="color:#ef4444; padding:12px 20px; font-size:15px; text-transform:none; text-align:left;"
-            onclick="deleteAccount()">Delete Account</button>
           <button class="dots-menu-item logout-item"
             style="color:#374151; padding:12px 20px; font-size:15px; text-transform:none; text-align:left;"
             onclick="logout()">Logout</button>
@@ -5943,7 +5940,7 @@
             <h2 id="authTitle">Welcome Back</h2>
       <div class="auth-field" id="nameField" style="display:none; margin-bottom: 8px;"><span class="field-icon">👤</span><input id="display_name" placeholder="Full Name (For Scorecard)" autocapitalize="words" autocorrect="off" spellcheck="false"></div>
       <div class="auth-field" style="margin-bottom: 8px;"><span class="field-icon">📱</span><input id="phone_number" type="tel" placeholder="10-digit Phone Number (Login ID)" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="10"></div>
-      <div class="auth-field" id="securityQuestionField" style="display:none; margin-bottom: 8px;"><span class="field-icon">🏫</span><input id="security_answer" placeholder="Security: First school name?" autocapitalize="words" autocorrect="off" spellcheck="false"></div>
+      <div class="auth-field" id="securityQuestionField" style="display:none; margin-bottom: 8px;"><span class="field-icon">🏫</span><input id="security_answer" placeholder="Security: First school name?" autocapitalize="words" autocorrect="off" spellcheck="false" style="text-transform: uppercase;"></div>
       <div class="auth-field" style="margin-bottom: 8px;"><span class="field-icon">🔒</span><input id="password" type="password" placeholder="Enter password" autocapitalize="none" autocorrect="off" spellcheck="false"></div>
       <div style="text-align:right; margin-bottom:16px;">
         <span onclick="openForgotPassword()"
@@ -13567,7 +13564,7 @@
     function authenticate() {
       let phone = document.getElementById('phone_number').value.trim();
       let dname = document.getElementById('display_name').value.trim();
-      let sa = document.getElementById('security_answer').value.trim();
+      let sa = document.getElementById('security_answer').value.trim().toUpperCase();
       let p = document.getElementById('password').value.trim();
       if (isLogin) {
         if (!phone || !p) return alert("Enter Phone Number & Password");
@@ -13630,6 +13627,10 @@
               document.getElementById("security_answer").value = "";
               document.getElementById("password").value = "";
               document.getElementById("password").focus();
+              let sqF = document.getElementById('securityQuestionField');
+              if (sqF) sqF.style.display = 'none';
+              let nmF = document.getElementById('nameField');
+              if (nmF) nmF.style.display = 'none';
               btn.innerText = "LOGIN";
               btn.disabled = false;
             }
