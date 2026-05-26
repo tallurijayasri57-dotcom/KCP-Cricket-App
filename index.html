@@ -16912,16 +16912,90 @@
           background: '#1e293b',
           color: '#f8fafc',
           customClass: { popup: 'swal-custom-dark', confirmButton: 'swal-btn-primary', cancelButton: 'swal-btn-secondary' }
-                 }
-               } catch (e) { console.error("Super over creation error", e); }
-               return;
-            } else {
-               await processMatchFinish(res);
-            }
-          } else {
-            await processMatchFinish(res);
-          }
         });
+
+        if (soOvers) {
+          const { value: soBatTeam } = await Swal.fire({
+            title: 'Batting Choice',
+            text: 'Which team will bat first?',
+            input: 'select',
+            inputOptions: {
+              [matchBatTeam]: matchBatTeam,
+              [matchBowlTeam]: matchBowlTeam
+            },
+            inputValue: matchBatTeam,
+            showCancelButton: true,
+            background: '#1e293b',
+            color: '#f8fafc',
+            customClass: { popup: 'swal-custom-dark', confirmButton: 'swal-btn-primary', cancelButton: 'swal-btn-secondary' }
+          });
+
+          if (soBatTeam) {
+             await processMatchFinish(res);
+             let bowlTeam = (soBatTeam === matchBatTeam) ? matchBowlTeam : matchBatTeam;
+             let tId = (currentViewingTournament ? currentViewingTournament.id : null);
+             let data = {
+               tournament_id: tId,
+               team1: soBatTeam,
+               team2: bowlTeam,
+               match_date: new Date().toISOString().split('T')[0],
+               match_time: new Date().toTimeString().split(' ')[0].substring(0,5),
+               status: 'upcoming'
+             };
+             try {
+               let r = await fetch(API + "/tournament-matches", {
+                 method: "POST", headers: { "Content-Type": "application/json" },
+                 body: JSON.stringify(data)
+               });
+               let resultData = await r.json();
+               if (resultData.id) {
+                  await fetch(API + "/tournament-matches/" + resultData.id, {
+                    method: "PATCH", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ status: "live", toss_info: soBatTeam + " elected to bat first (Super Over)" })
+                  });
+                  
+                  document.getElementById('mTitle').value = "Super Over";
+                  document.getElementById('mOvers').value = soOvers;
+                  document.getElementById('mBatTeam').value = soBatTeam;
+                  document.getElementById('mBowlTeam').value = bowlTeam;
+                  
+                  currentLiveMatchId = resultData.id;
+                  currentTournamentMatchIdx = resultData.id;
+                  
+                  Swal.fire({
+                    title: 'Super Over Ready!',
+                    text: 'Redirecting to Live Match...',
+                    icon: 'success',
+                    background: '#1e293b', color: '#f8fafc', timer: 2000, showConfirmButton: false
+                  }).then(() => {
+                    startMatch();
+                    
+                    // Add commentary announcement
+                    if (window.fbSetDoc && currentLiveMatchId) {
+                      let ref = window.fbDoc(window.fbDb, "live_matches", currentLiveMatchId.toString());
+                      window.fbUpdateDoc(ref, {
+                        commentary: window.fbArrayUnion({
+                          ball: "0.0",
+                          bowler: "-",
+                          batsman: "-",
+                          runs: 0,
+                          extras: 0,
+                          isWicket: false,
+                          text: soBatTeam + " elected to bat first (Super Over)",
+                          timestamp: Date.now()
+                        })
+                      }).catch(e => console.error("Commentary add error", e));
+                    }
+                  });
+               }
+             } catch (e) { console.error("Super over creation error", e); }
+             return;
+          } else {
+             await processMatchFinish(res);
+          }
+        } else {
+           await processMatchFinish(res);
+        }
         return;
       }
       
