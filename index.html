@@ -4821,12 +4821,13 @@
       image-rendering: high-quality;
     }
     .ticker-wrap {
-      position: fixed;
-      bottom: 15%;
-      left: 0;
-      transform: none;
-      width: 100vw;
+      position: absolute;
+      bottom: 120px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 400px;
       z-index: 99999;
+      pointer-events: none;
       background: transparent;
       border: none;
       padding: 10px 0;
@@ -4837,7 +4838,7 @@
       display: inline-block;
       white-space: nowrap;
       padding-left: 100%;
-      animation: tickerScroll 30s linear infinite;
+      animation: tickerScroll 12s linear infinite;
       font-size: 22px;
       font-weight: 700;
       color: #e2e8f0;
@@ -11115,7 +11116,7 @@
             <div style="color:#f8fafc; font-size:15px; font-weight:700; margin-bottom:4px;">${data.team || data.batTeam} needs ${data.target} runs</div>
             <div style="color:#94a3b8; font-size:13px; font-weight:500;">in ${data.overs} overs</div>
           </div>
-          <button class="event-done-btn" style="margin-top:25px;" onclick="closeEventPopup()">START 2ND INNINGS</button>
+          <button class="event-done-btn" style="margin-top:25px;" onclick="closeEventPopup()">START ${data.isSuperOver ? '4TH' : '2ND'} INNINGS</button>
         `;
       } else if (eventType === 'WINNER') {
         modal.style.background = 'radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, rgba(11, 15, 26, 0.9) 100%)';
@@ -16757,7 +16758,7 @@
     function updateScore() {
       scoreRuns.innerText = totalRuns; scoreWkts.innerText = totalWickets;
       overs.innerText = formatOvers(ballCount);
-      if (innings == 2 && target > 0 && totalRuns >= target && !winShown) {
+      if ((innings == 2 || innings == 4) && target > 0 && totalRuns >= target && !winShown) {
         winShown = true;
         let res = getMatchResult();
         let winner = res.winner, loser = res.loser, margin = res.margin, finalResult = res.text;
@@ -17315,7 +17316,7 @@
               icon: 'success',
               background: '#1e293b', color: '#f8fafc', timer: 2000, showConfirmButton: false
             }).then(() => {
-              showEventPopup('target', { target: 0, batTeam: matchBatTeam, overs: totalOvers, isSuperOver: true });
+              // showEventPopup removed for target: 0 in super over start
               if (window.fbSetDoc && currentLiveMatchId) {
                 let ref = window.fbDoc(window.fbDb, "live_matches", currentLiveMatchId.toString());
                 window.fbUpdateDoc(ref, {
