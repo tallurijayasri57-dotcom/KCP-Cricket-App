@@ -13280,29 +13280,34 @@
           }
         };
 
+        // For super over matches, winner is stored as 'Match Tied' and t1_name/t2_name hold team names
+        const isSuperOverMatch = finalSummary.t3_score != null || String(finalSummary.margin || '').toLowerCase().includes('super over');
+        const team1Name = finalSummary.t1_name || (isSuperOverMatch ? '' : finalSummary.winner);
+        const team2Name = finalSummary.t2_name || (isSuperOverMatch ? '' : finalSummary.loser);
+
         const inn1Fallback = innings1Data || (finalSummary.t1_score != null ? {
-          batTeam: finalSummary.winner,
+          batTeam: team1Name,
           runs: finalSummary.t1_score,
-          wickets: 0,
+          wickets: finalSummary.t1_wickets || 0,
           overs: finalSummary.t1_overs || '0.0',
           batsmen: [], bowlers: []
         } : null);
 
         const inn2Fallback = innings2Data || (finalSummary.t2_score != null ? {
-          batTeam: finalSummary.loser,
+          batTeam: team2Name,
           runs: finalSummary.t2_score,
-          wickets: 0,
+          wickets: finalSummary.t2_wickets || 0,
           overs: finalSummary.t2_overs || '0.0',
           batsmen: [], bowlers: []
         } : null);
 
         const inn3Fallback = innings3Data || (finalSummary.t3_score != null ? {
-          batTeam: finalSummary.t1_name, bowlTeam: finalSummary.t2_name,
+          batTeam: team1Name, bowlTeam: team2Name,
           runs: finalSummary.t3_score, wickets: finalSummary.t3_wickets, overs: finalSummary.t3_overs,
           batsmen: [], bowlers: []
         } : null);
         const inn4Fallback = innings4Data || (finalSummary.t4_score != null ? {
-          batTeam: (finalSummary.t2_name || finalSummary.loser), bowlTeam: finalSummary.t1_name,
+          batTeam: team2Name, bowlTeam: team1Name,
           runs: finalSummary.t4_score, wickets: finalSummary.t4_wickets, overs: finalSummary.t4_overs,
           batsmen: [], bowlers: []
         } : null);
@@ -13355,15 +13360,15 @@
           tournamentId: lookupTId,
           captain1: cap1,
           captain2: cap2,
-          batTeam: finalSummary.winner,
-          bowlTeam: finalSummary.loser,
+          batTeam: team1Name,
+          bowlTeam: team2Name,
           status: 'finished',
           seriesName: finalSummary.series_name || tournamentName || finalSummary.win_type || 'Tournament',
           totalOvers: calculatedTotalOvers,
           organiser: finalSummary ? finalSummary.organiser : '',
           matchDate: finalSummary ? formatDate(finalSummary.played_on) : '',
           ground: 'KCP CRICKET GROUND',
-          matchStatus: (finalSummary.margin && String(finalSummary.margin).includes('won')) ? finalSummary.margin : (finalSummary.winner + ' won by ' + finalSummary.margin),
+          matchStatus: isSuperOverMatch ? String(finalSummary.margin || 'Match Tied') : ((finalSummary.margin && String(finalSummary.margin).includes('won')) ? finalSummary.margin : (finalSummary.winner + ' won by ' + finalSummary.margin)),
           tossInfo: finalSummary.toss_info || '',
           winner: finalSummary.winner,
           loser: finalSummary.loser,
@@ -13373,10 +13378,10 @@
           innings2: inn2Fallback,
           innings3: inn3Fallback,
           innings4: inn4Fallback,
-          innings: innings4Data ? 4 : (innings3Data ? 3 : (innings2Data ? 2 : (innings1Data ? 1 : (finalSummary.t2_score != null ? 2 : 1)))),
-          runs: innings4Data ? innings4Data.runs : (innings3Data ? innings3Data.runs : (innings2Data ? innings2Data.runs : (innings1Data ? innings1Data.runs : (finalSummary.t2_score || finalSummary.t1_score || 0)))),
-          wickets: innings4Data ? innings4Data.wickets : (innings3Data ? innings3Data.wickets : (innings2Data ? innings2Data.wickets : (innings1Data ? innings1Data.wickets : 0))),
-          overs: innings4Data ? innings4Data.overs : (innings3Data ? innings3Data.overs : (innings2Data ? innings2Data.overs : (innings1Data ? innings1Data.overs : (finalSummary.t2_overs || finalSummary.t1_overs || '0.0')))),
+          innings: inn4Fallback ? 4 : (inn3Fallback ? 3 : (inn2Fallback ? 2 : (inn1Fallback ? 1 : (finalSummary.t2_score != null ? 2 : 1)))),
+          runs: inn4Fallback ? inn4Fallback.runs : (inn3Fallback ? inn3Fallback.runs : (inn2Fallback ? inn2Fallback.runs : (inn1Fallback ? inn1Fallback.runs : (finalSummary.t2_score || finalSummary.t1_score || 0)))),
+          wickets: inn4Fallback ? inn4Fallback.wickets : (inn3Fallback ? inn3Fallback.wickets : (inn2Fallback ? inn2Fallback.wickets : (inn1Fallback ? inn1Fallback.wickets : 0))),
+          overs: inn4Fallback ? inn4Fallback.overs : (inn3Fallback ? inn3Fallback.overs : (inn2Fallback ? inn2Fallback.overs : (inn1Fallback ? inn1Fallback.overs : (finalSummary.t2_overs || finalSummary.t1_overs || '0.0')))),
           commentary: (() => {
             try { return finalSummary.commentary ? JSON.parse(finalSummary.commentary) : []; }
             catch (err) { return []; }
