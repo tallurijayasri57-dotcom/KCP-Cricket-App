@@ -4798,10 +4798,10 @@
       <div class="sp-flip-container">
         <div class="sp-flipper">
           <div class="sp-front">
-            <img src="images/founder_splash.png" alt="KCP Founder">
+            <img id="spFounderImg" alt="KCP Founder">
           </div>
           <div class="sp-back">
-            <img src="images/sir.jpg" alt="Sir">
+            <img id="spSirImg" alt="Sir">
           </div>
         </div>
       </div>
@@ -4809,6 +4809,13 @@
   </div>
   <script>
     (function () {
+      let isDeep = window.location.pathname.includes("/scorecard/");
+      let pfx = isDeep ? "/" : "";
+      let founderImg = document.getElementById("spFounderImg");
+      let sirImg = document.getElementById("spSirImg");
+      if (founderImg) founderImg.src = pfx + "images/founder_splash.png";
+      if (sirImg) sirImg.src = pfx + "images/sir.jpg";
+
       function spRemoveBg(src, id) {
         var c = document.getElementById(id);
         if (!c) return;
@@ -4828,8 +4835,8 @@
           ctx.putImageData(new ImageData(d, c.width, c.height), 0, 0);
         };
       }
-      spRemoveBg('images/bat_hd.png', 'spBatCanvas');
-      spRemoveBg('images/ball_sharp.png', 'spBallCanvas');
+      spRemoveBg(pfx + 'images/bat_hd.png', 'spBatCanvas');
+      spRemoveBg(pfx + 'images/ball_sharp.png', 'spBallCanvas');
     })();
   </script>
 
