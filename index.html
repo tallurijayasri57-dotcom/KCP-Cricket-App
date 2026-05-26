@@ -11044,17 +11044,17 @@
       let isPremium = false;
 
       if (eventType === 'FOUR' || (eventType === 'BOUNDARY' && data.runs === 4)) {
-        mainText = '<div class="popup-image-wrapper"><img src="images/4.png" class="popup-image" alt="Four"></div>';
+        mainText = '<div class="popup-image-wrapper"><img src="/images/4.png" class="popup-image" alt="Four"></div>';
         themeClass = 'theme-four';
         confettiColors = ['#38bdf8', '#0284c7', '#e0f2fe', '#ffffff'];
         isPremium = true;
       } else if (eventType === 'SIX' || (eventType === 'BOUNDARY' && data.runs === 6)) {
-        mainText = '<div class="popup-image-wrapper"><img src="images/6 (2).png" class="popup-image" alt="Six"></div>';
+        mainText = '<div class="popup-image-wrapper"><img src="/images/6.png" class="popup-image" alt="Six"></div>';
         themeClass = 'theme-six';
         confettiColors = ['#fbbf24', '#f59e0b', '#fef3c7', '#ffffff'];
         isPremium = true;
       } else if (eventType === 'WICKET') {
-        mainText = '<div class="popup-image-wrapper"><img src="images/W.png" class="popup-image" alt="Wicket"></div>';
+        mainText = '<div class="popup-image-wrapper"><img src="/images/W.png" class="popup-image" alt="Wicket"></div>';
         themeClass = 'theme-wicket';
         confettiColors = ['#ef4444', '#dc2626', '#fee2e2', '#ffffff'];
         isPremium = true;
@@ -11078,16 +11078,22 @@
           <div class="crex-card">
             <div class="crex-main">${mainText}</div>
           </div>
-        </div>
-        ${tickerHtml}`;
+        </div>`;
         
         content.innerHTML = html;
+        
+        let oldTicker = modal.querySelector('.ticker-wrap');
+        if (oldTicker) oldTicker.remove();
+        modal.insertAdjacentHTML('beforeend', tickerHtml);
+        
         modal.classList.add('open');
         startConfetti(confettiColors, modal);
 
         setTimeout(() => {
           modal.classList.remove('open');
           stopConfetti(modal);
+          let tk = modal.querySelector('.ticker-wrap');
+          if (tk) tk.remove();
           modal.style.backdropFilter = 'none';
         }, 8000);
         return;
