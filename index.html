@@ -4778,6 +4778,97 @@
       height: 100%;
       object-fit: contain;
     }
+
+    /* KCP CREX Popup Styles */
+    .crex-card {
+      padding: 40px;
+      text-align: center;
+      position: relative;
+      transform: scale(0.5);
+      opacity: 0;
+      animation: crexPop 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    .crex-main {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 180px;
+      line-height: 1;
+      font-weight: 700;
+      color: #ffffff;
+      margin: 0;
+    }
+    .theme-four .crex-main, .theme-six .crex-main, .theme-wicket .crex-main { 
+      background: none;
+      -webkit-text-fill-color: initial;
+      -webkit-text-stroke: 0;
+      text-shadow: none;
+    }
+    .theme-six .popup-image { transform: scale(1.0); }
+    .theme-wicket .popup-image { transform: scale(1.1); }
+    .popup-image-wrapper {
+      width: 400px;
+      height: 400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .popup-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transform: scale(1.8);
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: high-quality;
+    }
+    .ticker-wrap {
+      position: absolute;
+      bottom: 22%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      background: transparent;
+      border: none;
+      padding: 10px 0;
+      overflow: hidden;
+      white-space: nowrap;
+      opacity: 0;
+      animation: fadeIn 0.5s ease forwards 0.3s;
+    }
+    .ticker-content {
+      display: inline-block;
+      white-space: nowrap;
+      padding-left: 100%;
+      animation: tickerScroll 30s linear infinite;
+      font-size: 22px;
+      font-weight: 700;
+      color: #e2e8f0;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+    }
+    .ticker-item { display: inline-flex; align-items: center; gap: 15px; margin-right: 50px; }
+    .ticker-icon { color: #fbbf24; }
+    .confetti {
+      position: absolute;
+      top: -20px;
+      width: 10px;
+      height: 20px;
+      border-radius: 2px;
+      animation: fall linear forwards;
+      z-index: 10000;
+    }
+    @keyframes crexPop {
+      0% { transform: scale(0.4) translateY(50px); opacity: 0; }
+      50% { transform: scale(1.05) translateY(0); opacity: 1; }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+    @keyframes tickerScroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
+    @keyframes fall {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(120vh) rotate(720deg); opacity: 0; }
+    }
   </style>
 
 </head>
@@ -5930,11 +6021,18 @@
         <h1>KCP CREX HUB</h1>
         <p>Scoring Management</p>
       </div>
-            <h2 id="authTitle">Welcome Back</h2>
-      <div class="auth-field" id="nameField" style="display:none; margin-bottom: 8px;"><span class="field-icon">👤</span><input id="display_name" placeholder="Full Name (For Scorecard)" autocapitalize="words" autocorrect="off" spellcheck="false"></div>
-      <div class="auth-field" style="margin-bottom: 8px;"><span class="field-icon">📱</span><input id="phone_number" type="tel" placeholder="10-digit Phone Number (Login ID)" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="10"></div>
-      <div class="auth-field" id="securityQuestionField" style="display:none; margin-bottom: 8px;"><span class="field-icon">🏫</span><input id="security_answer" placeholder="Security: First school name?" autocapitalize="words" autocorrect="off" spellcheck="false" style="text-transform: uppercase;"></div>
-      <div class="auth-field" style="margin-bottom: 8px;"><span class="field-icon">🔒</span><input id="password" type="password" placeholder="Enter password" autocapitalize="none" autocorrect="off" spellcheck="false"></div>
+      <h2 id="authTitle">Welcome Back</h2>
+      <div class="auth-field" id="nameField" style="display:none; margin-bottom: 8px;"><span
+          class="field-icon">👤</span><input id="display_name" placeholder="Full Name (For Scorecard)"
+          autocapitalize="words" autocorrect="off" spellcheck="false"></div>
+      <div class="auth-field" style="margin-bottom: 8px;"><span class="field-icon">📱</span><input id="phone_number"
+          type="tel" placeholder="10-digit Phone Number (Login ID)" autocapitalize="none" autocorrect="off"
+          spellcheck="false" maxlength="10"></div>
+      <div class="auth-field" id="securityQuestionField" style="display:none; margin-bottom: 8px;"><span
+          class="field-icon">🏫</span><input id="security_answer" placeholder="Security: First school name?"
+          autocapitalize="words" autocorrect="off" spellcheck="false" style="text-transform: uppercase;"></div>
+      <div class="auth-field" style="margin-bottom: 8px;"><span class="field-icon">🔒</span><input id="password"
+          type="password" placeholder="Enter password" autocapitalize="none" autocorrect="off" spellcheck="false"></div>
       <div style="text-align:right; margin-bottom:16px;">
         <span onclick="openForgotPassword()"
           style="font-family:'Inter',sans-serif; font-size:13px; color:#60a5fa; cursor:pointer; font-weight:500;">Forgot
@@ -5963,7 +6061,8 @@
       </div>
       <div style="margin-bottom:14px;">
         <label
-          style="color:rgba(255,255,255,0.6); font-size:12px; text-transform:uppercase; letter-spacing:0.5px;">Security Answer</label>
+          style="color:rgba(255,255,255,0.6); font-size:12px; text-transform:uppercase; letter-spacing:0.5px;">Security
+          Answer</label>
         <input id="fpSecurityAnswer" placeholder="What is your first school name?"
           style="width:100%; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15); border-radius:8px; padding:10px 12px; color:#fff; font-size:14px; outline:none; margin-top:6px; box-sizing:border-box;">
       </div>
@@ -6065,13 +6164,15 @@
           </label>
           <label
             style="display:flex; align-items:center; gap:12px; cursor:pointer; font-family:'Inter',sans-serif; font-size:14px; color:#1f2937;">
-            <input type="radio" name="deleteReason" value="Don't know the next steps" onchange="toggleDeleteReasonDesc()"
-              style="width:18px; height:18px; accent-color:#f97316;"> Don't know the next steps
+            <input type="radio" name="deleteReason" value="Don't know the next steps"
+              onchange="toggleDeleteReasonDesc()" style="width:18px; height:18px; accent-color:#f97316;"> Don't know the
+            next steps
           </label>
           <label
             style="display:flex; align-items:center; gap:12px; cursor:pointer; font-family:'Inter',sans-serif; font-size:14px; color:#1f2937;">
-            <input type="radio" name="deleteReason" value="Faced problems in adding details" onchange="toggleDeleteReasonDesc()"
-              style="width:18px; height:18px; accent-color:#f97316;"> Faced problems in adding details
+            <input type="radio" name="deleteReason" value="Faced problems in adding details"
+              onchange="toggleDeleteReasonDesc()" style="width:18px; height:18px; accent-color:#f97316;"> Faced problems
+            in adding details
           </label>
           <label
             style="display:flex; align-items:center; gap:12px; cursor:pointer; font-family:'Inter',sans-serif; font-size:14px; color:#1f2937;">
@@ -6122,18 +6223,21 @@
         <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px;">
           <label
             style="display:flex; align-items:center; gap:12px; cursor:pointer; font-family:'Inter',sans-serif; font-size:14px; color:#1f2937;">
-            <input type="radio" name="teamDeleteReason" value="Duplicate Team" onchange="handleTeamDeleteReasonChange(this)"
-              style="width:18px; height:18px; accent-color:#f97316;"> Duplicate Team
+            <input type="radio" name="teamDeleteReason" value="Duplicate Team"
+              onchange="handleTeamDeleteReasonChange(this)" style="width:18px; height:18px; accent-color:#f97316;">
+            Duplicate Team
           </label>
           <label
             style="display:flex; align-items:center; gap:12px; cursor:pointer; font-family:'Inter',sans-serif; font-size:14px; color:#1f2937;">
-            <input type="radio" name="teamDeleteReason" value="Wrong Tournament" onchange="handleTeamDeleteReasonChange(this)"
-              style="width:18px; height:18px; accent-color:#f97316;"> Wrong Tournament
+            <input type="radio" name="teamDeleteReason" value="Wrong Tournament"
+              onchange="handleTeamDeleteReasonChange(this)" style="width:18px; height:18px; accent-color:#f97316;">
+            Wrong Tournament
           </label>
           <label
             style="display:flex; align-items:center; gap:12px; cursor:pointer; font-family:'Inter',sans-serif; font-size:14px; color:#1f2937;">
-            <input type="radio" name="teamDeleteReason" value="Players not available" onchange="handleTeamDeleteReasonChange(this)"
-              style="width:18px; height:18px; accent-color:#f97316;"> Players not available
+            <input type="radio" name="teamDeleteReason" value="Players not available"
+              onchange="handleTeamDeleteReasonChange(this)" style="width:18px; height:18px; accent-color:#f97316;">
+            Players not available
           </label>
           <label
             style="display:flex; align-items:center; gap:12px; cursor:pointer; font-family:'Inter',sans-serif; font-size:14px; color:#1f2937;">
@@ -6157,7 +6261,9 @@
     <div
       style="width:20px; height:20px; background:#10b981; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px; font-weight:bold;">
       ✓</div>
-    <span id="deleteSuccessToastMsg" style="font-family:'Inter',sans-serif; font-size:14px; color:#4b5563; flex:1;">Tournament deleted successfully.</span>
+    <span id="deleteSuccessToastMsg"
+      style="font-family:'Inter',sans-serif; font-size:14px; color:#4b5563; flex:1;">Tournament deleted
+      successfully.</span>
     <span style="color:#9ca3af; cursor:pointer; font-size:18px; line-height:1;"
       onclick="document.getElementById('deleteSuccessToast').style.display='none'">×</span>
     <div id="deleteSuccessProgressBar"
@@ -8276,7 +8382,7 @@
     function showDeleteSuccessToast(msg) {
       let toast = document.getElementById('deleteSuccessToast');
       let msgEl = document.getElementById('deleteSuccessToastMsg');
-      if(msgEl && msg) msgEl.innerText = msg;
+      if (msgEl && msg) msgEl.innerText = msg;
       let bar = document.getElementById('deleteSuccessProgressBar');
       toast.style.display = 'flex';
       if (bar) {
@@ -8742,7 +8848,7 @@
       document.getElementById('addTeamPlayerRoleInput').value = '';
       document.getElementById('addTeamPlayerBattingStyleInput').value = '';
       document.getElementById('addTeamPlayerBowlingStyleInput').value = '';
-      
+
       renderEditTeamPlayersListFromSQL(currentAddPlayerTeamName);
       document.getElementById('addTeamPlayerModal').style.display = 'flex';
     }
@@ -8775,7 +8881,7 @@
         bowlStyle.disabled = true;
         bowlStyle.style.opacity = '0.5';
         bowlStyle.value = '';
-        
+
         batStyle.style.transform = 'scale(1.05)';
         batStyle.style.border = '2px solid #10b981';
         batStyle.style.borderRadius = '4px';
@@ -8785,7 +8891,7 @@
         batStyle.disabled = true;
         batStyle.style.opacity = '0.5';
         batStyle.value = '';
-        
+
         bowlStyle.style.transform = 'scale(1.05)';
         bowlStyle.style.border = '2px solid #10b981';
         bowlStyle.style.borderRadius = '4px';
@@ -8797,7 +8903,7 @@
         batStyle.style.borderRadius = '4px';
         batStyle.style.padding = '8px';
         batStyle.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.3)';
-        
+
         bowlStyle.style.transform = 'scale(1.05)';
         bowlStyle.style.border = '2px solid #10b981';
         bowlStyle.style.borderRadius = '4px';
@@ -9638,7 +9744,7 @@
       document.getElementById('addPlayerRoleInput').value = '';
       document.getElementById('addPlayerBattingStyleInput').value = '';
       document.getElementById('addPlayerBowlingStyleInput').value = '';
-      if(typeof handleAddPlayerRoleChange === 'function') handleAddPlayerRoleChange();
+      if (typeof handleAddPlayerRoleChange === 'function') handleAddPlayerRoleChange();
       document.getElementById('addPlayerModalOverlay').classList.add('open');
       setTimeout(() => document.getElementById('addPlayerNameInput').focus(), 100);
     }
@@ -9666,7 +9772,7 @@
         bowlStyle.disabled = true;
         bowlStyle.style.opacity = '0.5';
         bowlStyle.value = '';
-        
+
         batStyle.style.transform = 'scale(1.05)';
         batStyle.style.border = '2px solid #10b981';
         batStyle.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.3)';
@@ -9674,7 +9780,7 @@
         batStyle.disabled = true;
         batStyle.style.opacity = '0.5';
         batStyle.value = '';
-        
+
         bowlStyle.style.transform = 'scale(1.05)';
         bowlStyle.style.border = '2px solid #10b981';
         bowlStyle.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.3)';
@@ -9682,7 +9788,7 @@
         batStyle.style.transform = 'scale(1.05)';
         batStyle.style.border = '2px solid #10b981';
         batStyle.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.3)';
-        
+
         bowlStyle.style.transform = 'scale(1.05)';
         bowlStyle.style.border = '2px solid #10b981';
         bowlStyle.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.3)';
@@ -10860,6 +10966,62 @@
 
     let celebrationOldState = null;
 
+    let confettiInterval;
+    function startConfetti(colors, modal) {
+      stopConfetti(modal);
+      
+      let count = 0;
+      const maxConfetti = 80;
+
+      confettiInterval = setInterval(() => {
+        if (count > maxConfetti) {
+          clearInterval(confettiInterval);
+          return;
+        }
+
+        const confetti = document.createElement('div');
+        confetti.classList.add('confetti');
+        
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        const left = Math.random() * 100;
+        const width = Math.random() * 8 + 6;
+        const height = Math.random() * 12 + 10;
+        const duration = Math.random() * 2 + 2;
+        const delay = Math.random() * 0.5;
+
+        confetti.style.backgroundColor = color;
+        confetti.style.left = left + 'vw';
+        confetti.style.width = width + 'px';
+        confetti.style.height = height + 'px';
+        confetti.style.animationDuration = duration + 's';
+        confetti.style.animationDelay = delay + 's';
+        
+        if (Math.random() > 0.5) {
+          confetti.style.transform = 'rotateY(180deg)';
+        }
+
+        modal.appendChild(confetti);
+        
+        setTimeout(() => {
+          if (confetti.parentNode) {
+            confetti.parentNode.removeChild(confetti);
+          }
+        }, (duration + delay) * 1000);
+
+        count++;
+      }, 30);
+    }
+
+    function stopConfetti(modal) {
+      if (confettiInterval) {
+        clearInterval(confettiInterval);
+      }
+      if (modal) {
+        const particles = modal.querySelectorAll('.confetti');
+        particles.forEach(p => p.remove());
+      }
+    }
+
     function showEventPopup(type, data = {}) {
       const modal = document.getElementById('eventPopupModal');
       const content = document.getElementById('eventPopupContent');
@@ -10868,34 +11030,66 @@
       let html = '';
       const eventType = (type || "").toUpperCase();
 
+      // Dynamic Tournament Name
+      let tName = document.getElementById('mtTournamentName') ? document.getElementById('mtTournamentName').innerText.trim() : 'KCP CREX HUB TOURNAMENT';
+      if (!tName || tName === '') tName = 'KCP CREX HUB TOURNAMENT';
+
+      let mainText = '';
+      let themeClass = '';
+      let confettiColors = [];
+      let isPremium = false;
+
       if (eventType === 'FOUR' || (eventType === 'BOUNDARY' && data.runs === 4)) {
-        modal.style.background = 'radial-gradient(circle, rgba(15, 23, 42, 0.8) 0%, rgba(11, 15, 26, 0.98) 100%)';
-        html = `
-          <div class="premium-event-card four-card">
-            <div class="premium-event-title">FOUR</div>
-            <div class="premium-event-subtitle">4 Runs</div>
-          </div>
-        `;
-        setTimeout(closeEventPopup, 3000);
+        mainText = '<div class="popup-image-wrapper"><img src="images/4.png" class="popup-image" alt="Four"></div>';
+        themeClass = 'theme-four';
+        confettiColors = ['#38bdf8', '#0284c7', '#e0f2fe', '#ffffff'];
+        isPremium = true;
       } else if (eventType === 'SIX' || (eventType === 'BOUNDARY' && data.runs === 6)) {
-        modal.style.background = 'radial-gradient(circle, rgba(15, 23, 42, 0.8) 0%, rgba(11, 15, 26, 0.98) 100%)';
-        html = `
-          <div class="premium-event-card six-card">
-            <div class="premium-event-title">SIX</div>
-            <div class="premium-event-subtitle">6 Runs</div>
-          </div>
-        `;
-        setTimeout(closeEventPopup, 3000);
+        mainText = '<div class="popup-image-wrapper"><img src="images/6 (2).png" class="popup-image" alt="Six"></div>';
+        themeClass = 'theme-six';
+        confettiColors = ['#fbbf24', '#f59e0b', '#fef3c7', '#ffffff'];
+        isPremium = true;
       } else if (eventType === 'WICKET') {
-        modal.style.background = 'radial-gradient(circle, rgba(15, 23, 42, 0.8) 0%, rgba(11, 15, 26, 0.98) 100%)';
-        html = `
-          <div class="premium-event-card wicket-card">
-            <div class="premium-event-title">WICKET</div>
-            <div class="premium-event-subtitle">Out</div>
+        mainText = '<div class="popup-image-wrapper"><img src="images/W.png" class="popup-image" alt="Wicket"></div>';
+        themeClass = 'theme-wicket';
+        confettiColors = ['#ef4444', '#dc2626', '#fee2e2', '#ffffff'];
+        isPremium = true;
+      }
+
+      if (isPremium) {
+        modal.style.background = 'rgba(8, 11, 18, 0.92)';
+        modal.style.backdropFilter = 'blur(8px)';
+        const tickerHtml = `<div class="ticker-wrap">
+          <div class="ticker-content">
+            <span class="ticker-item"><span class="ticker-icon">🏏</span> ${tName}</span>
+            <span class="ticker-item"><span class="ticker-icon">⚡</span> ${tName}</span>
+            <span class="ticker-item"><span class="ticker-icon">🏆</span> ${tName}</span>
+            <span class="ticker-item"><span class="ticker-icon">🏏</span> ${tName}</span>
+            <span class="ticker-item"><span class="ticker-icon">⚡</span> ${tName}</span>
+            <span class="ticker-item"><span class="ticker-icon">🏆</span> ${tName}</span>
           </div>
-        `;
-        setTimeout(closeEventPopup, 3000);
-      } else if (eventType === 'TOSS') {
+        </div>`;
+
+        html = `<div class="${themeClass}" style="position: relative; z-index: 10;">
+          <div class="crex-card">
+            <div class="crex-main">${mainText}</div>
+          </div>
+        </div>
+        ${tickerHtml}`;
+        
+        content.innerHTML = html;
+        modal.classList.add('open');
+        startConfetti(confettiColors, modal);
+
+        setTimeout(() => {
+          modal.classList.remove('open');
+          stopConfetti(modal);
+          modal.style.backdropFilter = 'none';
+        }, 8000);
+        return;
+      }
+
+      if (eventType === 'TOSS') {
         modal.style.background = 'radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(11, 15, 26, 0.9) 100%)';
         html = `
           <div class="event-title">🪙 COIN TOSS</div>
@@ -11034,7 +11228,7 @@
             let t2 = m.innings2.batTeam;
             let t1Main = `${m.innings1.runs}/${m.innings1.wickets} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.innings1.overs})</span>`;
             let t2Main = `${m.innings2.runs}/${m.innings2.wickets} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.innings2.overs})</span>`;
-            
+
             let t1So = m.innings3 && m.innings3.batTeam === t1 ? `${m.innings3.runs}/${m.innings3.wickets} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.innings3.overs})</span>` : (m.innings4 && m.innings4.batTeam === t1 ? `${m.innings4.runs}/${m.innings4.wickets} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.innings4.overs})</span>` : `0/0 <span style="font-size:12px; font-weight:500; opacity:0.7">(0.0)</span>`);
             let t2So = m.innings3 && m.innings3.batTeam === t2 ? `${m.innings3.runs}/${m.innings3.wickets} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.innings3.overs})</span>` : (m.innings4 && m.innings4.batTeam === t2 ? `${m.innings4.runs}/${m.innings4.wickets} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.innings4.overs})</span>` : `0/0 <span style="font-size:12px; font-weight:500; opacity:0.7">(0.0)</span>`);
 
@@ -11050,21 +11244,21 @@
             `;
           }
         } else if (!isFinished && (m.innings === 3 || m.innings === 4)) {
-            // Super Over Live - Show combined header
-            let t1 = m.innings1.batTeam;
-            let t2 = m.innings2.batTeam;
-            let t1Main = `${m.innings1.runs}/${m.innings1.wickets} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.innings1.overs})</span>`;
-            let t2Main = `${m.innings2.runs}/${m.innings2.wickets} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.innings2.overs})</span>`;
-            
-            let currentSoScore = `${m.runs || 0}/${m.wickets || 0} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.overs || '0.0'})</span>`;
-            
-            let t1So = m.innings === 3 && m.batTeam === t1 ? currentSoScore : (m.innings === 4 && m.batTeam === t1 ? currentSoScore : (m.innings4 && m.innings4.batTeam === t1 ? `${m.innings4.runs}/${m.innings4.wickets} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.innings4.overs})</span>` : (m.innings3 && m.innings3.batTeam === t1 ? `${m.innings3.runs}/${m.innings3.wickets} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.innings3.overs})</span>` : `0/0 <span style="font-size:12px; font-weight:500; opacity:0.7">(0.0)</span>`)));
-            
-            let t2So = m.innings === 3 && m.batTeam === t2 ? currentSoScore : (m.innings === 4 && m.batTeam === t2 ? currentSoScore : (m.innings4 && m.innings4.batTeam === t2 ? `${m.innings4.runs}/${m.innings4.wickets} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.innings4.overs})</span>` : (m.innings3 && m.innings3.batTeam === t2 ? `${m.innings3.runs}/${m.innings3.wickets} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.innings3.overs})</span>` : `0/0 <span style="font-size:12px; font-weight:500; opacity:0.7">(0.0)</span>`)));
+          // Super Over Live - Show combined header
+          let t1 = m.innings1.batTeam;
+          let t2 = m.innings2.batTeam;
+          let t1Main = `${m.innings1.runs}/${m.innings1.wickets} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.innings1.overs})</span>`;
+          let t2Main = `${m.innings2.runs}/${m.innings2.wickets} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.innings2.overs})</span>`;
 
-            batTeamHtml = `<div style="font-size:16px; font-weight:900; color:#f8fafc; text-transform:uppercase; display:flex; justify-content:space-between; align-items:center;"><span>${t1}</span><span>${t1Main} &amp; ${t1So} ${m.batTeam === t1 ? '<span class="live-pulse-dot" style="margin-left:6px;"></span>' : ''}</span></div>`;
-            bowlTeamHtml = `<div style="font-size:16px; font-weight:600; color:rgba(255,255,255,0.5); text-transform:uppercase; margin-top:6px; display:flex; justify-content:space-between; align-items:center;"><span>${t2}</span><span>${t2Main} &amp; ${t2So} ${m.batTeam === t2 ? '<span class="live-pulse-dot" style="margin-left:6px;"></span>' : ''}</span></div>`;
-            scoreDisplay = ``;
+          let currentSoScore = `${m.runs || 0}/${m.wickets || 0} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.overs || '0.0'})</span>`;
+
+          let t1So = m.innings === 3 && m.batTeam === t1 ? currentSoScore : (m.innings === 4 && m.batTeam === t1 ? currentSoScore : (m.innings4 && m.innings4.batTeam === t1 ? `${m.innings4.runs}/${m.innings4.wickets} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.innings4.overs})</span>` : (m.innings3 && m.innings3.batTeam === t1 ? `${m.innings3.runs}/${m.innings3.wickets} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.innings3.overs})</span>` : `0/0 <span style="font-size:12px; font-weight:500; opacity:0.7">(0.0)</span>`)));
+
+          let t2So = m.innings === 3 && m.batTeam === t2 ? currentSoScore : (m.innings === 4 && m.batTeam === t2 ? currentSoScore : (m.innings4 && m.innings4.batTeam === t2 ? `${m.innings4.runs}/${m.innings4.wickets} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.innings4.overs})</span>` : (m.innings3 && m.innings3.batTeam === t2 ? `${m.innings3.runs}/${m.innings3.wickets} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.innings3.overs})</span>` : `0/0 <span style="font-size:12px; font-weight:500; opacity:0.7">(0.0)</span>`)));
+
+          batTeamHtml = `<div style="font-size:16px; font-weight:900; color:#f8fafc; text-transform:uppercase; display:flex; justify-content:space-between; align-items:center;"><span>${t1}</span><span>${t1Main} &amp; ${t1So} ${m.batTeam === t1 ? '<span class="live-pulse-dot" style="margin-left:6px;"></span>' : ''}</span></div>`;
+          bowlTeamHtml = `<div style="font-size:16px; font-weight:600; color:rgba(255,255,255,0.5); text-transform:uppercase; margin-top:6px; display:flex; justify-content:space-between; align-items:center;"><span>${t2}</span><span>${t2Main} &amp; ${t2So} ${m.batTeam === t2 ? '<span class="live-pulse-dot" style="margin-left:6px;"></span>' : ''}</span></div>`;
+          scoreDisplay = ``;
         }
 
         let headerHtml = `
@@ -12035,7 +12229,7 @@
           const roleInfo = playerRoleMap[key] || {};
           players.push({
             player_name: name,
-            role: roleInfo.role || (m.batsmen && m.batsmen.find(b=>b.name===name) ? 'Batsman' : (m.bowlers && m.bowlers.find(b=>b.name===name) ? 'Bowler' : 'Player')),
+            role: roleInfo.role || (m.batsmen && m.batsmen.find(b => b.name === name) ? 'Batsman' : (m.bowlers && m.bowlers.find(b => b.name === name) ? 'Bowler' : 'Player')),
             batting_style: roleInfo.batting_style || '',
             bowling_style: roleInfo.bowling_style || '',
             photo_url: roleInfo.photo_url || ''
@@ -13078,7 +13272,7 @@
           overs: finalSummary.t2_overs || '0.0',
           batsmen: [], bowlers: []
         } : null);
-        
+
         const inn3Fallback = innings3Data || null;
         const inn4Fallback = innings4Data || null;
 
@@ -13618,19 +13812,19 @@
         let pts = p.runs / 10;
         pts += (p.fours * 0.012) + (p.sixes * 0.016);
         if (p.balls >= 10) {
-            if (sr >= 200) pts += 0.05;
-            else if (sr >= 150) pts += 0.03;
-            else if (sr < 100) pts -= 0.05;
+          if (sr >= 200) pts += 0.05;
+          else if (sr >= 150) pts += 0.03;
+          else if (sr < 100) pts -= 0.05;
         }
         if (p.runs === 0 && p.balls > 0) pts -= 0.15;
         pts += p.wickets * 1.33;
         pts += p.maidens * 0.25;
         if (p.bBalls >= 12) {
-            if (eco <= 4) pts += 0.05;
-            else if (eco <= 5) pts += 0.03;
-            else if (eco <= 6) pts += 0.01;
-            else if (eco >= 10) pts -= 0.03;
-            else if (eco >= 12) pts -= 0.05;
+          if (eco <= 4) pts += 0.05;
+          else if (eco <= 5) pts += 0.03;
+          else if (eco <= 6) pts += 0.01;
+          else if (eco >= 10) pts -= 0.03;
+          else if (eco >= 12) pts -= 0.05;
         }
         pts += p.catches * 0.25;
         pts += p.run_outs * 0.25;
@@ -14604,7 +14798,7 @@
             let mid = ps.match_id + '_' + (ps.innings || 1); // Group by match and innings
             if (!sqlMatchesMap[mid]) sqlMatchesMap[mid] = { batsmen: [], bowlers: [], batTeam: ps.team_name, bowlTeam: ps.opponent_team };
             let m = sqlMatchesMap[mid];
-            
+
             if (ps.runs > 0 || ps.balls_faced > 0 || ps.dismissal_type) {
               m.batsmen.push({
                 name: ps.player_name, runs: ps.runs, balls: ps.balls_faced,
@@ -15064,7 +15258,7 @@
     async function updateAllPlayerStatsAfterMatch(inningsNum) {
       const today = new Date().toISOString().split("T")[0];
       let playersToSync = new Set();
-      
+
       const pushInningsStats = async (batStats, bowlStats, batTeam, bowlTeam, innIndex) => {
         if (!batStats || Object.keys(batStats).length === 0) return;
         const sortedBatKeys = Object.keys(batStats).sort((a, b) => {
@@ -15117,7 +15311,7 @@
       if (inningsNum >= 2) await pushInningsStats(innings1BatStats, innings1BowlStats, innings1BatTeam, innings1BowlTeam, 1);
       if (inningsNum >= 3) await pushInningsStats(innings2BatStats, innings2BowlStats, innings2BatTeam, innings2BowlTeam, 2);
       if (inningsNum >= 4) await pushInningsStats(innings3BatStats, innings3BowlStats, innings3BatTeam, innings3BowlTeam, 3);
-      
+
       await pushInningsStats(batsmanStats, bowlerStats, matchBatTeam, matchBowlTeam, inningsNum);
 
       playersToSync.forEach(p => {
@@ -15391,7 +15585,7 @@
           margin = (parseInt(target) - 1 - parseInt(totalRuns)) + " runs";
         }
       }
-      
+
       let text = winner === "Match Tied" ? "Match Tied" : `${winner} won by ${margin}`;
       if (innings >= 4) {
         text = `Match Tied (${winner === "Match Tied" ? 'Super Over Tied' : winner + ' won the super over'})`;
@@ -16975,7 +17169,7 @@
     async function finishMatch() {
       if (winShown) return;
       let res = getMatchResult();
-      
+
       if (res.winner === "Match Tied") {
         await Swal.fire({
           title: 'Match Tied',
@@ -17028,75 +17222,75 @@
           });
 
           if (soBatTeam) {
-             let bowlTeam = (soBatTeam === matchBatTeam) ? matchBowlTeam : matchBatTeam;
-             
-             // Save innings 2 stats
-             innings2BatStats = JSON.parse(JSON.stringify(batsmanStats));
-             innings2BowlStats = JSON.parse(JSON.stringify(bowlerStats));
-             innings2Runs = totalRuns;
-             innings2Balls = ballCount;
-             innings2Wickets = totalWickets;
-             innings2BatTeam = matchBatTeam;
-             innings2BowlTeam = matchBowlTeam;
+            let bowlTeam = (soBatTeam === matchBatTeam) ? matchBowlTeam : matchBatTeam;
 
-             // Prepare for Innings 3
-             target = 0;
-             targetBox.innerText = "Target: -";
-             totalRuns = 0; totalWickets = 0; ballCount = 0; balls.innerHTML = "";
-             winShown = false; outBatsmen = []; extrasByes = 0; ballSnapshots = [];
-             
-             matchBatTeam = soBatTeam;
-             matchBowlTeam = bowlTeam;
-             
-             if (matchBatTeam !== innings2BatTeam) {
-               [batPlayers, bowlPlayers] = [bowlPlayers, batPlayers];
-               [batPlayerRoles, bowlPlayerRoles] = [bowlPlayerRoles, batPlayerRoles];
-             }
+            // Save innings 2 stats
+            innings2BatStats = JSON.parse(JSON.stringify(batsmanStats));
+            innings2BowlStats = JSON.parse(JSON.stringify(bowlerStats));
+            innings2Runs = totalRuns;
+            innings2Balls = ballCount;
+            innings2Wickets = totalWickets;
+            innings2BatTeam = matchBatTeam;
+            innings2BowlTeam = matchBowlTeam;
 
-             innings = 3; extrasWides = 0; extrasNoBalls = 0; batsmanStats = {}; bowlerStats = {};
-             updateExtras(); loadScorePlayers();
-             
-             totalOvers = parseInt(soOvers) || 1;
-             document.getElementById("oversInfoText").innerText = totalOvers + " overs (Super Over) • Target: -";
-             
-             matchTossText = soBatTeam + " elected to bat (Super Over)";
-             updateLiveScore();
-             
-             // Optionally update toss info in tournament matches table
-             if (currentTournamentMatchIdx) {
-               fetch(API + "/tournament-matches/" + currentTournamentMatchIdx, {
-                 method: "PATCH", headers: { "Content-Type": "application/json" },
-                 body: JSON.stringify({ status: "live", toss_info: matchTossText })
-               }).catch(e => console.error(e));
-             }
+            // Prepare for Innings 3
+            target = 0;
+            targetBox.innerText = "Target: -";
+            totalRuns = 0; totalWickets = 0; ballCount = 0; balls.innerHTML = "";
+            winShown = false; outBatsmen = []; extrasByes = 0; ballSnapshots = [];
 
-             Swal.fire({
-               title: 'Super Over Ready!',
-               text: 'The Super Over is starting now!',
-               icon: 'success',
-               background: '#1e293b', color: '#f8fafc', timer: 2000, showConfirmButton: false
-             }).then(() => {
-                showEventPopup('target', { target: 0, batTeam: matchBatTeam, overs: totalOvers, isSuperOver: true });
-                if (window.fbSetDoc && currentLiveMatchId) {
-                  let ref = window.fbDoc(window.fbDb, "live_matches", currentLiveMatchId.toString());
-                  window.fbUpdateDoc(ref, {
-                    commentary: window.fbArrayUnion({
-                      ball: "0.0", bowler: "-", batsman: "-", runs: 0, extras: 0, isWicket: false,
-                      text: matchTossText, timestamp: Date.now()
-                    })
-                  }).catch(e => console.error("Commentary add error", e));
-                }
-             });
-             return;
+            matchBatTeam = soBatTeam;
+            matchBowlTeam = bowlTeam;
+
+            if (matchBatTeam !== innings2BatTeam) {
+              [batPlayers, bowlPlayers] = [bowlPlayers, batPlayers];
+              [batPlayerRoles, bowlPlayerRoles] = [bowlPlayerRoles, batPlayerRoles];
+            }
+
+            innings = 3; extrasWides = 0; extrasNoBalls = 0; batsmanStats = {}; bowlerStats = {};
+            updateExtras(); loadScorePlayers();
+
+            totalOvers = parseInt(soOvers) || 1;
+            document.getElementById("oversInfoText").innerText = totalOvers + " overs (Super Over) • Target: -";
+
+            matchTossText = soBatTeam + " elected to bat (Super Over)";
+            updateLiveScore();
+
+            // Optionally update toss info in tournament matches table
+            if (currentTournamentMatchIdx) {
+              fetch(API + "/tournament-matches/" + currentTournamentMatchIdx, {
+                method: "PATCH", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: "live", toss_info: matchTossText })
+              }).catch(e => console.error(e));
+            }
+
+            Swal.fire({
+              title: 'Super Over Ready!',
+              text: 'The Super Over is starting now!',
+              icon: 'success',
+              background: '#1e293b', color: '#f8fafc', timer: 2000, showConfirmButton: false
+            }).then(() => {
+              showEventPopup('target', { target: 0, batTeam: matchBatTeam, overs: totalOvers, isSuperOver: true });
+              if (window.fbSetDoc && currentLiveMatchId) {
+                let ref = window.fbDoc(window.fbDb, "live_matches", currentLiveMatchId.toString());
+                window.fbUpdateDoc(ref, {
+                  commentary: window.fbArrayUnion({
+                    ball: "0.0", bowler: "-", batsman: "-", runs: 0, extras: 0, isWicket: false,
+                    text: matchTossText, timestamp: Date.now()
+                  })
+                }).catch(e => console.error("Commentary add error", e));
+              }
+            });
+            return;
           } else {
-             await processMatchFinish(res);
+            await processMatchFinish(res);
           }
         } else {
-           await processMatchFinish(res);
+          await processMatchFinish(res);
         }
         return;
       }
-      
+
       await processMatchFinish(res);
     }
 
@@ -17143,19 +17337,19 @@
         let pts = p.runs / 10;
         pts += (p.fours * 0.012) + (p.sixes * 0.016);
         if (p.balls >= 10) {
-            if (sr >= 200) pts += 0.05;
-            else if (sr >= 150) pts += 0.03;
-            else if (sr < 100) pts -= 0.05;
+          if (sr >= 200) pts += 0.05;
+          else if (sr >= 150) pts += 0.03;
+          else if (sr < 100) pts -= 0.05;
         }
         if (p.runs === 0 && p.balls > 0) pts -= 0.15;
         pts += p.wickets * 1.33;
         pts += p.maidens * 0.25;
         if (p.bBalls >= 12) {
-            if (eco <= 4) pts += 0.05;
-            else if (eco <= 5) pts += 0.03;
-            else if (eco <= 6) pts += 0.01;
-            else if (eco >= 10) pts -= 0.03;
-            else if (eco >= 12) pts -= 0.05;
+          if (eco <= 4) pts += 0.05;
+          else if (eco <= 5) pts += 0.03;
+          else if (eco <= 6) pts += 0.01;
+          else if (eco >= 10) pts -= 0.03;
+          else if (eco >= 12) pts -= 0.05;
         }
         pts += p.catches * 0.25;
         pts += p.run_outs * 0.25;
@@ -17553,28 +17747,28 @@
       if (splash) {
         setTimeout(() => {
           splash.style.display = 'none';
-          
+
           let storedUser = localStorage.getItem("currentUser");
           let lastPage = localStorage.getItem("lastPage");
-          
+
           if (storedUser && sessionStorage.getItem("isLoggedInThisSession") === "true") {
             isLogin = false; // Bypass login
-            
+
             let nav = document.getElementById('nav');
             if (nav) nav.style.display = 'flex';
-            
+
             let userNameEl = document.getElementById('dotsMenuUsername');
-            if(userNameEl) userNameEl.innerText = storedUser;
-            
+            if (userNameEl) userNameEl.innerText = storedUser;
+
             let navPic = document.getElementById('navProfilePic');
             let savedPhoto = localStorage.getItem('userPhoto_' + storedUser);
             if (savedPhoto && navPic) navPic.src = savedPhoto;
-            
+
             let storedTournamentId = localStorage.getItem("currentTournamentId");
             if (storedTournamentId) {
               currentTournamentId = parseInt(storedTournamentId) || storedTournamentId;
             }
-            
+
             if (lastPage && document.getElementById(lastPage)) {
               showPage(lastPage);
               if (lastPage === 'tournamentTeamsPage' && typeof renderTeamsList === 'function') renderTeamsList();
@@ -17791,7 +17985,8 @@
       <div class="add-player-modal-label">Player Name</div>
       <input class="add-player-modal-input" id="addPlayerNameInput" placeholder="Enter player name"
         style="margin-bottom:16px;">
-      <select class="add-player-modal-select" id="addPlayerRoleInput" style="margin-bottom:16px;" onchange="handleAddPlayerRoleChange()">
+      <select class="add-player-modal-select" id="addPlayerRoleInput" style="margin-bottom:16px;"
+        onchange="handleAddPlayerRoleChange()">
         <option value="">-- Select Role --</option>
         <option value="Batsman">🏏 Batsman</option>
         <option value="Bowler">🎳 Bowler</option>
@@ -18443,48 +18638,79 @@
     });
   </script>
 
-  <div id="orgTournamentDashboardPage" class="page" style="display:none; padding:0; flex-direction:column; background:transparent; min-height:100vh;">
+  <div id="orgTournamentDashboardPage" class="page"
+    style="display:none; padding:0; flex-direction:column; background:transparent; min-height:100vh;">
     <!-- Professional Top banner (Solid Dark Blue) -->
     <div style="background:#0f172a; border-bottom:1px solid rgba(255,255,255,0.05); padding:20px 40px;">
-      <div style="display:flex; align-items:center; cursor:pointer; color:#94a3b8; font-family:Inter,sans-serif; margin-bottom:15px; font-weight:500; width:fit-content; transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#94a3b8'" onclick="globalGoBack()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right:5px;"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg> Back
+      <div
+        style="display:flex; align-items:center; cursor:pointer; color:#94a3b8; font-family:Inter,sans-serif; margin-bottom:15px; font-weight:500; width:fit-content; transition:color 0.2s;"
+        onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#94a3b8'" onclick="globalGoBack()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right:5px;">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+        </svg> Back
       </div>
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px;">
         <div style="display:flex; align-items:center; gap:20px;">
-          <img id="otdLogo" src="images/default_logo.png" alt="Tournament Logo" style="width:80px; height:80px; border-radius:12px; object-fit:contain; background:#fff; border:2px solid rgba(255,255,255,0.1); box-shadow:0 4px 12px rgba(0,0,0,0.5);">
+          <img id="otdLogo" src="images/default_logo.png" alt="Tournament Logo"
+            style="width:80px; height:80px; border-radius:12px; object-fit:contain; background:#fff; border:2px solid rgba(255,255,255,0.1); box-shadow:0 4px 12px rgba(0,0,0,0.5);">
           <div>
-            <h2 id="otdTitle" style="color:#fff; margin:0 0 8px 0; font-family:'Inter',sans-serif; font-size:28px; font-weight:800; letter-spacing:0.5px;">Tournament</h2>
-            <div style="color:#cbd5e1; font-family:Inter,sans-serif; font-size:14px; margin-bottom:4px; display:flex; align-items:center; gap:6px;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            <h2 id="otdTitle"
+              style="color:#fff; margin:0 0 8px 0; font-family:'Inter',sans-serif; font-size:28px; font-weight:800; letter-spacing:0.5px;">
+              Tournament</h2>
+            <div
+              style="color:#cbd5e1; font-family:Inter,sans-serif; font-size:14px; margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+              </svg>
               <span id="otdLocation">Location not specified</span>
             </div>
-            <div style="color:#94a3b8; font-family:Inter,sans-serif; font-size:13px; display:flex; align-items:center; gap:6px;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zm-8 4H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z"/></svg>
+            <div
+              style="color:#94a3b8; font-family:Inter,sans-serif; font-size:13px; display:flex; align-items:center; gap:6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zm-8 4H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z" />
+              </svg>
               <span id="otdDates">Dates not specified</span>
             </div>
           </div>
         </div>
         <div style="display:flex; gap:15px;">
-          <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); padding:15px 25px; border-radius:12px; text-align:center; min-width:110px; box-shadow:0 4px 6px rgba(0,0,0,0.2);">
-            <div id="otdTotalMatches" style="color:#fff; font-size:26px; font-weight:800; font-family:Inter,sans-serif;">0</div>
-            <div style="color:#94a3b8; font-size:12px; font-family:Inter,sans-serif; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-top:4px;">Total Matches</div>
+          <div
+            style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); padding:15px 25px; border-radius:12px; text-align:center; min-width:110px; box-shadow:0 4px 6px rgba(0,0,0,0.2);">
+            <div id="otdTotalMatches"
+              style="color:#fff; font-size:26px; font-weight:800; font-family:Inter,sans-serif;">0</div>
+            <div
+              style="color:#94a3b8; font-size:12px; font-family:Inter,sans-serif; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-top:4px;">
+              Total Matches</div>
           </div>
-          <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); padding:15px 25px; border-radius:12px; text-align:center; min-width:110px; box-shadow:0 4px 6px rgba(0,0,0,0.2);">
-            <div id="otdTotalTeams" style="color:#fff; font-size:26px; font-weight:800; font-family:Inter,sans-serif;">0</div>
-            <div style="color:#94a3b8; font-size:12px; font-family:Inter,sans-serif; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-top:4px;">Total Teams</div>
+          <div
+            style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); padding:15px 25px; border-radius:12px; text-align:center; min-width:110px; box-shadow:0 4px 6px rgba(0,0,0,0.2);">
+            <div id="otdTotalTeams" style="color:#fff; font-size:26px; font-weight:800; font-family:Inter,sans-serif;">0
+            </div>
+            <div
+              style="color:#94a3b8; font-size:12px; font-family:Inter,sans-serif; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-top:4px;">
+              Total Teams</div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Main Content Wrapper -->
-    <div style="max-width:1400px; margin:0 auto; padding:0 40px; width:100%; display:flex; flex-direction:column; flex:1; box-sizing:border-box;">
-      
+    <div
+      style="max-width:1400px; margin:0 auto; padding:0 40px; width:100%; display:flex; flex-direction:column; flex:1; box-sizing:border-box;">
+
       <!-- Left Aligned Tabs -->
       <div style="display:flex; border-bottom:1px solid rgba(255,255,255,0.08); padding:0; gap:30px; margin-top:10px;">
-        <div id="otd-tab-btn-matches" onclick="switchOtdTab('matches')" style="padding:15px 5px; color:#2dd4bf; border-bottom:2px solid #2dd4bf; cursor:pointer; font-weight:600; font-family:Inter,sans-serif; font-size:15px; transition:all 0.2s;">Matches</div>
-        <div id="otd-tab-btn-teams" onclick="switchOtdTab('teams')" style="padding:15px 5px; color:#94a3b8; border-bottom:2px solid transparent; cursor:pointer; font-weight:600; font-family:Inter,sans-serif; font-size:15px; transition:all 0.2s;">Teams</div>
-        <div id="otd-tab-btn-gallery" onclick="switchOtdTab('gallery')" style="padding:15px 5px; color:#94a3b8; border-bottom:2px solid transparent; cursor:pointer; font-weight:600; font-family:Inter,sans-serif; font-size:15px; transition:all 0.2s;">Gallery</div>
+        <div id="otd-tab-btn-matches" onclick="switchOtdTab('matches')"
+          style="padding:15px 5px; color:#2dd4bf; border-bottom:2px solid #2dd4bf; cursor:pointer; font-weight:600; font-family:Inter,sans-serif; font-size:15px; transition:all 0.2s;">
+          Matches</div>
+        <div id="otd-tab-btn-teams" onclick="switchOtdTab('teams')"
+          style="padding:15px 5px; color:#94a3b8; border-bottom:2px solid transparent; cursor:pointer; font-weight:600; font-family:Inter,sans-serif; font-size:15px; transition:all 0.2s;">
+          Teams</div>
+        <div id="otd-tab-btn-gallery" onclick="switchOtdTab('gallery')"
+          style="padding:15px 5px; color:#94a3b8; border-bottom:2px solid transparent; cursor:pointer; font-weight:600; font-family:Inter,sans-serif; font-size:15px; transition:all 0.2s;">
+          Gallery</div>
       </div>
 
       <!-- Content Area -->
@@ -18501,36 +18727,36 @@
 
     function openOrgTournamentDashboard(tId) {
       currentOtdTournamentId = tId;
-      
+
       const t = tournaments.find(x => x.id === tId);
-      if(!t) {
+      if (!t) {
         alert("Tournament details not found.");
         return;
       }
 
       document.getElementById('otdTitle').innerText = t.name;
-      
+
       let formatDt = (d) => {
-        if(!d) return '';
+        if (!d) return '';
         let dt = new Date(d);
-        if(isNaN(dt)) return d;
+        if (isNaN(dt)) return d;
         let day = dt.getDate().toString().padStart(2, '0');
         let month = dt.toLocaleString('en-US', { month: 'short' });
         let year = dt.getFullYear().toString().substr(-2);
         return `${day}-${month}-${year}`;
       };
-      
+
       let datesStr = formatDt(t.startDate);
-      if(t.endDate) datesStr += ' to ' + formatDt(t.endDate);
+      if (t.endDate) datesStr += ' to ' + formatDt(t.endDate);
       document.getElementById('otdDates').innerText = datesStr || 'Dates not specified';
-      
+
       let locStr = [t.city, t.ground].filter(Boolean).join(' - ');
       document.getElementById('otdLocation').innerText = locStr || 'Location not specified';
-      
+
       const logoEl = document.getElementById('otdLogo');
       logoEl.src = t.logo || 'images/default_logo.png';
       logoEl.onerror = () => { logoEl.src = 'images/default_logo.png'; };
-      
+
       document.getElementById('otdTotalMatches').innerText = '0';
       document.getElementById('otdTotalTeams').innerText = '0';
 
@@ -18542,27 +18768,27 @@
       ['teams', 'matches', 'gallery'].forEach(t => {
         document.getElementById('otd-tab-' + t).style.display = 'none';
         let btn = document.getElementById('otd-tab-btn-' + t);
-        if(btn) {
+        if (btn) {
           btn.style.color = '#94a3b8';
           btn.style.borderBottomColor = 'transparent';
         }
       });
       document.getElementById('otd-tab-' + tab).style.display = 'block';
       let activeBtn = document.getElementById('otd-tab-btn-' + tab);
-      if(activeBtn) {
+      if (activeBtn) {
         activeBtn.style.color = '#2dd4bf';
         activeBtn.style.borderBottomColor = '#2dd4bf';
       }
-      
+
       let container = document.getElementById('otd-tab-' + tab);
       container.innerHTML = '<div style="color:#94a3b8;text-align:center;padding:40px;font-family:Inter,sans-serif;">⏳ Loading...</div>';
 
       try {
-        if(tab === 'teams') {
+        if (tab === 'teams') {
           const res = await fetch(API + '/tournament-teams/' + currentOtdTournamentId);
           const teams = await res.json();
           document.getElementById('otdTotalTeams').innerText = teams ? teams.length : 0;
-          if(!teams || teams.length===0) container.innerHTML = '<div style="color:#94a3b8;text-align:center;padding:40px;font-family:Inter,sans-serif;">No teams registered.</div>';
+          if (!teams || teams.length === 0) container.innerHTML = '<div style="color:#94a3b8;text-align:center;padding:40px;font-family:Inter,sans-serif;">No teams registered.</div>';
           else {
             container.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;">' + teams.map(tm => `<div style="background:rgba(255,255,255,0.03);border-radius:16px;padding:24px;color:#fff;border:1px solid rgba(255,255,255,0.08);font-family:Inter,sans-serif;font-weight:700;font-size:20px;text-align:center;box-shadow:0 4px 6px rgba(0,0,0,0.2); transition:transform 0.2s; cursor:default;" onmouseover="this.style.transform='scale(1.02)';this.style.borderColor='rgba(45,212,191,0.5)';" onmouseout="this.style.transform='scale(1)';this.style.borderColor='rgba(255,255,255,0.08)';">${tm.team_name}</div>`).join('') + '</div>';
           }
@@ -18570,7 +18796,7 @@
           const res = await fetch(API + '/tournament-matches/' + currentOtdTournamentId);
           const matches = await res.json();
           document.getElementById('otdTotalMatches').innerText = matches ? matches.length : 0;
-          if(!matches || matches.length===0) container.innerHTML = '<div style="color:#94a3b8;text-align:center;padding:40px;font-family:Inter,sans-serif;">No matches found.</div>';
+          if (!matches || matches.length === 0) container.innerHTML = '<div style="color:#94a3b8;text-align:center;padding:40px;font-family:Inter,sans-serif;">No matches found.</div>';
           else {
             let html = `
               <div style="display:flex; justify-content:center; gap:15px; margin-top:20px; margin-bottom:30px;">
@@ -18587,21 +18813,21 @@
         } else if (tab === 'gallery') {
           const res = await fetch(API + '/tournament-gallery/' + currentOtdTournamentId);
           const photos = await res.json();
-          if(!photos || photos.length===0) container.innerHTML = '<div style="color:#94a3b8;text-align:center;padding:40px;font-family:Inter,sans-serif;">No photos in gallery.</div>';
+          if (!photos || photos.length === 0) container.innerHTML = '<div style="color:#94a3b8;text-align:center;padding:40px;font-family:Inter,sans-serif;">No photos in gallery.</div>';
           else {
             container.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;">' + photos.map(p => `<div style="border-radius:12px; overflow:hidden; border:1px solid rgba(255,255,255,0.1); box-shadow:0 4px 6px rgba(0,0,0,0.3); aspect-ratio:1/1;"><img src="${p.photo_url || p.url}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.3s;" onmouseover="this.style.transform='scale(1.05)';" onmouseout="this.style.transform='scale(1)';"></div>`).join('') + '</div>';
           }
         }
-      } catch(e) {
+      } catch (e) {
         container.innerHTML = '<div style="color:#ef4444;text-align:center;padding:40px;font-family:Inter,sans-serif;">Error loading data.</div>';
       }
     }
 
-    window.otdFilterMatches = function(status) {
+    window.otdFilterMatches = function (status) {
       ['live', 'upcoming', 'completed'].forEach(s => {
         let btn = document.getElementById('otd-filter-' + s);
-        if(btn) {
-          if(s === status) {
+        if (btn) {
+          if (s === status) {
             btn.style.borderColor = '#8b5cf6';
             btn.style.background = 'rgba(139,92,246,0.15)';
             btn.style.color = '#e2e8f0';
@@ -18614,25 +18840,25 @@
       });
 
       const container = document.getElementById('otdFilteredMatches');
-      if(!container) return;
+      if (!container) return;
       const filtered = (window.otdCurrentMatches || []).filter(m => {
-         let ms = (m.status || '').toLowerCase();
-         let isCompleted = ms === 'completed' || ms === 'finished' || !!m.result_winner || (m.result && m.result.toLowerCase().includes('won'));
-         let isLive = !isCompleted && (ms === 'live' || ms === 'in_progress');
-         let actualStatus = isCompleted ? 'completed' : isLive ? 'live' : 'upcoming';
-         return status === actualStatus;
+        let ms = (m.status || '').toLowerCase();
+        let isCompleted = ms === 'completed' || ms === 'finished' || !!m.result_winner || (m.result && m.result.toLowerCase().includes('won'));
+        let isLive = !isCompleted && (ms === 'live' || ms === 'in_progress');
+        let actualStatus = isCompleted ? 'completed' : isLive ? 'live' : 'upcoming';
+        return status === actualStatus;
       });
-      if(filtered.length === 0) container.innerHTML = '<div style="color:#94a3b8;text-align:center;padding:20px;">No ' + status + ' matches.</div>';
+      if (filtered.length === 0) container.innerHTML = '<div style="color:#94a3b8;text-align:center;padding:20px;">No ' + status + ' matches.</div>';
       else container.innerHTML = filtered.map(m => {
         let ms = (m.status || 'upcoming').toLowerCase();
         let isPast = ms === 'completed' || ms === 'finished' || !!m.result_winner || (m.result && m.result.toLowerCase().includes('won'));
         let isLive = !isPast && (ms === 'live' || ms === 'in_progress');
         let badgeColor = isLive ? '#ef4444' : isPast ? '#fbbf24' : '#34d399';
         let badgeText = isLive ? 'LIVE' : isPast ? 'PAST' : 'UPCOMING';
-        let dateStr = m.match_date ? new Date(m.match_date).toLocaleDateString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric'}) : 'Date TBD';
+        let dateStr = m.match_date ? new Date(m.match_date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'Date TBD';
         let resText = m.result || m.result_winner || (isLive ? 'Result Pending' : 'Match Scheduled');
         let isWon = resText.toLowerCase().includes('won');
-        
+
         return `<div style="background:#1e293b; border-radius:16px; padding:20px; color:#fff; border:1px solid rgba(255,255,255,0.05); font-family:Inter,sans-serif; margin-bottom:15px; width:100%; max-width:400px; box-shadow:0 4px 6px rgba(0,0,0,0.3);">
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
     <span style="color:#94a3b8; font-size:12px; font-weight:600;">Match Info</span>
