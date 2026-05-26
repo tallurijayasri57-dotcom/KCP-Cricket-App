@@ -10355,65 +10355,117 @@
         strike: document.getElementById('strike').value,
         nonstrike: document.getElementById('nonstrike').value,
         bowler: document.getElementById('bowler').value,
-        innings1: (innings === 2 && typeof innings1BatStats !== 'undefined') ? {
-          batTeam: innings1BatTeam,
-          bowlTeam: innings1BowlTeam,
-          runs: target > 0 ? target - 1 : 0,
-          wickets: Object.values(innings1BowlStats).reduce((acc, b) => acc + (b.wickets || 0), 0),
-          overs: formatOvers(Object.values(innings1BowlStats).reduce((acc, b) => acc + (b.balls || 0), 0)),
+        innings1: (innings >= 2 && typeof innings1BatStats !== 'undefined') ? {
+          batTeam: innings1BatTeam, bowlTeam: innings1BowlTeam,
+          runs: innings1Runs, wickets: innings1Wickets, overs: formatOvers(innings1Balls),
           batsmen: Object.keys(innings1BatStats).map(name => {
             let s = innings1BatStats[name];
             return {
               name: name, runs: s.runs, balls: s.balls, fours: s.fours, sixes: s.sixes,
               sr: s.balls > 0 ? ((s.runs / s.balls) * 100).toFixed(2) : "0.00",
               outDesc: formatDismissalText(s.dismissal_type, s.dismissed_by, s.dismissed_by_bowler),
-              isOut: !!s.dismissal_type,
-              batOrder: s.batOrder || Infinity
+              isOut: !!s.dismissal_type, batOrder: s.batOrder || Infinity
             };
-          }).sort((a, b) => {
-            if (a.batOrder !== b.batOrder) return a.batOrder - b.batOrder;
-            return a.name.localeCompare(b.name);
-          }),
+          }).sort((a, b) => a.batOrder !== b.batOrder ? a.batOrder - b.batOrder : a.name.localeCompare(b.name)),
           bowlers: Object.keys(innings1BowlStats).map(name => {
             let s = innings1BowlStats[name];
             return {
-              name: name, overs: formatOvers(s.balls || 0),
-              maidens: s.maidens || 0, runs: s.runs, wickets: s.wickets,
+              name: name, overs: formatOvers(s.balls || 0), maidens: s.maidens || 0, runs: s.runs, wickets: s.wickets,
               catches: s.catches || 0, run_outs: s.run_outs || 0, stumpings: s.stumpings || 0,
-              eco: s.balls > 0 ? ((s.runs / (s.balls / 6))).toFixed(2) : "0.00",
-              bowlOrder: s.bowlOrder || Infinity
+              eco: s.balls > 0 ? ((s.runs / (s.balls / 6))).toFixed(2) : "0.00", bowlOrder: s.bowlOrder || Infinity
             };
-          }).sort((a, b) => {
-            if (a.bowlOrder !== b.bowlOrder) return a.bowlOrder - b.bowlOrder;
-            return a.name.localeCompare(b.name);
-          }),
-          extras: (target > 0 ? target - 1 : 0) - Object.values(innings1BatStats).reduce((acc, b) => acc + b.runs, 0)
+          }).sort((a, b) => a.bowlOrder !== b.bowlOrder ? a.bowlOrder - b.bowlOrder : a.name.localeCompare(b.name)),
+          extras: innings1Runs - Object.values(innings1BatStats).reduce((acc, b) => acc + b.runs, 0)
         } : null,
-        innings2: (innings === 2) ? {
-          batTeam: matchBatTeam,
-          bowlTeam: matchBowlTeam,
-          runs: totalRuns,
-          wickets: totalWickets,
-          overs: formatOvers(ballCount),
+        innings2: (innings == 2) ? {
+          batTeam: matchBatTeam, bowlTeam: matchBowlTeam,
+          runs: totalRuns, wickets: totalWickets, overs: formatOvers(ballCount),
           batsmen: Object.keys(batsmanStats).map(name => ({
             name: name, runs: batsmanStats[name].runs, balls: batsmanStats[name].balls, fours: batsmanStats[name].fours, sixes: batsmanStats[name].sixes,
             sr: batsmanStats[name].balls > 0 ? ((batsmanStats[name].runs / batsmanStats[name].balls) * 100).toFixed(2) : "0.00",
             outDesc: formatDismissalText(batsmanStats[name].dismissal_type, batsmanStats[name].dismissed_by, batsmanStats[name].dismissed_by_bowler || document.getElementById('bowler').value),
-            isOut: outBatsmen.includes(name),
-            batOrder: batsmanStats[name].batOrder || Infinity
-          })).sort((a, b) => {
-            if (a.batOrder !== b.batOrder) return a.batOrder - b.batOrder;
-            return a.name.localeCompare(b.name);
-          }),
+            isOut: outBatsmen.includes(name), batOrder: batsmanStats[name].batOrder || Infinity
+          })).sort((a, b) => a.batOrder !== b.batOrder ? a.batOrder - b.batOrder : a.name.localeCompare(b.name)),
           bowlers: Object.keys(bowlerStats).map(name => ({
             name: name, overs: formatOvers(bowlerStats[name].balls || 0),
             maidens: bowlerStats[name].maidens || 0, runs: bowlerStats[name].runs, wickets: bowlerStats[name].wickets,
             eco: bowlerStats[name].balls > 0 ? ((bowlerStats[name].runs / (bowlerStats[name].balls / 6))).toFixed(2) : "0.00",
             bowlOrder: bowlerStats[name].bowlOrder || Infinity
-          })).sort((a, b) => {
-            if (a.bowlOrder !== b.bowlOrder) return a.bowlOrder - b.bowlOrder;
-            return a.name.localeCompare(b.name);
-          }),
+          })).sort((a, b) => a.bowlOrder !== b.bowlOrder ? a.bowlOrder - b.bowlOrder : a.name.localeCompare(b.name)),
+          extras: totalRuns - Object.values(batsmanStats).reduce((acc, b) => acc + b.runs, 0)
+        } : (innings >= 3 && typeof innings2BatStats !== 'undefined') ? {
+          batTeam: innings2BatTeam, bowlTeam: innings2BowlTeam,
+          runs: innings2Runs, wickets: innings2Wickets, overs: formatOvers(innings2Balls),
+          batsmen: Object.keys(innings2BatStats).map(name => {
+            let s = innings2BatStats[name];
+            return {
+              name: name, runs: s.runs, balls: s.balls, fours: s.fours, sixes: s.sixes,
+              sr: s.balls > 0 ? ((s.runs / s.balls) * 100).toFixed(2) : "0.00",
+              outDesc: formatDismissalText(s.dismissal_type, s.dismissed_by, s.dismissed_by_bowler),
+              isOut: !!s.dismissal_type, batOrder: s.batOrder || Infinity
+            };
+          }).sort((a, b) => a.batOrder !== b.batOrder ? a.batOrder - b.batOrder : a.name.localeCompare(b.name)),
+          bowlers: Object.keys(innings2BowlStats).map(name => {
+            let s = innings2BowlStats[name];
+            return {
+              name: name, overs: formatOvers(s.balls || 0), maidens: s.maidens || 0, runs: s.runs, wickets: s.wickets,
+              eco: s.balls > 0 ? ((s.runs / (s.balls / 6))).toFixed(2) : "0.00", bowlOrder: s.bowlOrder || Infinity
+            };
+          }).sort((a, b) => a.bowlOrder !== b.bowlOrder ? a.bowlOrder - b.bowlOrder : a.name.localeCompare(b.name)),
+          extras: innings2Runs - Object.values(innings2BatStats).reduce((acc, b) => acc + b.runs, 0)
+        } : null,
+        innings3: (innings == 3) ? {
+          batTeam: matchBatTeam, bowlTeam: matchBowlTeam,
+          runs: totalRuns, wickets: totalWickets, overs: formatOvers(ballCount),
+          batsmen: Object.keys(batsmanStats).map(name => ({
+            name: name, runs: batsmanStats[name].runs, balls: batsmanStats[name].balls, fours: batsmanStats[name].fours, sixes: batsmanStats[name].sixes,
+            sr: batsmanStats[name].balls > 0 ? ((batsmanStats[name].runs / batsmanStats[name].balls) * 100).toFixed(2) : "0.00",
+            outDesc: formatDismissalText(batsmanStats[name].dismissal_type, batsmanStats[name].dismissed_by, batsmanStats[name].dismissed_by_bowler || document.getElementById('bowler').value),
+            isOut: outBatsmen.includes(name), batOrder: batsmanStats[name].batOrder || Infinity
+          })).sort((a, b) => a.batOrder !== b.batOrder ? a.batOrder - b.batOrder : a.name.localeCompare(b.name)),
+          bowlers: Object.keys(bowlerStats).map(name => ({
+            name: name, overs: formatOvers(bowlerStats[name].balls || 0),
+            maidens: bowlerStats[name].maidens || 0, runs: bowlerStats[name].runs, wickets: bowlerStats[name].wickets,
+            eco: bowlerStats[name].balls > 0 ? ((bowlerStats[name].runs / (bowlerStats[name].balls / 6))).toFixed(2) : "0.00",
+            bowlOrder: bowlerStats[name].bowlOrder || Infinity
+          })).sort((a, b) => a.bowlOrder !== b.bowlOrder ? a.bowlOrder - b.bowlOrder : a.name.localeCompare(b.name)),
+          extras: totalRuns - Object.values(batsmanStats).reduce((acc, b) => acc + b.runs, 0)
+        } : (innings == 4 && typeof innings3BatStats !== 'undefined') ? {
+          batTeam: innings3BatTeam, bowlTeam: innings3BowlTeam,
+          runs: innings3Runs, wickets: innings3Wickets, overs: formatOvers(innings3Balls),
+          batsmen: Object.keys(innings3BatStats).map(name => {
+            let s = innings3BatStats[name];
+            return {
+              name: name, runs: s.runs, balls: s.balls, fours: s.fours, sixes: s.sixes,
+              sr: s.balls > 0 ? ((s.runs / s.balls) * 100).toFixed(2) : "0.00",
+              outDesc: formatDismissalText(s.dismissal_type, s.dismissed_by, s.dismissed_by_bowler),
+              isOut: !!s.dismissal_type, batOrder: s.batOrder || Infinity
+            };
+          }).sort((a, b) => a.batOrder !== b.batOrder ? a.batOrder - b.batOrder : a.name.localeCompare(b.name)),
+          bowlers: Object.keys(innings3BowlStats).map(name => {
+            let s = innings3BowlStats[name];
+            return {
+              name: name, overs: formatOvers(s.balls || 0), maidens: s.maidens || 0, runs: s.runs, wickets: s.wickets,
+              eco: s.balls > 0 ? ((s.runs / (s.balls / 6))).toFixed(2) : "0.00", bowlOrder: s.bowlOrder || Infinity
+            };
+          }).sort((a, b) => a.bowlOrder !== b.bowlOrder ? a.bowlOrder - b.bowlOrder : a.name.localeCompare(b.name)),
+          extras: innings3Runs - Object.values(innings3BatStats).reduce((acc, b) => acc + b.runs, 0)
+        } : null,
+        innings4: (innings == 4) ? {
+          batTeam: matchBatTeam, bowlTeam: matchBowlTeam,
+          runs: totalRuns, wickets: totalWickets, overs: formatOvers(ballCount),
+          batsmen: Object.keys(batsmanStats).map(name => ({
+            name: name, runs: batsmanStats[name].runs, balls: batsmanStats[name].balls, fours: batsmanStats[name].fours, sixes: batsmanStats[name].sixes,
+            sr: batsmanStats[name].balls > 0 ? ((batsmanStats[name].runs / batsmanStats[name].balls) * 100).toFixed(2) : "0.00",
+            outDesc: formatDismissalText(batsmanStats[name].dismissal_type, batsmanStats[name].dismissed_by, batsmanStats[name].dismissed_by_bowler || document.getElementById('bowler').value),
+            isOut: outBatsmen.includes(name), batOrder: batsmanStats[name].batOrder || Infinity
+          })).sort((a, b) => a.batOrder !== b.batOrder ? a.batOrder - b.batOrder : a.name.localeCompare(b.name)),
+          bowlers: Object.keys(bowlerStats).map(name => ({
+            name: name, overs: formatOvers(bowlerStats[name].balls || 0),
+            maidens: bowlerStats[name].maidens || 0, runs: bowlerStats[name].runs, wickets: bowlerStats[name].wickets,
+            eco: bowlerStats[name].balls > 0 ? ((bowlerStats[name].runs / (bowlerStats[name].balls / 6))).toFixed(2) : "0.00",
+            bowlOrder: bowlerStats[name].bowlOrder || Infinity
+          })).sort((a, b) => a.bowlOrder !== b.bowlOrder ? a.bowlOrder - b.bowlOrder : a.name.localeCompare(b.name)),
           extras: totalRuns - Object.values(batsmanStats).reduce((acc, b) => acc + b.runs, 0)
         } : null
       };
@@ -10971,14 +11023,48 @@
           </div>
         `;
 
+        let batTeamHtml = `<div style="font-size:24px; font-weight:900; color:#f8fafc; text-transform:uppercase; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${m.batTeam || 'Team A'}</div>`;
+        let bowlTeamHtml = `<div style="font-size:16px; font-weight:600; color:rgba(255,255,255,0.5); text-transform:uppercase; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${m.bowlTeam || 'Team B'}</div>`;
+
         // If finished and we have both innings data, show a summary score
         if (isFinished && m.innings1 && m.innings2) {
-          scoreDisplay = `
-            <div style="text-align:right;">
-              <div style="font-size:24px; font-weight:800; color:#f8fafc;">${m.innings1.runs}/${m.innings1.wickets} <span style="font-size:12px; opacity:0.6;">&</span> ${m.innings2.runs}/${m.innings2.wickets}</div>
-              <div style="font-size:12px; color:rgba(255,255,255,0.5);">${m.innings2.overs} Ov</div>
-            </div>
-          `;
+          if (m.innings3 || m.innings4) {
+            // Super Over Finished - Show combined header
+            let t1 = m.innings1.batTeam;
+            let t2 = m.innings2.batTeam;
+            let t1Main = `${m.innings1.runs}/${m.innings1.wickets} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.innings1.overs})</span>`;
+            let t2Main = `${m.innings2.runs}/${m.innings2.wickets} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.innings2.overs})</span>`;
+            
+            let t1So = m.innings3 && m.innings3.batTeam === t1 ? `${m.innings3.runs}/${m.innings3.wickets} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.innings3.overs})</span>` : (m.innings4 && m.innings4.batTeam === t1 ? `${m.innings4.runs}/${m.innings4.wickets} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.innings4.overs})</span>` : `0/0 <span style="font-size:12px; font-weight:500; opacity:0.7">(0.0)</span>`);
+            let t2So = m.innings3 && m.innings3.batTeam === t2 ? `${m.innings3.runs}/${m.innings3.wickets} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.innings3.overs})</span>` : (m.innings4 && m.innings4.batTeam === t2 ? `${m.innings4.runs}/${m.innings4.wickets} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.innings4.overs})</span>` : `0/0 <span style="font-size:12px; font-weight:500; opacity:0.7">(0.0)</span>`);
+
+            batTeamHtml = `<div style="font-size:16px; font-weight:900; color:#f8fafc; text-transform:uppercase; display:flex; justify-content:space-between; align-items:center;"><span>${t1}</span><span>${t1Main} &amp; ${t1So}</span></div>`;
+            bowlTeamHtml = `<div style="font-size:16px; font-weight:600; color:rgba(255,255,255,0.5); text-transform:uppercase; margin-top:6px; display:flex; justify-content:space-between; align-items:center;"><span>${t2}</span><span>${t2Main} &amp; ${t2So}</span></div>`;
+            scoreDisplay = ``;
+          } else {
+            scoreDisplay = `
+              <div style="text-align:right;">
+                <div style="font-size:24px; font-weight:800; color:#f8fafc;">${m.innings1.runs}/${m.innings1.wickets} <span style="font-size:12px; opacity:0.6;">&</span> ${m.innings2.runs}/${m.innings2.wickets}</div>
+                <div style="font-size:12px; color:rgba(255,255,255,0.5);">${m.innings2.overs} Ov</div>
+              </div>
+            `;
+          }
+        } else if (!isFinished && (m.innings === 3 || m.innings === 4)) {
+            // Super Over Live - Show combined header
+            let t1 = m.innings1.batTeam;
+            let t2 = m.innings2.batTeam;
+            let t1Main = `${m.innings1.runs}/${m.innings1.wickets} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.innings1.overs})</span>`;
+            let t2Main = `${m.innings2.runs}/${m.innings2.wickets} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.innings2.overs})</span>`;
+            
+            let currentSoScore = `${m.runs || 0}/${m.wickets || 0} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.overs || '0.0'})</span>`;
+            
+            let t1So = m.innings === 3 && m.batTeam === t1 ? currentSoScore : (m.innings === 4 && m.batTeam === t1 ? currentSoScore : (m.innings4 && m.innings4.batTeam === t1 ? `${m.innings4.runs}/${m.innings4.wickets} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.innings4.overs})</span>` : (m.innings3 && m.innings3.batTeam === t1 ? `${m.innings3.runs}/${m.innings3.wickets} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.innings3.overs})</span>` : `0/0 <span style="font-size:12px; font-weight:500; opacity:0.7">(0.0)</span>`)));
+            
+            let t2So = m.innings === 3 && m.batTeam === t2 ? currentSoScore : (m.innings === 4 && m.batTeam === t2 ? currentSoScore : (m.innings4 && m.innings4.batTeam === t2 ? `${m.innings4.runs}/${m.innings4.wickets} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.innings4.overs})</span>` : (m.innings3 && m.innings3.batTeam === t2 ? `${m.innings3.runs}/${m.innings3.wickets} <span style="font-size:12px; font-weight:500; opacity:0.7">(${m.innings3.overs})</span>` : `0/0 <span style="font-size:12px; font-weight:500; opacity:0.7">(0.0)</span>`)));
+
+            batTeamHtml = `<div style="font-size:16px; font-weight:900; color:#f8fafc; text-transform:uppercase; display:flex; justify-content:space-between; align-items:center;"><span>${t1}</span><span>${t1Main} &amp; ${t1So} ${m.batTeam === t1 ? '<span class="live-pulse-dot" style="margin-left:6px;"></span>' : ''}</span></div>`;
+            bowlTeamHtml = `<div style="font-size:16px; font-weight:600; color:rgba(255,255,255,0.5); text-transform:uppercase; margin-top:6px; display:flex; justify-content:space-between; align-items:center;"><span>${t2}</span><span>${t2Main} &amp; ${t2So} ${m.batTeam === t2 ? '<span class="live-pulse-dot" style="margin-left:6px;"></span>' : ''}</span></div>`;
+            scoreDisplay = ``;
         }
 
         let headerHtml = `
@@ -11001,12 +11087,12 @@
 
             <div style="display:flex; justify-content:space-between; align-items:flex-start;">
               <div style="flex:1; min-width:0;">
-                <div style="font-size:24px; font-weight:900; color:#f8fafc; text-transform:uppercase; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${m.batTeam || 'Team A'}</div>
-                <div style="font-size:16px; font-weight:600; color:rgba(255,255,255,0.5); text-transform:uppercase; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${m.bowlTeam || 'Team B'}</div>
+                ${batTeamHtml}
+                ${bowlTeamHtml}
               </div>
               <div style="text-align:right; flex-shrink:0;">
                 ${scoreDisplay}
-                <div style="font-size:11px; color:rgba(255,255,255,0.4); font-weight:600;">Innings ${m.innings || 1}</div>
+                ${(m.innings >= 3) ? '' : `<div style="font-size:11px; color:rgba(255,255,255,0.4); font-weight:600;">Innings ${m.innings || 1}</div>`}
               </div>
             </div>
 
@@ -11113,16 +11199,22 @@
 
       if (m.innings1) {
         (m.innings1.batsmen || []).forEach(b => { allBatsmen.push({ ...b, team: m.innings1.batTeam }); });
-        (m.innings1.bowlers || []).forEach(b => { allBowlers.push({ ...b, team: m.innings1.batTeam === m.batTeam ? m.bowlTeam : m.batTeam }); });
+        (m.innings1.bowlers || []).forEach(b => { allBowlers.push({ ...b, team: m.innings1.bowlTeam || (m.innings1.batTeam === m.batTeam ? m.bowlTeam : m.batTeam) }); });
+      }
+      if (m.innings2) {
+        (m.innings2.batsmen || []).forEach(b => { allBatsmen.push({ ...b, team: m.innings2.batTeam }); });
+        (m.innings2.bowlers || []).forEach(b => { allBowlers.push({ ...b, team: m.innings2.bowlTeam || (m.innings2.batTeam === m.batTeam ? m.bowlTeam : m.batTeam) }); });
+      }
+      if (m.innings3) {
+        (m.innings3.batsmen || []).forEach(b => { allBatsmen.push({ ...b, team: m.innings3.batTeam }); });
+        (m.innings3.bowlers || []).forEach(b => { allBowlers.push({ ...b, team: m.innings3.bowlTeam || (m.innings3.batTeam === m.batTeam ? m.bowlTeam : m.batTeam) }); });
+      }
+      if (m.innings4) {
+        (m.innings4.batsmen || []).forEach(b => { allBatsmen.push({ ...b, team: m.innings4.batTeam }); });
+        (m.innings4.bowlers || []).forEach(b => { allBowlers.push({ ...b, team: m.innings4.bowlTeam || (m.innings4.batTeam === m.batTeam ? m.bowlTeam : m.batTeam) }); });
+      }
 
-        if (m.innings2) {
-          (m.innings2.batsmen || []).forEach(b => { allBatsmen.push({ ...b, team: m.innings2.batTeam }); });
-          (m.innings2.bowlers || []).forEach(b => { allBowlers.push({ ...b, team: m.innings2.batTeam === m.batTeam ? m.bowlTeam : m.batTeam }); });
-        } else {
-          (m.batsmen || []).forEach(b => { allBatsmen.push({ ...b, team: m.batTeam }); });
-          (m.bowlers || []).forEach(b => { allBowlers.push({ ...b, team: m.bowlTeam }); });
-        }
-      } else {
+      if (!m.innings1 && !m.innings2 && !m.innings3 && !m.innings4) {
         (m.batsmen || []).forEach(b => { allBatsmen.push({ ...b, team: m.batTeam }); });
         (m.bowlers || []).forEach(b => { allBowlers.push({ ...b, team: m.bowlTeam }); });
       }
@@ -12393,15 +12485,13 @@
       }
 
       let html = '';
-      if (m.innings1) {
-        html += renderInnings(m.innings1, "Innings 1", m.innings === 1, m.innings2 ? m.innings2.batTeam : (m.bowlTeam || ""));
-      }
-      if (m.innings2) {
-        html += renderInnings(m.innings2, "Innings 2", m.innings === 2, m.innings1 ? m.innings1.batTeam : (m.batTeam || ""));
-      }
+      if (m.innings1) html += renderInnings(m.innings1, m.innings1.batTeam || "Innings 1", m.innings === 1, m.innings1.bowlTeam || "");
+      if (m.innings2) html += renderInnings(m.innings2, m.innings2.batTeam || "Innings 2", m.innings === 2, m.innings2.bowlTeam || "");
+      if (m.innings3) html += renderInnings(m.innings3, (m.innings3.batTeam || "Innings 3") + " (Super Over)", m.innings === 3, m.innings3.bowlTeam || "");
+      if (m.innings4) html += renderInnings(m.innings4, (m.innings4.batTeam || "Innings 4") + " (Super Over)", m.innings === 4, m.innings4.bowlTeam || "");
 
       // Fix: Handle live match scorecard where data is in top-level but not innings1/2
-      if (!m.innings1 && !m.innings2 && m.batsmen) {
+      if (!m.innings1 && !m.innings2 && !m.innings3 && !m.innings4 && m.batsmen) {
         html = renderInnings({
           batTeam: m.batTeam,
           runs: m.runs,
@@ -12410,8 +12500,8 @@
           batsmen: m.batsmen,
           bowlers: m.bowlers,
           extras: m.extras || 0
-        }, "Innings " + (m.innings || 1), true);
-      } else if (!m.innings1 && !m.innings2) {
+        }, "Innings " + (m.innings || 1), true, m.bowlTeam || "");
+      } else if (!m.innings1 && !m.innings2 && !m.innings3 && !m.innings4) {
         html = `<div style="text-align:center; padding:40px; color:#94a3b8;">No scorecard data available yet.</div>`;
       }
 
@@ -14944,110 +15034,74 @@
     let innings1BatTeam = "", innings1BowlTeam = "";
     let innings1Runs = 0, innings1Balls = 0, innings1Wickets = 0;
 
+    let innings2BatStats = {}, innings2BowlStats = {};
+    let innings2BatTeam = "", innings2BowlTeam = "";
+    let innings2Runs = 0, innings2Balls = 0, innings2Wickets = 0;
+
+    let innings3BatStats = {}, innings3BowlStats = {};
+    let innings3BatTeam = "", innings3BowlTeam = "";
+    let innings3Runs = 0, innings3Balls = 0, innings3Wickets = 0;
+
 
     async function updateAllPlayerStatsAfterMatch(inningsNum) {
       const today = new Date().toISOString().split("T")[0];
-      if (inningsNum === 2 && Object.keys(innings1BatStats).length > 0) {
-        const sortedI1BatKeys = Object.keys(innings1BatStats).sort((a, b) => {
-          let orderA = innings1BatStats[a].batOrder || Infinity;
-          let orderB = innings1BatStats[b].batOrder || Infinity;
+      let playersToSync = new Set();
+      
+      const pushInningsStats = async (batStats, bowlStats, batTeam, bowlTeam, innIndex) => {
+        if (!batStats || Object.keys(batStats).length === 0) return;
+        const sortedBatKeys = Object.keys(batStats).sort((a, b) => {
+          let orderA = batStats[a].batOrder || Infinity;
+          let orderB = batStats[b].batOrder || Infinity;
           if (orderA !== orderB) return orderA - orderB;
           return a.localeCompare(b);
         });
-        for (let p of sortedI1BatKeys) {
-          let s = innings1BatStats[p];
+        for (let p of sortedBatKeys) {
+          let s = batStats[p];
+          playersToSync.add(p);
           try {
             await fetch(API + "/player-stats", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
+              method: "POST", headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                player_name: p, team_name: innings1BatTeam, opponent_team: innings1BowlTeam,
+                player_name: p, team_name: batTeam, opponent_team: bowlTeam,
                 match_date: today, match_type: "bat", runs: s.runs, balls_faced: s.balls,
                 fours: s.fours, sixes: s.sixes, dismissal_type: s.dismissal_type || null,
                 dismissed_by: (s.dismissed_by && s.dismissed_by_bowler ? s.dismissed_by + " b " + s.dismissed_by_bowler : s.dismissed_by) || null,
-                match_id: currentMatchId, innings: 1
+                match_id: currentMatchId, innings: innIndex,
+                shot_types: s.shot_types ? s.shot_types.join(",") : null, wagon_wheel: s.wagon_wheel ? s.wagon_wheel.join(",") : null
               })
             });
           } catch (e) { console.error(e); }
         }
-        const sortedI1BowlKeys = Object.keys(innings1BowlStats).sort((a, b) => {
-          let orderA = innings1BowlStats[a].bowlOrder || Infinity;
-          let orderB = innings1BowlStats[b].bowlOrder || Infinity;
+        const sortedBowlKeys = Object.keys(bowlStats).sort((a, b) => {
+          let orderA = bowlStats[a].bowlOrder || Infinity;
+          let orderB = bowlStats[b].bowlOrder || Infinity;
           if (orderA !== orderB) return orderA - orderB;
           return a.localeCompare(b);
         });
-        for (let p of sortedI1BowlKeys) {
-          let s = innings1BowlStats[p];
+        for (let p of sortedBowlKeys) {
+          let s = bowlStats[p];
+          playersToSync.add(p);
           try {
             await fetch(API + "/player-stats", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
+              method: "POST", headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                player_name: p, team_name: innings1BowlTeam, opponent_team: innings1BatTeam,
+                player_name: p, team_name: bowlTeam, opponent_team: batTeam,
                 match_date: today, match_type: "bowl", wickets: s.wickets,
                 overs_bowled: Math.floor(s.balls / 6) + "." + (s.balls % 6), runs_conceded: s.runs,
                 catches: s.catches || 0, run_outs: s.run_outs || 0, stumpings: s.stumpings || 0,
-                match_id: currentMatchId, innings: 1
+                match_id: currentMatchId, innings: innIndex
               })
             });
           } catch (e) { console.error(e); }
         }
-      }
-      const sortedBatKeys = Object.keys(batsmanStats).sort((a, b) => {
-        let orderA = batsmanStats[a].batOrder || Infinity;
-        let orderB = batsmanStats[b].batOrder || Infinity;
-        if (orderA !== orderB) return orderA - orderB;
-        return a.localeCompare(b);
-      });
-      for (let p of sortedBatKeys) {
-        let s = batsmanStats[p];
-        try {
-          await fetch(API + "/player-stats", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              player_name: p, team_name: matchBatTeam, opponent_team: matchBowlTeam,
-              match_date: today, match_type: "bat", runs: s.runs, balls_faced: s.balls,
-              fours: s.fours, sixes: s.sixes, dismissal_type: s.dismissal_type || null,
-              dismissed_by: (s.dismissed_by && s.dismissed_by_bowler ? s.dismissed_by + " b " + s.dismissed_by_bowler : s.dismissed_by) || null,
-              match_id: currentMatchId, innings: inningsNum,
-              shot_types: s.shot_types ? s.shot_types.join(",") : null,
-              wagon_wheel: s.wagon_wheel ? s.wagon_wheel.join(",") : null
-            })
-          });
-        } catch (e) { console.error(e); }
-      }
-      const sortedBowlKeys = Object.keys(bowlerStats).sort((a, b) => {
-        let orderA = bowlerStats[a].bowlOrder || Infinity;
-        let orderB = bowlerStats[b].bowlOrder || Infinity;
-        if (orderA !== orderB) return orderA - orderB;
-        return a.localeCompare(b);
-      });
-      for (let p of sortedBowlKeys) {
-        let s = bowlerStats[p];
-        try {
-          await fetch(API + "/player-stats", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              player_name: p, team_name: matchBowlTeam, opponent_team: matchBatTeam,
-              match_date: today, match_type: "bowl", wickets: s.wickets,
-              overs_bowled: Math.floor(s.balls / 6) + "." + (s.balls % 6), runs_conceded: s.runs,
-              catches: s.catches || 0, run_outs: s.run_outs || 0, stumpings: s.stumpings || 0,
-              match_id: currentMatchId, innings: inningsNum
-            })
-          });
-        } catch (e) { console.error(e); }
-      }
+      };
 
-      // Trigger background sync to Firebase for all participating players!
-      let playersToSync = new Set();
-      for (let p in batsmanStats) playersToSync.add(p);
-      for (let p in bowlerStats) playersToSync.add(p);
-      if (inningsNum === 2 && Object.keys(innings1BatStats).length > 0) {
-        for (let p in innings1BatStats) playersToSync.add(p);
-        for (let p in innings1BowlStats) playersToSync.add(p);
-      }
+      if (inningsNum >= 2) await pushInningsStats(innings1BatStats, innings1BowlStats, innings1BatTeam, innings1BowlTeam, 1);
+      if (inningsNum >= 3) await pushInningsStats(innings2BatStats, innings2BowlStats, innings2BatTeam, innings2BowlTeam, 2);
+      if (inningsNum >= 4) await pushInningsStats(innings3BatStats, innings3BowlStats, innings3BatTeam, innings3BowlTeam, 3);
+      
+      await pushInningsStats(batsmanStats, bowlerStats, matchBatTeam, matchBowlTeam, inningsNum);
+
       playersToSync.forEach(p => {
         syncPlayerProfileToFirebase(p).catch(err => console.error("Error syncing profile after match for " + p, err));
       });
@@ -15305,7 +15359,7 @@
 
     function getMatchResult() {
       let winner = "", loser = "", margin = "";
-      if (innings == 1) {
+      if (innings % 2 === 1) { // 1st or 3rd innings
         winner = matchBowlTeam; loser = matchBatTeam;
         margin = "Match ended in 1st innings";
       } else {
@@ -15319,7 +15373,12 @@
           margin = (parseInt(target) - 1 - parseInt(totalRuns)) + " runs";
         }
       }
-      return { winner, loser, margin, text: winner === "Match Tied" ? "Match Tied" : `${winner} won by ${margin}` };
+      
+      let text = winner === "Match Tied" ? "Match Tied" : `${winner} won by ${margin}`;
+      if (innings >= 4) {
+        text = `Match Tied (${winner === "Match Tied" ? 'Super Over Tied' : winner + ' won the super over'})`;
+      }
+      return { winner, loser, margin, text };
     }
 
     async function syncPlayerProfileToFirebase(playerName) {
@@ -16532,7 +16591,26 @@
         if (totalOvers > 0) { document.getElementById("oversInfoText").innerText = totalOvers + " overs match • Target: " + target; }
         updateLiveScore();
         showEventPopup('target', { target: target, batTeam: matchBatTeam, overs: totalOvers });
-      } else { alert("Already in Second Innings"); }
+      } else if (innings == 3) {
+        innings3BatStats = JSON.parse(JSON.stringify(batsmanStats));
+        innings3BowlStats = JSON.parse(JSON.stringify(bowlerStats));
+        innings3Runs = totalRuns;
+        innings3Balls = ballCount;
+        innings3Wickets = totalWickets;
+        innings3BatTeam = matchBatTeam;
+        innings3BowlTeam = matchBowlTeam;
+        target = totalRuns + 1;
+        targetBox.innerText = "Target: " + target;
+        totalRuns = 0; totalWickets = 0; ballCount = 0; balls.innerHTML = "";
+        winShown = false; outBatsmen = []; extrasByes = 0; ballSnapshots = [];
+        let tmp = matchBatTeam; matchBatTeam = matchBowlTeam; matchBowlTeam = tmp;
+        [batPlayers, bowlPlayers] = [bowlPlayers, batPlayers];
+        [batPlayerRoles, bowlPlayerRoles] = [bowlPlayerRoles, batPlayerRoles];
+        innings = 4; extrasWides = 0; extrasNoBalls = 0; updateExtras(); loadScorePlayers();
+        if (totalOvers > 0) { document.getElementById("oversInfoText").innerText = totalOvers + " overs (Super Over) • Target: " + target; }
+        updateLiveScore();
+        showEventPopup('target', { target: target, batTeam: matchBatTeam, overs: totalOvers, isSuperOver: true });
+      } else { alert("Already in chasing innings"); }
     }
 
     let currentMatchId = null;
@@ -16932,64 +17010,65 @@
           });
 
           if (soBatTeam) {
-             await processMatchFinish(res);
              let bowlTeam = (soBatTeam === matchBatTeam) ? matchBowlTeam : matchBatTeam;
-             let tId = (currentViewingTournament ? currentViewingTournament.id : null);
-             let data = {
-               tournament_id: tId,
-               team1: soBatTeam,
-               team2: bowlTeam,
-               match_date: new Date().toISOString().split('T')[0],
-               match_time: new Date().toTimeString().split(' ')[0].substring(0,5),
-               status: 'upcoming'
-             };
-             try {
-               let r = await fetch(API + "/tournament-matches", {
-                 method: "POST", headers: { "Content-Type": "application/json" },
-                 body: JSON.stringify(data)
-               });
-               let resultData = await r.json();
-               if (resultData.id) {
-                  await fetch(API + "/tournament-matches/" + resultData.id, {
-                    method: "PATCH", headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ status: "live", toss_info: soBatTeam + " elected to bat first (Super Over)" })
-                  });
-                  
-                  document.getElementById('mTitle').value = "Super Over";
-                  document.getElementById('mOvers').value = soOvers;
-                  document.getElementById('mBatTeam').value = soBatTeam;
-                  document.getElementById('mBowlTeam').value = bowlTeam;
-                  
-                  currentLiveMatchId = resultData.id;
-                  currentTournamentMatchIdx = resultData.id;
-                  
-                  Swal.fire({
-                    title: 'Super Over Ready!',
-                    text: 'Redirecting to Live Match...',
-                    icon: 'success',
-                    background: '#1e293b', color: '#f8fafc', timer: 2000, showConfirmButton: false
-                  }).then(() => {
-                    startMatch();
-                    
-                    // Add commentary announcement
-                    if (window.fbSetDoc && currentLiveMatchId) {
-                      let ref = window.fbDoc(window.fbDb, "live_matches", currentLiveMatchId.toString());
-                      window.fbUpdateDoc(ref, {
-                        commentary: window.fbArrayUnion({
-                          ball: "0.0",
-                          bowler: "-",
-                          batsman: "-",
-                          runs: 0,
-                          extras: 0,
-                          isWicket: false,
-                          text: soBatTeam + " elected to bat first (Super Over)",
-                          timestamp: Date.now()
-                        })
-                      }).catch(e => console.error("Commentary add error", e));
-                    }
-                  });
-               }
-             } catch (e) { console.error("Super over creation error", e); }
+             
+             // Save innings 2 stats
+             innings2BatStats = JSON.parse(JSON.stringify(batsmanStats));
+             innings2BowlStats = JSON.parse(JSON.stringify(bowlerStats));
+             innings2Runs = totalRuns;
+             innings2Balls = ballCount;
+             innings2Wickets = totalWickets;
+             innings2BatTeam = matchBatTeam;
+             innings2BowlTeam = matchBowlTeam;
+
+             // Prepare for Innings 3
+             target = 0;
+             targetBox.innerText = "Target: -";
+             totalRuns = 0; totalWickets = 0; ballCount = 0; balls.innerHTML = "";
+             winShown = false; outBatsmen = []; extrasByes = 0; ballSnapshots = [];
+             
+             matchBatTeam = soBatTeam;
+             matchBowlTeam = bowlTeam;
+             
+             if (matchBatTeam !== innings2BatTeam) {
+               [batPlayers, bowlPlayers] = [bowlPlayers, batPlayers];
+               [batPlayerRoles, bowlPlayerRoles] = [bowlPlayerRoles, batPlayerRoles];
+             }
+
+             innings = 3; extrasWides = 0; extrasNoBalls = 0; batsmanStats = {}; bowlerStats = {};
+             updateExtras(); loadScorePlayers();
+             
+             totalOvers = parseInt(soOvers) || 1;
+             document.getElementById("oversInfoText").innerText = totalOvers + " overs (Super Over) • Target: -";
+             
+             matchTossText = soBatTeam + " elected to bat (Super Over)";
+             updateLiveScore();
+             
+             // Optionally update toss info in tournament matches table
+             if (currentTournamentMatchIdx) {
+               fetch(API + "/tournament-matches/" + currentTournamentMatchIdx, {
+                 method: "PATCH", headers: { "Content-Type": "application/json" },
+                 body: JSON.stringify({ status: "live", toss_info: matchTossText })
+               }).catch(e => console.error(e));
+             }
+
+             Swal.fire({
+               title: 'Super Over Ready!',
+               text: 'The Super Over is starting now!',
+               icon: 'success',
+               background: '#1e293b', color: '#f8fafc', timer: 2000, showConfirmButton: false
+             }).then(() => {
+                showEventPopup('target', { target: 0, batTeam: matchBatTeam, overs: totalOvers, isSuperOver: true });
+                if (window.fbSetDoc && currentLiveMatchId) {
+                  let ref = window.fbDoc(window.fbDb, "live_matches", currentLiveMatchId.toString());
+                  window.fbUpdateDoc(ref, {
+                    commentary: window.fbArrayUnion({
+                      ball: "0.0", bowler: "-", batsman: "-", runs: 0, extras: 0, isWicket: false,
+                      text: matchTossText, timestamp: Date.now()
+                    })
+                  }).catch(e => console.error("Commentary add error", e));
+                }
+             });
              return;
           } else {
              await processMatchFinish(res);
