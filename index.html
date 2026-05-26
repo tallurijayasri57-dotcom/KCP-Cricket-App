@@ -12548,6 +12548,20 @@
                 <div style="font-size:22px; font-weight:800; color:#6ee7b7;">${m.innings2 ? m.innings2.runs : (m.innings === 2 ? m.runs : 0)}/${m.innings2 ? m.innings2.wickets : (m.innings === 2 ? m.wickets : 0)}</div>
                 <div style="font-size:12px; color:rgba(255,255,255,0.5);">${m.innings2 ? m.innings2.overs : (m.innings === 2 ? m.overs : '0.0')} Ov</div>
               </div>
+              ${m.innings3 ? `
+              <div style="margin-top: 15px;">
+                <div style="font-size:12px; color:rgba(255,255,255,0.4); margin-bottom:4px;">3RD INNINGS (SUPER OVER)</div>
+                <div style="font-size:18px; font-weight:700; color:#f8fafc;">${m.innings3.batTeam}</div>
+                <div style="font-size:22px; font-weight:800; color:#6ee7b7;">${m.innings3.runs}/${m.innings3.wickets}</div>
+                <div style="font-size:12px; color:rgba(255,255,255,0.5);">${m.innings3.overs} Ov</div>
+              </div>` : ''}
+              ${m.innings4 ? `
+              <div style="margin-top: 15px;">
+                <div style="font-size:12px; color:rgba(255,255,255,0.4); margin-bottom:4px;">4TH INNINGS (SUPER OVER)</div>
+                <div style="font-size:18px; font-weight:700; color:#f8fafc;">${m.innings4.batTeam}</div>
+                <div style="font-size:22px; font-weight:800; color:#6ee7b7;">${m.innings4.runs}/${m.innings4.wickets}</div>
+                <div style="font-size:12px; color:rgba(255,255,255,0.5);">${m.innings4.overs} Ov</div>
+              </div>` : ''}
             </div>
           </div>
         `;
@@ -13281,8 +13295,16 @@
           batsmen: [], bowlers: []
         } : null);
 
-        const inn3Fallback = innings3Data || null;
-        const inn4Fallback = innings4Data || null;
+        const inn3Fallback = innings3Data || (finalSummary.t3_score != null ? {
+          batTeam: finalSummary.t1_name, bowlTeam: finalSummary.t2_name,
+          runs: finalSummary.t3_score, wickets: finalSummary.t3_wickets, overs: finalSummary.t3_overs,
+          batsmen: [], bowlers: []
+        } : null);
+        const inn4Fallback = innings4Data || (finalSummary.t4_score != null ? {
+          batTeam: (finalSummary.t2_name || finalSummary.loser), bowlTeam: finalSummary.t1_name,
+          runs: finalSummary.t4_score, wickets: finalSummary.t4_wickets, overs: finalSummary.t4_overs,
+          batsmen: [], bowlers: []
+        } : null);
 
         let calculatedTotalOvers = 10;
         if (inn1Fallback && inn1Fallback.overs) {
@@ -15597,6 +15619,7 @@
       let text = winner === "Match Tied" ? "Match Tied" : `${winner} won by ${margin}`;
       if (innings >= 4) {
         text = `Match Tied (${winner === "Match Tied" ? 'Super Over Tied' : winner + ' won the super over'})`;
+        margin = text; // Override margin to save the super over string properly in the database
       }
       return { winner, loser, margin, text };
     }
@@ -16850,6 +16873,19 @@
       let t1_overs = (innings >= 2) ? parseFloat(Math.floor(innings1Balls / 6) + "." + (innings1Balls % 6)) : parseFloat(Math.floor(ballCount / 6) + "." + (ballCount % 6));
       let t2_overs = (innings == 2) ? parseFloat(Math.floor(ballCount / 6) + "." + (ballCount % 6)) : ((innings > 2) ? parseFloat(Math.floor(innings2Balls / 6) + "." + (innings2Balls % 6)) : 0);
 
+      let t3_score = null, t3_overs = null, t3_wickets = null;
+      let t4_score = null, t4_overs = null, t4_wickets = null;
+      if (innings >= 3) {
+         t3_score = (innings >= 4) ? innings3Runs : totalRuns;
+         t3_wickets = (innings >= 4) ? innings3Wickets : totalWickets;
+         t3_overs = (innings >= 4) ? parseFloat(Math.floor(innings3Balls / 6) + "." + (innings3Balls % 6)) : parseFloat(Math.floor(ballCount / 6) + "." + (ballCount % 6));
+      }
+      if (innings >= 4) {
+         t4_score = totalRuns;
+         t4_wickets = totalWickets;
+         t4_overs = parseFloat(Math.floor(ballCount / 6) + "." + (ballCount % 6));
+      }
+
       try {
         let res = await fetch(API + "/match-results", {
           method: "POST",
@@ -16863,6 +16899,7 @@
             t1_name: (innings >= 2 ? innings1BatTeam : matchBatTeam),
             t2_name: (innings >= 2 ? innings1BowlTeam : matchBowlTeam),
             t1_score, t2_score, t1_overs, t2_overs, t1_wickets, t2_wickets,
+            t3_score, t3_overs, t3_wickets, t4_score, t4_overs, t4_wickets,
             toss_info: tossInfo || ""
           })
         });

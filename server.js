@@ -89,6 +89,12 @@ async function startServer() {
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='match_results'     AND COLUMN_NAME='t2_overs')   ALTER TABLE match_results     ADD t2_overs NVARCHAR(50) NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='match_results'     AND COLUMN_NAME='t1_wickets') ALTER TABLE match_results     ADD t1_wickets INT NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='match_results'     AND COLUMN_NAME='t2_wickets') ALTER TABLE match_results     ADD t2_wickets INT NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='match_results' AND COLUMN_NAME='t3_score') ALTER TABLE match_results ADD t3_score NVARCHAR(50) NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='match_results' AND COLUMN_NAME='t3_overs') ALTER TABLE match_results ADD t3_overs NVARCHAR(50) NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='match_results' AND COLUMN_NAME='t3_wickets') ALTER TABLE match_results ADD t3_wickets INT NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='match_results' AND COLUMN_NAME='t4_score') ALTER TABLE match_results ADD t4_score NVARCHAR(50) NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='match_results' AND COLUMN_NAME='t4_overs') ALTER TABLE match_results ADD t4_overs NVARCHAR(50) NULL`,
+                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='match_results' AND COLUMN_NAME='t4_wickets') ALTER TABLE match_results ADD t4_wickets INT NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='player_stats'      AND COLUMN_NAME='opponent_team') ALTER TABLE player_stats  ADD opponent_team NVARCHAR(100) NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='match_results'     AND COLUMN_NAME='toss_info')  ALTER TABLE match_results     ADD toss_info NVARCHAR(MAX) NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_matches' AND COLUMN_NAME='toss_info') ALTER TABLE tournament_matches ADD toss_info NVARCHAR(MAX) NULL`,
@@ -1224,12 +1230,18 @@ app.post("/match-results", async (req, res) => {
             .input("s2", sql.NVarChar, t2_score !== undefined && t2_score !== null ? t2_score.toString() : null)
             .input("o2", sql.NVarChar, t2_overs !== undefined && t2_overs !== null ? t2_overs.toString() : null)
             .input("w2", sql.Int, t2_wickets !== undefined ? t2_wickets : null)
+            .input("s3", sql.NVarChar, t3_score !== undefined && t3_score !== null ? t3_score.toString() : null)
+            .input("o3", sql.NVarChar, t3_overs !== undefined && t3_overs !== null ? t3_overs.toString() : null)
+            .input("w3", sql.Int, t3_wickets !== undefined ? t3_wickets : null)
+            .input("s4", sql.NVarChar, t4_score !== undefined && t4_score !== null ? t4_score.toString() : null)
+            .input("o4", sql.NVarChar, t4_overs !== undefined && t4_overs !== null ? t4_overs.toString() : null)
+            .input("w4", sql.Int, t4_wickets !== undefined ? t4_wickets : null)
             .input("org", sql.NVarChar, organiser || null)
             .input("com", sql.NVarChar(sql.MAX), commentary || null)
             .input("toss", sql.NVarChar, req.body.toss_info || null)
-            .query(`INSERT INTO match_results (match_id, tournament_id, series_name, winner, loser, win_type, margin, played_on, t1_name, t1_score, t1_overs, t1_wickets, t2_name, t2_score, t2_overs, t2_wickets, organiser, commentary, toss_info) 
+            .query(`INSERT INTO match_results (match_id, tournament_id, series_name, winner, loser, win_type, margin, played_on, t1_name, t1_score, t1_overs, t1_wickets, t2_name, t2_score, t2_overs, t2_wickets, t3_score, t3_overs, t3_wickets, t4_score, t4_overs, t4_wickets, organiser, commentary, toss_info) 
                     OUTPUT INSERTED.id 
-                    VALUES (@mid, @tid, @sn, @w, @l, @wt, @m, @p, @t1n, @s1, @o1, @w1, @t2n, @s2, @o2, @w2, @org, @com, @toss)`);
+                    VALUES (@mid, @tid, @sn, @w, @l, @wt, @m, @p, @t1n, @s1, @o1, @w1, @t2n, @s2, @o2, @w2, @s3, @o3, @w3, @s4, @o4, @w4, @org, @com, @toss)`);
         res.json({ id: r.recordset[0].id });
     } catch (err) {
         console.error("POST match-results error:", err);
@@ -1853,7 +1865,7 @@ app.get("/my-matches/:username", async (req, res) => {
                 .input("tn", sql.NVarChar, teamRow.team_name)
                 .query(`
                     SELECT tm.*,
-                           mr.t1_score, mr.t2_score, mr.t1_overs, mr.t2_overs,
+                           mr.t1_score, mr.t2_score, mr.t1_overs, mr.t2_overs, mr.t3_score, mr.t4_score, mr.t3_overs, mr.t4_overs, mr.t3_wickets, mr.t4_wickets,
                            mr.winner AS result_winner
                     FROM tournament_matches tm
                     LEFT JOIN match_results mr ON CAST(tm.id AS NVARCHAR(100)) = mr.match_id
@@ -2007,7 +2019,7 @@ app.get("/tournament-matches/:tournament_id", async (req, res) => {
             .query(`
                 SELECT 
                     tm.*, 
-                    mr.t1_score, mr.t2_score, mr.t1_overs, mr.t2_overs,
+                    mr.t1_score, mr.t2_score, mr.t1_overs, mr.t2_overs, mr.t3_score, mr.t4_score, mr.t3_overs, mr.t4_overs, mr.t3_wickets, mr.t4_wickets,
                     mr.winner as result_winner
                 FROM tournament_matches tm
                 LEFT JOIN match_results mr ON CAST(tm.id AS NVARCHAR(100)) = mr.match_id
