@@ -11030,8 +11030,8 @@
       const eventType = (type || "").toUpperCase();
 
       // Dynamic Tournament Name
-      let tName = document.getElementById('liveSeriesName') ? document.getElementById('liveSeriesName').innerText.trim() : '';
-      if (!tName || tName === '') {
+      let tName = document.getElementById('sbSeriesName') ? document.getElementById('sbSeriesName').innerText.trim() : '';
+      if (!tName || tName === '' || tName === '-') {
         tName = document.getElementById('mtTournamentName') ? document.getElementById('mtTournamentName').innerText.trim() : 'KCP CREX HUB TOURNAMENT';
       }
       if (!tName || tName === '') tName = 'KCP CREX HUB TOURNAMENT';
@@ -11042,18 +11042,24 @@
       let isPremium = false;
 
       if (eventType === 'FOUR' || (eventType === 'BOUNDARY' && data.runs === 4)) {
-        mainText = '<div class="popup-image-wrapper"><img src="/images/4.png" class="popup-image" alt="Four"></div>';
-        themeClass = 'theme-four';
+        mainText = `<div class="premium-event-card four-card">
+            <div class="premium-event-title" style="color: #60a5fa; text-shadow: 0 0 20px rgba(59,130,246,0.6), 0 0 40px rgba(59,130,246,0.4);">FOUR</div>
+            <div class="premium-event-subtitle">4 RUNS</div>
+          </div>`;
         confettiColors = ['#38bdf8', '#0284c7', '#e0f2fe', '#ffffff'];
         isPremium = true;
       } else if (eventType === 'SIX' || (eventType === 'BOUNDARY' && data.runs === 6)) {
-        mainText = '<div class="popup-image-wrapper"><img src="/images/6.png" class="popup-image" alt="Six"></div>';
-        themeClass = 'theme-six';
+        mainText = `<div class="premium-event-card six-card">
+            <div class="premium-event-title" style="color: #fbbf24; text-shadow: 0 0 20px rgba(245,158,11,0.6), 0 0 40px rgba(245,158,11,0.4);">SIX</div>
+            <div class="premium-event-subtitle">6 RUNS</div>
+          </div>`;
         confettiColors = ['#fbbf24', '#f59e0b', '#fef3c7', '#ffffff'];
         isPremium = true;
       } else if (eventType === 'WICKET') {
-        mainText = '<div class="popup-image-wrapper"><img src="/images/W.png" class="popup-image" alt="Wicket"></div>';
-        themeClass = 'theme-wicket';
+        mainText = `<div class="premium-event-card wicket-card">
+            <div class="premium-event-title" style="color: #ef4444; text-shadow: 0 0 20px rgba(239,68,68,0.6), 0 0 40px rgba(239,68,68,0.4);">WICKET</div>
+            <div class="premium-event-subtitle">OUT</div>
+          </div>`;
         confettiColors = ['#ef4444', '#dc2626', '#fee2e2', '#ffffff'];
         isPremium = true;
       }
@@ -11072,13 +11078,7 @@
           </div>
         </div>`;
 
-        html = `<div class="${themeClass}" style="position: relative; z-index: 10;">
-          <div class="crex-card">
-            <div class="crex-main">${mainText}</div>
-          </div>
-        </div>`;
-        
-        content.innerHTML = html;
+        content.innerHTML = mainText;
         
         let oldTicker = modal.querySelector('.ticker-wrap');
         if (oldTicker) oldTicker.remove();
@@ -11093,7 +11093,7 @@
           let tk = modal.querySelector('.ticker-wrap');
           if (tk) tk.remove();
           modal.style.backdropFilter = 'none';
-        }, 6000);
+        }, 8000);
         return;
       }
 
