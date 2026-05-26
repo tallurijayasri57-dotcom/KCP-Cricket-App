@@ -10912,7 +10912,24 @@
         else if (wicketDiff > 0) showEventPopup('WICKET');
         else if ((m.status === 'finished' || m.status === 'Finished') && (old.status !== 'finished' && old.status !== 'Finished')) {
           let awards = calculateMatchAwards(m);
-          // WINNER popup removed as per requirement for live link
+          if (m.result === 'Match Tied') {
+            setTimeout(async () => {
+              await Swal.fire({
+                title: 'Match Tied',
+                text: 'The match has been tied.',
+                icon: 'info',
+                background: '#1e293b', color: '#f8fafc',
+                customClass: { popup: 'swal-custom-dark', confirmButton: 'swal-btn-primary' }
+              });
+              await Swal.fire({
+                title: 'Super Over',
+                text: 'The match will now go into a Super Over.',
+                icon: 'warning',
+                background: '#1e293b', color: '#f8fafc',
+                customClass: { popup: 'swal-custom-dark', confirmButton: 'swal-btn-primary' }
+              });
+            }, 1000);
+          }
         }
       }
       celebrationOldState = JSON.parse(JSON.stringify(m));
@@ -15291,14 +15308,14 @@
         winner = matchBowlTeam; loser = matchBatTeam;
         margin = "Match ended in 1st innings";
       } else {
-        if (totalRuns >= target) {
+        if (parseInt(totalRuns) >= parseInt(target)) {
           winner = matchBatTeam; loser = matchBowlTeam;
-          margin = (10 - totalWickets) + " wickets";
-        } else if (totalRuns === target - 1 && (totalWickets >= 10 || (totalOvers > 0 && ballCount >= totalOvers * 6))) {
+          margin = (10 - parseInt(totalWickets)) + " wickets";
+        } else if (parseInt(totalRuns) === parseInt(target) - 1 && (parseInt(totalWickets) >= 10 || (parseFloat(totalOvers) > 0 && parseInt(ballCount) >= parseFloat(totalOvers) * 6))) {
           winner = "Match Tied"; margin = "Tied";
-        } else if (totalWickets >= 10 || (totalOvers > 0 && ballCount >= totalOvers * 6)) {
+        } else if (parseInt(totalWickets) >= 10 || (parseFloat(totalOvers) > 0 && parseInt(ballCount) >= parseFloat(totalOvers) * 6)) {
           winner = matchBowlTeam; loser = matchBatTeam;
-          margin = (target - 1 - totalRuns) + " runs";
+          margin = (parseInt(target) - 1 - parseInt(totalRuns)) + " runs";
         }
       }
       return { winner, loser, margin, text: winner === "Match Tied" ? "Match Tied" : `${winner} won by ${margin}` };
@@ -16864,82 +16881,37 @@
       
       if (res.winner === "Match Tied") {
         await Swal.fire({
-          title: 'Match Tied!',
-          text: 'Scores are level. Do you want to start a Super Over?',
+          title: 'Match Tied',
+          text: 'The match has been tied.',
           icon: 'info',
+          background: '#1e293b',
+          color: '#f8fafc',
+          customClass: { popup: 'swal-custom-dark', confirmButton: 'swal-btn-primary' }
+        });
+
+        await Swal.fire({
+          title: 'Super Over',
+          text: 'The match will now go into a Super Over.',
+          icon: 'warning',
+          background: '#1e293b',
+          color: '#f8fafc',
+          customClass: { popup: 'swal-custom-dark', confirmButton: 'swal-btn-primary' }
+        });
+
+        const { value: soOvers } = await Swal.fire({
+          title: 'Over Selection',
+          text: 'Please select the number of overs for the Super Over.',
+          input: 'select',
+          inputOptions: {
+            '1': '1 Over',
+            '2': '2 Overs',
+            '3': '3 Overs'
+          },
+          inputValue: '1',
           showCancelButton: true,
-          confirmButtonText: 'Yes, Start Super Over',
-          cancelButtonText: 'No, finish as Tie',
           background: '#1e293b',
           color: '#f8fafc',
           customClass: { popup: 'swal-custom-dark', confirmButton: 'swal-btn-primary', cancelButton: 'swal-btn-secondary' }
-        }).then(async (result) => {
-          if (result.isConfirmed) {
-            const { value: formValues } = await Swal.fire({
-              title: 'Super Over Setup',
-              html:
-                '<div style="text-align:left; margin-bottom: 10px;"><label style="font-size:14px; font-weight:600; color:#9ca3af;">Number of Overs:</label><br>' +
-                '<select id="so-overs" style="width:100%; padding:10px; background:#334155; color:#f8fafc; border:1px solid #475569; border-radius:6px; margin-top:5px;">' +
-                '<option value="1" selected>1 Over</option>' +
-                '<option value="2">2 Overs</option>' +
-                '<option value="3">3 Overs</option>' +
-                '</select></div>' +
-                '<div style="text-align:left;"><label style="font-size:14px; font-weight:600; color:#9ca3af;">Batting First:</label><br>' +
-                '<select id="so-bat" style="width:100%; padding:10px; background:#334155; color:#f8fafc; border:1px solid #475569; border-radius:6px; margin-top:5px;">' +
-                `<option value="${matchBatTeam}">${matchBatTeam}</option>` +
-                `<option value="${matchBowlTeam}">${matchBowlTeam}</option>` +
-                '</select></div>',
-              focusConfirm: false,
-              background: '#1e293b',
-              color: '#f8fafc',
-              customClass: { popup: 'swal-custom-dark', confirmButton: 'swal-btn-primary' },
-              preConfirm: () => {
-                return {
-                  overs: document.getElementById('so-overs').value,
-                  bat: document.getElementById('so-bat').value
-                }
-              }
-            });
-            if (formValues) {
-               await processMatchFinish(res);
-               let bowlTeam = (formValues.bat === matchBatTeam) ? matchBowlTeam : matchBatTeam;
-               let tId = (currentViewingTournament ? currentViewingTournament.id : null);
-               let data = {
-                 tournament_id: tId,
-                 team1: formValues.bat,
-                 team2: bowlTeam,
-                 match_date: new Date().toISOString().split('T')[0],
-                 match_time: new Date().toTimeString().split(' ')[0].substring(0,5),
-                 status: 'upcoming'
-               };
-               try {
-                 let r = await fetch(API + "/tournament-matches", {
-                   method: "POST", headers: { "Content-Type": "application/json" },
-                   body: JSON.stringify(data)
-                 });
-                 let resultData = await r.json();
-                 if (resultData.id) {
-                    await fetch(API + "/tournament-matches/" + resultData.id, {
-                      method: "PATCH", headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ status: "live", toss_info: formValues.bat + " elected to bat (Super Over)" })
-                    });
-                    
-                    document.getElementById('mTitle').value = "Super Over";
-                    document.getElementById('mOvers').value = formValues.overs;
-                    document.getElementById('mBatTeam').value = formValues.bat;
-                    document.getElementById('mBowlTeam').value = bowlTeam;
-                    
-                    currentLiveMatchId = resultData.id;
-                    currentTournamentMatchIdx = resultData.id;
-                    
-                    Swal.fire({
-                      title: 'Super Over Ready!',
-                      text: 'Redirecting to Live Match...',
-                      icon: 'success',
-                      background: '#1e293b', color: '#f8fafc', timer: 2000, showConfirmButton: false
-                    }).then(() => {
-                      startMatch();
-                    });
                  }
                } catch (e) { console.error("Super over creation error", e); }
                return;
