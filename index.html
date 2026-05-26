@@ -13028,16 +13028,22 @@
         let innings1Data = calcInnings(i1Bat, i1Bowl);
         if (innings1Data) {
           if (finalSummary && finalSummary.t1_score != null) {
-            innings1Data.runs = parseInt(finalSummary.t1_score);
-            if (finalSummary.t1_wickets != null) innings1Data.wickets = parseInt(finalSummary.t1_wickets);
+            let parsedRuns = parseInt(finalSummary.t1_score);
+            if (parsedRuns >= innings1Data.runs) {
+              innings1Data.runs = parsedRuns;
+              if (finalSummary.t1_wickets != null) innings1Data.wickets = parseInt(finalSummary.t1_wickets);
+            }
           }
         }
 
         let innings2Data = calcInnings(i2Bat, i2Bowl);
         if (innings2Data) {
           if (finalSummary && finalSummary.t2_score != null) {
-            innings2Data.runs = parseInt(finalSummary.t2_score);
-            if (finalSummary.t2_wickets != null) innings2Data.wickets = parseInt(finalSummary.t2_wickets);
+            let parsedRuns = parseInt(finalSummary.t2_score);
+            if (parsedRuns >= innings2Data.runs) {
+              innings2Data.runs = parsedRuns;
+              if (finalSummary.t2_wickets != null) innings2Data.wickets = parseInt(finalSummary.t2_wickets);
+            }
           }
         }
 
@@ -16634,13 +16640,13 @@
       let today = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
       let organiser = localStorage.getItem("currentUser") || "guest";
 
-      // Calculate scores and wickets for both innings
-      let t1_score = innings == 2 ? innings1Runs : totalRuns;
-      let t2_score = innings == 2 ? totalRuns : 0;
-      let t1_wickets = innings == 2 ? innings1Wickets : totalWickets;
-      let t2_wickets = innings == 2 ? totalWickets : 0;
-      let t1_overs = innings == 2 ? parseFloat(Math.floor(innings1Balls / 6) + "." + (innings1Balls % 6)) : parseFloat(Math.floor(ballCount / 6) + "." + (ballCount % 6));
-      let t2_overs = innings == 2 ? parseFloat(Math.floor(ballCount / 6) + "." + (ballCount % 6)) : 0;
+      // Calculate scores and wickets for both innings (Main match)
+      let t1_score = (innings >= 2) ? innings1Runs : totalRuns;
+      let t2_score = (innings == 2) ? totalRuns : ((innings > 2) ? innings2Runs : 0);
+      let t1_wickets = (innings >= 2) ? innings1Wickets : totalWickets;
+      let t2_wickets = (innings == 2) ? totalWickets : ((innings > 2) ? innings2Wickets : 0);
+      let t1_overs = (innings >= 2) ? parseFloat(Math.floor(innings1Balls / 6) + "." + (innings1Balls % 6)) : parseFloat(Math.floor(ballCount / 6) + "." + (ballCount % 6));
+      let t2_overs = (innings == 2) ? parseFloat(Math.floor(ballCount / 6) + "." + (ballCount % 6)) : ((innings > 2) ? parseFloat(Math.floor(innings2Balls / 6) + "." + (innings2Balls % 6)) : 0);
 
       try {
         let res = await fetch(API + "/match-results", {
@@ -16652,8 +16658,8 @@
             commentary: JSON.stringify(matchCommentary),
             match_id: tournamentMatchId || null,
             tournament_id: tournamentId || (currentViewingTournament ? currentViewingTournament.id : null),
-            t1_name: (innings == 2 ? innings1BatTeam : matchBatTeam),
-            t2_name: (innings == 2 ? innings1BowlTeam : matchBowlTeam),
+            t1_name: (innings >= 2 ? innings1BatTeam : matchBatTeam),
+            t2_name: (innings >= 2 ? innings1BowlTeam : matchBowlTeam),
             t1_score, t2_score, t1_overs, t2_overs, t1_wickets, t2_wickets,
             toss_info: tossInfo || ""
           })
