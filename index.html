@@ -12968,6 +12968,10 @@
         let i1Bowl = stats.filter(s => s.innings == 1 && s.match_type === 'bowl');
         let i2Bat = stats.filter(s => s.innings == 2 && s.match_type === 'bat');
         let i2Bowl = stats.filter(s => s.innings == 2 && s.match_type === 'bowl');
+        let i3Bat = stats.filter(s => s.innings == 3 && s.match_type === 'bat');
+        let i3Bowl = stats.filter(s => s.innings == 3 && s.match_type === 'bowl');
+        let i4Bat = stats.filter(s => s.innings == 4 && s.match_type === 'bat');
+        let i4Bowl = stats.filter(s => s.innings == 4 && s.match_type === 'bowl');
 
         // Find tournament ID for gallery
         let tId = null;
@@ -13037,6 +13041,9 @@
           }
         }
 
+        let innings3Data = calcInnings(i3Bat, i3Bowl);
+        let innings4Data = calcInnings(i4Bat, i4Bowl);
+
         const formatDate = (ds) => {
           if (!ds) return '';
           if (typeof ds === 'string' && isNaN(Date.parse(ds)) && ds.includes(' ')) return ds;
@@ -13065,6 +13072,9 @@
           overs: finalSummary.t2_overs || '0.0',
           batsmen: [], bowlers: []
         } : null);
+        
+        const inn3Fallback = innings3Data || null;
+        const inn4Fallback = innings4Data || null;
 
         let calculatedTotalOvers = 10;
         if (inn1Fallback && inn1Fallback.overs) {
@@ -13130,10 +13140,12 @@
           margin: finalSummary.margin,
           innings1: inn1Fallback,
           innings2: inn2Fallback,
-          innings: innings2Data ? 2 : (innings1Data ? 1 : (finalSummary.t2_score != null ? 2 : 1)),
-          runs: innings2Data ? innings2Data.runs : (innings1Data ? innings1Data.runs : (finalSummary.t2_score || finalSummary.t1_score || 0)),
-          wickets: innings2Data ? innings2Data.wickets : (innings1Data ? innings1Data.wickets : 0),
-          overs: innings2Data ? innings2Data.overs : (innings1Data ? innings1Data.overs : (finalSummary.t2_overs || finalSummary.t1_overs || '0.0')),
+          innings3: inn3Fallback,
+          innings4: inn4Fallback,
+          innings: innings4Data ? 4 : (innings3Data ? 3 : (innings2Data ? 2 : (innings1Data ? 1 : (finalSummary.t2_score != null ? 2 : 1)))),
+          runs: innings4Data ? innings4Data.runs : (innings3Data ? innings3Data.runs : (innings2Data ? innings2Data.runs : (innings1Data ? innings1Data.runs : (finalSummary.t2_score || finalSummary.t1_score || 0)))),
+          wickets: innings4Data ? innings4Data.wickets : (innings3Data ? innings3Data.wickets : (innings2Data ? innings2Data.wickets : (innings1Data ? innings1Data.wickets : 0))),
+          overs: innings4Data ? innings4Data.overs : (innings3Data ? innings3Data.overs : (innings2Data ? innings2Data.overs : (innings1Data ? innings1Data.overs : (finalSummary.t2_overs || finalSummary.t1_overs || '0.0')))),
           commentary: (() => {
             try { return finalSummary.commentary ? JSON.parse(finalSummary.commentary) : []; }
             catch (err) { return []; }
