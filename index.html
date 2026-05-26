@@ -4821,11 +4821,12 @@
       image-rendering: high-quality;
     }
     .ticker-wrap {
-      position: absolute;
-      bottom: 22%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 600px;
+      position: fixed;
+      bottom: 15%;
+      left: 0;
+      transform: none;
+      width: 100vw;
+      z-index: 99999;
       background: transparent;
       border: none;
       padding: 10px 0;
@@ -11031,7 +11032,10 @@
       const eventType = (type || "").toUpperCase();
 
       // Dynamic Tournament Name
-      let tName = document.getElementById('mtTournamentName') ? document.getElementById('mtTournamentName').innerText.trim() : 'KCP CREX HUB TOURNAMENT';
+      let tName = document.getElementById('liveSeriesName') ? document.getElementById('liveSeriesName').innerText.trim() : '';
+      if (!tName || tName === '') {
+        tName = document.getElementById('mtTournamentName') ? document.getElementById('mtTournamentName').innerText.trim() : 'KCP CREX HUB TOURNAMENT';
+      }
       if (!tName || tName === '') tName = 'KCP CREX HUB TOURNAMENT';
 
       let mainText = '';
