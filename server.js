@@ -94,8 +94,6 @@ async function startServer() {
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_matches' AND COLUMN_NAME='toss_info') ALTER TABLE tournament_matches ADD toss_info NVARCHAR(MAX) NULL`,
 
                 // Player Style Migrations
-                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='players' AND COLUMN_NAME='batting_style') ALTER TABLE players ADD batting_style NVARCHAR(50) NULL`,
-                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='players' AND COLUMN_NAME='bowling_style') ALTER TABLE players ADD bowling_style NVARCHAR(50) NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_players' AND COLUMN_NAME='batting_style') ALTER TABLE tournament_players ADD batting_style NVARCHAR(50) NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_players' AND COLUMN_NAME='bowling_style') ALTER TABLE tournament_players ADD bowling_style NVARCHAR(50) NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='player_profiles' AND COLUMN_NAME='batting_style') ALTER TABLE player_profiles ADD batting_style NVARCHAR(50) NULL`,
@@ -103,12 +101,10 @@ async function startServer() {
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_gallery' AND COLUMN_NAME='caption') ALTER TABLE tournament_gallery ADD caption NVARCHAR(MAX) NULL`,
                 
                 // User & Team ID Relationship Migrations
-                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='players' AND COLUMN_NAME='user_id') ALTER TABLE players ADD user_id INT NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_players' AND COLUMN_NAME='user_id') ALTER TABLE tournament_players ADD user_id INT NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='player_profiles' AND COLUMN_NAME='user_id') ALTER TABLE player_profiles ADD user_id INT NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='player_stats' AND COLUMN_NAME='user_id') ALTER TABLE player_stats ADD user_id INT NULL`,
                 
-                `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='players' AND COLUMN_NAME='team_id') ALTER TABLE players ADD team_id INT NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_players' AND COLUMN_NAME='team_id') ALTER TABLE tournament_players ADD team_id INT NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='player_profiles' AND COLUMN_NAME='team_id') ALTER TABLE player_profiles ADD team_id INT NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='player_stats' AND COLUMN_NAME='team_id') ALTER TABLE player_stats ADD team_id INT NULL`,
