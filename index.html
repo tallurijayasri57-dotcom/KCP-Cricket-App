@@ -13157,8 +13157,12 @@
           const liveRes = await fetch(API + "/live-matches/" + matchId, { cache: "no-store" });
           if (liveRes.ok) {
             const liveData = await liveRes.json();
-            if (liveData && liveData.match_state) {
-              fullState = typeof liveData.match_state === 'string' ? JSON.parse(liveData.match_state) : liveData.match_state;
+            if (liveData) {
+              if (liveData.match_state) {
+                fullState = typeof liveData.match_state === 'string' ? JSON.parse(liveData.match_state) : liveData.match_state;
+              } else {
+                fullState = typeof liveData === 'string' ? JSON.parse(liveData) : liveData;
+              }
               if (fullState && fullState.innings1 && fullState.innings2) {
                 if ((fullState.innings1.batTeam || '').toLowerCase() === (fullState.innings2.batTeam || '').toLowerCase()) {
                   fullState.innings2.batTeam = (fullState.batTeam === fullState.innings1.batTeam) ? fullState.bowlTeam : fullState.batTeam;
