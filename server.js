@@ -1200,7 +1200,8 @@ app.post("/match-results", async (req, res) => {
     try {
         const {
             winner, loser, win_type, margin, played_on, organiser, commentary,
-            match_id, t1_score, t2_score, t1_overs, t2_overs, t1_wickets, t2_wickets
+            match_id, t1_score, t2_score, t1_overs, t2_overs, t1_wickets, t2_wickets,
+            t3_score, t3_overs, t3_wickets, t4_score, t4_overs, t4_wickets
         } = req.body;
 
         if (useJSON || !pool) {
@@ -1208,6 +1209,7 @@ app.post("/match-results", async (req, res) => {
             MEMORY_DB.match_results.push({
                 id, winner, loser, win_type, margin, played_on, organiser, commentary,
                 match_id, t1_score, t2_score, t1_overs, t2_overs, t1_wickets, t2_wickets,
+                t3_score, t3_overs, t3_wickets, t4_score, t4_overs, t4_wickets,
                 toss_info: req.body.toss_info
             });
             saveDB();
@@ -1221,7 +1223,6 @@ app.post("/match-results", async (req, res) => {
             .input("p", sql.Date, played_on || null)
             .input("mid", sql.NVarChar, match_id !== undefined && match_id !== null ? match_id.toString() : null)
             .input("tid", sql.NVarChar, req.body.tournament_id !== undefined && req.body.tournament_id !== null ? req.body.tournament_id.toString() : null)
-            .input("sn", sql.NVarChar, req.body.series_name || null)
             .input("t1n", sql.NVarChar, req.body.t1_name || null)
             .input("s1", sql.NVarChar, t1_score !== undefined && t1_score !== null ? t1_score.toString() : null)
             .input("o1", sql.NVarChar, t1_overs !== undefined && t1_overs !== null ? t1_overs.toString() : null)
@@ -1239,9 +1240,26 @@ app.post("/match-results", async (req, res) => {
             .input("org", sql.NVarChar, organiser || null)
             .input("com", sql.NVarChar(sql.MAX), commentary || null)
             .input("toss", sql.NVarChar, req.body.toss_info || null)
-            .query(`INSERT INTO match_results (match_id, tournament_id, series_name, winner, loser, win_type, margin, played_on, t1_name, t1_score, t1_overs, t1_wickets, t2_name, t2_score, t2_overs, t2_wickets, t3_score, t3_overs, t3_wickets, t4_score, t4_overs, t4_wickets, organiser, commentary, toss_info) 
-                    OUTPUT INSERTED.id 
-                    VALUES (@mid, @tid, @sn, @w, @l, @wt, @m, @p, @t1n, @s1, @o1, @w1, @t2n, @s2, @o2, @w2, @s3, @o3, @w3, @s4, @o4, @w4, @org, @com, @toss)`);
+            .query(`
+                DECLARE @calc_tid NVARCHAR(100) = @tid;
+                DECLARE @t1_id INT = NULL;
+                DECLARE @t2_id INT = NULL;
+                
+                IF @calc_tid IS NULL AND @mid IS NOT NULL
+                BEGIN
+                    SELECT TOP 1 @calc_tid = CAST(tournament_id AS NVARCHAR(100)) FROM tournament_matches WHERE id = @mid;
+                END
+                
+                IF @calc_tid IS NOT NULL
+                BEGIN
+                    SELECT TOP 1 @t1_id = team_id FROM tournament_teams WHERE team_name = @t1n AND tournament_id = CAST(@calc_tid AS INT);
+                    SELECT TOP 1 @t2_id = team_id FROM tournament_teams WHERE team_name = @t2n AND tournament_id = CAST(@calc_tid AS INT);
+                END
+                
+                INSERT INTO match_results (match_id, tournament_id, winner, loser, win_type, margin, played_on, t1_name, t1_score, t1_overs, t1_wickets, t2_name, t2_score, t2_overs, t2_wickets, t3_score, t3_overs, t3_wickets, t4_score, t4_overs, t4_wickets, organiser, commentary, toss_info, t1_id, t2_id) 
+                OUTPUT INSERTED.id 
+                VALUES (@mid, @calc_tid, @w, @l, @wt, @m, @p, @t1n, @s1, @o1, @w1, @t2n, @s2, @o2, @w2, @s3, @o3, @w3, @s4, @o4, @w4, @org, @com, @toss, @t1_id, @t2_id)
+            `);
         res.json({ id: r.recordset[0].id });
     } catch (err) {
         console.error("POST match-results error:", err);
@@ -1427,8 +1445,29 @@ app.post("/player-stats", async (req, res) => {
             .input("ot", sql.NVarChar, req.body.opponent_team || null)
             .input("st", sql.NVarChar, shot_types ? (typeof shot_types === 'string' ? shot_types : JSON.stringify(shot_types)) : null)
             .input("ww", sql.NVarChar, wagon_wheel ? (typeof wagon_wheel === 'string' ? wagon_wheel : JSON.stringify(wagon_wheel)) : null)
-            .query(`INSERT INTO player_stats (player_name, team_name, match_date, match_type, runs, balls_faced, fours, sixes, wickets, overs_bowled, runs_conceded, dismissal_type, dismissed_by, catches, run_outs, stumpings, match_id, innings, opponent_team, shot_types, wagon_wheel) 
-                    OUTPUT INSERTED.id VALUES (@pn, @tn, @md, @mt, @r, @bf, @f4, @s6, @w, @ob, @rc, @dt, @db, @c, @ro, @s, @mid, @inn, @ot, @st, @ww)`);
+            .query(`
+                DECLARE @tourney_id NVARCHAR(100) = NULL;
+                DECLARE @opp_team NVARCHAR(255) = @ot;
+                DECLARE @u_id INT = NULL;
+                DECLARE @t_id INT = NULL;
+
+                IF @mid IS NOT NULL
+                BEGIN
+                    SELECT TOP 1 @tourney_id = tournament_id, 
+                           @opp_team = ISNULL(@opp_team, CASE WHEN t1_name = @tn THEN t2_name WHEN t2_name = @tn THEN t1_name ELSE NULL END)
+                    FROM match_results WHERE id = @mid OR match_id = @mid;
+                END
+
+                SELECT TOP 1 @u_id = player_id FROM player_profiles WHERE player_name = @pn;
+                
+                IF @tourney_id IS NOT NULL AND @tn != ''
+                BEGIN
+                    SELECT TOP 1 @t_id = team_id FROM tournament_teams WHERE team_name = @tn AND tournament_id = CAST(@tourney_id AS INT);
+                END
+
+                INSERT INTO player_stats (player_name, team_name, match_date, match_type, runs, balls_faced, fours, sixes, wickets, overs_bowled, runs_conceded, strike_rate, dismissal_type, dismissed_by, catches, run_outs, stumpings, match_id, innings, opponent_team, shot_types, wagon_wheel, tournament_id, player_id, team_id) 
+                OUTPUT INSERTED.id VALUES (@pn, @tn, @md, @mt, @r, @bf, @f4, @s6, @w, @ob, @rc, @sr, @dt, @db, @c, @ro, @s, @mid, @inn, @opp_team, @st, @ww, @tourney_id, @u_id, @t_id)
+            `);
 
 
         res.json({ success: true, id: r.recordset[0].id });
@@ -2068,8 +2107,14 @@ app.post("/tournament-matches", async (req, res) => {
             .input("st", sql.NVarChar, status || 'upcoming')
             .input("toss", sql.NVarChar, req.body.toss_info || null)
             .query(`
-                INSERT INTO tournament_matches (tournament_id, team1, team2, match_date, match_time, result, status, toss_info)
-                VALUES (@tid, @t1, @t2, @md, @mt, @res, @st, @toss)
+                DECLARE @t1_id INT = NULL;
+                DECLARE @t2_id INT = NULL;
+
+                SELECT TOP 1 @t1_id = team_id FROM tournament_teams WHERE team_name = @t1 AND tournament_id = @tid;
+                SELECT TOP 1 @t2_id = team_id FROM tournament_teams WHERE team_name = @t2 AND tournament_id = @tid;
+
+                INSERT INTO tournament_matches (tournament_id, team1, team2, match_date, match_time, result, status, toss_info, t1_id, t2_id)
+                VALUES (@tid, @t1, @t2, @md, @mt, @res, @st, @toss, @t1_id, @t2_id)
             `);
         res.json({ success: true });
     } catch (err) {

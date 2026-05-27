@@ -7786,7 +7786,7 @@
           </div>
           <div style="padding:16px;">
             <div style="margin-bottom:12px;">
-              <div class="stat-label">Series Name</div>
+              <div class="stat-label">Tournament Name</div>
               <div style="color:#6ee7b7; font-weight:600;" id="sbSeriesName">-</div>
             </div>
             <div style="margin-bottom:12px;">
@@ -11274,18 +11274,18 @@
           <div class="match-header-v3" style="position:relative; padding:16px; background:rgba(2, 6, 23, 0.4); border-bottom:1px solid rgba(255,255,255,0.05);">
             <div style="margin-bottom:12px; display:flex; justify-content:space-between; align-items:flex-start;">
               <div>
-                <div style="font-family:'Rajdhani', sans-serif; font-size:15px; color:#6ee7b7; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">${m.seriesName || 'KCPL_26'} <span style="color:rgba(255,255,255,0.4); font-size:11px; font-weight:500;">(${m.matchType || 'Limited Overs'})</span></div>
+                <div style="font-family:'Rajdhani', sans-serif; font-size:15px; color:#6ee7b7; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">${m.tournamentName || m.seriesName || 'KCPL_26'} <span style="color:rgba(255,255,255,0.4); font-size:11px; font-weight:500;">(${m.matchType || 'Limited Overs'})</span></div>
                 <div style="color:rgba(255,255,255,0.5); font-size:11px; margin-top:2px;">${m.ground || 'KCP CRICKET GROUND'}, ${m.matchDate || ''}</div>
               </div>
               <div style="display:flex; align-items:center; gap:8px;">
                 <span class="status-badge-v3 ${isFinished ? 'finished' : 'live'}">${isFinished ? 'FINISHED' : 'LIVE'}</span>
-                <svg onclick="shareMatchLink('${m.id}', '${(m.seriesName || 'KCPL').replace(/'/g, `\\'`).replace(/\"/g, `&quot;`)}', '${(m.batTeam || 'T1').replace(/'/g, `\\'`).replace(/\"/g, `&quot;`)}', '${(m.bowlTeam || 'T2').replace(/'/g, `\\'`).replace(/\"/g, `&quot;`)}')" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" style="cursor:pointer; transition: stroke 0.2s;" onmouseover="this.style.stroke='#fff'" onmouseout="this.style.stroke='rgba(255,255,255,0.4)'"><path d="M15 3h6v6"/><path d="M10 14L21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+                <svg onclick="shareMatchLink('${m.id}', '${String(m.tournamentName || m.seriesName || 'KCPL').replace(/'/g, `\\'`).replace(/\"/g, `&quot;`)}', '${String(m.batTeam || 'T1').replace(/'/g, `\\'`).replace(/\"/g, `&quot;`)}', '${String(m.bowlTeam || 'T2').replace(/'/g, `\\'`).replace(/\"/g, `&quot;`)}')" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" style="cursor:pointer; transition: stroke 0.2s;" onmouseover="this.style.stroke='#fff'" onmouseout="this.style.stroke='rgba(255,255,255,0.4)'"><path d="M15 3h6v6"/><path d="M10 14L21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
               </div>
             </div>
             
             <div style="color:rgba(255,255,255,0.4); font-size:11px; margin-bottom:16px; font-weight:500; display:flex; align-items:center; gap:6px;">
               <span style="font-size:12px;">🪙</span>
-              <span>${m.tossInfo ? 'Toss: ' + m.tossInfo.replace(/^(Toss:\s*)+/gi, '') : 'Toss info not available'}</span>
+              <span>${m.tossInfo ? 'Toss: ' + String(m.tossInfo).replace(/^(Toss:\s*)+/gi, '') : 'Toss info not available'}</span>
             </div>
 
             <div style="display:flex; justify-content:space-between; align-items:flex-start;">
@@ -11344,7 +11344,7 @@
 
         if (document.getElementById('sbCurrentRR')) document.getElementById('sbCurrentRR').innerText = currentRRVal;
         if (document.getElementById('sbProjected')) document.getElementById('sbProjected').innerText = projScore;
-        if (document.getElementById('sbSeriesName')) document.getElementById('sbSeriesName').innerText = m.seriesName || 'Friendly Match';
+        if (document.getElementById('sbSeriesName')) document.getElementById('sbSeriesName').innerText = m.tournamentName || m.seriesName || 'Friendly Match';
         if (document.getElementById('sbMatchDate')) document.getElementById('sbMatchDate').innerText = m.matchDate || m.date || new Date().toLocaleDateString('en-IN');
         if (document.getElementById('sbLocation')) document.getElementById('sbLocation').innerText = m.ground || 'KCP CRICKET GROUND';
         if (document.getElementById('sbLastUpdated')) {
@@ -12825,6 +12825,10 @@
     }
 
     async function openTournamentMatchScorecard(tournamentId, matchId, status) {
+      localStorage.setItem("lastPage", "matchDetailsPage");
+      localStorage.setItem("currentMatchViewId", matchId);
+      currentMatchViewId = matchId;
+
       if (typeof previousLiveMatchState !== 'undefined' && previousLiveMatchState && (previousLiveMatchState.id == matchId || previousLiveMatchState.tournament_match_id == matchId)) {
         showPage('matchDetailsPage');
         renderPremiumMatchView(previousLiveMatchState);
@@ -12884,7 +12888,14 @@
             const liveData = await liveRes.json();
             if (liveData && liveData.match_state) {
               fullState = typeof liveData.match_state === 'string' ? JSON.parse(liveData.match_state) : liveData.match_state;
-              if (fullState) { fullState.tournamentId = tournamentId; }
+              if (fullState) { 
+                fullState.tournamentId = tournamentId; 
+                if (fullState.innings1 && fullState.innings2) {
+                  if ((fullState.innings1.batTeam || '').toLowerCase() === (fullState.innings2.batTeam || '').toLowerCase()) {
+                    fullState.innings2.batTeam = (fullState.batTeam === fullState.innings1.batTeam) ? fullState.bowlTeam : fullState.batTeam;
+                  }
+                }
+              }
             }
           }
         } catch (le) { }
@@ -12994,7 +13005,7 @@
           }
         } catch (te) { }
 
-        const seriesName = matchResult ? (matchResult.series_name || tournamentName || matchResult.win_type || 'Tournament') : (tournamentName || 'Tournament');
+        const seriesName = tournamentName || 'Tournament';
 
         // Step 7: Build innings fallback from match_results score columns or found data
         const inn1Fallback = innings1Data || (matchResult && matchResult.t1_score != null ? {
@@ -13055,6 +13066,10 @@
     }
 
     async function openMatchScorecardByMatchId(matchId, status) {
+      localStorage.setItem("lastPage", "matchDetailsPage");
+      localStorage.setItem("currentMatchViewId", matchId);
+      currentMatchViewId = matchId;
+
       if (typeof previousLiveMatchState !== 'undefined' && previousLiveMatchState && (previousLiveMatchState.id == matchId || previousLiveMatchState.tournament_match_id == matchId)) {
         showPage('matchDetailsPage');
         renderPremiumMatchView(previousLiveMatchState);
@@ -13140,6 +13155,11 @@
             const liveData = await liveRes.json();
             if (liveData && liveData.match_state) {
               fullState = typeof liveData.match_state === 'string' ? JSON.parse(liveData.match_state) : liveData.match_state;
+              if (fullState && fullState.innings1 && fullState.innings2) {
+                if ((fullState.innings1.batTeam || '').toLowerCase() === (fullState.innings2.batTeam || '').toLowerCase()) {
+                  fullState.innings2.batTeam = (fullState.batTeam === fullState.innings1.batTeam) ? fullState.bowlTeam : fullState.batTeam;
+                }
+              }
             }
           }
         } catch (e) { console.warn("Live state fetch error:", e); }
@@ -13282,8 +13302,18 @@
 
         // For super over matches, winner is stored as 'Match Tied' and t1_name/t2_name hold team names
         const isSuperOverMatch = finalSummary.t3_score != null || String(finalSummary.margin || '').toLowerCase().includes('super over');
-        const team1Name = finalSummary.t1_name || (isSuperOverMatch ? '' : finalSummary.winner);
-        const team2Name = finalSummary.t2_name || (isSuperOverMatch ? '' : finalSummary.loser);
+        let team1Name = finalSummary.t1_name || (isSuperOverMatch ? '' : finalSummary.winner);
+        let team2Name = finalSummary.t2_name || (isSuperOverMatch ? '' : finalSummary.loser);
+        
+        if (team1Name && team2Name && team1Name.toLowerCase() === team2Name.toLowerCase()) {
+            team1Name = (innings1Data && innings1Data.batTeam) ? innings1Data.batTeam : finalSummary.winner || "Team 1";
+            team2Name = (innings2Data && innings2Data.batTeam) ? innings2Data.batTeam : finalSummary.loser || "Team 2";
+        }
+
+        if (innings1Data && team1Name) innings1Data.batTeam = team1Name;
+        if (innings2Data && team2Name) innings2Data.batTeam = team2Name;
+        if (innings3Data && team1Name) innings3Data.batTeam = team1Name;
+        if (innings4Data && team2Name) innings4Data.batTeam = team2Name;
 
         const inn1Fallback = innings1Data || (finalSummary.t1_score != null ? {
           batTeam: team1Name,
@@ -13363,7 +13393,7 @@
           batTeam: team1Name,
           bowlTeam: team2Name,
           status: 'finished',
-          seriesName: finalSummary.series_name || tournamentName || finalSummary.win_type || 'Tournament',
+          seriesName: tournamentName || 'Tournament',
           totalOvers: calculatedTotalOvers,
           organiser: finalSummary ? finalSummary.organiser : '',
           matchDate: finalSummary ? formatDate(finalSummary.played_on) : '',
@@ -14126,6 +14156,9 @@
 
       let tmid = localStorage.getItem("currentTournamentMatchIdx");
       if (tmid !== null) currentTournamentMatchIdx = parseInt(tmid);
+      
+      let cmvId = localStorage.getItem("currentMatchViewId");
+      if (cmvId !== null) currentMatchViewId = cmvId;
 
       try {
         if (lp === "manageTournament" && tid !== null && tournaments.find(x => x.id == tid)) {
@@ -14136,6 +14169,8 @@
 
 
 
+        } else if (lp === "matchDetailsPage" && currentMatchViewId !== null) {
+          openMatchScorecardByMatchId(currentMatchViewId);
         } else {
           showPage("home");
           renderHomeBanner();
