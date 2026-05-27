@@ -11217,65 +11217,39 @@
         tName = document.getElementById('mtTournamentName') ? document.getElementById('mtTournamentName').innerText.trim() : 'KCP CREX HUB TOURNAMENT';
       }
       if (!tName || tName === '') tName = 'KCP CREX HUB TOURNAMENT';
-
-      let mainText = '';
-      let themeClass = '';
-      let confettiColors = [];
-      let isPremium = false;
+      
+      let isPremiumEvent = false;
+      let signalType = '';
 
       if (eventType === 'FOUR' || (eventType === 'BOUNDARY' && data.runs === 4)) {
-        mainText = `<div class="premium-event-card four-card">
-            <div class="premium-event-title" style="color: #60a5fa; text-shadow: 0 0 20px rgba(59,130,246,0.6), 0 0 40px rgba(59,130,246,0.4);">FOUR</div>
-            <div class="premium-event-subtitle">4 RUNS</div>
-          </div>`;
-        confettiColors = ['#38bdf8', '#0284c7', '#e0f2fe', '#ffffff'];
-        isPremium = true;
+        signalType = 'four';
+        isPremiumEvent = true;
       } else if (eventType === 'SIX' || (eventType === 'BOUNDARY' && data.runs === 6)) {
-        mainText = `<div class="premium-event-card six-card">
-            <div class="premium-event-title" style="color: #fbbf24; text-shadow: 0 0 20px rgba(245,158,11,0.6), 0 0 40px rgba(245,158,11,0.4);">SIX</div>
-            <div class="premium-event-subtitle">6 RUNS</div>
-          </div>`;
-        confettiColors = ['#fbbf24', '#f59e0b', '#fef3c7', '#ffffff'];
-        isPremium = true;
+        signalType = 'six';
+        isPremiumEvent = true;
       } else if (eventType === 'WICKET') {
-        mainText = `<div class="premium-event-card wicket-card">
-            <div class="premium-event-title" style="color: #ef4444; text-shadow: 0 0 20px rgba(239,68,68,0.6), 0 0 40px rgba(239,68,68,0.4);">WICKET</div>
-            <div class="premium-event-subtitle">OUT</div>
-          </div>`;
-        confettiColors = ['#ef4444', '#dc2626', '#fee2e2', '#ffffff'];
-        isPremium = true;
+        signalType = 'out';
+        isPremiumEvent = true;
+      } else if (eventType === 'WIDE') {
+        signalType = 'wide';
+        isPremiumEvent = true;
+      } else if (eventType === 'NO BALL') {
+        signalType = 'noball';
+        isPremiumEvent = true;
       }
 
-      if (isPremium) {
-        modal.style.background = 'rgba(8, 11, 18, 0.92)';
-        modal.style.backdropFilter = 'blur(8px)';
-        const tickerHtml = `<div class="ticker-wrap">
-          <div class="ticker-content">
-            <span class="ticker-item"><span class="ticker-icon">🏏</span> ${tName}</span>
-            <span class="ticker-item"><span class="ticker-icon">⚡</span> ${tName}</span>
-            <span class="ticker-item"><span class="ticker-icon">🏆</span> ${tName}</span>
-            <span class="ticker-item"><span class="ticker-icon">🏏</span> ${tName}</span>
-            <span class="ticker-item"><span class="ticker-icon">⚡</span> ${tName}</span>
-            <span class="ticker-item"><span class="ticker-icon">🏆</span> ${tName}</span>
-          </div>
-        </div>`;
-
-        content.innerHTML = mainText;
+      if (isPremiumEvent) {
+        // Set up the dynamic ticker text
+        const tickerEl = document.getElementById('tickerText');
+        if (tickerEl) {
+          // Repeated tournament name exclusively, without emojis or extra text
+          tickerEl.innerHTML = `&nbsp;&nbsp;&nbsp;&nbsp;${tName}&nbsp;&nbsp;&nbsp;&nbsp;${tName}&nbsp;&nbsp;&nbsp;&nbsp;${tName}&nbsp;&nbsp;&nbsp;&nbsp;${tName}&nbsp;&nbsp;&nbsp;&nbsp;${tName}&nbsp;&nbsp;&nbsp;&nbsp;${tName}`;
+        }
         
-        let oldTicker = modal.querySelector('.ticker-wrap');
-        if (oldTicker) oldTicker.remove();
-        modal.insertAdjacentHTML('beforeend', tickerHtml);
-        
-        modal.classList.add('open');
-        startConfetti(confettiColors, modal);
-
-        setTimeout(() => {
-          modal.classList.remove('open');
-          stopConfetti(modal);
-          let tk = modal.querySelector('.ticker-wrap');
-          if (tk) tk.remove();
-          modal.style.backdropFilter = 'none';
-        }, 8000);
+        // Trigger the animated SVG Umpire overlay
+        if (typeof showSignal === 'function') {
+           showSignal(signalType);
+        }
         return;
       }
 
@@ -14178,6 +14152,7 @@
               localStorage.setItem("currentUser", data.display_name);
               localStorage.setItem("isRegistered", "true");
               sessionStorage.setItem("isLoggedInThisSession", "true");
+              localStorage.setItem("lastPage", "home");
 
               btn.innerText = oldText;
               btn.disabled = false;
