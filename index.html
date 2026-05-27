@@ -10865,6 +10865,9 @@
         setTimeout(() => viewLiveMatch(matchId), 1000);
         return;
       }
+      localStorage.setItem("lastPage", "matchDetailsPage");
+      localStorage.setItem("currentMatchViewId", matchId);
+      localStorage.setItem("matchStatus", "live");
       currentMatchViewId = matchId;
       showPage('matchDetailsPage');
       if (liveViewUnsubscribe) liveViewUnsubscribe();
@@ -13068,6 +13071,7 @@
     async function openMatchScorecardByMatchId(matchId, status) {
       localStorage.setItem("lastPage", "matchDetailsPage");
       localStorage.setItem("currentMatchViewId", matchId);
+      localStorage.setItem("matchStatus", status || 'finished');
       currentMatchViewId = matchId;
 
       if (typeof previousLiveMatchState !== 'undefined' && previousLiveMatchState && (previousLiveMatchState.id == matchId || previousLiveMatchState.tournament_match_id == matchId)) {
@@ -17860,6 +17864,17 @@
               if (lastPage === 'tournamentTeamsPage' && typeof renderTeamsList === 'function') renderTeamsList();
               if (lastPage === 'home' && typeof renderHomeBanner === 'function') renderHomeBanner();
               if (lastPage === 'myTournamentsPage' && typeof renderMyTournaments === 'function') renderMyTournaments();
+              if (lastPage === 'matchDetailsPage') {
+                let cmvId = localStorage.getItem("currentMatchViewId");
+                let status = localStorage.getItem("matchStatus") || 'finished';
+                if (cmvId) {
+                  if (status === 'live' && typeof viewLiveMatch === 'function') {
+                    viewLiveMatch(cmvId);
+                  } else if (typeof openMatchScorecardByMatchId === 'function') {
+                    openMatchScorecardByMatchId(cmvId, status);
+                  }
+                }
+              }
             } else {
               showPage('home');
             }
