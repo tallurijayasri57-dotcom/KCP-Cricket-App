@@ -13172,6 +13172,35 @@
           }
         } catch (e) { console.warn("Live state fetch error:", e); }
 
+        // 2.5 Fallback to Firebase for live state if SQL failed
+        if (!fullState && window.fbGetDocs && window.fbQuery && window.fbCollection && window.fbDb && finalSummary) {
+          try {
+            let tIdForFb = parseInt(finalSummary.tournament_id);
+            if (isNaN(tIdForFb)) tIdForFb = finalSummary.tournament_id;
+            let tn1 = finalSummary.t1_name || finalSummary.team1;
+            let tn2 = finalSummary.t2_name || finalSummary.team2;
+            
+            const fbQ = window.fbQuery(
+              window.fbCollection(window.fbDb, "live_matches"),
+              window.fbWhere("tournamentId", "==", tIdForFb),
+              window.fbWhere("batTeam", "in", [tn1, tn2])
+            );
+            const snap = await window.fbGetDocs(fbQ);
+            snap.forEach(doc => { fullState = doc.data(); });
+            
+            // Try string if int fails
+            if (!fullState) {
+                const fbQ2 = window.fbQuery(
+                  window.fbCollection(window.fbDb, "live_matches"),
+                  window.fbWhere("tournamentId", "==", String(finalSummary.tournament_id)),
+                  window.fbWhere("batTeam", "in", [tn1, tn2])
+                );
+                const snap2 = await window.fbGetDocs(fbQ2);
+                snap2.forEach(doc => { fullState = doc.data(); });
+            }
+          } catch(fbe) { console.warn("Firebase live state fetch error:", fbe); }
+        }
+
         // 3. Fetch player stats for the match (as fallback or supplement)
         let stats = [];
         try {
