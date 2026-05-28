@@ -87,34 +87,35 @@ CREATE TABLE tournament_matches (
 );
 GO
 
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[player_stats]') AND type in (N'U'))
-BEGIN
-    CREATE TABLE [dbo].[player_stats](
-        [id] [int] IDENTITY(1,1) PRIMARY KEY,
-        [player_name] [nvarchar](255) NOT NULL,
-        [team_name] [nvarchar](255) NULL,
-        [match_date] [date] NULL,
-        [match_type] [nvarchar](50) NULL,
-        [runs] [int] DEFAULT 0,
-        [balls_faced] [int] DEFAULT 0,
-        [fours] [int] DEFAULT 0,
-        [sixes] [int] DEFAULT 0,
-        [wickets] [int] DEFAULT 0,
-        [overs_bowled] [nvarchar](50) DEFAULT '0.0',
-        [runs_conceded] [int] DEFAULT 0,
-		[strike_rate] [float] NULL,
-        [catches] [int] DEFAULT 0,
-        [run_outs] [int] DEFAULT 0,
-        [stumpings] [int] DEFAULT 0,
-        [dismissal_type] [nvarchar](100) NULL,
-        [dismissed_by] [nvarchar](255) NULL,
-        [match_id] [nvarchar](100) NULL,
-        [innings] [int] DEFAULT 1,
-        [shot_types] [nvarchar](max) NULL,
-        [wagon_wheel] [nvarchar](max) NULL,
-        [tournament_id] [nvarchar](100) NULL
-    );
-END
+CREATE TABLE [dbo].[player_stats](
+    [id] [int] IDENTITY(1,1) PRIMARY KEY,
+    [user_id] [int] NULL,
+    [tournament_id] [nvarchar](100) NULL,
+    [team_name] [nvarchar](255) NULL,
+    [team_id] [int] NULL,
+    [player_name] [nvarchar](255) NOT NULL,
+    [player_id] [int] NULL,
+    [opponent_team] [nvarchar](100) NULL,
+    [match_date] [date] NULL,
+    [match_type] [nvarchar](50) NULL,
+    [match_id] [nvarchar](100) NULL,
+    [innings] [int] DEFAULT 1,
+    [runs] [int] DEFAULT 0,
+    [balls_faced] [int] DEFAULT 0,
+    [fours] [int] DEFAULT 0,
+    [sixes] [int] DEFAULT 0,
+    [strike_rate] [float] NULL,
+    [wickets] [int] DEFAULT 0,
+    [overs_bowled] [nvarchar](50) DEFAULT '0.0',
+    [runs_conceded] [int] DEFAULT 0,
+    [catches] [int] DEFAULT 0,
+    [run_outs] [int] DEFAULT 0,
+    [stumpings] [int] DEFAULT 0,
+    [dismissal_type] [nvarchar](100) NULL,
+    [dismissed_by] [nvarchar](255) NULL,
+    [shot_types] [nvarchar](max) NULL,
+    [wagon_wheel] [nvarchar](max) NULL
+);
 GO
 
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[match_results]') AND type in (N'U'))
