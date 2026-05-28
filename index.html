@@ -6241,7 +6241,7 @@
         <label
           style="color:rgba(255,255,255,0.6); font-size:12px; text-transform:uppercase; letter-spacing:0.5px;">Security
           Answer</label>
-        <input id="fpSecurityAnswer" placeholder="What is your first school name?"
+        <input id="fpSecurityAnswer" placeholder="What is your Date of Birth? (DD/MM/YYYY)"
           style="width:100%; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15); border-radius:8px; padding:10px 12px; color:#fff; font-size:14px; outline:none; margin-top:6px; box-sizing:border-box;">
       </div>
       <div style="margin-bottom:14px;">
@@ -14183,7 +14183,7 @@
           });
       } else {
         // Registration logic
-        fetch(API + "/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone_number: phone, display_name: dname, password: p, security_question: "What is your first school name?", security_answer: sa }) })
+        fetch(API + "/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone_number: phone, display_name: dname, password: p, security_question: "What is your Date of Birth?", security_answer: sa }) })
           .then(res => res.json())
           .then(data => {
             if (data.message === "Already Registered") {
@@ -14256,7 +14256,7 @@
         .then(async res => {
           const data = await res.json();
           if (!res.ok) {
-            if (data.message === "Incorrect security answer") throw new Error("Enter correct school name");
+            if (data.message === "Incorrect security answer") throw new Error("Enter correct date of birth");
             throw new Error(data.message || "Error resetting password");
           }
           return data;
@@ -19529,3 +19529,4 @@ let hideTimeout;
 </body>
 
 </html>
+
