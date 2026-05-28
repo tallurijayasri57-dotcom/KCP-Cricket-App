@@ -7580,7 +7580,7 @@
           <div class="standard-back-btn" style="margin-right:20px; color:rgba(255,255,255,0.8); font-size:13px;"
             onclick="globalGoBack()">← Back</div>
           <div class="profile-avatar" id="profileAvatar"
-            style="width:110px;height:110px;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,0.4);border:2px solid rgba(255,255,255,0.15);">
+            style="width:110px;height:110px;border-radius:50%;box-shadow:0 6px 24px rgba(0,0,0,0.4);border:2px solid rgba(255,255,255,0.15);overflow:hidden;cursor:pointer;" onclick="openPlayerPhotoModal()">
             🏏</div>
           <div class="profile-info-block" style="gap:4px; display:flex; flex-direction:column; align-items:flex-start;">
             <div id="profileRoleBadge" style="display:none;"></div>
@@ -10879,7 +10879,7 @@
 
       container.innerHTML = allTourneys.map((t, i) => {
         let logoHtml = t.logo
-          ? `<img src="${t.logo}" alt="logo" style="width:100%; height:100%; object-fit:cover; border-radius:10px;" onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=\\'font-size:26px;display:flex;align-items:center;justify-content:center;width:100%;height:100%;\\'>🏆</div>'">`
+          ? `<img src="${t.logo}" alt="logo" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=\\'font-size:26px;display:flex;align-items:center;justify-content:center;width:100%;height:100%;\\'>🏆</div>'">`
           : `<div style="font-size:26px; display:flex; align-items:center; justify-content:center; width:100%; height:100%;">🏏</div>`;
 
         let organiserLabel = t.organiser || t.created_by || '';
@@ -15960,7 +15960,7 @@
 
       let profilePhoto = localStorage.getItem("userPhoto_" + playerName);
       if (profilePhoto) {
-        document.getElementById("profileAvatar").innerHTML = '<img src="' + profilePhoto + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">';
+        document.getElementById("profileAvatar").innerHTML = '<img src="' + profilePhoto + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"><div style="position:absolute; bottom:0; left:0; width:100%; height:28px; background:rgba(0,0,0,0.6); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; letter-spacing:0.5px;">Edit</div>';
       }
 
       let fbProfile = null;
@@ -16041,8 +16041,8 @@
 
       if (photoUrl) {
         document.getElementById("profileAvatar").style.background = "transparent";
-        document.getElementById("profileAvatar").style.borderRadius = "10px";
-        document.getElementById("profileAvatar").innerHTML = '<img src="' + photoUrl + '" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">';
+        document.getElementById("profileAvatar").style.borderRadius = "50%";
+        document.getElementById("profileAvatar").innerHTML = '<img src="' + photoUrl + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"><div style="position:absolute; bottom:0; left:0; width:100%; height:28px; background:rgba(0,0,0,0.6); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; letter-spacing:0.5px;">Edit</div>';
       } else if (!profilePhoto) {
         const initials = (playerName || 'P').charAt(0).toUpperCase();
         document.getElementById("profileAvatar").style.background = "linear-gradient(135deg,#1e3a5f,#0d9488)";
@@ -19410,6 +19410,75 @@ let hideTimeout;
                 container.appendChild(conf);
             }
         }
+
+    function openPlayerPhotoModal() {
+      document.getElementById('playerPhotoModal').style.display = 'flex';
+      let currentImg = document.querySelector('#profileAvatar img');
+      let preview = document.getElementById('playerPhotoModalPreview');
+      if (currentImg && currentImg.src) {
+        preview.innerHTML = '<img src="' + currentImg.src + '" style="width:100%;height:100%;object-fit:cover;">';
+      } else {
+        preview.innerHTML = '<span style="color:#9ca3af; font-size:14px;">No Photo</span>';
+      }
+    }
+
+    function closePlayerPhotoModal() {
+      document.getElementById('playerPhotoModal').style.display = 'none';
+      if (document.getElementById('playerPhotoModalLoading')) {
+        document.getElementById('playerPhotoModalLoading').style.display = 'none';
+      }
+    }
+
+    async function handlePlayerPhotoUpload(event) {
+      let file = event.target.files[0];
+      if (!file) return;
+      if (!currentProfilePlayerName) return alert("No player profile selected!");
+
+      let loadingEl = document.getElementById('playerPhotoModalLoading');
+      if (loadingEl) loadingEl.style.display = 'block';
+
+      let formData = new FormData();
+      formData.append("photo", file);
+      formData.append("player_name", currentProfilePlayerName);
+
+      try {
+        let res = await fetch(API + "/upload-photo", { method: "POST", body: formData });
+        let data = await res.json();
+        if (data.success) {
+          let editLabel = '<div style="position:absolute; bottom:0; left:0; width:100%; height:28px; background:rgba(0,0,0,0.6); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; letter-spacing:0.5px;">Edit</div>';
+          document.getElementById("profileAvatar").innerHTML = '<img src="' + data.url + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">' + editLabel;
+          
+          if (window.MEMORY_DB && window.MEMORY_DB.player_profiles) {
+            let p = window.MEMORY_DB.player_profiles.find(x => x.player_name === currentProfilePlayerName);
+            if (p) p.photo_url = data.url;
+          }
+
+          let u = localStorage.getItem("currentUser") || "User";
+          localStorage.setItem("userPhoto_" + currentProfilePlayerName, data.url);
+          
+          if (currentProfilePlayerName === u) {
+             let navPic = document.getElementById("navProfilePic");
+             if (navPic) navPic.src = data.url;
+             
+             fetch(API + "/update-user-photo", {
+                 method: "POST",
+                 headers: { "Content-Type": "application/json" },
+                 body: JSON.stringify({ username: u, photo_url: data.url })
+             }).catch(err => console.error("SQL photo update error:", err));
+          }
+          
+          closePlayerPhotoModal();
+        } else {
+          alert("Failed to upload photo.");
+        }
+      } catch(e) {
+        console.error("Photo upload error:", e);
+        alert("Upload error.");
+      }
+      if (loadingEl) loadingEl.style.display = 'none';
+      event.target.value = '';
+    }
+
 </script>
 
 
@@ -19576,6 +19645,50 @@ let hideTimeout;
       <div class="ticker-text" id="tickerText">
         <!-- populated dynamically -->
       </div>
+    </div>
+  </div>
+
+
+  <!-- PLAYER PHOTO UPLOAD MODAL -->
+  <div id="playerPhotoModal" style="display:none; position:fixed; inset:0; background:#f9fafb; z-index:9999; flex-direction:column; font-family:'Inter',sans-serif;">
+    <div style="display:flex; align-items:center; padding:16px 20px; background:#fff; border-bottom:1px solid #e5e7eb;">
+      <div style="font-size:24px; color:#374151; cursor:pointer; margin-right:16px;" onclick="closePlayerPhotoModal()">←</div>
+      <div style="font-size:18px; font-weight:600; color:#111827;">Add your profile photo</div>
+    </div>
+    <div style="padding:16px 20px; color:#4b5563; font-size:14px;">
+      Let's make your cricket profile complete with your best photo.
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;">
+      <div id="playerPhotoModalPreview" style="width:280px; height:280px; border-radius:50%; background:#e5e7eb; display:flex; align-items:center; justify-content:center; overflow:hidden; box-shadow:0 10px 25px rgba(0,0,0,0.1); margin-bottom:40px;">
+        <span style="color:#9ca3af; font-size:14px;">No Photo</span>
+      </div>
+      <button style="width:100%; max-width:300px; background:#0d9488; color:#fff; border:none; padding:16px; border-radius:8px; font-weight:600; font-size:16px; margin-bottom:16px; cursor:pointer;"
+        onclick="document.getElementById('playerGalleryInput').click()">Upload Photo</button>
+
+      <div id="playerPhotoModalLoading" style="display:none; color:#0d9488; font-weight:600; margin-top:20px;">Uploading... Please wait.</div>
+      <input type="file" id="playerGalleryInput" accept="image/*" style="display:none;" onchange="handlePlayerPhotoUpload(event)">
+    </div>
+  </div>
+
+
+  <!-- PLAYER PHOTO UPLOAD MODAL -->
+  <div id="playerPhotoModal" style="display:none; position:fixed; inset:0; background:#f9fafb; z-index:9999; flex-direction:column; font-family:'Inter',sans-serif;">
+    <div style="display:flex; align-items:center; padding:16px 20px; background:#fff; border-bottom:1px solid #e5e7eb;">
+      <div style="font-size:24px; color:#374151; cursor:pointer; margin-right:16px;" onclick="closePlayerPhotoModal()">←</div>
+      <div style="font-size:18px; font-weight:600; color:#111827;">Add your profile photo</div>
+    </div>
+    <div style="padding:16px 20px; color:#4b5563; font-size:14px;">
+      Let's make your cricket profile complete with your best photo.
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;">
+      <div id="playerPhotoModalPreview" style="width:280px; height:280px; border-radius:50%; background:#e5e7eb; display:flex; align-items:center; justify-content:center; overflow:hidden; box-shadow:0 10px 25px rgba(0,0,0,0.1); margin-bottom:40px;">
+        <span style="color:#9ca3af; font-size:14px;">No Photo</span>
+      </div>
+      <button style="width:100%; max-width:300px; background:#0d9488; color:#fff; border:none; padding:16px; border-radius:8px; font-weight:600; font-size:16px; margin-bottom:16px; cursor:pointer;"
+        onclick="document.getElementById('playerGalleryInput').click()">Upload Photo</button>
+
+      <div id="playerPhotoModalLoading" style="display:none; color:#0d9488; font-weight:600; margin-top:20px;">Uploading... Please wait.</div>
+      <input type="file" id="playerGalleryInput" accept="image/*" style="display:none;" onchange="handlePlayerPhotoUpload(event)">
     </div>
   </div>
 
