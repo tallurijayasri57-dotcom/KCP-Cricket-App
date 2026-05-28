@@ -7580,7 +7580,7 @@
           <div class="standard-back-btn" style="margin-right:20px; color:rgba(255,255,255,0.8); font-size:13px;"
             onclick="globalGoBack()">← Back</div>
           <div class="profile-avatar" id="profileAvatar"
-            style="width:110px;height:110px;border-radius:50%;box-shadow:0 6px 24px rgba(0,0,0,0.4);border:2px solid rgba(255,255,255,0.15);overflow:hidden;cursor:pointer;" onclick="openPlayerPhotoModal()">
+            style="width:110px;height:110px;position:relative;border-radius:50%;box-shadow:0 6px 24px rgba(0,0,0,0.4);border:2px solid rgba(255,255,255,0.15);overflow:hidden;cursor:pointer;" onclick="openPlayerPhotoModal()">
             🏏</div>
           <div class="profile-info-block" style="gap:4px; display:flex; flex-direction:column; align-items:flex-start;">
             <div id="profileRoleBadge" style="display:none;"></div>
@@ -16047,7 +16047,7 @@
         const initials = (playerName || 'P').charAt(0).toUpperCase();
         document.getElementById("profileAvatar").style.background = "linear-gradient(135deg,#1e3a5f,#0d9488)";
         document.getElementById("profileAvatar").style.borderRadius = "50%";
-        document.getElementById("profileAvatar").innerHTML = '<span style="font-size:40px;font-weight:800;color:#ffffff;font-family:Inter,sans-serif;letter-spacing:1px;">' + initials + '</span>';
+        document.getElementById("profileAvatar").innerHTML = '<span style="font-size:40px;font-weight:800;color:#ffffff;font-family:Inter,sans-serif;letter-spacing:1px;">' + initials + '</span><div style="position:absolute; bottom:0; left:0; width:100%; height:28px; background:rgba(0,0,0,0.6); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; letter-spacing:0.5px;">Edit</div>';
       }
 
       let pTeamEl = document.getElementById("profileTeam");
