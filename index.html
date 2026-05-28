@@ -13708,6 +13708,8 @@
           if (lastEvent === 4 || lastEvent === '4') showEventPopup('boundary', { runs: 4 });
           else if (lastEvent === 6 || lastEvent === '6') showEventPopup('boundary', { runs: 6 });
           else if (lastEvent === 'W' || lastEvent === 'w') showEventPopup('wicket', {});
+          else if (typeof lastEvent === 'string' && lastEvent.startsWith('Wd')) showEventPopup('WIDE');
+          else if (typeof lastEvent === 'string' && lastEvent.startsWith('NB')) showEventPopup('NO BALL');
         }
       }
       // Deep copy to track state
@@ -16658,6 +16660,7 @@
       });
       // If odd runs are scored on Wide, striker should change
       if (runs % 2 === 1) changeStrike();
+      showEventPopup('WIDE');
       updateScore();
       updateExtras();
       updateLiveScore();
@@ -16684,6 +16687,7 @@
         text: `${bowler.value} (${matchBowlTeam}) to ${strike.value} (${matchBatTeam}), No Ball${runs > 0 ? ' plus ' + runs + ' runs' : ''}`
       });
       if (runs % 2 === 1) changeStrike();
+      showEventPopup('NO BALL');
       updateScore();
       updateExtras();
       updateLiveScore();
