@@ -8,10 +8,10 @@ CREATE TABLE users (
     password          NVARCHAR(255) NOT NULL,
     photo_url         NVARCHAR(MAX) NULL,
     created_at        DATETIME DEFAULT GETDATE(),
-    phone_number      NVARCHAR(15)  NULL,
-    display_name      NVARCHAR(150) NULL,
-    security_question NVARCHAR(255) NULL,
-    security_answer   NVARCHAR(255) NULL
+    phone_number      NVARCHAR(20)  NULL,
+    display_name      NVARCHAR(200) NULL,
+    security_question NVARCHAR(MAX) NULL,
+    security_answer   NVARCHAR(MAX) NULL
 );
 GO
 
