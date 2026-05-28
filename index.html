@@ -14706,8 +14706,8 @@
         // Fetch players + captain for each team in parallel
         const teamData = await Promise.all(teams.map(async team => {
           const [playersRes, captainRes] = await Promise.all([
-            fetch(API + '/tournament-players/' + t.id + '/' + encodeURIComponent(team.team_name)),
-            fetch(API + '/tournament-teams/' + t.id + '/' + encodeURIComponent(team.team_name) + '/captain')
+            fetch(API + '/tournament-players/' + t.id + '/' + encodeURIComponent(team.team_name) + '?_t=' + Date.now()),
+            fetch(API + '/tournament-teams/' + t.id + '/' + encodeURIComponent(team.team_name) + '/captain?_t=' + Date.now())
           ]);
           const players = await playersRes.json();
           let captainData = await captainRes.json();
@@ -14722,7 +14722,7 @@
             let photo = p.photo_url || localStorage.getItem('userPhoto_' + p.player_name) || '';
             if (!photo) {
               try {
-                const pr = await fetch(API + '/player-photo/' + encodeURIComponent(p.player_name));
+                const pr = await fetch(API + '/player-photo/' + encodeURIComponent(p.player_name) + '?_t=' + Date.now());
                 if (pr.ok) { const pd = await pr.json(); photo = pd.photo_url || ''; }
               } catch (e) { }
             }
@@ -14882,52 +14882,75 @@
       const finishedMatches = tournamentMatches.filter(m => m.status === 'finished' || (m.result && m.result !== 'LIVE'));
 
       finishedMatches.forEach(m => {
-        // Find winner/loser from result string or scores if possible
-        let winner = "", loser = "";
-        let winnerMatch = (m.result || "").match(/^(.+?) won/);
+        let winner = "", loser = "", isTie = false;
+        let resStr = m.result || "";
+        let winnerMatch = resStr.match(/^(?:Match Tied \\\()?(.+?) won/i);
+        
         if (winnerMatch) {
           winner = winnerMatch[1].trim();
-          loser = (winner === m.team1) ? m.team2 : m.team1;
+          loser = (winner.toLowerCase() === (m.team1 || "").toLowerCase()) ? m.team2 : m.team1;
+        } else if (resStr.toLowerCase() === 'match tied' || resStr.toLowerCase().includes('match tied')) {
+          isTie = true;
         } else {
-          // Fallback if result string is missing but scores exist
           let s1 = parseInt(m.score1) || 0;
           let s2 = parseInt(m.score2) || 0;
           if (s1 > s2) { winner = m.team1; loser = m.team2; }
           else if (s2 > s1) { winner = m.team2; loser = m.team1; }
-          else return; // Skip if no clear result
+          else if (s1 > 0 && s1 === s2) { isTie = true; }
+          else return; 
         }
 
-        let mWinner = winner.toLowerCase().trim();
-        let mLoser = loser.toLowerCase().trim();
+        let t1Name = (m.team1 || "Team 1").trim();
+        let t2Name = (m.team2 || "Team 2").trim();
+        
+        let k1 = Object.keys(teamStats).find(k => k.toLowerCase().trim() === t1Name.toLowerCase());
+        let k2 = Object.keys(teamStats).find(k => k.toLowerCase().trim() === t2Name.toLowerCase());
+        
+        if (!k1) { teamStats[t1Name] = { M: 0, W: 0, L: 0, Pts: 0, runsScored: 0, oversFaced: 0, runsConceded: 0, oversBowled: 0, nrr: 0 }; k1 = t1Name; }
+        if (!k2) { teamStats[t2Name] = { M: 0, W: 0, L: 0, Pts: 0, runsScored: 0, oversFaced: 0, runsConceded: 0, oversBowled: 0, nrr: 0 }; k2 = t2Name; }
 
-        // Find correct keys in teamStats (case-insensitive)
-        let winnerKey = Object.keys(teamStats).find(k => k.toLowerCase().trim() === mWinner);
-        let loserKey = Object.keys(teamStats).find(k => k.toLowerCase().trim() === mLoser);
-
-        if (!winnerKey) { teamStats[winner] = { M: 0, W: 0, L: 0, Pts: 0, runsScored: 0, oversFaced: 0, runsConceded: 0, oversBowled: 0, nrr: 0 }; winnerKey = winner; }
-        if (!loserKey) { teamStats[loser] = { M: 0, W: 0, L: 0, Pts: 0, runsScored: 0, oversFaced: 0, runsConceded: 0, oversBowled: 0, nrr: 0 }; loserKey = loser; }
-
-        teamStats[winnerKey].M++; teamStats[winnerKey].W++; teamStats[winnerKey].Pts += 2;
-        teamStats[loserKey].M++; teamStats[loserKey].L++;
-
-        // NRR Calculation Data from Joined SQL
         let r1 = parseInt(m.t1_score) || 0;
         let r2 = parseInt(m.t2_score) || 0;
         let ov1 = parseFloat(m.t1_overs) || 0;
         let ov2 = parseFloat(m.t2_overs) || 0;
+        let batFirstLower = (m.t1_name || "").toLowerCase().trim();
+        let isTeam1BatFirst = (k1.toLowerCase() === batFirstLower);
 
-        // Map runs to correct teams based on batting order (t1_name is the team that batted first)
-        let t1NameLower = (m.t1_name || "").toLowerCase().trim();
-        if (mWinner === t1NameLower) {
-          teamStats[winnerKey].runsScored += r1; teamStats[winnerKey].oversFaced += ov1;
-          teamStats[winnerKey].runsConceded += r2; teamStats[winnerKey].oversBowled += ov2;
-          teamStats[loserKey].runsScored += r2; teamStats[loserKey].oversFaced += ov2;
-          teamStats[loserKey].runsConceded += r1; teamStats[loserKey].oversBowled += ov1;
+        if (isTie) {
+          teamStats[k1].M++; teamStats[k1].Pts += 1;
+          teamStats[k2].M++; teamStats[k2].Pts += 1;
+          
+          if (isTeam1BatFirst || batFirstLower === "") {
+            teamStats[k1].runsScored += r1; teamStats[k1].oversFaced += ov1;
+            teamStats[k1].runsConceded += r2; teamStats[k1].oversBowled += ov2;
+            teamStats[k2].runsScored += r2; teamStats[k2].oversFaced += ov2;
+            teamStats[k2].runsConceded += r1; teamStats[k2].oversBowled += ov1;
+          } else {
+            teamStats[k1].runsScored += r2; teamStats[k1].oversFaced += ov2;
+            teamStats[k1].runsConceded += r1; teamStats[k1].oversBowled += ov1;
+            teamStats[k2].runsScored += r1; teamStats[k2].oversFaced += ov1;
+            teamStats[k2].runsConceded += r2; teamStats[k2].oversBowled += ov2;
+          }
         } else {
-          teamStats[winnerKey].runsScored += r2; teamStats[winnerKey].oversFaced += ov2;
-          teamStats[winnerKey].runsConceded += r1; teamStats[winnerKey].oversBowled += ov1;
-          teamStats[loserKey].runsScored += r1; teamStats[loserKey].oversFaced += ov1;
-          teamStats[loserKey].runsConceded += r2; teamStats[loserKey].oversBowled += ov2;
+          let mWinner = winner.toLowerCase().trim();
+          let winnerKey = (k1.toLowerCase() === mWinner) ? k1 : k2;
+          let loserKey = (k1.toLowerCase() === mWinner) ? k2 : k1;
+          
+          teamStats[winnerKey].M++; teamStats[winnerKey].W++; teamStats[winnerKey].Pts += 2;
+          teamStats[loserKey].M++; teamStats[loserKey].L++;
+          
+          let isWinnerBatFirst = (winnerKey.toLowerCase() === batFirstLower);
+          if (isWinnerBatFirst || batFirstLower === "") {
+            teamStats[winnerKey].runsScored += r1; teamStats[winnerKey].oversFaced += ov1;
+            teamStats[winnerKey].runsConceded += r2; teamStats[winnerKey].oversBowled += ov2;
+            teamStats[loserKey].runsScored += r2; teamStats[loserKey].oversFaced += ov2;
+            teamStats[loserKey].runsConceded += r1; teamStats[loserKey].oversBowled += ov1;
+          } else {
+            teamStats[winnerKey].runsScored += r2; teamStats[winnerKey].oversFaced += ov2;
+            teamStats[winnerKey].runsConceded += r1; teamStats[winnerKey].oversBowled += ov1;
+            teamStats[loserKey].runsScored += r1; teamStats[loserKey].oversFaced += ov1;
+            teamStats[loserKey].runsConceded += r2; teamStats[loserKey].oversBowled += ov2;
+          }
         }
       });
 
@@ -17301,47 +17324,77 @@
         teamStats[team.name] = { M: 0, W: 0, L: 0, Pts: 0, runsScored: 0, oversFaced: 0, runsConceded: 0, oversBowled: 0, nrr: 0 };
       });
 
-      tournamentMatches.filter(m => m.status === 'finished' || m.status === 'completed' || (m.result && m.result !== 'LIVE')).forEach(m => {
-        let winner = "", loser = "";
-        let winnerMatch = (m.result || "").match(/^(.+?) won/);
+      const finishedMatches = tournamentMatches.filter(m => m.status === 'finished' || m.status === 'completed' || (m.result && m.result !== 'LIVE'));
+      finishedMatches.forEach(m => {
+        let winner = "", loser = "", isTie = false;
+        let resStr = m.result || "";
+        let winnerMatch = resStr.match(/^(?:Match Tied \\\()?(.+?) won/i);
+        
         if (winnerMatch) {
           winner = winnerMatch[1].trim();
-          loser = (winner === m.team1) ? m.team2 : m.team1;
-        } else if (parseInt(m.score1) > parseInt(m.score2)) {
-          winner = m.team1; loser = m.team2;
-        } else if (parseInt(m.score2) > parseInt(m.score1)) {
-          winner = m.team2; loser = m.team1;
-        } else return;
+          loser = (winner.toLowerCase() === (m.team1 || "").toLowerCase()) ? m.team2 : m.team1;
+        } else if (resStr.toLowerCase() === 'match tied' || resStr.toLowerCase().includes('match tied')) {
+          isTie = true;
+        } else {
+          let s1 = parseInt(m.score1) || 0;
+          let s2 = parseInt(m.score2) || 0;
+          if (s1 > s2) { winner = m.team1; loser = m.team2; }
+          else if (s2 > s1) { winner = m.team2; loser = m.team1; }
+          else if (s1 > 0 && s1 === s2) { isTie = true; }
+          else return; 
+        }
 
-        let mWinner = winner.toLowerCase().trim();
-        let mLoser = loser.toLowerCase().trim();
+        let t1Name = (m.team1 || "Team 1").trim();
+        let t2Name = (m.team2 || "Team 2").trim();
+        
+        let k1 = Object.keys(teamStats).find(k => k.toLowerCase().trim() === t1Name.toLowerCase());
+        let k2 = Object.keys(teamStats).find(k => k.toLowerCase().trim() === t2Name.toLowerCase());
+        
+        if (!k1) { teamStats[t1Name] = { M: 0, W: 0, L: 0, Pts: 0, runsScored: 0, oversFaced: 0, runsConceded: 0, oversBowled: 0, nrr: 0 }; k1 = t1Name; }
+        if (!k2) { teamStats[t2Name] = { M: 0, W: 0, L: 0, Pts: 0, runsScored: 0, oversFaced: 0, runsConceded: 0, oversBowled: 0, nrr: 0 }; k2 = t2Name; }
 
-        // Find correct keys in teamStats (case-insensitive)
-        let winnerKey = Object.keys(teamStats).find(k => k.toLowerCase().trim() === mWinner);
-        let loserKey = Object.keys(teamStats).find(k => k.toLowerCase().trim() === mLoser);
-
-        if (!winnerKey) { teamStats[winner] = { M: 0, W: 0, L: 0, Pts: 0, runsScored: 0, oversFaced: 0, runsConceded: 0, oversBowled: 0, nrr: 0 }; winnerKey = winner; }
-        if (!loserKey) { teamStats[loser] = { M: 0, W: 0, L: 0, Pts: 0, runsScored: 0, oversFaced: 0, runsConceded: 0, oversBowled: 0, nrr: 0 }; loserKey = loser; }
-
-        teamStats[winnerKey].M++; teamStats[winnerKey].W++; teamStats[winnerKey].Pts += 2;
-        teamStats[loserKey].M++; teamStats[loserKey].L++;
-
-        // NRR Data from Joined SQL
         let r1 = parseInt(m.t1_score) || 0;
         let r2 = parseInt(m.t2_score) || 0;
         let ov1 = parseFloat(m.t1_overs) || 0;
         let ov2 = parseFloat(m.t2_overs) || 0;
+        let batFirstLower = (m.t1_name || "").toLowerCase().trim();
+        let isTeam1BatFirst = (k1.toLowerCase() === batFirstLower);
 
-        if (mWinner === (m.team1 || "").toLowerCase().trim()) {
-          teamStats[winnerKey].runsScored += r1; teamStats[winnerKey].oversFaced += ov1;
-          teamStats[winnerKey].runsConceded += r2; teamStats[winnerKey].oversBowled += ov2;
-          teamStats[loserKey].runsScored += r2; teamStats[loserKey].oversFaced += ov2;
-          teamStats[loserKey].runsConceded += r1; teamStats[loserKey].oversBowled += ov1;
+        if (isTie) {
+          teamStats[k1].M++; teamStats[k1].Pts += 1;
+          teamStats[k2].M++; teamStats[k2].Pts += 1;
+          
+          if (isTeam1BatFirst || batFirstLower === "") {
+            teamStats[k1].runsScored += r1; teamStats[k1].oversFaced += ov1;
+            teamStats[k1].runsConceded += r2; teamStats[k1].oversBowled += ov2;
+            teamStats[k2].runsScored += r2; teamStats[k2].oversFaced += ov2;
+            teamStats[k2].runsConceded += r1; teamStats[k2].oversBowled += ov1;
+          } else {
+            teamStats[k1].runsScored += r2; teamStats[k1].oversFaced += ov2;
+            teamStats[k1].runsConceded += r1; teamStats[k1].oversBowled += ov1;
+            teamStats[k2].runsScored += r1; teamStats[k2].oversFaced += ov1;
+            teamStats[k2].runsConceded += r2; teamStats[k2].oversBowled += ov2;
+          }
         } else {
-          teamStats[winnerKey].runsScored += r2; teamStats[winnerKey].oversFaced += ov2;
-          teamStats[winnerKey].runsConceded += r1; teamStats[winnerKey].oversBowled += ov1;
-          teamStats[loserKey].runsScored += r1; teamStats[loserKey].oversFaced += ov1;
-          teamStats[loserKey].runsConceded += r2; teamStats[loserKey].oversBowled += ov2;
+          let mWinner = winner.toLowerCase().trim();
+          let winnerKey = (k1.toLowerCase() === mWinner) ? k1 : k2;
+          let loserKey = (k1.toLowerCase() === mWinner) ? k2 : k1;
+          
+          teamStats[winnerKey].M++; teamStats[winnerKey].W++; teamStats[winnerKey].Pts += 2;
+          teamStats[loserKey].M++; teamStats[loserKey].L++;
+          
+          let isWinnerBatFirst = (winnerKey.toLowerCase() === batFirstLower);
+          if (isWinnerBatFirst || batFirstLower === "") {
+            teamStats[winnerKey].runsScored += r1; teamStats[winnerKey].oversFaced += ov1;
+            teamStats[winnerKey].runsConceded += r2; teamStats[winnerKey].oversBowled += ov2;
+            teamStats[loserKey].runsScored += r2; teamStats[loserKey].oversFaced += ov2;
+            teamStats[loserKey].runsConceded += r1; teamStats[loserKey].oversBowled += ov1;
+          } else {
+            teamStats[winnerKey].runsScored += r2; teamStats[winnerKey].oversFaced += ov2;
+            teamStats[winnerKey].runsConceded += r1; teamStats[winnerKey].oversBowled += ov1;
+            teamStats[loserKey].runsScored += r1; teamStats[loserKey].oversFaced += ov1;
+            teamStats[loserKey].runsConceded += r2; teamStats[loserKey].oversBowled += ov2;
+          }
         }
       });
 

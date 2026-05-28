@@ -30,11 +30,11 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 // ✅ Database Config
 const dbConfig = {
-    server: "localhost\\SQLEXPRESS",
+    server: "localhost\\SQLEXPRESS", //localhost
     database: "cricket_db",
     user: "sa",
     password: "sadb@123",
-    port: 1433,
+    port: 1433, // 57492
     options: { encrypt: false, trustServerCertificate: true },
     pool: { max: 10, min: 0, idleTimeoutMillis: 30000 }
 };
