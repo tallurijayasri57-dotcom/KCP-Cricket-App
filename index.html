@@ -6207,8 +6207,8 @@
           type="tel" placeholder="10-digit Phone Number (Login ID)" autocapitalize="none" autocorrect="off"
           spellcheck="false" maxlength="10"></div>
       <div class="auth-field" id="securityQuestionField" style="display:none; margin-bottom: 8px;"><span
-          class="field-icon">📅</span><input id="security_answer" placeholder="SECURITY: DATE OF BIRTH? (DD/MM/YYYY)"
-          autocapitalize="none" autocorrect="off" spellcheck="false" style="text-transform: uppercase;"></div>
+          class="field-icon">📅</span><input id="security_answer" type="text" placeholder="SECURITY: DATE OF BIRTH?" onfocus="(this.type='date')" onblur="(this.value === '' ? this.type='text' : this.type='date')"
+          autocapitalize="none" autocorrect="off" spellcheck="false" style="text-transform: uppercase; color: #94a3b8;"></div>
       <div class="auth-field" style="margin-bottom: 8px;"><span class="field-icon">🔒</span><input id="password"
           type="password" placeholder="Enter password" autocapitalize="none" autocorrect="off" spellcheck="false"></div>
       <div style="text-align:right; margin-bottom:16px;">
@@ -6241,7 +6241,7 @@
         <label
           style="color:rgba(255,255,255,0.6); font-size:12px; text-transform:uppercase; letter-spacing:0.5px;">Security
           Answer</label>
-        <input id="fpSecurityAnswer" placeholder="What is your Date of Birth? (DD/MM/YYYY)"
+        <input id="fpSecurityAnswer" type="text" placeholder="What is your Date of Birth?" onfocus="(this.type='date')" onblur="(this.value === '' ? this.type='text' : this.type='date')" 
           style="width:100%; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15); border-radius:8px; padding:10px 12px; color:#fff; font-size:14px; outline:none; margin-top:6px; box-sizing:border-box;">
       </div>
       <div style="margin-bottom:14px;">
@@ -19529,4 +19529,5 @@ let hideTimeout;
 </body>
 
 </html>
+
 
