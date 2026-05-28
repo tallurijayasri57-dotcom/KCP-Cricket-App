@@ -118,56 +118,58 @@ CREATE TABLE [dbo].[player_stats](
 );
 GO
 
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[match_results]') AND type in (N'U'))
-BEGIN
-    CREATE TABLE [dbo].[match_results](
-        [id] [int] IDENTITY(1,1) PRIMARY KEY,
-        [winner] [nvarchar](100) NULL,
-        [loser] [nvarchar](100) NULL,
-        [win_type] [nvarchar](50) NULL,
-        [margin] [nvarchar](100) NULL,
-        [played_on] [nvarchar](50) NULL,
-        [organiser] [nvarchar](100) NULL,
-        [commentary] [nvarchar](max) NULL,
-        [t1_score] [int] NULL,
-        [t2_score] [int] NULL,
-        [t1_overs] [decimal](4,1) NULL,
-        [t2_overs] [decimal](4,1) NULL,
-        [match_id] [nvarchar](100) NULL,
-        [tournament_id] [nvarchar](100) NULL,
-        [series_name] [nvarchar](200) NULL,
-        [t1_name] [nvarchar](100) NULL,
-        [t2_name] [nvarchar](100) NULL,
-        [t1_wickets] [int] NULL,
-        [t2_wickets] [int] NULL,
-        [toss_info] [nvarchar](max) NULL
-    );
-END
+CREATE TABLE [dbo].[match_results](
+    [id] [int] IDENTITY(1,1) PRIMARY KEY,
+    [tournament_name] [nvarchar](200) NULL,
+    [tournament_id] [nvarchar](100) NULL,
+    [t1_id] [int] NULL,
+    [t2_id] [int] NULL,
+    [t1_name] [nvarchar](100) NULL,
+    [t2_name] [nvarchar](100) NULL,
+    [toss_info] [nvarchar](max) NULL,
+    [winner] [nvarchar](100) NULL,
+    [loser] [nvarchar](100) NULL,
+    [win_type] [nvarchar](50) NULL,
+    [margin] [nvarchar](100) NULL,
+    [played_on] [nvarchar](50) NULL,
+    [commentary] [nvarchar](max) NULL,
+    [t1_score] [int] NULL,
+    [t2_score] [int] NULL,
+    [t1_overs] [decimal](4,1) NULL,
+    [t2_overs] [decimal](4,1) NULL,
+    [t1_wickets] [int] NULL,
+    [t2_wickets] [int] NULL,
+    [organiser] [nvarchar](100) NULL,
+    [match_id] [nvarchar](100) NULL,
+    [t3_score] [nvarchar](50) NULL,
+    [t3_overs] [nvarchar](50) NULL,
+    [t3_wickets] [int] NULL,
+    [t4_score] [nvarchar](50) NULL,
+    [t4_overs] [nvarchar](50) NULL,
+    [t4_wickets] [int] NULL
+);
 GO
 
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[player_profiles]') AND type in (N'U'))
-BEGIN
-    CREATE TABLE [dbo].[player_profiles](
-        [player_name] [nvarchar](255) PRIMARY KEY,
-        [team_name] [nvarchar](255) NULL,
-        [role] [nvarchar](100) NULL,
-        [photo_url] [nvarchar](max) NULL,
-        [updated_at] [datetime] DEFAULT GETDATE(),
-        [batting_style] [nvarchar](50) NULL,
-        [bowling_style] [nvarchar](50) NULL
-    );
-END
+CREATE TABLE [dbo].[player_profiles](
+    [user_id] [int] NULL,
+    [team_id] [int] NULL,
+    [player_name] [nvarchar](255) PRIMARY KEY,
+    [player_id] [int] NULL,
+    [team_name] [nvarchar](255) NULL,
+    [role] [nvarchar](100) NULL,
+    [photo_url] [nvarchar](max) NULL,
+    [batting_style] [nvarchar](50) NULL,
+    [bowling_style] [nvarchar](50) NULL,
+    [updated_at] [datetime] DEFAULT GETDATE()
+);
 GO
 
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[live_matches]') AND type in (N'U'))
-BEGIN
-    CREATE TABLE [dbo].[live_matches](
-        [id] [int] IDENTITY(1,1) PRIMARY KEY,
-        [match_id] [nvarchar](100) UNIQUE NOT NULL,
-        [match_state] [nvarchar](max) NOT NULL,    -- Full JSON data for re-rendering graphs
-        [updated_at] [datetime] DEFAULT GETDATE()
-    );
-END
+CREATE TABLE [dbo].[live_matches](
+    [id] [int] IDENTITY(1,1) PRIMARY KEY,
+    [match_id] [nvarchar](100) UNIQUE NOT NULL,
+    [match_state] [nvarchar](max) NOT NULL,
+    [updated_at] [datetime] DEFAULT GETDATE()
+);
 GO
 
 CREATE TABLE points_table (
