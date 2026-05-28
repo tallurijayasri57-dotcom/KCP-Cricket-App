@@ -81,6 +81,8 @@ CREATE TABLE tournament_matches (
     toss_info NVARCHAR(255),
     status NVARCHAR(50) DEFAULT 'upcoming',
     created_at DATETIME DEFAULT GETDATE(),
+    t1_id INT NULL,
+    t2_id INT NULL,
     CONSTRAINT FK_TM_Tournament FOREIGN KEY (tournament_id) REFERENCES tournaments(tournament_id) ON DELETE CASCADE
 );
 GO
