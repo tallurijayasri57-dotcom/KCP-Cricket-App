@@ -105,18 +105,18 @@ async function startServer() {
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='player_profiles' AND COLUMN_NAME='batting_style') ALTER TABLE player_profiles ADD batting_style NVARCHAR(50) NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='player_profiles' AND COLUMN_NAME='bowling_style') ALTER TABLE player_profiles ADD bowling_style NVARCHAR(50) NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_gallery' AND COLUMN_NAME='caption') ALTER TABLE tournament_gallery ADD caption NVARCHAR(MAX) NULL`,
-                
+
                 // User & Team ID Relationship Migrations
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_players' AND COLUMN_NAME='user_id') ALTER TABLE tournament_players ADD user_id INT NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='player_profiles' AND COLUMN_NAME='user_id') ALTER TABLE player_profiles ADD user_id INT NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='player_stats' AND COLUMN_NAME='user_id') ALTER TABLE player_stats ADD user_id INT NULL`,
-                
+
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_players' AND COLUMN_NAME='team_id') ALTER TABLE tournament_players ADD team_id INT NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='player_profiles' AND COLUMN_NAME='team_id') ALTER TABLE player_profiles ADD team_id INT NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='player_stats' AND COLUMN_NAME='team_id') ALTER TABLE player_stats ADD team_id INT NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_matches' AND COLUMN_NAME='t1_id') ALTER TABLE tournament_matches ADD t1_id INT NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tournament_matches' AND COLUMN_NAME='t2_id') ALTER TABLE tournament_matches ADD t2_id INT NULL`,
-                
+
                 // Auth & Security Migrations
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='users' AND COLUMN_NAME='phone_number') ALTER TABLE users ADD phone_number NVARCHAR(20) NULL`,
                 `IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='users' AND COLUMN_NAME='display_name') ALTER TABLE users ADD display_name NVARCHAR(200) NULL`,
@@ -151,14 +151,14 @@ app.get("/", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
 app.post("/register", async (req, res) => {
     try {
         const { phone_number, display_name, password, security_question, security_answer } = req.body;
-        
+
         // Fallback for old requests during transition
         const username = req.body.username || display_name;
         if (!username || !password) return res.status(400).json({ message: "Fields required" });
 
         const crypto = require('crypto');
         const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
-        
+
         // Capitalize name if provided
         const capitalizedName = username.split(' ').filter(Boolean).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
         const finalPhone = phone_number || username; // If no phone, fallback to username
@@ -177,7 +177,7 @@ app.post("/register", async (req, res) => {
             .input("pn", sql.NVarChar, finalPhone)
             .input("u", sql.NVarChar, username)
             .query("SELECT * FROM users WHERE phone_number=@pn OR username=@u");
-            
+
         if (check.recordset.length > 0) return res.json({ message: "Already Registered" });
 
         await pool.request()
@@ -187,7 +187,7 @@ app.post("/register", async (req, res) => {
             .input("sq", sql.NVarChar, security_question || "")
             .input("sa", sql.NVarChar, security_answer || "")
             .query("INSERT INTO users (username, display_name, phone_number, password, security_question, security_answer) VALUES (@u, @u, @pn, @p, @sq, @sa)");
-            
+
         res.json({ message: "Registered Successfully" });
     } catch (err) {
         console.error("Register Error:", err);
@@ -226,11 +226,11 @@ app.post("/login", async (req, res) => {
             const user = users.find(u => (u.phone_number === loginId || u.username === loginId) && (u.password === password || u.password === hashedPassword));
             return res.json({ success: !!user, display_name: user ? user.display_name || user.username : null });
         }
-        
+
         const r = await pool.request()
             .input("id", sql.NVarChar, loginId)
             .query("SELECT * FROM users WHERE phone_number=@id OR username=@id");
-            
+
         if (r.recordset.length > 0) {
             const user = r.recordset[0];
             // Support both old plain text passwords and new hashed passwords
@@ -625,7 +625,7 @@ app.post("/tournament-players", async (req, res) => {
             }
             // ─────────────────────────────────────────────────────────────────
 
-            
+
             // Check if player is already in a different team in the same tournament
             const existingPlayer = await pool.request()
                 .input("tid_check", sql.Int, tournament_id)
@@ -803,7 +803,7 @@ app.post("/reset-password", async (req, res) => {
     try {
         const { username, phone_number, security_answer, newPassword } = req.body;
         const loginId = phone_number || username;
-        
+
         if (!loginId || !newPassword || !security_answer) {
             return res.status(400).json({ message: "All fields are required" });
         }
@@ -816,15 +816,15 @@ app.post("/reset-password", async (req, res) => {
             const check = await pool.request()
                 .input("id", sql.NVarChar, loginId)
                 .query("SELECT * FROM users WHERE phone_number=@id OR username=@id");
-                
+
             if (check.recordset.length === 0) {
                 return res.status(404).json({ message: "User not found" });
             }
-            
+
             const user = check.recordset[0];
             const dbAnswer = (user.security_answer || "").trim().toLowerCase();
             const inputAnswer = (security_answer || "").trim().toLowerCase();
-            
+
             if (!dbAnswer || dbAnswer !== inputAnswer) {
                 return res.status(401).json({ message: "Incorrect security answer" });
             }
@@ -1575,7 +1575,7 @@ app.get("/player-match-history/:playerName", async (req, res) => {
                     ps.catches, ps.run_outs, ps.stumpings,
                     t.name as tournament_name
                 FROM player_stats ps
-                LEFT JOIN match_results mr ON ps.match_id = mr.id
+                LEFT JOIN match_results mr ON ps.match_id = mr.match_id OR ps.match_id = CAST(mr.id AS NVARCHAR(100))
                 LEFT JOIN tournaments t ON mr.tournament_id = CAST(t.tournament_id AS NVARCHAR(100))
                 WHERE ps.player_name = @pn
                 ORDER BY ps.match_date DESC, ps.id DESC
@@ -1854,7 +1854,7 @@ app.get("/my-matches/:username", async (req, res) => {
                 const tournament = (MEMORY_DB.tournaments || []).find(t => t.id == tid);
                 const tNameDisplay = tournament ? tournament.name : 'Tournament';
 
-                const matches = (MEMORY_DB.tournament_matches || []).filter(m => 
+                const matches = (MEMORY_DB.tournament_matches || []).filter(m =>
                     m.tournament_id == tid &&
                     ((m.team1 || '').toLowerCase() === tName || (m.team2 || '').toLowerCase() === tName)
                 );
@@ -1867,6 +1867,8 @@ app.get("/my-matches/:username", async (req, res) => {
                         t2_score: mr ? mr.t2_score : null,
                         t1_overs: mr ? mr.t1_overs : null,
                         t2_overs: mr ? mr.t2_overs : null,
+                        t1_name: mr ? mr.t1_name : null,
+                        t2_name: mr ? mr.t2_name : null,
                         result_winner: mr ? mr.winner : null,
                         tournament_name: tNameDisplay
                     });
@@ -1905,7 +1907,7 @@ app.get("/my-matches/:username", async (req, res) => {
                 .query(`
                     SELECT tm.*,
                            mr.t1_score, mr.t2_score, mr.t1_overs, mr.t2_overs, mr.t3_score, mr.t4_score, mr.t3_overs, mr.t4_overs, mr.t3_wickets, mr.t4_wickets,
-                           mr.winner AS result_winner
+                           mr.winner AS result_winner, mr.t1_name, mr.t2_name
                     FROM tournament_matches tm
                     LEFT JOIN match_results mr ON CAST(tm.id AS NVARCHAR(100)) = mr.match_id
                     WHERE tm.tournament_id = @tid
@@ -2059,7 +2061,7 @@ app.get("/tournament-matches/:tournament_id", async (req, res) => {
                 SELECT 
                     tm.*, 
                     mr.t1_score, mr.t2_score, mr.t1_overs, mr.t2_overs, mr.t3_score, mr.t4_score, mr.t3_overs, mr.t4_overs, mr.t3_wickets, mr.t4_wickets,
-                    mr.winner as result_winner
+                    mr.winner as result_winner, mr.t1_name, mr.t2_name
                 FROM tournament_matches tm
                 LEFT JOIN match_results mr ON CAST(tm.id AS NVARCHAR(100)) = mr.match_id
                 WHERE tm.tournament_id = @tid 

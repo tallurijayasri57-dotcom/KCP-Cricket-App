@@ -4788,6 +4788,7 @@
       opacity: 0;
       animation: crexPop 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
+
     .crex-main {
       font-family: 'Rajdhani', sans-serif;
       font-size: 180px;
@@ -4796,14 +4797,24 @@
       color: #ffffff;
       margin: 0;
     }
-    .theme-four .crex-main, .theme-six .crex-main, .theme-wicket .crex-main { 
+
+    .theme-four .crex-main,
+    .theme-six .crex-main,
+    .theme-wicket .crex-main {
       background: none;
       -webkit-text-fill-color: initial;
       -webkit-text-stroke: 0;
       text-shadow: none;
     }
-    .theme-six .popup-image { transform: scale(1.0); }
-    .theme-wicket .popup-image { transform: scale(1.1); }
+
+    .theme-six .popup-image {
+      transform: scale(1.0);
+    }
+
+    .theme-wicket .popup-image {
+      transform: scale(1.1);
+    }
+
     .popup-image-wrapper {
       width: 400px;
       height: 400px;
@@ -4812,6 +4823,7 @@
       justify-content: center;
       align-items: center;
     }
+
     .popup-image {
       width: 100%;
       height: 100%;
@@ -4820,6 +4832,7 @@
       image-rendering: -webkit-optimize-contrast;
       image-rendering: high-quality;
     }
+
     .ticker-wrap {
       position: absolute;
       bottom: 120px;
@@ -4834,6 +4847,7 @@
       overflow: hidden;
       white-space: nowrap;
     }
+
     .ticker-content {
       display: inline-block;
       white-space: nowrap;
@@ -4845,8 +4859,18 @@
       letter-spacing: 4px;
       text-transform: uppercase;
     }
-    .ticker-item { display: inline-flex; align-items: center; gap: 15px; margin-right: 50px; }
-    .ticker-icon { color: #fbbf24; }
+
+    .ticker-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 15px;
+      margin-right: 50px;
+    }
+
+    .ticker-icon {
+      color: #fbbf24;
+    }
+
     .confetti {
       position: absolute;
       top: -20px;
@@ -4856,24 +4880,53 @@
       animation: fall linear forwards;
       z-index: 10000;
     }
+
     @keyframes crexPop {
-      0% { transform: scale(0.4) translateY(50px); opacity: 0; }
-      50% { transform: scale(1.05) translateY(0); opacity: 1; }
-      100% { transform: scale(1) translateY(0); opacity: 1; }
-    }
-    @keyframes tickerScroll {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-100%); }
-    }
-    @keyframes fall {
-      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-      100% { transform: translateY(120vh) rotate(720deg); opacity: 0; }
+      0% {
+        transform: scale(0.4) translateY(50px);
+        opacity: 0;
+      }
+
+      50% {
+        transform: scale(1.05) translateY(0);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+      }
     }
 
-/* Overlay Container */
+    @keyframes tickerScroll {
+      0% {
+        transform: translateX(0);
+      }
+
+      100% {
+        transform: translateX(-100%);
+      }
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+
+      100% {
+        transform: translateY(120vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
+
+    /* Overlay Container */
     .signal-overlay {
       position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       background: rgba(2, 6, 23, 0.85);
       backdrop-filter: blur(8px);
       display: flex;
@@ -4908,9 +4961,12 @@
     }
 
     /* SVG Default Hiding */
-    #arm-right-six, #arm-left-six, 
-    #arm-right-out, #arm-right-four,
-    #arm-right-wide, #arm-left-wide,
+    #arm-right-six,
+    #arm-left-six,
+    #arm-right-out,
+    #arm-right-four,
+    #arm-right-wide,
+    #arm-left-wide,
     #arm-right-noball {
       opacity: 0;
     }
@@ -4940,11 +4996,30 @@
       transform: rotateX(0deg) scale(1);
     }
 
-    .theme-four .signal-text { color: #60a5fa; text-shadow: 0 0 40px rgba(59, 130, 246, 0.8); }
-    .theme-six .signal-text { color: #34d399; text-shadow: 0 0 40px rgba(16, 185, 129, 0.8); }
-    .theme-out .signal-text { color: #f87171; text-shadow: 0 0 40px rgba(239, 68, 68, 0.8); }
-    .theme-wide .signal-text { color: #fbbf24; text-shadow: 0 0 40px rgba(245, 158, 11, 0.8); }
-    .theme-noball .signal-text { color: #c084fc; text-shadow: 0 0 40px rgba(168, 85, 247, 0.8); }
+    .theme-four .signal-text {
+      color: #60a5fa;
+      text-shadow: 0 0 40px rgba(59, 130, 246, 0.8);
+    }
+
+    .theme-six .signal-text {
+      color: #34d399;
+      text-shadow: 0 0 40px rgba(16, 185, 129, 0.8);
+    }
+
+    .theme-out .signal-text {
+      color: #f87171;
+      text-shadow: 0 0 40px rgba(239, 68, 68, 0.8);
+    }
+
+    .theme-wide .signal-text {
+      color: #fbbf24;
+      text-shadow: 0 0 40px rgba(245, 158, 11, 0.8);
+    }
+
+    .theme-noball .signal-text {
+      color: #c084fc;
+      text-shadow: 0 0 40px rgba(168, 85, 247, 0.8);
+    }
 
     /* Ticker */
     .ticker-wrapper {
@@ -4962,18 +5037,25 @@
       overflow: hidden;
       z-index: 200;
     }
+
     .ticker-text {
       white-space: nowrap;
       color: rgba(255, 255, 255, 0.9);
       font-size: 16px;
       font-weight: 700;
       letter-spacing: 3px;
-      text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
       animation: tickerScroll 25s linear infinite;
     }
+
     @keyframes tickerScroll {
-      from { transform: translateX(500px); }
-      to { transform: translateX(-100%); }
+      from {
+        transform: translateX(500px);
+      }
+
+      to {
+        transform: translateX(-100%);
+      }
     }
 
     /* Particles & Celebrations */
@@ -4988,20 +5070,36 @@
 
     /* Siren Flash for Wicket */
     @keyframes sirenFlash {
-      0%, 100% { background: rgba(2, 6, 23, 0.85); }
-      50% { background: rgba(239, 68, 68, 0.3); }
+
+      0%,
+      100% {
+        background: rgba(2, 6, 23, 0.85);
+      }
+
+      50% {
+        background: rgba(239, 68, 68, 0.3);
+      }
     }
+
     .signal-overlay.theme-out {
       animation: sirenFlash 0.6s infinite;
     }
 
     /* Keyframes for Four Waving (Horizontal Sweep across front) */
     @keyframes waveFour {
-      0% { transform: scaleX(1); }
-      50% { transform: scaleX(-0.6); }
-      100% { transform: scaleX(1); }
+      0% {
+        transform: scaleX(1);
+      }
+
+      50% {
+        transform: scaleX(-0.6);
+      }
+
+      100% {
+        transform: scaleX(1);
+      }
     }
-    
+
     .anim-four #arm-right-four {
       animation: waveFour 1s infinite ease-in-out;
       transform-origin: 75px 130px;
@@ -5009,18 +5107,34 @@
 
     /* Keyframes for Out Finger */
     @keyframes fingerUp {
-      0% { transform: translateY(20px); opacity: 0; }
-      100% { transform: translateY(0); opacity: 1; }
+      0% {
+        transform: translateY(20px);
+        opacity: 0;
+      }
+
+      100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
     }
+
     .anim-out #arm-right-out {
       animation: fingerUp 0.3s ease-out forwards;
     }
 
     /* Keyframes for Six Arms */
     @keyframes armsUp {
-      0% { transform: translateY(20px); opacity: 0; }
-      100% { transform: translateY(0); opacity: 1; }
+      0% {
+        transform: translateY(20px);
+        opacity: 0;
+      }
+
+      100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
     }
+
     .anim-six #arm-right-six,
     .anim-six #arm-left-six {
       animation: armsUp 0.3s ease-out forwards;
@@ -5028,13 +5142,22 @@
 
     /* Keyframes for Wide Arms */
     @keyframes armsSide {
-      0% { transform: scaleX(0.5); opacity: 0; }
-      100% { transform: scaleX(1); opacity: 1; }
+      0% {
+        transform: scaleX(0.5);
+        opacity: 0;
+      }
+
+      100% {
+        transform: scaleX(1);
+        opacity: 1;
+      }
     }
+
     .anim-wide #arm-right-wide {
       animation: armsSide 0.3s ease-out forwards;
       transform-origin: 75px 130px;
     }
+
     .anim-wide #arm-left-wide {
       animation: armsSide 0.3s ease-out forwards;
       transform-origin: 125px 130px;
@@ -6205,8 +6328,10 @@
           type="tel" placeholder="10-digit Phone Number (Login ID)" autocapitalize="none" autocorrect="off"
           spellcheck="false" maxlength="10"></div>
       <div class="auth-field" id="securityQuestionField" style="display:none; margin-bottom: 8px;"><span
-          class="field-icon">📅</span><input id="security_answer" type="text" placeholder="SECURITY: DATE OF BIRTH?" onfocus="(this.type='date')" onblur="(this.value === '' ? this.type='text' : this.type='date')"
-          autocapitalize="none" autocorrect="off" spellcheck="false" style="text-transform: uppercase; color: #94a3b8;"></div>
+          class="field-icon">📅</span><input id="security_answer" type="text" placeholder="SECURITY: DATE OF BIRTH?"
+          onfocus="(this.type='date')" onblur="(this.value === '' ? this.type='text' : this.type='date')"
+          autocapitalize="none" autocorrect="off" spellcheck="false" style="text-transform: uppercase; color: #94a3b8;">
+      </div>
       <div class="auth-field" style="margin-bottom: 8px;"><span class="field-icon">🔒</span><input id="password"
           type="password" placeholder="Enter password" autocapitalize="none" autocorrect="off" spellcheck="false"></div>
       <div style="text-align:right; margin-bottom:16px;">
@@ -6239,7 +6364,8 @@
         <label
           style="color:rgba(255,255,255,0.6); font-size:12px; text-transform:uppercase; letter-spacing:0.5px;">Security
           Answer</label>
-        <input id="fpSecurityAnswer" type="text" placeholder="What is your Date of Birth?" onfocus="(this.type='date')" onblur="(this.value === '' ? this.type='text' : this.type='date')" 
+        <input id="fpSecurityAnswer" type="text" placeholder="What is your Date of Birth?" onfocus="(this.type='date')"
+          onblur="(this.value === '' ? this.type='text' : this.type='date')"
           style="width:100%; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15); border-radius:8px; padding:10px 12px; color:#fff; font-size:14px; outline:none; margin-top:6px; box-sizing:border-box;">
       </div>
       <div style="margin-bottom:14px;">
@@ -7578,7 +7704,8 @@
           <div class="standard-back-btn" style="margin-right:20px; color:rgba(255,255,255,0.8); font-size:13px;"
             onclick="globalGoBack()">← Back</div>
           <div class="profile-avatar" id="profileAvatar"
-            style="width:110px;height:110px;position:relative;border-radius:50%;box-shadow:0 6px 24px rgba(0,0,0,0.4);border:2px solid rgba(255,255,255,0.15);overflow:hidden;cursor:pointer;" onclick="openPlayerPhotoModal()">
+            style="width:110px;height:110px;position:relative;border-radius:50%;box-shadow:0 6px 24px rgba(0,0,0,0.4);border:2px solid rgba(255,255,255,0.15);overflow:hidden;cursor:pointer;"
+            onclick="openPlayerPhotoModal()">
             🏏</div>
           <div class="profile-info-block" style="gap:4px; display:flex; flex-direction:column; align-items:flex-start;">
             <div id="profileRoleBadge" style="display:none;"></div>
@@ -7710,25 +7837,19 @@
 
         <!-- Profile Detail Tab -->
         <div id="ptab-profile" class="profile-tab-pane">
-          <div style="background:#fff; border:1px solid #e2e8f0; border-radius:8px;">
+          <div
+            style="background:rgba(30, 41, 59, 0.6); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,0.05); border-radius:12px;">
 
-            <div style="padding:15px; border-bottom:1px solid #e2e8f0;">
-              <div style="font-size:11px; font-weight:700; color:#1e293b; margin-bottom:4px;">BATTING
+            <div style="padding:15px; border-bottom:1px solid rgba(255,255,255,0.05);">
+              <div style="font-size:11px; font-weight:700; color:rgba(255,255,255,0.5); margin-bottom:4px;">BATTING
                 STYLE</div>
-              <div style="font-size:14px; color:#475569;" id="profBatTab">RHB</div>
+              <div style="font-size:14px; color:#f8fafc;" id="profBatTab">RHB</div>
             </div>
             <div style="padding:15px;">
-              <div style="font-size:11px; font-weight:700; color:#1e293b; margin-bottom:4px;">BOWLING
+              <div style="font-size:11px; font-weight:700; color:rgba(255,255,255,0.5); margin-bottom:4px;">BOWLING
                 STYLE</div>
-              <div style="font-size:14px; color:#475569;" id="profBowlTab">Right-arm Off Break</div>
+              <div style="font-size:14px; color:#f8fafc;" id="profBowlTab">Right-arm Off Break</div>
             </div>
-          </div>
-          <div style="text-align:center;margin-top:20px;">
-            <input type="file" id="photoUploadInput" accept="image/*" style="display:none;"
-              onchange="uploadPlayerPhoto()">
-            <button class="photo-upload-btn" onclick="document.getElementById('photoUploadInput').click()">📷 Upload New
-              Photo</button>
-            <div id="photoUploadStatus" style="font-size:12px;color:#6b7280;margin-top:8px;"></div>
           </div>
         </div>
 
@@ -7835,6 +7956,17 @@
         </svg>
         Share
       </button>
+    </div>
+    <div
+      style="margin-bottom: 12px; background: rgba(255,0,0,0.05); border: 1px solid rgba(239, 68, 68, 0.4); padding: 10px; border-radius: 8px;">
+      <div
+        style="font-size: 12px; font-weight: 700; color: #ef4444; margin-bottom: 6px; display: flex; align-items: center; gap: 4px;">
+        <span class="live-pulse-dot" style="background:#ef4444"></span> YouTube Live Link
+      </div>
+      <input type="text" id="youtubeLiveUrl" placeholder="Paste YouTube Live Link here..."
+        style="width:100%; padding:8px 12px; border-radius:6px; border:1px solid rgba(239, 68, 68, 0.3); background:#1e293b; color:#fff; font-size: 13px; outline: none; text-transform: none;">
+      <div style="font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 4px;">Paste the link and score any run to
+        update viewers.</div>
     </div>
     <h3 id="targetBox"></h3>
     <div class="score"><span id="scoreRuns">0</span>/<span id="scoreWkts">0</span> (<span id="overs">0.0</span>)
@@ -9259,7 +9391,7 @@
         let isCaptain = p.player_name === currentCaptain;
         let isWK = (p.role || '').toLowerCase().includes('wicket');
 
-        let photoSrc = p.photo_url || localStorage.getItem('userPhoto_' + p.player_name) || '';
+        let photoSrc = localStorage.getItem('userPhoto_' + p.player_name) || p.photo_url || '';
         let avatarHtml = photoSrc
           ? '<img src="' + photoSrc + '" style="width:100%;height:100%;object-fit:cover;">'
           : '<svg width="48" height="48" viewBox="0 0 24 24" fill="#9ca3af"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>';
@@ -9411,7 +9543,7 @@
         let isCaptain = (captainName && pName === captainName) || (p.role === 'Captain' || p.isCaptain);
         let isWK = (p.role === 'Wicket-Keeper');
 
-        let photoSrc = p.photo_url || p.photo || '';
+        let photoSrc = localStorage.getItem("userPhoto_" + pName) || p.photo_url || p.photo || '';
         let avatarHtml = photoSrc
           ? '<img src="' + photoSrc + '" style="width:100%;height:100%;object-fit:cover;">'
           : '<svg width="48" height="48" viewBox="0 0 24 24" fill="#9ca3af"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>';
@@ -10561,8 +10693,15 @@
         }
       } catch (e) { console.warn("Save state captain resolve failed:", e); }
 
+      let yUrlInput = document.getElementById('youtubeLiveUrl');
+      let liveVideoUrl = yUrlInput ? yUrlInput.value.trim() : "";
+      if (liveVideoUrl === "" && window._liveMatchCache && window._liveMatchCache[currentLiveMatchId] && window._liveMatchCache[currentLiveMatchId].liveVideoUrl) {
+        liveVideoUrl = window._liveMatchCache[currentLiveMatchId].liveVideoUrl;
+      }
+
       let matchState = {
         id: currentLiveMatchId,
+        liveVideoUrl: liveVideoUrl,
         tournamentId: actualTournamentId,
         captain1: cap1,
         captain2: cap2,
@@ -11148,7 +11287,7 @@
     let confettiInterval;
     function startConfetti(colors, modal) {
       stopConfetti(modal);
-      
+
       let count = 0;
       const maxConfetti = 80;
 
@@ -11160,7 +11299,7 @@
 
         const confetti = document.createElement('div');
         confetti.classList.add('confetti');
-        
+
         const color = colors[Math.floor(Math.random() * colors.length)];
         const left = Math.random() * 100;
         const width = Math.random() * 8 + 6;
@@ -11174,13 +11313,13 @@
         confetti.style.height = height + 'px';
         confetti.style.animationDuration = duration + 's';
         confetti.style.animationDelay = delay + 's';
-        
+
         if (Math.random() > 0.5) {
           confetti.style.transform = 'rotateY(180deg)';
         }
 
         modal.appendChild(confetti);
-        
+
         setTimeout(() => {
           if (confetti.parentNode) {
             confetti.parentNode.removeChild(confetti);
@@ -11215,7 +11354,7 @@
         tName = document.getElementById('mtTournamentName') ? document.getElementById('mtTournamentName').innerText.trim() : 'KCP CREX HUB TOURNAMENT';
       }
       if (!tName || tName === '') tName = 'KCP CREX HUB TOURNAMENT';
-      
+
       let isPremiumEvent = false;
       let signalType = '';
 
@@ -11243,10 +11382,10 @@
           // Repeated tournament name exclusively, without emojis or extra text
           tickerEl.innerHTML = `&nbsp;&nbsp;&nbsp;&nbsp;${tName}&nbsp;&nbsp;&nbsp;&nbsp;${tName}&nbsp;&nbsp;&nbsp;&nbsp;${tName}&nbsp;&nbsp;&nbsp;&nbsp;${tName}&nbsp;&nbsp;&nbsp;&nbsp;${tName}&nbsp;&nbsp;&nbsp;&nbsp;${tName}`;
         }
-        
+
         // Trigger the animated SVG Umpire overlay
         if (typeof showSignal === 'function') {
-           showSignal(signalType);
+          showSignal(signalType);
         }
         return;
       }
@@ -11428,7 +11567,35 @@
           scoreDisplay = ``;
         }
 
+        let liveVideoHtml = '';
+        if (m.liveVideoUrl) {
+          let videoId = '';
+          try {
+            let urlLower = m.liveVideoUrl.toLowerCase();
+            if (urlLower.includes('youtu.be/')) {
+              videoId = m.liveVideoUrl.substring(urlLower.indexOf('youtu.be/') + 9).split('?')[0];
+            } else if (urlLower.includes('youtube.com/watch')) {
+              let urlObj = new URL(m.liveVideoUrl);
+              videoId = urlObj.searchParams.get('v') || urlObj.searchParams.get('V');
+            } else if (urlLower.includes('youtube.com/embed/')) {
+              videoId = m.liveVideoUrl.substring(urlLower.indexOf('embed/') + 6).split('?')[0];
+            }
+          } catch (e) { }
+          if (videoId) {
+            liveVideoHtml = `
+              <div style="width:100%; aspect-ratio:16/9; background:#000; position:relative; z-index:10;">
+                <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&rel=0" 
+                        style="width:100%; height:100%; border:none;" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen>
+                </iframe>
+              </div>
+            `;
+          }
+        }
+
         let headerHtml = `
+          ${liveVideoHtml}
           <div class="match-header-v3" style="position:relative; padding:16px; background:rgba(2, 6, 23, 0.4); border-bottom:1px solid rgba(255,255,255,0.05);">
             ${window.location.pathname.includes('/scorecard/') ? '' : `
             <div onclick="globalGoBack()" style="display:inline-flex; align-items:center; gap:6px; color:#6ee7b7; font-size:13px; font-weight:700; cursor:pointer; margin-bottom:12px; padding:5px 10px; background:rgba(110,231,183,0.08); border:1px solid rgba(110,231,183,0.2); border-radius:6px;" onmouseover="this.style.background='rgba(110,231,183,0.18)'" onmouseout="this.style.background='rgba(110,231,183,0.08)'">
@@ -12497,7 +12664,7 @@
             (mCap1 && (pName || '').toLowerCase().trim() === mCap1) ||
             (mCap2 && (pName || '').toLowerCase().trim() === mCap2) ||
             isKcpCap;
-          let photoSrc = p.photo_url || p.photo || localStorage.getItem("userPhoto_" + pName) || '';
+          let photoSrc = localStorage.getItem("userPhoto_" + pName) || p.photo_url || p.photo || '';
           let photoHtml = photoSrc ? `<img src="${photoSrc}" style="width:100%; height:100%; object-fit:cover;">` : '';
 
           html += `
@@ -12796,7 +12963,7 @@
 
         return `
           <div class="premium-card" style="margin-bottom: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px;">
-            <div onclick="const d = document.getElementById('innDetails_${title.replace(/\s+/g, '')}'); d.style.display = d.style.display === 'none' ? 'block' : 'none'" 
+            <div onclick="const d = document.getElementById('innDetails_${title.replace(/[^a-zA-Z0-9]/g, '')}'); d.style.display = d.style.display === 'none' ? 'block' : 'none'" 
                  style="padding:12px 16px; background:rgba(255,255,255,0.05); display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
               <div style="font-weight:700; color:#f8fafc; text-transform:uppercase;">${inn.batTeam || title}</div>
               <div style="display:flex; align-items:center; gap:8px;">
@@ -12804,7 +12971,7 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
               </div>
             </div>
-            <div id="innDetails_${title.replace(/\s+/g, '')}" style="display:${isOpen ? 'block' : 'none'};">
+            <div id="innDetails_${title.replace(/[^a-zA-Z0-9]/g, '')}" style="display:${isOpen ? 'block' : 'none'};">
               <div style="overflow-x: hidden; padding: 0 16px 16px 16px; width: 100%; box-sizing: border-box;">
                 <table class="sc-table live-sc-table" style="width:100%; min-width:100% !important; border-collapse:collapse; table-layout:fixed;">
                   <thead><tr style="border-bottom:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.03);"><th style="text-align:left; padding:10px; color:#94a3b8; width:30%;">Batters</th><th style="padding:10px; text-align:center; width:12%;">R</th><th style="padding:10px; text-align:center; width:12%;">B</th><th style="padding:10px; text-align:center; width:10%;">4s</th><th style="padding:10px; text-align:center; width:10%;">6s</th><th style="padding:10px; text-align:center; width:26%;">SR</th></tr></thead>
@@ -12814,7 +12981,7 @@
           let srVal = bBalls > 0 ? ((b.runs / bBalls) * 100).toFixed(1) : "0.0";
           return `
                         <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-                          <td style="padding:10px; text-align:left !important; width:30%;"><div class="player-name-truncate" style="color:#f8fafc; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${b.name} <span style="font-size:10px; color:#64748b; font-weight:400;">(${inn.batTeam || ''})</span></div><div style="font-size:11px; color:#94a3b8; margin-top:2px; line-height:1.2; word-wrap:break-word; white-space:normal;">${b.outDesc || 'not out'}</div></td>
+                          <td style="padding:10px; text-align:left !important; width:30%;"><div class="player-name-truncate" style="color:#f8fafc; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${b.name} ${inn.batTeam ? `<span style="font-size:10px; color:#64748b; font-weight:400;">(${inn.batTeam})</span>` : ''}</div><div style="font-size:11px; color:#94a3b8; margin-top:2px; line-height:1.2; word-wrap:break-word; white-space:normal;">${b.outDesc || 'not out'}</div></td>
                           <td style="text-align:center; color:#f8fafc; width:12%;">${b.runs}</td>
                           <td style="text-align:center; color:#94a3b8; width:12%;">${b.balls}</td>
                           <td style="text-align:center; color:#94a3b8; width:10%;">${b.fours}</td>
@@ -12847,7 +13014,7 @@
           let ecoVal = bBalls > 0 ? ((b.runs / (bBalls / 6)).toFixed(2)) : "0.00";
           return `
                         <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-                          <td style="padding:10px; text-align:left !important; width:30%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"><div class="player-name-truncate" style="color:#f8fafc; font-weight:600;">${b.name} <span style="font-size:10px; color:#64748b; font-weight:400;">(${bowlTeam})</span></div></td>
+                          <td style="padding:10px; text-align:left !important; width:30%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"><div class="player-name-truncate" style="color:#f8fafc; font-weight:600;">${b.name} ${bowlTeam ? `<span style="font-size:10px; color:#64748b; font-weight:400;">(${bowlTeam})</span>` : ''}</div></td>
                           <td style="text-align:center; color:#f8fafc; width:14%;">${b.overs}</td>
                           <td style="text-align:center; color:#94a3b8; width:10%;">${b.maidens || 0}</td>
                           <td style="text-align:center; color:#94a3b8; width:12%;">${b.runs}</td>
@@ -13051,8 +13218,8 @@
             const liveData = await liveRes.json();
             if (liveData && liveData.match_state) {
               fullState = typeof liveData.match_state === 'string' ? JSON.parse(liveData.match_state) : liveData.match_state;
-              if (fullState) { 
-                fullState.tournamentId = tournamentId; 
+              if (fullState) {
+                fullState.tournamentId = tournamentId;
                 if (fullState.innings1 && fullState.innings2) {
                   if ((fullState.innings1.batTeam || '').toLowerCase() === (fullState.innings2.batTeam || '').toLowerCase()) {
                     fullState.innings2.batTeam = (fullState.batTeam === fullState.innings1.batTeam) ? fullState.bowlTeam : fullState.batTeam;
@@ -13339,7 +13506,7 @@
             if (isNaN(tIdForFb)) tIdForFb = finalSummary.tournament_id;
             let tn1 = finalSummary.t1_name || finalSummary.team1;
             let tn2 = finalSummary.t2_name || finalSummary.team2;
-            
+
             const fbQ = window.fbQuery(
               window.fbCollection(window.fbDb, "live_matches"),
               window.fbWhere("tournamentId", "==", tIdForFb),
@@ -13347,18 +13514,18 @@
             );
             const snap = await window.fbGetDocs(fbQ);
             snap.forEach(doc => { fullState = doc.data(); });
-            
+
             // Try string if int fails
             if (!fullState) {
-                const fbQ2 = window.fbQuery(
-                  window.fbCollection(window.fbDb, "live_matches"),
-                  window.fbWhere("tournamentId", "==", String(finalSummary.tournament_id)),
-                  window.fbWhere("batTeam", "in", [tn1, tn2])
-                );
-                const snap2 = await window.fbGetDocs(fbQ2);
-                snap2.forEach(doc => { fullState = doc.data(); });
+              const fbQ2 = window.fbQuery(
+                window.fbCollection(window.fbDb, "live_matches"),
+                window.fbWhere("tournamentId", "==", String(finalSummary.tournament_id)),
+                window.fbWhere("batTeam", "in", [tn1, tn2])
+              );
+              const snap2 = await window.fbGetDocs(fbQ2);
+              snap2.forEach(doc => { fullState = doc.data(); });
             }
-          } catch(fbe) { console.warn("Firebase live state fetch error:", fbe); }
+          } catch (fbe) { console.warn("Firebase live state fetch error:", fbe); }
         }
 
         // 3. Fetch player stats for the match (as fallback or supplement)
@@ -13501,10 +13668,10 @@
         const isSuperOverMatch = finalSummary.t3_score != null || String(finalSummary.margin || '').toLowerCase().includes('super over');
         let team1Name = finalSummary.t1_name || (isSuperOverMatch ? '' : finalSummary.winner);
         let team2Name = finalSummary.t2_name || (isSuperOverMatch ? '' : finalSummary.loser);
-        
+
         if (team1Name && team2Name && team1Name.toLowerCase() === team2Name.toLowerCase()) {
-            team1Name = (innings1Data && innings1Data.batTeam) ? innings1Data.batTeam : finalSummary.winner || "Team 1";
-            team2Name = (innings2Data && innings2Data.batTeam) ? innings2Data.batTeam : finalSummary.loser || "Team 2";
+          team1Name = (innings1Data && innings1Data.batTeam) ? innings1Data.batTeam : finalSummary.winner || "Team 1";
+          team2Name = (innings2Data && innings2Data.batTeam) ? innings2Data.batTeam : finalSummary.loser || "Team 2";
         }
 
         if (innings1Data && team1Name) innings1Data.batTeam = team1Name;
@@ -14356,24 +14523,42 @@
 
       let tmid = localStorage.getItem("currentTournamentMatchIdx");
       if (tmid !== null) currentTournamentMatchIdx = parseInt(tmid);
-      
+
       let cmvId = localStorage.getItem("currentMatchViewId");
       if (cmvId !== null) currentMatchViewId = cmvId;
 
+      let viewTid = localStorage.getItem("currentViewingTournamentId");
+
       try {
-        if (lp === "manageTournament" && tid !== null && tournaments.find(x => x.id == tid)) {
-          let foundT = tournaments.find(x => x.id == tid);
+        if (lp === "manageTournament" && tid !== null) {
+          let foundT = tournaments.find(x => x.id == tid) || { id: tid, name: localStorage.getItem('currentTournamentName') || 'Tournament' };
           openManageTournamentPage(foundT.id, foundT.name);
-        } else if (lp === "tournamentTeamsPage" && cttid !== null && tournaments.find(x => x.id == cttid)) {
+        } else if (lp === "tournamentTeamsPage" && cttid !== null) {
           openTournamentTeamsPage(parseInt(cttid));
-
-
-
         } else if (lp === "matchDetailsPage" && currentMatchViewId !== null) {
           openMatchScorecardByMatchId(currentMatchViewId);
+        } else if (lp === "tournamentDetailsPage" && viewTid !== null) {
+          if (typeof refreshTournamentsFromServer === 'function') {
+            refreshTournamentsFromServer().then(() => openTournamentDetails(viewTid));
+          } else {
+            openTournamentDetails(viewTid);
+          }
+        } else if (lp === "playerProfilePage") {
+          let pName = localStorage.getItem("currentProfilePlayerName");
+          let pTeam = localStorage.getItem("currentProfileTeamName") || "";
+          let pRole = localStorage.getItem("currentProfileRole") || "";
+          if (pName) {
+            openPlayerProfile(pName, pTeam, pRole);
+          } else {
+            showPage("home"); renderHomeBanner();
+          }
         } else {
-          showPage("home");
-          renderHomeBanner();
+          if (lp && document.getElementById(lp)) {
+            showPage(lp);
+          } else {
+            showPage("home");
+            renderHomeBanner();
+          }
         }
       } catch (e) {
         console.error("startApp nav error:", e);
@@ -14486,7 +14671,7 @@
       if (!t) return;
       currentViewingTournament = t;
       currentViewingTournamentId = id;
-
+      localStorage.setItem("currentViewingTournamentId", id);
 
       showPage('tournamentDetailsPage');
 
@@ -14606,10 +14791,21 @@
         let resText = m.result ? m.result : (m.tossInfo ? m.tossInfo : 'Upcoming match scheduled');
 
         // Extract score if available
-        let s1 = m.score1 || m.t1_score || "";
-        let s2 = m.score2 || m.t2_score || "";
-        let ov1 = m.overs1 || m.t1_overs || "";
-        let ov2 = m.overs2 || m.t2_overs || "";
+        let s1 = m.score1 || "";
+        let s2 = m.score2 || "";
+        let ov1 = m.overs1 || "";
+        let ov2 = m.overs2 || "";
+
+        if (m.t1_score != null && m.t1_score !== undefined) {
+          let batFirstTeam = (m.t1_name || "").trim().toLowerCase();
+          if (!batFirstTeam || batFirstTeam === (m.team1 || "").trim().toLowerCase()) {
+            s1 = m.t1_score; ov1 = m.t1_overs || "";
+            s2 = m.t2_score || ""; ov2 = m.t2_overs || "";
+          } else {
+            s1 = m.t2_score || ""; ov1 = m.t2_overs || "";
+            s2 = m.t1_score; ov2 = m.t1_overs || "";
+          }
+        }
 
         html += `
           <div class="my-card" onclick="openTournamentMatchScorecard('${t.id}', '${m.id}', '${m.status}')" style="cursor:pointer; margin:0;">
@@ -14746,7 +14942,7 @@
               ? `<div style="color:#94a3b8;font-size:13px;grid-column:1/-1;text-align:center;padding:30px 0;">No players added yet.</div>`
               : team.players.map(p => {
                 const isCaptain = team.captain && p.player_name === team.captain;
-                const photoSrc = p.photo || localStorage.getItem("userPhoto_" + p.player_name) || '';
+                const photoSrc = localStorage.getItem("userPhoto_" + p.player_name) || p.photo || '';
                 const photoHtml = photoSrc
                   ? `<img src="${photoSrc}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
                   : '';
@@ -14883,7 +15079,7 @@
         let winner = "", loser = "", isTie = false;
         let resStr = m.result || "";
         let winnerMatch = resStr.match(/^(?:Match Tied \\\()?(.+?) won/i);
-        
+
         if (winnerMatch) {
           winner = winnerMatch[1].trim();
           loser = (winner.toLowerCase() === (m.team1 || "").toLowerCase()) ? m.team2 : m.team1;
@@ -14895,15 +15091,15 @@
           if (s1 > s2) { winner = m.team1; loser = m.team2; }
           else if (s2 > s1) { winner = m.team2; loser = m.team1; }
           else if (s1 > 0 && s1 === s2) { isTie = true; }
-          else return; 
+          else return;
         }
 
         let t1Name = (m.team1 || "Team 1").trim();
         let t2Name = (m.team2 || "Team 2").trim();
-        
+
         let k1 = Object.keys(teamStats).find(k => k.toLowerCase().trim() === t1Name.toLowerCase());
         let k2 = Object.keys(teamStats).find(k => k.toLowerCase().trim() === t2Name.toLowerCase());
-        
+
         if (!k1) { teamStats[t1Name] = { M: 0, W: 0, L: 0, Pts: 0, runsScored: 0, oversFaced: 0, runsConceded: 0, oversBowled: 0, nrr: 0 }; k1 = t1Name; }
         if (!k2) { teamStats[t2Name] = { M: 0, W: 0, L: 0, Pts: 0, runsScored: 0, oversFaced: 0, runsConceded: 0, oversBowled: 0, nrr: 0 }; k2 = t2Name; }
 
@@ -14917,7 +15113,7 @@
         if (isTie) {
           teamStats[k1].M++; teamStats[k1].Pts += 1;
           teamStats[k2].M++; teamStats[k2].Pts += 1;
-          
+
           if (isTeam1BatFirst || batFirstLower === "") {
             teamStats[k1].runsScored += r1; teamStats[k1].oversFaced += ov1;
             teamStats[k1].runsConceded += r2; teamStats[k1].oversBowled += ov2;
@@ -14933,10 +15129,10 @@
           let mWinner = winner.toLowerCase().trim();
           let winnerKey = (k1.toLowerCase() === mWinner) ? k1 : k2;
           let loserKey = (k1.toLowerCase() === mWinner) ? k2 : k1;
-          
+
           teamStats[winnerKey].M++; teamStats[winnerKey].W++; teamStats[winnerKey].Pts += 2;
           teamStats[loserKey].M++; teamStats[loserKey].L++;
-          
+
           let isWinnerBatFirst = (winnerKey.toLowerCase() === batFirstLower);
           if (isWinnerBatFirst || batFirstLower === "") {
             teamStats[winnerKey].runsScored += r1; teamStats[winnerKey].oversFaced += ov1;
@@ -15496,7 +15692,7 @@
             } else {
               html += `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(100px, 1fr)); gap:16px; margin-bottom:24px;">`;
               r.players.forEach(p => {
-                const photoSrc = p.photo || localStorage.getItem("userPhoto_" + p.player_name) || '';
+                const photoSrc = localStorage.getItem("userPhoto_" + p.player_name) || p.photo || '';
                 const photoHtml = photoSrc ? `<img src="${photoSrc}" style="width:100%; height:100%; object-fit:cover;">` : '';
                 html += `
                 <div style="display:flex; flex-direction:column; align-items:center; text-align:center; position:relative; cursor:pointer; width:100%; box-sizing:border-box;" onclick="openPlayerProfile('${escapeQ(p.player_name)}', '${escapeQ(r.team)}', '${escapeQ(p.role)}')">
@@ -15699,8 +15895,8 @@
         }
 
         // Summarize player's own contribution
-        let batStats = m.player_stats.find(ps => ps.match_type === 'bat');
-        let bowlStats = m.player_stats.find(ps => ps.match_type === 'bowl');
+        let batStats = (m.player_stats || []).find(ps => ps.match_type === 'bat');
+        let bowlStats = (m.player_stats || []).find(ps => ps.match_type === 'bowl');
         let myPerf = [];
         if (batStats) myPerf.push(`Bat: ${batStats.runs}(${batStats.balls_faced})`);
         if (bowlStats) myPerf.push(`Bowl: ${bowlStats.wickets}/${bowlStats.runs_conceded}`);
@@ -15940,6 +16136,10 @@
       if (document.getElementById("allPlayersModal")) document.getElementById("allPlayersModal").classList.remove("open");
       showPage("playerProfilePage");
 
+      localStorage.setItem("currentProfilePlayerName", playerName || "");
+      localStorage.setItem("currentProfileTeamName", teamName || "");
+      localStorage.setItem("currentProfileRole", role || "");
+
       // Hide upload button for spectators
       let isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname) || window.location.hostname.startsWith('192.168.');
       let uploadBtn = document.querySelector(".photo-upload-btn");
@@ -15953,8 +16153,10 @@
 
       currentProfilePlayerName = playerName;
       document.getElementById("profileName").innerText = playerName;
-      document.getElementById("photoUploadStatus").innerText = "";
-      document.getElementById("photoUploadInput").value = "";
+      let puStatus = document.getElementById("photoUploadStatus");
+      if (puStatus) puStatus.innerText = "";
+      let puInput = document.getElementById("photoUploadInput");
+      if (puInput) puInput.value = "";
 
       let profilePhoto = localStorage.getItem("userPhoto_" + playerName);
       if (profilePhoto) {
@@ -16038,15 +16240,15 @@
       if (profBowlTab) profBowlTab.innerText = bowlStyle || 'Not Specified';
 
       if (photoUrl) {
-          document.getElementById("profileAvatar").style.background = "transparent";
-          document.getElementById("profileAvatar").style.borderRadius = "50%";
-          document.getElementById("profileAvatar").innerHTML = '<img src="' + photoUrl + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"><div style="position:absolute; bottom:0; left:0; width:100%; height:28px; background:rgba(0,0,0,0.6); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; letter-spacing:0.5px;">Edit</div>';
-        } else {
-          localStorage.removeItem("userPhoto_" + playerName);
-          const initials = (playerName || 'P').charAt(0).toUpperCase();
-          document.getElementById("profileAvatar").style.background = "linear-gradient(135deg,#1e3a5f,#0d9488)";
-          document.getElementById("profileAvatar").innerHTML = '<span style="font-size:40px;font-weight:800;color:#ffffff;font-family:Inter,sans-serif;letter-spacing:1px;">' + initials + '</span><div style="position:absolute; bottom:0; left:0; width:100%; height:28px; background:rgba(0,0,0,0.6); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; letter-spacing:0.5px;">Edit</div>';
-        }
+        document.getElementById("profileAvatar").style.background = "transparent";
+        document.getElementById("profileAvatar").style.borderRadius = "50%";
+        document.getElementById("profileAvatar").innerHTML = '<img src="' + photoUrl + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"><div style="position:absolute; bottom:0; left:0; width:100%; height:28px; background:rgba(0,0,0,0.6); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; letter-spacing:0.5px;">Edit</div>';
+      } else {
+        localStorage.removeItem("userPhoto_" + playerName);
+        const initials = (playerName || 'P').charAt(0).toUpperCase();
+        document.getElementById("profileAvatar").style.background = "linear-gradient(135deg,#1e3a5f,#0d9488)";
+        document.getElementById("profileAvatar").innerHTML = '<span style="font-size:40px;font-weight:800;color:#ffffff;font-family:Inter,sans-serif;letter-spacing:1px;">' + initials + '</span><div style="position:absolute; bottom:0; left:0; width:100%; height:28px; background:rgba(0,0,0,0.6); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; letter-spacing:0.5px;">Edit</div>';
+      }
 
       let pTeamEl = document.getElementById("profileTeam");
       if (pTeamEl) pTeamEl.innerText = teamName ? ("🏏 " + teamName) : "";
@@ -16069,9 +16271,11 @@
       try {
         try {
           if (!fbProfile || isLocal) {
-            const res = await fetch(API + "/player-match-history/" + encodeURIComponent(playerName), { cache: "no-store" });
+            const safePlayerName = (playerName || "").trim();
+            const res = await fetch(API + "/player-match-history/" + encodeURIComponent(safePlayerName) + "?_t=" + Date.now());
             if (res.ok) {
               const apiRows = await res.json();
+              console.log("Fetched apiRows for", safePlayerName, ":", apiRows);
               if (apiRows) rows = apiRows;
             }
           }
@@ -16112,6 +16316,7 @@
               rows.unshift({
                 match_id: cm.id,
                 tournament_id: cm.tournament_id || cm.tournamentId,
+                tournament_match_id: cm.id,
                 tournament_name: cm.tournament_name || "LEAGUE MATCH",
                 match_date: cm.match_date || new Date().toISOString().split('T')[0],
                 winner: cm.winner,
@@ -16134,9 +16339,11 @@
 
         let performanceRows = [];
         rows.forEach(m => {
-          m.player_stats.forEach(ps => {
-            performanceRows.push({ ...ps, match_id: m.match_id, match_date: m.match_date });
-          });
+          if (m.player_stats) {
+            m.player_stats.forEach(ps => {
+              performanceRows.push({ ...ps, match_id: m.match_id, match_date: m.match_date });
+            });
+          }
         });
 
         let matchIds = new Set();
@@ -16219,8 +16426,10 @@
         let res = await fetch(API + "/upload-photo", { method: "POST", body: formData });
         let data = await res.json();
         if (data.success) {
-          document.getElementById("profileAvatar").innerHTML = '<img src="' + data.url + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+          let editLabel = '<div style="position:absolute; bottom:0; left:0; width:100%; height:28px; background:rgba(0,0,0,0.6); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; letter-spacing:0.5px;">Edit</div>';
+          document.getElementById("profileAvatar").innerHTML = '<img src="' + data.url + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">' + editLabel;
           document.getElementById("photoUploadStatus").innerText = "✅ Uploaded!";
+          localStorage.setItem("userPhoto_" + currentProfilePlayerName, data.url);
           syncPlayerProfileToFirebase(currentProfilePlayerName).catch(e => console.error("Sync uploaded photo error:", e));
         } else {
           document.getElementById("photoUploadStatus").innerText = "❌ Failed";
@@ -17142,14 +17351,14 @@
       let t3_score = null, t3_overs = null, t3_wickets = null;
       let t4_score = null, t4_overs = null, t4_wickets = null;
       if (innings >= 3) {
-         t3_score = (innings >= 4) ? innings3Runs : totalRuns;
-         t3_wickets = (innings >= 4) ? innings3Wickets : totalWickets;
-         t3_overs = (innings >= 4) ? parseFloat(Math.floor(innings3Balls / 6) + "." + (innings3Balls % 6)) : parseFloat(Math.floor(ballCount / 6) + "." + (ballCount % 6));
+        t3_score = (innings >= 4) ? innings3Runs : totalRuns;
+        t3_wickets = (innings >= 4) ? innings3Wickets : totalWickets;
+        t3_overs = (innings >= 4) ? parseFloat(Math.floor(innings3Balls / 6) + "." + (innings3Balls % 6)) : parseFloat(Math.floor(ballCount / 6) + "." + (ballCount % 6));
       }
       if (innings >= 4) {
-         t4_score = totalRuns;
-         t4_wickets = totalWickets;
-         t4_overs = parseFloat(Math.floor(ballCount / 6) + "." + (ballCount % 6));
+        t4_score = totalRuns;
+        t4_wickets = totalWickets;
+        t4_overs = parseFloat(Math.floor(ballCount / 6) + "." + (ballCount % 6));
       }
 
       try {
@@ -17327,7 +17536,7 @@
         let winner = "", loser = "", isTie = false;
         let resStr = m.result || "";
         let winnerMatch = resStr.match(/^(?:Match Tied \\\()?(.+?) won/i);
-        
+
         if (winnerMatch) {
           winner = winnerMatch[1].trim();
           loser = (winner.toLowerCase() === (m.team1 || "").toLowerCase()) ? m.team2 : m.team1;
@@ -17339,15 +17548,15 @@
           if (s1 > s2) { winner = m.team1; loser = m.team2; }
           else if (s2 > s1) { winner = m.team2; loser = m.team1; }
           else if (s1 > 0 && s1 === s2) { isTie = true; }
-          else return; 
+          else return;
         }
 
         let t1Name = (m.team1 || "Team 1").trim();
         let t2Name = (m.team2 || "Team 2").trim();
-        
+
         let k1 = Object.keys(teamStats).find(k => k.toLowerCase().trim() === t1Name.toLowerCase());
         let k2 = Object.keys(teamStats).find(k => k.toLowerCase().trim() === t2Name.toLowerCase());
-        
+
         if (!k1) { teamStats[t1Name] = { M: 0, W: 0, L: 0, Pts: 0, runsScored: 0, oversFaced: 0, runsConceded: 0, oversBowled: 0, nrr: 0 }; k1 = t1Name; }
         if (!k2) { teamStats[t2Name] = { M: 0, W: 0, L: 0, Pts: 0, runsScored: 0, oversFaced: 0, runsConceded: 0, oversBowled: 0, nrr: 0 }; k2 = t2Name; }
 
@@ -17361,7 +17570,7 @@
         if (isTie) {
           teamStats[k1].M++; teamStats[k1].Pts += 1;
           teamStats[k2].M++; teamStats[k2].Pts += 1;
-          
+
           if (isTeam1BatFirst || batFirstLower === "") {
             teamStats[k1].runsScored += r1; teamStats[k1].oversFaced += ov1;
             teamStats[k1].runsConceded += r2; teamStats[k1].oversBowled += ov2;
@@ -17377,10 +17586,10 @@
           let mWinner = winner.toLowerCase().trim();
           let winnerKey = (k1.toLowerCase() === mWinner) ? k1 : k2;
           let loserKey = (k1.toLowerCase() === mWinner) ? k2 : k1;
-          
+
           teamStats[winnerKey].M++; teamStats[winnerKey].W++; teamStats[winnerKey].Pts += 2;
           teamStats[loserKey].M++; teamStats[loserKey].L++;
-          
+
           let isWinnerBatFirst = (winnerKey.toLowerCase() === batFirstLower);
           if (isWinnerBatFirst || batFirstLower === "") {
             teamStats[winnerKey].runsScored += r1; teamStats[winnerKey].oversFaced += ov1;
@@ -17489,7 +17698,7 @@
 
           team.players.forEach(function (p) {
             const pName = p.name || p.player_name;
-            const photoSrc = p.photo || localStorage.getItem("userPhoto_" + pName) || '';
+            const photoSrc = localStorage.getItem("userPhoto_" + pName) || p.photo || '';
             const photoHtml = photoSrc ? `<img src="${photoSrc}" style="width:100%; height:100%; object-fit:cover;">` : '';
             html += `
               <div style="display:flex; flex-direction:column; align-items:center; text-align:center; position:relative; cursor:pointer; width:100%; box-sizing:border-box;" onclick="openPlayerProfile('${escapeQ(pName)}', '${escapeQ(team.name)}', '${escapeQ(p.role)}')">
@@ -18115,6 +18324,26 @@
               if (lastPage === 'tournamentTeamsPage' && typeof renderTeamsList === 'function') renderTeamsList();
               if (lastPage === 'home' && typeof renderHomeBanner === 'function') renderHomeBanner();
               if (lastPage === 'myTournamentsPage' && typeof renderMyTournaments === 'function') renderMyTournaments();
+              if (lastPage === 'tournamentDetailsPage') {
+                let viewTid = localStorage.getItem("currentViewingTournamentId");
+                if (viewTid) {
+                  if (typeof refreshTournamentsFromServer === 'function') {
+                    refreshTournamentsFromServer().then(() => {
+                      if (typeof openTournamentDetails === 'function') openTournamentDetails(viewTid);
+                    });
+                  } else {
+                    if (typeof openTournamentDetails === 'function') openTournamentDetails(viewTid);
+                  }
+                }
+              }
+              if (lastPage === 'playerProfilePage') {
+                let pName = localStorage.getItem("currentProfilePlayerName");
+                let pTeam = localStorage.getItem("currentProfileTeamName") || "";
+                let pRole = localStorage.getItem("currentProfileRole") || "";
+                if (pName && typeof openPlayerProfile === 'function') {
+                  openPlayerProfile(pName, pTeam, pRole);
+                }
+              }
               if (lastPage === 'matchDetailsPage') {
                 let cmvId = localStorage.getItem("currentMatchViewId");
                 let status = localStorage.getItem("matchStatus") || 'finished';
@@ -19241,173 +19470,173 @@
     document.addEventListener('blur', function (e) {
       if (e.target.tagName === 'INPUT' && (e.target.type === 'text' || !e.target.type)) {
         let id = e.target.id.toLowerCase();
-        if (id.includes('password') || id.includes('email') || id.includes('phone') || id.includes('username')) return;
+        if (id.includes('password') || id.includes('email') || id.includes('phone') || id.includes('username') || id.includes('url')) return;
         let val = e.target.value;
         if (val && val.length > 0) {
           e.target.value = val.replace(/\b\w/g, char => char.toUpperCase());
         }
       }
     }, true);
-  
 
-let hideTimeout;
 
-        function showSignal(type) {
-            clearTimeout(hideTimeout);
+    let hideTimeout;
 
-            const overlay = document.getElementById('signalOverlay');
-            const text = document.getElementById('signalText');
-            const wrapper = document.getElementById('textWrapper');
-            const umpire = document.getElementById('umpireContainer');
-            const particles = document.getElementById('particles');
+    function showSignal(type) {
+      clearTimeout(hideTimeout);
 
-            // Reset classes
-            overlay.className = 'signal-overlay active';
-            umpire.className = 'umpire-container';
+      const overlay = document.getElementById('signalOverlay');
+      const text = document.getElementById('signalText');
+      const wrapper = document.getElementById('textWrapper');
+      const umpire = document.getElementById('umpireContainer');
+      const particles = document.getElementById('particles');
 
-            // Reset arm opacities
-            document.getElementById('arm-right-idle').style.opacity = '1';
-            document.getElementById('arm-left-idle').style.opacity = '1';
-            document.getElementById('arm-right-four').style.opacity = '0';
-            document.getElementById('arm-right-six').style.opacity = '0';
-            document.getElementById('arm-left-six').style.opacity = '0';
-            document.getElementById('arm-right-out').style.opacity = '0';
-            document.getElementById('arm-right-wide').style.opacity = '0';
-            document.getElementById('arm-left-wide').style.opacity = '0';
-            document.getElementById('arm-right-noball').style.opacity = '0';
+      // Reset classes
+      overlay.className = 'signal-overlay active';
+      umpire.className = 'umpire-container';
 
-            // Setup specific signal
-            if (type === 'four') {
-                overlay.classList.add('theme-four');
-                umpire.classList.add('anim-four');
-                text.innerText = 'FOUR';
+      // Reset arm opacities
+      document.getElementById('arm-right-idle').style.opacity = '1';
+      document.getElementById('arm-left-idle').style.opacity = '1';
+      document.getElementById('arm-right-four').style.opacity = '0';
+      document.getElementById('arm-right-six').style.opacity = '0';
+      document.getElementById('arm-left-six').style.opacity = '0';
+      document.getElementById('arm-right-out').style.opacity = '0';
+      document.getElementById('arm-right-wide').style.opacity = '0';
+      document.getElementById('arm-left-wide').style.opacity = '0';
+      document.getElementById('arm-right-noball').style.opacity = '0';
 
-                document.getElementById('arm-right-idle').style.opacity = '0';
-                document.getElementById('arm-right-four').style.opacity = '1';
+      // Setup specific signal
+      if (type === 'four') {
+        overlay.classList.add('theme-four');
+        umpire.classList.add('anim-four');
+        text.innerText = 'FOUR';
 
-                // Celebrations!
-                createFirework(20, 40, '#60a5fa');
-                createFirework(80, 50, '#3b82f6');
-                createConfetti(['#60a5fa', '#93c5fd', '#bfdbfe', '#ffffff']);
-            }
-            else if (type === 'six') {
-                overlay.classList.add('theme-six');
-                umpire.classList.add('anim-six');
-                text.innerText = 'SIX';
+        document.getElementById('arm-right-idle').style.opacity = '0';
+        document.getElementById('arm-right-four').style.opacity = '1';
 
-                document.getElementById('arm-right-idle').style.opacity = '0';
-                document.getElementById('arm-left-idle').style.opacity = '0';
-                document.getElementById('arm-right-six').style.opacity = '1';
-                document.getElementById('arm-left-six').style.opacity = '1';
+        // Celebrations!
+        createFirework(20, 40, '#60a5fa');
+        createFirework(80, 50, '#3b82f6');
+        createConfetti(['#60a5fa', '#93c5fd', '#bfdbfe', '#ffffff']);
+      }
+      else if (type === 'six') {
+        overlay.classList.add('theme-six');
+        umpire.classList.add('anim-six');
+        text.innerText = 'SIX';
 
-                // Massive Celebrations!
-                setTimeout(() => createFirework(20, 30, '#10b981'), 0);
-                setTimeout(() => createFirework(80, 30, '#f59e0b'), 300);
-                setTimeout(() => createFirework(50, 20, '#3b82f6'), 600);
-                createConfetti(['#34d399', '#fcd34d', '#f472b6', '#38bdf8', '#fbbf24', '#ffffff']);
-            }
-            else if (type === 'out') {
-                overlay.classList.add('theme-out');
-                umpire.classList.add('anim-out');
-                text.innerText = 'WICKET';
+        document.getElementById('arm-right-idle').style.opacity = '0';
+        document.getElementById('arm-left-idle').style.opacity = '0';
+        document.getElementById('arm-right-six').style.opacity = '1';
+        document.getElementById('arm-left-six').style.opacity = '1';
 
-                document.getElementById('arm-right-idle').style.opacity = '0';
-                document.getElementById('arm-right-out').style.opacity = '1';
-                // Just the siren flash (CSS)
-            }
-            else if (type === 'wide') {
-                overlay.classList.add('theme-wide');
-                umpire.classList.add('anim-wide');
-                text.innerText = 'WIDE';
+        // Massive Celebrations!
+        setTimeout(() => createFirework(20, 30, '#10b981'), 0);
+        setTimeout(() => createFirework(80, 30, '#f59e0b'), 300);
+        setTimeout(() => createFirework(50, 20, '#3b82f6'), 600);
+        createConfetti(['#34d399', '#fcd34d', '#f472b6', '#38bdf8', '#fbbf24', '#ffffff']);
+      }
+      else if (type === 'out') {
+        overlay.classList.add('theme-out');
+        umpire.classList.add('anim-out');
+        text.innerText = 'WICKET';
 
-                document.getElementById('arm-right-idle').style.opacity = '0';
-                document.getElementById('arm-left-idle').style.opacity = '0';
-                document.getElementById('arm-right-wide').style.opacity = '1';
-                document.getElementById('arm-left-wide').style.opacity = '1';
-            }
-            else if (type === 'noball') {
-                overlay.classList.add('theme-noball');
-                umpire.classList.add('anim-noball');
-                text.innerText = 'NO BALL';
+        document.getElementById('arm-right-idle').style.opacity = '0';
+        document.getElementById('arm-right-out').style.opacity = '1';
+        // Just the siren flash (CSS)
+      }
+      else if (type === 'wide') {
+        overlay.classList.add('theme-wide');
+        umpire.classList.add('anim-wide');
+        text.innerText = 'WIDE';
 
-                document.getElementById('arm-right-idle').style.opacity = '0';
-                document.getElementById('arm-right-noball').style.opacity = '1';
-            }
+        document.getElementById('arm-right-idle').style.opacity = '0';
+        document.getElementById('arm-left-idle').style.opacity = '0';
+        document.getElementById('arm-right-wide').style.opacity = '1';
+        document.getElementById('arm-left-wide').style.opacity = '1';
+      }
+      else if (type === 'noball') {
+        overlay.classList.add('theme-noball');
+        umpire.classList.add('anim-noball');
+        text.innerText = 'NO BALL';
 
-            // Hide after 4 seconds
-            hideTimeout = setTimeout(() => {
-                overlay.classList.remove('active');
-                setTimeout(() => {
-                    particles.innerHTML = ''; // clear particles after fade
-                }, 300);
-            }, 4000);
-        }
+        document.getElementById('arm-right-idle').style.opacity = '0';
+        document.getElementById('arm-right-noball').style.opacity = '1';
+      }
 
-        function createFirework(x, y, color) {
-            const container = document.getElementById('particles');
+      // Hide after 4 seconds
+      hideTimeout = setTimeout(() => {
+        overlay.classList.remove('active');
+        setTimeout(() => {
+          particles.innerHTML = ''; // clear particles after fade
+        }, 300);
+      }, 4000);
+    }
 
-            for (let i = 0; i < 40; i++) {
-                let p = document.createElement('div');
-                p.style.position = 'absolute';
-                p.style.width = '3px';
-                p.style.height = '12px';
-                p.style.background = color;
-                p.style.borderRadius = '2px';
-                p.style.left = x + '%';
-                p.style.top = y + '%';
-                p.style.boxShadow = `0 0 10px ${color}, 0 0 20px ${color}`;
-                p.style.transformOrigin = 'center';
+    function createFirework(x, y, color) {
+      const container = document.getElementById('particles');
 
-                let angle = Math.random() * Math.PI * 2;
-                let distance = Math.random() * 120 + 30;
-                let tx = Math.cos(angle) * distance;
-                let ty = Math.sin(angle) * distance;
-                let rot = angle + Math.PI / 2;
+      for (let i = 0; i < 40; i++) {
+        let p = document.createElement('div');
+        p.style.position = 'absolute';
+        p.style.width = '3px';
+        p.style.height = '12px';
+        p.style.background = color;
+        p.style.borderRadius = '2px';
+        p.style.left = x + '%';
+        p.style.top = y + '%';
+        p.style.boxShadow = `0 0 10px ${color}, 0 0 20px ${color}`;
+        p.style.transformOrigin = 'center';
 
-                p.animate([
-                    { transform: `translate(0,0) rotate(${rot}rad) scale(1)`, opacity: 1 },
-                    { transform: `translate(${tx}px, ${ty}px) rotate(${rot}rad) scale(0)`, opacity: 0 }
-                ], {
-                    duration: 800 + Math.random() * 600,
-                    easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                    fill: 'forwards'
-                });
+        let angle = Math.random() * Math.PI * 2;
+        let distance = Math.random() * 120 + 30;
+        let tx = Math.cos(angle) * distance;
+        let ty = Math.sin(angle) * distance;
+        let rot = angle + Math.PI / 2;
 
-                container.appendChild(p);
-            }
-        }
+        p.animate([
+          { transform: `translate(0,0) rotate(${rot}rad) scale(1)`, opacity: 1 },
+          { transform: `translate(${tx}px, ${ty}px) rotate(${rot}rad) scale(0)`, opacity: 0 }
+        ], {
+          duration: 800 + Math.random() * 600,
+          easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+          fill: 'forwards'
+        });
 
-        function createConfetti(colors) {
-            const container = document.getElementById('particles');
+        container.appendChild(p);
+      }
+    }
 
-            for (let i = 0; i < 250; i++) {
-                let conf = document.createElement('div');
-                conf.style.position = 'absolute';
-                conf.style.width = (Math.random() * 8 + 4) + 'px';
-                conf.style.height = (Math.random() * 12 + 6) + 'px';
-                conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                conf.style.left = (Math.random() * 100) + '%';
-                conf.style.top = '-10%';
-                conf.style.opacity = '1';
-                conf.style.borderRadius = (Math.random() > 0.5 ? '50%' : '0'); // Mix of circles and squares
+    function createConfetti(colors) {
+      const container = document.getElementById('particles');
 
-                let duration = Math.random() * 2 + 2;
-                let delay = Math.random() * 0.5;
-                let tx = (Math.random() - 0.5) * 300;
+      for (let i = 0; i < 250; i++) {
+        let conf = document.createElement('div');
+        conf.style.position = 'absolute';
+        conf.style.width = (Math.random() * 8 + 4) + 'px';
+        conf.style.height = (Math.random() * 12 + 6) + 'px';
+        conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        conf.style.left = (Math.random() * 100) + '%';
+        conf.style.top = '-10%';
+        conf.style.opacity = '1';
+        conf.style.borderRadius = (Math.random() > 0.5 ? '50%' : '0'); // Mix of circles and squares
 
-                conf.animate([
-                    { transform: `translate(0, 0) rotate(0deg) scale(1)`, opacity: 1 },
-                    { transform: `translate(${tx}px, 110vh) rotate(${Math.random() * 720}deg) scale(0.5)`, opacity: 0 }
-                ], {
-                    duration: duration * 1000,
-                    delay: delay * 1000,
-                    easing: 'linear',
-                    fill: 'forwards'
-                });
+        let duration = Math.random() * 2 + 2;
+        let delay = Math.random() * 0.5;
+        let tx = (Math.random() - 0.5) * 300;
 
-                container.appendChild(conf);
-            }
-        }
+        conf.animate([
+          { transform: `translate(0, 0) rotate(0deg) scale(1)`, opacity: 1 },
+          { transform: `translate(${tx}px, 110vh) rotate(${Math.random() * 720}deg) scale(0.5)`, opacity: 0 }
+        ], {
+          duration: duration * 1000,
+          delay: delay * 1000,
+          easing: 'linear',
+          fill: 'forwards'
+        });
+
+        container.appendChild(conf);
+      }
+    }
 
     function openPlayerPhotoModal() {
       document.getElementById('playerPhotoModal').style.display = 'flex';
@@ -19445,7 +19674,7 @@ let hideTimeout;
         if (data.success) {
           let editLabel = '<div style="position:absolute; bottom:0; left:0; width:100%; height:28px; background:rgba(0,0,0,0.6); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; letter-spacing:0.5px;">Edit</div>';
           document.getElementById("profileAvatar").innerHTML = '<img src="' + data.url + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">' + editLabel;
-          
+
           if (window.MEMORY_DB && window.MEMORY_DB.player_profiles) {
             let p = window.MEMORY_DB.player_profiles.find(x => x.player_name === currentProfilePlayerName);
             if (p) p.photo_url = data.url;
@@ -19453,23 +19682,27 @@ let hideTimeout;
 
           let u = localStorage.getItem("currentUser") || "User";
           localStorage.setItem("userPhoto_" + currentProfilePlayerName, data.url);
-          
+
           if (currentProfilePlayerName === u) {
-             let navPic = document.getElementById("navProfilePic");
-             if (navPic) navPic.src = data.url;
-             
-             fetch(API + "/update-user-photo", {
-                 method: "POST",
-                 headers: { "Content-Type": "application/json" },
-                 body: JSON.stringify({ username: u, photo_url: data.url })
-             }).catch(err => console.error("SQL photo update error:", err));
+            let navPic = document.getElementById("navProfilePic");
+            if (navPic) navPic.src = data.url;
+
+            fetch(API + "/update-user-photo", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ username: u, photo_url: data.url })
+            }).catch(err => console.error("SQL photo update error:", err));
           }
-          
+
+          if (typeof renderTeamsList === 'function') {
+            renderTeamsList();
+          }
+
           closePlayerPhotoModal();
         } else {
           alert("Failed to upload photo.");
         }
-      } catch(e) {
+      } catch (e) {
         console.error("Photo upload error:", e);
         alert("Upload error.");
       }
@@ -19477,13 +19710,13 @@ let hideTimeout;
       event.target.value = '';
     }
 
-</script>
+  </script>
 
 
   <!-- The Animated Overlay -->
   <div class="signal-overlay" id="signalOverlay">
     <div class="particles" id="particles"></div>
-    
+
     <div class="signal-text-wrapper" id="textWrapper">
       <div class="signal-text" id="signalText">FOUR</div>
     </div>
@@ -19493,147 +19726,149 @@ let hideTimeout;
         <!-- Drop Shadow Filter & Gradients -->
         <defs>
           <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity="0.3"/>
+            <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity="0.3" />
           </filter>
           <linearGradient id="shirtGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#ffffff"/>
-            <stop offset="100%" stop-color="#cbd5e1"/>
+            <stop offset="0%" stop-color="#ffffff" />
+            <stop offset="100%" stop-color="#cbd5e1" />
           </linearGradient>
           <linearGradient id="pantsGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#1e293b"/>
-            <stop offset="100%" stop-color="#020617"/>
+            <stop offset="0%" stop-color="#1e293b" />
+            <stop offset="100%" stop-color="#020617" />
           </linearGradient>
           <linearGradient id="skinGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#fed7aa"/>
-            <stop offset="100%" stop-color="#fdba74"/>
+            <stop offset="0%" stop-color="#fed7aa" />
+            <stop offset="100%" stop-color="#fdba74" />
           </linearGradient>
           <linearGradient id="glassGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#334155"/>
-            <stop offset="50%" stop-color="#0f172a"/>
-            <stop offset="100%" stop-color="#020617"/>
+            <stop offset="0%" stop-color="#334155" />
+            <stop offset="50%" stop-color="#0f172a" />
+            <stop offset="100%" stop-color="#020617" />
           </linearGradient>
         </defs>
 
         <!-- Body / Shirt -->
-        <path d="M 70 125 Q 100 115 130 125 Q 142 160 135 190 Q 100 195 65 190 Q 58 160 70 125 Z" fill="url(#shirtGrad)" filter="url(#shadow)"/>
-        
+        <path d="M 70 125 Q 100 115 130 125 Q 142 160 135 190 Q 100 195 65 190 Q 58 160 70 125 Z" fill="url(#shirtGrad)"
+          filter="url(#shadow)" />
+
         <!-- Pants -->
-        <path d="M 65 190 Q 100 195 135 190 L 125 290 L 105 290 L 100 230 L 95 290 L 75 290 Z" fill="url(#pantsGrad)"/>
-        
+        <path d="M 65 190 Q 100 195 135 190 L 125 290 L 105 290 L 100 230 L 95 290 L 75 290 Z" fill="url(#pantsGrad)" />
+
         <!-- Belt -->
-        <path d="M 66 188 Q 100 193 134 188 L 133 195 Q 100 200 67 195 Z" fill="#020617"/>
+        <path d="M 66 188 Q 100 193 134 188 L 133 195 Q 100 200 67 195 Z" fill="#020617" />
         <!-- Belt Buckle (Gold) -->
-        <rect x="92" y="187" width="16" height="10" fill="#fbbf24" rx="2"/>
-        <rect x="95" y="189" width="10" height="6" fill="#020617" rx="1"/>
+        <rect x="92" y="187" width="16" height="10" fill="#fbbf24" rx="2" />
+        <rect x="95" y="189" width="10" height="6" fill="#020617" rx="1" />
 
         <!-- Shirt details (Collar/buttons) -->
-        <path d="M 88 125 L 100 140 L 112 125" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linejoin="round"/>
-        
+        <path d="M 88 125 L 100 140 L 112 125" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linejoin="round" />
+
         <!-- Lanyard and ID Card -->
-        <path d="M 92 125 L 100 165 L 108 125" fill="none" stroke="#2563eb" stroke-width="2"/>
-        <rect x="95" y="165" width="10" height="14" fill="#ffffff" stroke="#cbd5e1" rx="1"/>
-        <rect x="97" y="167" width="6" height="6" fill="#94a3b8"/> <!-- photo placeholder -->
+        <path d="M 92 125 L 100 165 L 108 125" fill="none" stroke="#2563eb" stroke-width="2" />
+        <rect x="95" y="165" width="10" height="14" fill="#ffffff" stroke="#cbd5e1" rx="1" />
+        <rect x="97" y="167" width="6" height="6" fill="#94a3b8" /> <!-- photo placeholder -->
 
         <!-- Head & Face -->
         <!-- Ears -->
-        <circle cx="75" cy="95" r="6" fill="url(#skinGrad)"/>
-        <circle cx="125" cy="95" r="6" fill="url(#skinGrad)"/>
-        
+        <circle cx="75" cy="95" r="6" fill="url(#skinGrad)" />
+        <circle cx="125" cy="95" r="6" fill="url(#skinGrad)" />
+
         <!-- Face Base -->
-        <circle cx="100" cy="95" r="22" fill="url(#skinGrad)"/>
-        
+        <circle cx="100" cy="95" r="22" fill="url(#skinGrad)" />
+
         <!-- Stylish Beard / Stubble -->
-        <path d="M 84 104 Q 100 120 116 104 Q 100 114 84 104 Z" fill="#334155" opacity="0.8"/>
-        
+        <path d="M 84 104 Q 100 120 116 104 Q 100 114 84 104 Z" fill="#334155" opacity="0.8" />
+
         <!-- Sunglasses (Professional) -->
-        <rect x="81" y="86" width="16" height="12" rx="3" fill="url(#glassGrad)"/>
-        <rect x="103" y="86" width="16" height="12" rx="3" fill="url(#glassGrad)"/>
+        <rect x="81" y="86" width="16" height="12" rx="3" fill="url(#glassGrad)" />
+        <rect x="103" y="86" width="16" height="12" rx="3" fill="url(#glassGrad)" />
         <!-- Glasses Bridge -->
-        <path d="M 97 90 Q 100 88 103 90" fill="none" stroke="#0f172a" stroke-width="2"/>
+        <path d="M 97 90 Q 100 88 103 90" fill="none" stroke="#0f172a" stroke-width="2" />
         <!-- Glasses Highlights -->
-        <path d="M 84 89 L 91 89" stroke="#ffffff" stroke-width="1.5" opacity="0.4"/>
-        <path d="M 106 89 L 113 89" stroke="#ffffff" stroke-width="1.5" opacity="0.4"/>
-        
+        <path d="M 84 89 L 91 89" stroke="#ffffff" stroke-width="1.5" opacity="0.4" />
+        <path d="M 106 89 L 113 89" stroke="#ffffff" stroke-width="1.5" opacity="0.4" />
+
         <!-- Nose -->
-        <path d="M 100 95 L 98 102 L 102 102" fill="none" stroke="#ea580c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        
+        <path d="M 100 95 L 98 102 L 102 102" fill="none" stroke="#ea580c" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round" />
+
         <!-- Slight Smile inside beard -->
-        <path d="M 94 107 Q 100 110 106 107" fill="none" stroke="#020617" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M 94 107 Q 100 110 106 107" fill="none" stroke="#020617" stroke-width="1.5" stroke-linecap="round" />
 
         <!-- Hat (Stylish Fedora style) -->
         <!-- Brim -->
-        <ellipse cx="100" cy="72" rx="38" ry="8" fill="#0f172a" filter="url(#shadow)"/>
+        <ellipse cx="100" cy="72" rx="38" ry="8" fill="#0f172a" filter="url(#shadow)" />
         <!-- Crown -->
-        <path d="M 78 72 L 82 40 Q 100 35 118 40 L 122 72 Z" fill="url(#pantsGrad)"/>
+        <path d="M 78 72 L 82 40 Q 100 35 118 40 L 122 72 Z" fill="url(#pantsGrad)" />
         <!-- Hat Ribbon -->
-        <path d="M 79 64 L 121 64 L 122 72 Q 100 76 78 72 Z" fill="#3b82f6"/> 
-        <path d="M 79 64 L 121 64" fill="none" stroke="#60a5fa" stroke-width="1"/>
+        <path d="M 79 64 L 121 64 L 122 72 Q 100 76 78 72 Z" fill="#3b82f6" />
+        <path d="M 79 64 L 121 64" fill="none" stroke="#60a5fa" stroke-width="1" />
 
         <!-- === IDLE ARMS === -->
         <g id="arm-right-idle" class="umpire-part">
           <!-- Shoulder joint to hide gaps -->
-          <circle cx="75" cy="130" r="8" fill="url(#shirtGrad)"/>
-          <path d="M 78 128 L 50 165 L 62 170 L 85 135 Z" fill="url(#shirtGrad)" filter="url(#shadow)"/>
+          <circle cx="75" cy="130" r="8" fill="url(#shirtGrad)" />
+          <path d="M 78 128 L 50 165 L 62 170 L 85 135 Z" fill="url(#shirtGrad)" filter="url(#shadow)" />
           <!-- Watch -->
-          <rect x="52" y="162" width="12" height="4" fill="#0f172a" transform="rotate(-30 58 164)"/>
-          <circle cx="56" cy="170" r="9" fill="url(#skinGrad)"/>
+          <rect x="52" y="162" width="12" height="4" fill="#0f172a" transform="rotate(-30 58 164)" />
+          <circle cx="56" cy="170" r="9" fill="url(#skinGrad)" />
         </g>
         <g id="arm-left-idle" class="umpire-part">
-          <circle cx="125" cy="130" r="8" fill="url(#shirtGrad)"/>
-          <path d="M 122 128 L 150 165 L 138 170 L 115 135 Z" fill="url(#shirtGrad)" filter="url(#shadow)"/>
-          <circle cx="144" cy="170" r="9" fill="url(#skinGrad)"/>
+          <circle cx="125" cy="130" r="8" fill="url(#shirtGrad)" />
+          <path d="M 122 128 L 150 165 L 138 170 L 115 135 Z" fill="url(#shirtGrad)" filter="url(#shadow)" />
+          <circle cx="144" cy="170" r="9" fill="url(#skinGrad)" />
         </g>
 
         <!-- === FOUR ARM (Waving horizontal across front) === -->
         <g id="arm-right-four" class="umpire-part">
-          <circle cx="75" cy="130" r="8" fill="#e2e8f0"/>
-          <path d="M 75 125 L 125 135 L 125 145 L 75 140 Z" fill="url(#shirtGrad)" filter="url(#shadow)"/>
-          <rect x="115" y="133" width="6" height="12" fill="#0f172a"/> <!-- Watch -->
-          <circle cx="128" cy="140" r="9" fill="url(#skinGrad)"/>
+          <circle cx="75" cy="130" r="8" fill="#e2e8f0" />
+          <path d="M 75 125 L 125 135 L 125 145 L 75 140 Z" fill="url(#shirtGrad)" filter="url(#shadow)" />
+          <rect x="115" y="133" width="6" height="12" fill="#0f172a" /> <!-- Watch -->
+          <circle cx="128" cy="140" r="9" fill="url(#skinGrad)" />
         </g>
 
         <!-- === SIX ARMS (Both Up) === -->
         <g id="arm-right-six" class="umpire-part">
-          <circle cx="75" cy="130" r="8" fill="url(#shirtGrad)"/>
-          <path d="M 70 135 L 65 60 L 82 60 L 85 135 Z" fill="url(#shirtGrad)" filter="url(#shadow)"/>
+          <circle cx="75" cy="130" r="8" fill="url(#shirtGrad)" />
+          <path d="M 70 135 L 65 60 L 82 60 L 85 135 Z" fill="url(#shirtGrad)" filter="url(#shadow)" />
           <!-- Watch -->
-          <rect x="64" y="65" width="19" height="5" fill="#0f172a"/>
-          <circle cx="73" cy="55" r="9" fill="url(#skinGrad)"/>
+          <rect x="64" y="65" width="19" height="5" fill="#0f172a" />
+          <circle cx="73" cy="55" r="9" fill="url(#skinGrad)" />
         </g>
         <g id="arm-left-six" class="umpire-part">
-          <circle cx="125" cy="130" r="8" fill="url(#shirtGrad)"/>
-          <path d="M 130 135 L 135 60 L 118 60 L 115 135 Z" fill="url(#shirtGrad)" filter="url(#shadow)"/>
-          <circle cx="127" cy="55" r="9" fill="url(#skinGrad)"/>
+          <circle cx="125" cy="130" r="8" fill="url(#shirtGrad)" />
+          <path d="M 130 135 L 135 60 L 118 60 L 115 135 Z" fill="url(#shirtGrad)" filter="url(#shadow)" />
+          <circle cx="127" cy="55" r="9" fill="url(#skinGrad)" />
         </g>
 
         <!-- === WICKET ARM (Right arm Up with Finger) === -->
         <g id="arm-right-out" class="umpire-part">
-          <circle cx="75" cy="130" r="8" fill="url(#shirtGrad)"/>
-          <path d="M 70 135 L 65 60 L 82 60 L 85 135 Z" fill="url(#shirtGrad)" filter="url(#shadow)"/>
-          <rect x="64" y="65" width="19" height="5" fill="#0f172a"/> <!-- Watch -->
-          <circle cx="73" cy="55" r="9" fill="url(#skinGrad)"/>
-          <rect x="71" y="32" width="5" height="22" fill="url(#skinGrad)" rx="2.5"/>
+          <circle cx="75" cy="130" r="8" fill="url(#shirtGrad)" />
+          <path d="M 70 135 L 65 60 L 82 60 L 85 135 Z" fill="url(#shirtGrad)" filter="url(#shadow)" />
+          <rect x="64" y="65" width="19" height="5" fill="#0f172a" /> <!-- Watch -->
+          <circle cx="73" cy="55" r="9" fill="url(#skinGrad)" />
+          <rect x="71" y="32" width="5" height="22" fill="url(#skinGrad)" rx="2.5" />
         </g>
 
         <!-- === WIDE ARMS (Both Horizontal) === -->
         <g id="arm-right-wide" class="umpire-part">
-          <circle cx="75" cy="130" r="8" fill="url(#shirtGrad)"/>
-          <path d="M 75 122 L 15 125 L 15 140 L 75 138 Z" fill="url(#shirtGrad)" filter="url(#shadow)"/>
-          <rect x="22" y="125" width="5" height="15" fill="#0f172a"/> <!-- Watch -->
-          <circle cx="12" cy="132" r="9" fill="url(#skinGrad)"/>
+          <circle cx="75" cy="130" r="8" fill="url(#shirtGrad)" />
+          <path d="M 75 122 L 15 125 L 15 140 L 75 138 Z" fill="url(#shirtGrad)" filter="url(#shadow)" />
+          <rect x="22" y="125" width="5" height="15" fill="#0f172a" /> <!-- Watch -->
+          <circle cx="12" cy="132" r="9" fill="url(#skinGrad)" />
         </g>
         <g id="arm-left-wide" class="umpire-part">
-          <circle cx="125" cy="130" r="8" fill="url(#shirtGrad)"/>
-          <path d="M 125 122 L 185 125 L 185 140 L 125 138 Z" fill="url(#shirtGrad)" filter="url(#shadow)"/>
-          <circle cx="188" cy="132" r="9" fill="url(#skinGrad)"/>
+          <circle cx="125" cy="130" r="8" fill="url(#shirtGrad)" />
+          <path d="M 125 122 L 185 125 L 185 140 L 125 138 Z" fill="url(#shirtGrad)" filter="url(#shadow)" />
+          <circle cx="188" cy="132" r="9" fill="url(#skinGrad)" />
         </g>
 
         <!-- === NO BALL ARM (Right arm horizontal) === -->
         <g id="arm-right-noball" class="umpire-part">
-          <circle cx="75" cy="130" r="8" fill="url(#shirtGrad)"/>
-          <path d="M 75 122 L 15 125 L 15 140 L 75 138 Z" fill="url(#shirtGrad)" filter="url(#shadow)"/>
-          <rect x="22" y="125" width="5" height="15" fill="#0f172a"/> <!-- Watch -->
-          <circle cx="12" cy="132" r="9" fill="url(#skinGrad)"/>
+          <circle cx="75" cy="130" r="8" fill="url(#shirtGrad)" />
+          <path d="M 75 122 L 15 125 L 15 140 L 75 138 Z" fill="url(#shirtGrad)" filter="url(#shadow)" />
+          <rect x="22" y="125" width="5" height="15" fill="#0f172a" /> <!-- Watch -->
+          <circle cx="12" cy="132" r="9" fill="url(#skinGrad)" />
         </g>
 
       </svg>
@@ -19648,50 +19883,60 @@ let hideTimeout;
 
 
   <!-- PLAYER PHOTO UPLOAD MODAL -->
-  <div id="playerPhotoModal" style="display:none; position:fixed; inset:0; background:#f9fafb; z-index:9999; flex-direction:column; font-family:'Inter',sans-serif;">
+  <div id="playerPhotoModal"
+    style="display:none; position:fixed; inset:0; background:#f9fafb; z-index:9999; flex-direction:column; font-family:'Inter',sans-serif;">
     <div style="display:flex; align-items:center; padding:16px 20px; background:#fff; border-bottom:1px solid #e5e7eb;">
-      <div style="font-size:24px; color:#374151; cursor:pointer; margin-right:16px;" onclick="closePlayerPhotoModal()">←</div>
+      <div style="font-size:24px; color:#374151; cursor:pointer; margin-right:16px;" onclick="closePlayerPhotoModal()">←
+      </div>
       <div style="font-size:18px; font-weight:600; color:#111827;">Add your profile photo</div>
     </div>
     <div style="padding:16px 20px; color:#4b5563; font-size:14px;">
       Let's make your cricket profile complete with your best photo.
     </div>
     <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;">
-      <div id="playerPhotoModalPreview" style="width:280px; height:280px; border-radius:50%; background:#e5e7eb; display:flex; align-items:center; justify-content:center; overflow:hidden; box-shadow:0 10px 25px rgba(0,0,0,0.1); margin-bottom:40px;">
+      <div id="playerPhotoModalPreview"
+        style="width:280px; height:280px; border-radius:50%; background:#e5e7eb; display:flex; align-items:center; justify-content:center; overflow:hidden; box-shadow:0 10px 25px rgba(0,0,0,0.1); margin-bottom:40px;">
         <span style="color:#9ca3af; font-size:14px;">No Photo</span>
       </div>
-      <button style="width:100%; max-width:300px; background:#0d9488; color:#fff; border:none; padding:16px; border-radius:8px; font-weight:600; font-size:16px; margin-bottom:16px; cursor:pointer;"
+      <button
+        style="width:100%; max-width:300px; background:#0d9488; color:#fff; border:none; padding:16px; border-radius:8px; font-weight:600; font-size:16px; margin-bottom:16px; cursor:pointer;"
         onclick="document.getElementById('playerGalleryInput').click()">Upload Photo</button>
 
-      <div id="playerPhotoModalLoading" style="display:none; color:#0d9488; font-weight:600; margin-top:20px;">Uploading... Please wait.</div>
-      <input type="file" id="playerGalleryInput" accept="image/*" style="display:none;" onchange="handlePlayerPhotoUpload(event)">
+      <div id="playerPhotoModalLoading" style="display:none; color:#0d9488; font-weight:600; margin-top:20px;">
+        Uploading... Please wait.</div>
+      <input type="file" id="playerGalleryInput" accept="image/*" style="display:none;"
+        onchange="handlePlayerPhotoUpload(event)">
     </div>
   </div>
 
 
   <!-- PLAYER PHOTO UPLOAD MODAL -->
-  <div id="playerPhotoModal" style="display:none; position:fixed; inset:0; background:#f9fafb; z-index:9999; flex-direction:column; font-family:'Inter',sans-serif;">
+  <div id="playerPhotoModal"
+    style="display:none; position:fixed; inset:0; background:#f9fafb; z-index:9999; flex-direction:column; font-family:'Inter',sans-serif;">
     <div style="display:flex; align-items:center; padding:16px 20px; background:#fff; border-bottom:1px solid #e5e7eb;">
-      <div style="font-size:24px; color:#374151; cursor:pointer; margin-right:16px;" onclick="closePlayerPhotoModal()">←</div>
+      <div style="font-size:24px; color:#374151; cursor:pointer; margin-right:16px;" onclick="closePlayerPhotoModal()">←
+      </div>
       <div style="font-size:18px; font-weight:600; color:#111827;">Add your profile photo</div>
     </div>
     <div style="padding:16px 20px; color:#4b5563; font-size:14px;">
       Let's make your cricket profile complete with your best photo.
     </div>
     <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;">
-      <div id="playerPhotoModalPreview" style="width:280px; height:280px; border-radius:50%; background:#e5e7eb; display:flex; align-items:center; justify-content:center; overflow:hidden; box-shadow:0 10px 25px rgba(0,0,0,0.1); margin-bottom:40px;">
+      <div id="playerPhotoModalPreview"
+        style="width:280px; height:280px; border-radius:50%; background:#e5e7eb; display:flex; align-items:center; justify-content:center; overflow:hidden; box-shadow:0 10px 25px rgba(0,0,0,0.1); margin-bottom:40px;">
         <span style="color:#9ca3af; font-size:14px;">No Photo</span>
       </div>
-      <button style="width:100%; max-width:300px; background:#0d9488; color:#fff; border:none; padding:16px; border-radius:8px; font-weight:600; font-size:16px; margin-bottom:16px; cursor:pointer;"
+      <button
+        style="width:100%; max-width:300px; background:#0d9488; color:#fff; border:none; padding:16px; border-radius:8px; font-weight:600; font-size:16px; margin-bottom:16px; cursor:pointer;"
         onclick="document.getElementById('playerGalleryInput').click()">Upload Photo</button>
 
-      <div id="playerPhotoModalLoading" style="display:none; color:#0d9488; font-weight:600; margin-top:20px;">Uploading... Please wait.</div>
-      <input type="file" id="playerGalleryInput" accept="image/*" style="display:none;" onchange="handlePlayerPhotoUpload(event)">
+      <div id="playerPhotoModalLoading" style="display:none; color:#0d9488; font-weight:600; margin-top:20px;">
+        Uploading... Please wait.</div>
+      <input type="file" id="playerGalleryInput" accept="image/*" style="display:none;"
+        onchange="handlePlayerPhotoUpload(event)">
     </div>
   </div>
 
 </body>
 
 </html>
-
-
