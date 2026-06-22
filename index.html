@@ -16594,7 +16594,142 @@
     let outBatsmen = [], matchCommentary = [];
 
 
+    function persistLocalMatchState() {
+      if (typeof matchBatTeam === 'undefined' || (!matchBatTeam && !currentLiveMatchId)) return;
+      let state = {
+        batsmanStats: typeof batsmanStats !== 'undefined' ? batsmanStats : {},
+        bowlerStats: typeof bowlerStats !== 'undefined' ? bowlerStats : {},
+        totalRuns: typeof totalRuns !== 'undefined' ? totalRuns : 0,
+        totalWickets: typeof totalWickets !== 'undefined' ? totalWickets : 0,
+        ballCount: typeof ballCount !== 'undefined' ? ballCount : 0,
+        innings: typeof innings !== 'undefined' ? innings : 1,
+        target: typeof target !== 'undefined' ? target : 0,
+        extrasWides: typeof extrasWides !== 'undefined' ? extrasWides : 0,
+        extrasNoBalls: typeof extrasNoBalls !== 'undefined' ? extrasNoBalls : 0,
+        extrasByes: typeof extrasByes !== 'undefined' ? extrasByes : 0,
+        outBatsmen: typeof outBatsmen !== 'undefined' ? outBatsmen : [],
+        matchCommentary: typeof matchCommentary !== 'undefined' ? matchCommentary : [],
+        ballSnapshots: typeof ballSnapshots !== 'undefined' ? ballSnapshots : [],
+        matchBatTeam: typeof matchBatTeam !== 'undefined' ? matchBatTeam : '',
+        matchBowlTeam: typeof matchBowlTeam !== 'undefined' ? matchBowlTeam : '',
+        matchTossText: typeof matchTossText !== 'undefined' ? matchTossText : '',
+        totalOvers: typeof totalOvers !== 'undefined' ? totalOvers : 0,
+        innings1Runs: typeof innings1Runs !== 'undefined' ? innings1Runs : 0,
+        innings1Balls: typeof innings1Balls !== 'undefined' ? innings1Balls : 0,
+        innings1Wickets: typeof innings1Wickets !== 'undefined' ? innings1Wickets : 0,
+        innings1BatTeam: typeof innings1BatTeam !== 'undefined' ? innings1BatTeam : '',
+        innings1BowlTeam: typeof innings1BowlTeam !== 'undefined' ? innings1BowlTeam : '',
+        innings1BatStats: typeof innings1BatStats !== 'undefined' ? innings1BatStats : null,
+        innings1BowlStats: typeof innings1BowlStats !== 'undefined' ? innings1BowlStats : null,
+        winShown: typeof winShown !== 'undefined' ? winShown : false,
+        currentLiveMatchId: typeof currentLiveMatchId !== 'undefined' ? currentLiveMatchId : null,
+        currentTournamentMatchIdx: typeof currentTournamentMatchIdx !== 'undefined' ? currentTournamentMatchIdx : null,
+        strikePlayer: document.getElementById('strike') ? document.getElementById('strike').value : '',
+        nonStrikePlayer: document.getElementById('nonstrike') ? document.getElementById('nonstrike').value : '',
+        bowlerPlayer: document.getElementById('bowler') ? document.getElementById('bowler').value : '',
+        batPlayers: typeof batPlayers !== 'undefined' ? batPlayers : [],
+        bowlPlayers: typeof bowlPlayers !== 'undefined' ? bowlPlayers : [],
+        batPlayerRoles: typeof batPlayerRoles !== 'undefined' ? batPlayerRoles : {},
+        bowlPlayerRoles: typeof bowlPlayerRoles !== 'undefined' ? bowlPlayerRoles : {},
+        tossTeams: typeof tossTeams !== 'undefined' ? tossTeams : [],
+        pendingBatTeam: typeof pendingBatTeam !== 'undefined' ? pendingBatTeam : '',
+        pendingBowlTeam: typeof pendingBowlTeam !== 'undefined' ? pendingBowlTeam : '',
+        matchCity: typeof matchCity !== 'undefined' ? matchCity : '',
+        matchGround: typeof matchGround !== 'undefined' ? matchGround : '',
+        ballsHTML: document.getElementById('balls') ? document.getElementById('balls').innerHTML : ''
+      };
+      localStorage.setItem('localMatchState', JSON.stringify(state));
+    }
+
+    function restoreLocalMatchState() {
+      let saved = localStorage.getItem('localMatchState');
+      if (saved) {
+        try {
+          let s = JSON.parse(saved);
+          if (s.matchBatTeam || s.currentLiveMatchId) {
+            batsmanStats = s.batsmanStats || {};
+            bowlerStats = s.bowlerStats || {};
+            totalRuns = s.totalRuns || 0;
+            totalWickets = s.totalWickets || 0;
+            ballCount = s.ballCount || 0;
+            innings = s.innings || 1;
+            target = s.target || 0;
+            extrasWides = s.extrasWides || 0;
+            extrasNoBalls = s.extrasNoBalls || 0;
+            extrasByes = s.extrasByes || 0;
+            outBatsmen = s.outBatsmen || [];
+            matchCommentary = s.matchCommentary || [];
+            ballSnapshots = s.ballSnapshots || [];
+            matchBatTeam = s.matchBatTeam || '';
+            matchBowlTeam = s.matchBowlTeam || '';
+            matchTossText = s.matchTossText || '';
+            totalOvers = s.totalOvers || 0;
+            innings1Runs = s.innings1Runs || 0;
+            innings1Balls = s.innings1Balls || 0;
+            innings1Wickets = s.innings1Wickets || 0;
+            innings1BatTeam = s.innings1BatTeam || '';
+            innings1BowlTeam = s.innings1BowlTeam || '';
+            innings1BatStats = s.innings1BatStats || null;
+            innings1BowlStats = s.innings1BowlStats || null;
+            winShown = s.winShown || false;
+            currentLiveMatchId = s.currentLiveMatchId || null;
+            currentTournamentMatchIdx = s.currentTournamentMatchIdx || null;
+            batPlayers = s.batPlayers || [];
+            bowlPlayers = s.bowlPlayers || [];
+            batPlayerRoles = s.batPlayerRoles || {};
+            bowlPlayerRoles = s.bowlPlayerRoles || {};
+            tossTeams = s.tossTeams || [];
+            pendingBatTeam = s.pendingBatTeam || '';
+            pendingBowlTeam = s.pendingBowlTeam || '';
+            matchCity = s.matchCity || '';
+            matchGround = s.matchGround || '';
+
+            setTimeout(() => {
+              let ballsDiv = document.getElementById('balls');
+              if (ballsDiv && s.ballsHTML) ballsDiv.innerHTML = s.ballsHTML;
+
+              let strikeEl = document.getElementById('strike');
+              let nonStrikeEl = document.getElementById('nonstrike');
+              let bowlerEl = document.getElementById('bowler');
+
+              if (strikeEl && nonStrikeEl && bowlerEl && batPlayers) {
+                strikeEl.innerHTML = '<option value="">Select Striker</option>';
+                nonStrikeEl.innerHTML = '<option value="">Select Non-Striker</option>';
+                batPlayers.forEach(p => {
+                  if (outBatsmen.indexOf(p) === -1) {
+                    strikeEl.innerHTML += '<option value="' + p + '">' + p + '</option>';
+                    nonStrikeEl.innerHTML += '<option value="' + p + '">' + p + '</option>';
+                  }
+                });
+                bowlerEl.innerHTML = '<option value="">Select Bowler</option>';
+                bowlPlayers.forEach(p => {
+                  bowlerEl.innerHTML += '<option value="' + p + '">' + p + '</option>';
+                });
+
+                if (s.strikePlayer) strikeEl.value = s.strikePlayer;
+                if (s.nonStrikePlayer) nonStrikeEl.value = s.nonStrikePlayer;
+                if (s.bowlerPlayer) bowlerEl.value = s.bowlerPlayer;
+              }
+
+              if (typeof updateScore === "function") updateScore();
+              if (typeof updateTables === "function") updateTables();
+              if (typeof updateExtras === "function") updateExtras();
+
+              let isDeepLink = window.location.pathname.includes("/scorecard/");
+              if (s.currentLiveMatchId && !isDeepLink) {
+                let lastP = localStorage.getItem("lastPage");
+                if (lastP === "score" && typeof showPage === "function") {
+                  showPage('score');
+                }
+              }
+            }, 600);
+          }
+        } catch (e) { console.error("Restore local state error", e); }
+      }
+    }
+
     function startMatch() {
+      localStorage.removeItem('localMatchState');
       let t1 = (batTeam.value || "").replace(/\\'/g, "'"), t2 = (bowlTeam.value || "").replace(/\\'/g, "'");
       if (!t1 || !t2) return alert("Select both teams");
       if (t1 === t2) return alert("Select different teams");
@@ -17230,6 +17365,7 @@
     }
     function changeStrike() { let s = strike.value; strike.value = nonstrike.value; nonstrike.value = s; }
     function updateScore() {
+      if (typeof persistLocalMatchState === 'function') persistLocalMatchState();
       scoreRuns.innerText = totalRuns; scoreWkts.innerText = totalWickets;
       overs.innerText = formatOvers(ballCount);
       if ((innings == 2 || innings == 4) && target > 0 && totalRuns >= target && !winShown) {
@@ -18151,6 +18287,7 @@
     }
 
     document.addEventListener("DOMContentLoaded", function () {
+      if (typeof restoreLocalMatchState === 'function') restoreLocalMatchState();
       // Restore live match ID if organiser was in the middle of a match
       let savedLiveId = localStorage.getItem("currentLiveMatchId");
       if (savedLiveId) {
